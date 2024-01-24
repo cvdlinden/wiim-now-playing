@@ -2,8 +2,8 @@
 
 - [x] Create repo on Github
 - [ ] Create a solution that will run on a Raspberry Pi with touch screen attached.
-  - [ ] Create node.js app
-  - [ ] Create express server
+  - [x] Create node.js app
+  - [x] Create express server
   - [ ] Create SSDP discovery
   - [ ] Create UPNP client
   - [ ] Create Socket.IO

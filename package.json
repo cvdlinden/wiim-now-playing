@@ -1,0 +1,19 @@
+{
+  "name": "wiim-now-playing",
+  "version": "0.1",
+  "description": "Show what the Wiim device is currently playing on a separate screen.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.18.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.3"
+  }
+}
