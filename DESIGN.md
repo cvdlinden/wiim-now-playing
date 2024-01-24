@@ -13,6 +13,6 @@
 ## Other work/Examples/Inspiration
 
 - https://github.com/chrishuangcf/wiim-mini-ui  
-  This project has all the checkmarks, but it doesn't build on my machine.
-- https://github.com/sonydevworld/audio_control_api_examples/tree/master
+  This project has all the checkmarks, but it doesn't build on my machine. I.e. this is the main influence for this project.
+- https://github.com/sonydevworld/audio_control_api_examples/tree/master  
   To read. Examples of talking to Sony equipment?
