@@ -36,16 +36,14 @@ app.get('/', function (req, res) {
 
     // Handle cookies in order to store client settings
     cookies.Name = lib.getCookieVal(req, "Name");
-    if (cookies.Name === null) {
+    if (cookies.Name === null || cookies.Name === "") {
         cookies.Name = lib.setCookieVal(res, "Name", "wiim-now-playing")
     };
     cookies.RendererUri = lib.getCookieVal(req, "RendererUri");
-    if (cookies.RendererUri === null) {
-        // TODO
-        // The client hasn't selected a MediaRender yet.
-        // Select the first, or the one that is already selected?
-        // cookies.RendererUri = lib.setCookieVal(res, "RendererUri", selRendererUri)
-        cookies.RendererUri = lib.setCookieVal(res, "RendererUri", "")
+    if (cookies.RendererUri === null || cookies.RendererUri === "") {
+        // The client hasn't selected a MediaRenderer yet.
+        // Selecting the first one found. (May want to change to Wiim specific.)
+        cookies.RendererUri = lib.setCookieVal(res, "RendererUri", devices[0].LOCATION)
     };
     // lib.clearCookies(req, res, cookies);
 
