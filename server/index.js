@@ -5,21 +5,31 @@ const app = express();
 // const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser"); // Used for remembering settings on the client
 
-// Other modules
+// Node.js modules
 const http = require("http");
 const https = require("https");
-const lib = require("./lib.js"); // Custom lib for server functionality
+
+// Other modules
+const ssdp = require("./lib/ssdp.js"); // Lib for SSDP functionality
+const lib = require("./lib/lib.js"); // Lib for custom functionality
 const log = require("debug")("index"); // See README.md on debugging
 
 const server = http.createServer(app);
 
+// ===========================================================================
 // App variables
 var cookies = {}
 
+// ===========================================================================
+// SSDP scan for devices initialisation
+var devices = [];
+ssdp.scan(devices);
+
+// ===========================================================================
 // Set Express functionality
 // app.use(bodyParser.urlencoded({ extended: true }));
 // app.use(bodyParser.json());
-app.use(cookieParser())
+app.use(cookieParser());
 
 // Set Exress Routing
 app.get('/', function (req, res) {
@@ -43,9 +53,13 @@ app.get('/', function (req, res) {
     var html = "<h1>Hello World!</h1>";
     html += "<div>" + lib.getResult("How are you?", "Doing") + "</div>";
     html += "<div>" + lib.getDate() + "</div>";
+    html += "<div>Device locations: " + JSON.stringify(devices.map(a => a.LOCATION)) + "</div>";
+    html += "<div>Devics: " + JSON.stringify(devices) + "</div>";
     res.send(html);
 
-})
+    // ssdp.rescan(devices); // rescan for devices
+
+});
 
 // Start the webserver and listen for traffic
 server.listen(8080, () => {

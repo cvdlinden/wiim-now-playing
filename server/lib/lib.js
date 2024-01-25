@@ -1,6 +1,11 @@
-// Library for the server module
-const log = require("debug")("lib");
+// Custom functionality module
+// ===========================================================================
+// Contains generic functions to aid the server app
 
+// Other modules
+const log = require("debug")("lib:lib");
+
+// Exports
 module.exports = {
 
     getResult: (req) => { // Sample
