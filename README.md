@@ -5,8 +5,8 @@ Show what the Wiim device is currently playing on a separate screen.
 
 ## Also see
 
-- [PLAN.md](PLAN.md)
-- [DESIGN.md](DESIGN.md)
+- [PLAN.md](docs/PLAN.md)
+- [DESIGN.md](docs/DESIGN.md)
 
 ## First time
 
