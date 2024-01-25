@@ -1,6 +1,8 @@
-// SSDP functionality module
 // ===========================================================================
-// Use scanSSDP() to start scanning for devices.
+// ssdp.js
+//
+// SSDP functionality module
+// Use scan() to start scanning for devices.
 // The processes are asynchronous, so wait for results to come in.
 
 // Use SSDP module
@@ -51,8 +53,9 @@ module.exports = {
                                         ...respSSDP,
                                         ...result.root.device[0]
                                     });
+                                    // log("devices", devices);
+                                    log("Devices", devices.map(d => ([ d.friendlyName[0], d.manufacturer[0], d.modelName[0], d.LOCATION ])));
                                     log("Devices found:", devices.length);
-                                    log("devices", devices);
 
                                 };
                             });
