@@ -8,11 +8,6 @@ const log = require("debug")("lib:lib");
 // Exports
 module.exports = {
 
-    getResult: (req) => { // Sample
-        log("getResult", req)
-        return req + " OK";
-    },
-
     getDate: () => { // Sample
         log("getDate")
         var date = new Date();

@@ -51,10 +51,9 @@ app.get('/', function (req, res) {
 
     log("Loading homepage");
     var html = "<h1>Hello World!</h1>";
-    html += "<div>" + lib.getResult("How are you?", "Doing") + "</div>";
-    html += "<div>" + lib.getDate() + "</div>";
-    html += "<div>Device locations: " + JSON.stringify(devices.map(a => a.LOCATION)) + "</div>";
-    html += "<div>Devics: " + JSON.stringify(devices) + "</div>";
+    html += "<div>Now = " + lib.getDate() + "</div>";
+    html += "<div>Device locations = " + JSON.stringify(devices.map(a => a.LOCATION)) + "</div>";
+    html += "<div>Devices = " + JSON.stringify(devices) + "</div>";
     res.send(html);
 
     // ssdp.rescan(devices); // rescan for devices
