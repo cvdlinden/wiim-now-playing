@@ -1,0 +1,52 @@
+getDeviceDescription STR-DN1080 1A97BB
+Action: GetMediaInfo
+Action: GetTransportInfo
+Action: GetPositionInfo
+Action: GetDeviceCapabilities
+Action: GetTransportSettings
+Action: GetCurrentTransportActions
+GetPositionInfo =  {
+  Track: '1',
+  TrackDuration: '00:00:00',
+  TrackMetaData: '<DIDL-Lite xmlns:dc="http://purl.org/dc/elements/1.1/"\n' +
+    'xmlns="urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/"\n' +
+    'xmlns:upnp="urn:schemas-upnp-org:metadata-1-0/upnp/"\n' +
+    'xmlns:dlna="urn:schemas-dlna-org:metadata-1-0/"\n' +
+    'xmlns:arib="urn:schemas-arib-or-jp:elements-1-0/"\n' +
+    'xmlns:av="urn:schemas-sony-com:av">\n' +
+    '<item id="-1" parentID="-1" restricted="1"><dc:title>TV</dc:title><upnp:class>object.item.audioItem</upnp:class><av:liveType>MUSIC_INPUT</av:liveType></item></DIDL-Lite>\n',
+  TrackURI: 'file://TV',
+  RelTime: '00:00:00',
+  AbsTime: '00:00:00',
+  RelCount: '0',
+  AbsCount: '0'
+}
+GetTransportInfo =  {
+  CurrentTransportState: 'PLAYING',
+  CurrentTransportStatus: 'OK',
+  CurrentSpeed: '1'
+}
+GetTransportSettings =  { PlayMode: 'NORMAL', RecQualityMode: 'NOT_IMPLEMENTED' }
+GetDeviceCapabilities =  {
+  PlayMedia: 'NONE,NETWORK',
+  RecMedia: 'NOT_IMPLEMENTED',
+  RecQualityModes: 'NOT_IMPLEMENTED'
+}
+GetCurrentTransportActions =  { Actions: '' }
+GetMediaInfo =  {
+  NrTracks: '1',
+  MediaDuration: '00:00:00',
+  CurrentURI: 'file://TV',
+  CurrentURIMetaData: '<DIDL-Lite xmlns:dc="http://purl.org/dc/elements/1.1/"\n' +
+    'xmlns="urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/"\n' +
+    'xmlns:upnp="urn:schemas-upnp-org:metadata-1-0/upnp/"\n' +
+    'xmlns:dlna="urn:schemas-dlna-org:metadata-1-0/"\n' +
+    'xmlns:arib="urn:schemas-arib-or-jp:elements-1-0/"\n' +
+    'xmlns:av="urn:schemas-sony-com:av">\n' +
+    '<item id="-1" parentID="-1" restricted="1"><dc:title>TV</dc:title><upnp:class>object.item.audioItem</upnp:class><av:liveType>MUSIC_INPUT</av:liveType></item></DIDL-Lite>\n',
+  NextURI: '',
+  NextURIMetaData: '',
+  PlayMedium: 'UNKNOWN',
+  RecordMedium: 'NOT_IMPLEMENTED',
+  WriteStatus: 'NOT_IMPLEMENTED'
+}

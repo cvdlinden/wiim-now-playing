@@ -1,0 +1,40 @@
+getDeviceDescription KD-65AF8
+Action: GetMediaInfo
+Action: GetTransportInfo
+Action: GetPositionInfo
+Action: GetDeviceCapabilities
+Action: GetTransportSettings
+Action: GetCurrentTransportActions
+GetMediaInfo =  {
+  NrTracks: '0',
+  MediaDuration: '00:00:00',
+  CurrentURI: '',
+  CurrentURIMetaData: '',
+  NextURI: '',
+  NextURIMetaData: '',
+  PlayMedium: 'NONE',
+  RecordMedium: 'NOT_IMPLEMENTED',
+  WriteStatus: 'NOT_IMPLEMENTED'
+}
+GetTransportInfo =  {
+  CurrentTransportState: 'NO_MEDIA_PRESENT',
+  CurrentTransportStatus: 'OK',
+  CurrentSpeed: '1'
+}
+GetTransportSettings =  { PlayMode: 'NORMAL', RecQualityMode: 'NOT_IMPLEMENTED' }
+GetPositionInfo =  {
+  Track: '0',
+  TrackDuration: '00:00:00',
+  TrackMetaData: '',
+  TrackURI: '',
+  RelTime: '0:00:00.000',
+  AbsTime: '0:00:00.000',
+  RelCount: '0',
+  AbsCount: '0'
+}
+GetCurrentTransportActions =  { Actions: 'Play,Stop' }
+GetDeviceCapabilities =  {
+  PlayMedia: 'NONE,NETWORK',
+  RecMedia: 'NOT_IMPLEMENTED',
+  RecQualityModes: 'NOT_IMPLEMENTED'
+}
