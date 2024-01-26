@@ -1,0 +1,40 @@
+getDeviceDescription VolumioTouch-UPnP/AV
+Action: GetMediaInfo
+Action: GetTransportInfo
+Action: GetPositionInfo
+Action: GetDeviceCapabilities
+Action: GetTransportSettings
+Action: GetCurrentTransportActions
+GetPositionInfo =  {
+  Track: '1',
+  TrackDuration: '0:00:00',
+  TrackMetaData: '<?xml version="1.0" encoding="utf-8"?><DIDL-Lite xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:upnp="urn:schemas-upnp-org:metadata-1-0/upnp/" xmlns="urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/" xmlns:dlna="urn:schemas-dlna-org:metadata-1-0/"><item restricted="1" searchable="0"><dc:title></dc:title><orig>mpd</orig><upnp:class>object.item.audioItem.musicTrack</upnp:class><res>http://icecast.omroep.nl/3fm-bb-mp3</res></item></DIDL-Lite>',
+  TrackURI: 'http://icecast.omroep.nl/3fm-bb-mp3',
+  RelTime: '0:00:00',
+  AbsTime: '0:00:00',
+  RelCount: '0',
+  AbsCount: '0'
+}
+GetTransportInfo =  {
+  CurrentTransportState: 'PAUSED_PLAYBACK',
+  CurrentTransportStatus: 'OK',
+  CurrentSpeed: '1'
+}
+GetMediaInfo =  {
+  NrTracks: '1',
+  MediaDuration: '0:00:00',
+  CurrentURI: 'http://icecast.omroep.nl/3fm-bb-mp3',
+  CurrentURIMetaData: '<?xml version="1.0" encoding="utf-8"?><DIDL-Lite xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:upnp="urn:schemas-upnp-org:metadata-1-0/upnp/" xmlns="urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/" xmlns:dlna="urn:schemas-dlna-org:metadata-1-0/"><item restricted="1" searchable="0"><dc:title></dc:title><orig>mpd</orig><upnp:class>object.item.audioItem.musicTrack</upnp:class><res>http://icecast.omroep.nl/3fm-bb-mp3</res></item></DIDL-Lite>',
+  NextURI: '',
+  NextURIMetaData: '',
+  PlayMedium: 'HDD',
+  RecordMedium: 'NOT_IMPLEMENTED',
+  WriteStatus: 'NOT_IMPLEMENTED'
+}
+GetDeviceCapabilities =  {
+  PlayMedia: 'NETWORK,HDD',
+  RecMedia: 'NOT_IMPLEMENTED',
+  RecQualityModes: 'NOT_IMPLEMENTED'
+}
+GetCurrentTransportActions =  { Actions: 'Next,Previous,Play,Stop,Seek' }
+GetTransportSettings =  { PlayMode: 'NORMAL', RecQualityMode: 'NOT_IMPLEMENTED' }

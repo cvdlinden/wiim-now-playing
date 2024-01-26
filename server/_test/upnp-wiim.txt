@@ -1,0 +1,121 @@
+getDeviceDescription Wiim Amp
+Action: GetCurrentTransportActions
+Action: GetDeviceCapabilities
+Action: GetMediaInfo
+Action: GetPositionInfo
+Action: GetTransportInfo
+Action: GetTransportSettings
+Action: GetPlayType
+Action: GetInfoEx
+GetDeviceCapabilities =  {
+  PlayMedia: 'NONE,STATION-NETWORK,SONGLIST-NETWORK,SONGLIST-LOCAL,SONGLIST-LOCAL_TF,THIRD-DLNA,AIRPLAY,UNKNOWN',
+  RecMedia: 'NOT_IMPLEMENTED',
+  RecQualityModes: 'NOT_IMPLEMENTED'
+}
+GetMediaInfo =  {
+  NrTracks: '1',
+  MediaDuration: '00:00:00',
+  CurrentURI: 'http://uyesee.vtuner.com/setupapp/uyesee/asp/func/dynamOD.asp?ex45v=4bf05f4a714f318f0e5ba6bc151594fc&id=38199',
+  CurrentURIMetaData: '<?xml version="1.0"?>\r\n' +
+    '<DIDL-Lite xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:upnp="urn:schemas-upnp-org:metadata-1-0/upnp/" xmlns:song="www.linkplay.com/song/" xmlns:custom="www.linkplay.com/custom/" xmlns="urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/">\r\n' +
+    '<upnp:class>object.item.audioItem.musicTrack</upnp:class>\r\n' +
+    '<item>\r\n' +
+    '<song:id>38199</song:id>\r\n' +
+    '<song:albumid></song:albumid>\r\n' +
+    '<song:singerid></song:singerid>\r\n' +
+    '<dc:title>POM - RUN</dc:title>\r\n' +
+    '<upnp:artist>vTuner</upnp:artist>\r\n' +
+    '<upnp:album>vTuner</upnp:album>\r\n' +
+    '<res protocolInfo="http-get:*:audio/mpeg:DLNA.ORG_PN=MP3;DLNA.ORG_OP=01;" duration="0"></res>\r\n' +
+    '<song:rate_hz>48000</song:rate_hz>\r\n' +
+    '<song:format_s>16</song:format_s>\r\n' +
+    '<song:bitrate>192</song:bitrate>\r\n' +
+    '</item>\r\n' +
+    '</DIDL-Lite>\r\n',
+  NextURI: '',
+  NextURIMetaData: '',
+  TrackSource: 'vTuner',
+  PlayMedium: 'RADIO-NETWORK',
+  RecordMedium: 'NOT_IMPLEMENTED',
+  WriteStatus: 'NOT_IMPLEMENTED'
+}
+GetPositionInfo =  {
+  Track: '1',
+  TrackDuration: '00:00:00',
+  TrackMetaData: '<?xml version="1.0"?>\r\n' +
+    '<DIDL-Lite xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:upnp="urn:schemas-upnp-org:metadata-1-0/upnp/" xmlns:song="www.linkplay.com/song/" xmlns:custom="www.linkplay.com/custom/" xmlns="urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/">\r\n' +
+    '<upnp:class>object.item.audioItem.musicTrack</upnp:class>\r\n' +
+    '<item>\r\n' +
+    '<song:id>38199</song:id>\r\n' +
+    '<song:albumid></song:albumid>\r\n' +
+    '<song:singerid></song:singerid>\r\n' +
+    '<dc:title>POM - RUN</dc:title>\r\n' +
+    '<upnp:artist>vTuner</upnp:artist>\r\n' +
+    '<upnp:album>vTuner</upnp:album>\r\n' +
+    '<res protocolInfo="http-get:*:audio/mpeg:DLNA.ORG_PN=MP3;DLNA.ORG_OP=01;" duration="0"></res>\r\n' +
+    '<song:rate_hz>48000</song:rate_hz>\r\n' +
+    '<song:format_s>16</song:format_s>\r\n' +
+    '<song:bitrate>192</song:bitrate>\r\n' +
+    '</item>\r\n' +
+    '</DIDL-Lite>\r\n',
+  TrackURI: 'http://uyesee.vtuner.com/setupapp/uyesee/asp/func/dynamOD.asp?ex45v=4bf05f4a714f318f0e5ba6bc151594fc&id=38199',
+  RelTime: '00:00:00',
+  AbsTime: 'NOT_IMPLEMENTED',
+  RelCount: '2147483647',
+  AbsCount: '2147483647'
+}
+GetCurrentTransportActions =  { Actions: 'Play' }
+GetTransportInfo =  {
+  CurrentTransportState: 'STOPPED',
+  CurrentTransportStatus: 'OK',
+  CurrentSpeed: '1'
+}
+GetTransportSettings =  { PlayMode: 'NORMAL', RecQualityMode: 'NOT_IMPLEMENTED' }
+GetPlayType =  { PlayType: '10' }
+GetInfoEx =  {
+  CurrentTransportState: 'STOPPED',
+  CurrentTransportStatus: 'OK',
+  CurrentSpeed: '1',
+  Track: '1',
+  TrackDuration: '00:00:00',
+  TrackMetaData: '<?xml version="1.0"?>\r\n' +
+    '<DIDL-Lite xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:upnp="urn:schemas-upnp-org:metadata-1-0/upnp/" xmlns:song="www.linkplay.com/song/" xmlns:custom="www.linkplay.com/custom/" xmlns="urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/">\r\n' +
+    '<upnp:class>object.item.audioItem.musicTrack</upnp:class>\r\n' +
+    '<item>\r\n' +
+    '<song:id>38199</song:id>\r\n' +
+    '<song:albumid></song:albumid>\r\n' +
+    '<song:singerid></song:singerid>\r\n' +
+    '<dc:title>POM - RUN</dc:title>\r\n' +
+    '<upnp:artist>vTuner</upnp:artist>\r\n' +
+    '<upnp:album>vTuner</upnp:album>\r\n' +
+    '<res protocolInfo="http-get:*:audio/mpeg:DLNA.ORG_PN=MP3;DLNA.ORG_OP=01;" duration="0"></res>\r\n' +
+    '<song:rate_hz>48000</song:rate_hz>\r\n' +
+    '<song:format_s>16</song:format_s>\r\n' +
+    '<song:bitrate>192</song:bitrate>\r\n' +
+    '</item>\r\n' +
+    '</DIDL-Lite>\r\n',
+  TrackURI: 'http://uyesee.vtuner.com/setupapp/uyesee/asp/func/dynamOD.asp?ex45v=4bf05f4a714f318f0e5ba6bc151594fc&id=38199',
+  RelTime: '00:00:00',
+  AbsTime: 'NOT_IMPLEMENTED',
+  RelCount: '2147483647',
+  AbsCount: '2147483647',
+  LoopMode: '4',
+  PlayType: '10',
+  CurrentVolume: '17',
+  CurrentMute: '0',
+  CurrentChannel: '0',
+  SlaveFlag: '0',
+  MasterUUID: '',
+  SlaveList: '{ "slaves": 0, "wmrm_version": "4.2" }',
+  PlayMedium: 'RADIO-NETWORK',
+  TrackSource: 'vTuner',
+  InternetAccess: '1',
+  VerUpdateFlag: '0',
+  VerUpdateStatus: '20',
+  BatteryFlag: '0',
+  BatteryPercent: '0',
+  AlarmFlag: '0',
+  TimeStamp: '31113054',
+  SubNum: '0',
+  SpotifyActive: '0'
+}

@@ -15,6 +15,7 @@ const server = http.createServer(app);
 const ssdp = require("./lib/ssdp.js"); // Lib for SSDP functionality
 const lib = require("./lib/lib.js"); // Lib for custom functionality
 const cookies = require("./lib/cookies.js"); // Lib for cookies functionality
+// const upnp = require("./lib/_upnp.js"); // Lib for UPNP Client functionality
 const log = require("debug")("index"); // See README.md on debugging
 
 // ===========================================================================
@@ -50,12 +51,21 @@ app.get('/', function (req, res) {
     };
     log("userCookies", userCookies);
 
+    // // Get UPNP info (=async)
+    // var upnpClient = upnp.createClient(userCookies.RendererUri);
+    // var rendererActions = upnp.getServiceDescription(upnpClient);
+    // var rendererInfo = upnp.callAction(upnpClient, "GetInfoEx");
+
     log("Loading homepage...");
     var html = "<h1>Hello World!</h1>";
-    html += "<div>Now = " + lib.getDate() + "</div>";
-    html += "<div>Device locations = " + JSON.stringify(devices.map(a => a.LOCATION)) + "</div>";
-    html += "<div>Devices = " + JSON.stringify(devices) + "</div>";
+    html += "<div><strong>Now:</strong> <code>" + lib.getDate() + "</samp></code>";
+    html += "<div><strong>Device locations:</strong> <code>" + JSON.stringify(devices.map(a => a.LOCATION)) + "</code></div>";
+    html += "<div><strong>Devices:</strong> <code>" + JSON.stringify(devices.map(d => ([ d.friendlyName[0], d.manufacturer[0], d.modelName[0], d.LOCATION ]))) + "</code></div>";
+    html += "<div><strong>Selected device:</strong> <code>" + userCookies.RendererUri + "</code></div>";
+    // html += "<div><strong>Renderer actions:</strong> <code>" + rendererActions + "</code></div>";
+    // html += "<div><strong>Renderer info:</strong> <code>" + rendererInfo + "</code></div>";
     res.send(html);
+    log("Homepage sent");
 
     // ssdp.rescan(devices); // rescan for devices
 
