@@ -49,7 +49,13 @@ module.exports = {
         }
         else {
             log("Returning all found cookies");
-            return req.cookies;
+            var tempCookies = req.cookies;
+            Object.keys(tempCookies).forEach((name) => {
+                if (tempCookies[name] === "") {
+                    tempCookies[name] = null;
+                };
+            });
+            return tempCookies;
         };
     },
 

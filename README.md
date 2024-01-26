@@ -8,6 +8,7 @@ Show what the Wiim device is currently playing on a separate screen.
 
 - [PLAN.md](docs/PLAN.md)
 - [DESIGN.md](docs/DESIGN.md)
+- [RPISETUP.md](docs/RPISETUP.md)
 
 ## First time
 
