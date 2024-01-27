@@ -114,7 +114,7 @@ app.get('/debug', function (req, res) {
     // };
     if (userCookies.RendererUri == null) {
         // Selecting the first device found. Only valid on first startup. See above...
-        cookies.set(res, userCookies, "RendererUri", devices[0].LOCATION);
+        cookies.set(res, userCookies, "RendererUri", devices.location);
     };
     log("userCookies", userCookies);
 
@@ -126,8 +126,8 @@ app.get('/debug', function (req, res) {
     log("Loading homepage...");
     var html = "<h1>Hello World!</h1>";
     html += "<div><strong>Now:</strong> <code>" + lib.getDate() + "</samp></code>";
-    html += "<div><strong>Device locations:</strong> <code>" + JSON.stringify(devices.map(a => a.LOCATION)) + "</code></div>";
-    html += "<div><strong>Devices:</strong> <code>" + JSON.stringify(devices.map(d => ([d.friendlyName[0], d.manufacturer[0], d.modelName[0], d.LOCATION]))) + "</code></div>";
+    html += "<div><strong>Device locations:</strong> <code>" + JSON.stringify(devices.map(a => a.location)) + "</code></div>";
+    html += "<div><strong>Devices:</strong> <code>" + JSON.stringify(devices.map(d => ([d.friendlyName, d.manufacturer, d.modelName, d.location]))) + "</code></div>";
     html += "<div><strong>User selected device:</strong> <code>" + userCookies.RendererUri + "</code></div>";
     // html += "<div><strong>Renderer actions:</strong> <code>" + rendererActions + "</code></div>";
     // html += "<div><strong>Renderer info:</strong> <code>" + rendererInfo + "</code></div>";

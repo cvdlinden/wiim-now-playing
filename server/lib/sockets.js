@@ -47,10 +47,10 @@ module.exports = {
     getDevices: (io, devices) => {
         log("Device list requested.");
         devicesList = devices.map(d => ({
-            "friendlyName": d.friendlyName[0],
-            "manufacturer": d.manufacturer[0],
-            "modelName": d.modelName[0],
-            "location": d.LOCATION
+            "friendlyName": d.friendlyName,
+            "manufacturer": d.manufacturer,
+            "modelName": d.modelName,
+            "location": d.location
         }));
         io.emit("devices-get", devicesList);
     },
