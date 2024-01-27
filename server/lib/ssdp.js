@@ -23,7 +23,6 @@ module.exports = {
 
         // Event listener on responses from device discovery
         ssdpClient.on("response", (respSSDP, code, rinfo) => {
-            // if (resp.ST.indexOf("urn:schemas-upnp-org:device:MediaRenderer") >= 0) {
             log("response", respSSDP);
 
             // Check the device properties by fetching the device XML description
@@ -66,7 +65,6 @@ module.exports = {
                     log("There is an issue with the HTTP request: " + e);
                 });
 
-            // };
         });
 
         // Start a search

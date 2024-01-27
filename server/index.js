@@ -11,6 +11,10 @@ const http = require("http");
 const https = require("https");
 const server = http.createServer(app);
 
+// Socket.io modules
+const { Server } = require("socket.io");
+const io = new Server(server);
+
 // Other modules
 const ssdp = require("./lib/ssdp.js"); // Lib for SSDP functionality
 const lib = require("./lib/lib.js"); // Lib for custom functionality
@@ -30,9 +34,19 @@ ssdp.scan(devices);
 // ===========================================================================
 // Set Express functionality
 app.use(cookieParser());
+app.use(express.static(__dirname + "/public"));
 
-// Set Exress Routing
-app.get('/', function (req, res) {
+// ===========================================================================
+// Socket.io functionality
+io.on("connection", (socket) => {
+
+    log("client connected");
+
+});
+
+// ===========================================================================
+// Set Express Routing (should be removed and served from static)
+app.get('/debug', function (req, res) {
 
     // Handle cookies in order to use/store persistent client settings
     // Expected behaviour:
@@ -60,7 +74,7 @@ app.get('/', function (req, res) {
     var html = "<h1>Hello World!</h1>";
     html += "<div><strong>Now:</strong> <code>" + lib.getDate() + "</samp></code>";
     html += "<div><strong>Device locations:</strong> <code>" + JSON.stringify(devices.map(a => a.LOCATION)) + "</code></div>";
-    html += "<div><strong>Devices:</strong> <code>" + JSON.stringify(devices.map(d => ([ d.friendlyName[0], d.manufacturer[0], d.modelName[0], d.LOCATION ]))) + "</code></div>";
+    html += "<div><strong>Devices:</strong> <code>" + JSON.stringify(devices.map(d => ([d.friendlyName[0], d.manufacturer[0], d.modelName[0], d.LOCATION]))) + "</code></div>";
     html += "<div><strong>Selected device:</strong> <code>" + userCookies.RendererUri + "</code></div>";
     // html += "<div><strong>Renderer actions:</strong> <code>" + rendererActions + "</code></div>";
     // html += "<div><strong>Renderer info:</strong> <code>" + rendererInfo + "</code></div>";
