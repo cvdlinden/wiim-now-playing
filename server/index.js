@@ -1,7 +1,9 @@
 // ===========================================================================
 // index.js
+//
+// The server to handle communication between the selected media renderer and the ui client(s)
 
-// Use Express module
+// Express modules
 const express = require("express");
 const app = express();
 const cookieParser = require("cookie-parser"); // Used for remembering settings on the client
@@ -15,20 +17,35 @@ const server = http.createServer(app);
 const { Server } = require("socket.io");
 const io = new Server(server);
 
-// Other modules
-const ssdp = require("./lib/ssdp.js"); // Lib for SSDP functionality
-const lib = require("./lib/lib.js"); // Lib for custom functionality
-const cookies = require("./lib/cookies.js"); // Lib for cookies functionality
-// const upnp = require("./lib/_upnp.js"); // Lib for UPNP Client functionality
+// Other (custom) modules
+const ssdp = require("./lib/ssdp.js"); // SSDP functionality
+const cookies = require("./lib/cookies.js"); // Cookies functionality (need to rebuild for socket.io)
+// const upnp = require("./lib/_upnp.js"); // UPNP Client functionality
+const sockets = require("./lib/sockets.js"); // Sockets.io functionality
+const lib = require("./lib/lib.js"); // Generic functionality
 const log = require("debug")("index"); // See README.md on debugging
 
 // ===========================================================================
 // App variables
-// ...
+var devices = []; // Placeholder for found devices through SSDP
+var streamState = null; // Interval for current state of device
+var streamMetadata = null; // Interval for current medio metadata from device
+var deviceState = { // Placeholder for current device state
+    state: lib.getDate()
+};
+var deviceMetadata = { // Placeholder for current device metadata
+    "dc:title": "Foo",
+    "artist": "Bar",
+    "modes": [2, 4, 8, 16, 32, 64, 128, 256]
+}
+
+// TEMP UPDATE OF STATE (change value every 5 seconds, should come from device UPNP state)
+setInterval(() => {
+    deviceState.state = lib.getDate();
+}, 5000);
 
 // ===========================================================================
-// SSDP scan for devices initialisation
-var devices = [];
+// Initial SSDP scan for devices
 ssdp.scan(devices);
 
 // ===========================================================================
@@ -38,9 +55,45 @@ app.use(express.static(__dirname + "/public"));
 
 // ===========================================================================
 // Socket.io functionality
-io.on("connection", (socket) => {
+// called for each HTTP request (including the WebSocket upgrade)
 
-    log("client connected");
+io.on("connection", (socket) => {
+    log("Client connected");
+
+    // On connection check if this is the first client to connect.
+    // If so, start streaming to the device(s)
+    log("No. of sockets:", io.sockets.sockets.size);
+    if (io.sockets.sockets.size === 1) {
+        streamState = sockets.startState(io, deviceState);
+        streamMetadata = sockets.startMetadata(io, deviceMetadata)
+    }
+
+    // On disconnect
+    socket.on("disconnect", () => {
+        log('Client disconnected');
+
+        // On disconnection we check the amount of connected clients.
+        // If there is none, the streaming is stopped
+        log("No. of sockets:", io.sockets.sockets.size);
+        if (io.sockets.sockets.size === 0) {
+            log("No sockets are connected!");
+            streamState = sockets.stopState(streamState);
+            streamMetadata = sockets.stopMetadata(streamMetadata);
+        }
+
+    });
+
+    // On devices get
+    socket.on("devices-get", () => {
+        log("Socket event", "devices-get");
+        sockets.getDevices(io, devices);
+    });
+
+    // On devices refresh
+    socket.on("devices-refresh", () => {
+        log("Socket event", "devices-refresh...");
+        sockets.scanDevices(io, ssdp, devices);
+    });
 
 });
 
@@ -75,13 +128,11 @@ app.get('/debug', function (req, res) {
     html += "<div><strong>Now:</strong> <code>" + lib.getDate() + "</samp></code>";
     html += "<div><strong>Device locations:</strong> <code>" + JSON.stringify(devices.map(a => a.LOCATION)) + "</code></div>";
     html += "<div><strong>Devices:</strong> <code>" + JSON.stringify(devices.map(d => ([d.friendlyName[0], d.manufacturer[0], d.modelName[0], d.LOCATION]))) + "</code></div>";
-    html += "<div><strong>Selected device:</strong> <code>" + userCookies.RendererUri + "</code></div>";
+    html += "<div><strong>User selected device:</strong> <code>" + userCookies.RendererUri + "</code></div>";
     // html += "<div><strong>Renderer actions:</strong> <code>" + rendererActions + "</code></div>";
     // html += "<div><strong>Renderer info:</strong> <code>" + rendererInfo + "</code></div>";
     res.send(html);
     log("Homepage sent");
-
-    // ssdp.rescan(devices); // rescan for devices
 
 });
 

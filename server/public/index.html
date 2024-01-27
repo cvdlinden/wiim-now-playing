@@ -7,11 +7,62 @@
 
 <body>
 
-    <h1>Hello world!!!</h1>
+    <h1>Wiim Now Playing (DEV)</h1>
+
+    <p>State (dummy): <span id="state">...</span></p>
+
+    <p>Currently available devices:</p>
+    <ul id="devices">
+        <li><em>...</em></li>
+    </ul>
+    <div><button id="btnDevices">Get devices</button><button id="btnRefresh">Refresh devices</button></div>
+
+    <p>Metadata:</p>
+    <textarea id="metadata" cols="80" rows="6"></textarea>
 
     <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
     <script>
         var socket = io();
+
+        // DEBUG
+        // var state = document.getElementById("state");
+        // var btn = document.getElementById("btn");
+
+        socket.on("state", function (msg) {
+            state.innerHTML = msg.state;
+        });
+
+        socket.on("metadata", function (msg) {
+            metadata.innerHTML = JSON.stringify(msg);
+        });
+
+        socket.on("devices-get", function (msg) {
+            devices.innerHTML = "";
+            msg.forEach(device => {
+                var item = document.createElement('li');
+                item.innerHTML = device.friendlyName;
+                devices.appendChild(item);
+            });
+        });
+        setTimeout(() => {
+            socket.emit("devices-get");
+        }, 500);
+
+        socket.on("devices-refresh", function (msg) {
+            devices.innerHTML = "<li><em>" + msg + "</em></li>";
+        });
+
+        btnDevices.addEventListener("click", function () {
+            socket.emit("devices-get");
+        });
+
+        btnRefresh.addEventListener("click", function () {
+            socket.emit("devices-refresh");
+            setTimeout(() => {
+                socket.emit("devices-get");
+            }, 5000);
+        });
+
     </script>
 
 </body>

@@ -19,7 +19,7 @@ module.exports = {
 
     // Starts a scan for devices and handles the reponse by returning the result to the devices array.
     scan: (devices) => {
-        log("scanning...");
+        log("Scanning for devices with SSDP...");
 
         // Event listener on responses from device discovery
         ssdpClient.on("response", (respSSDP, code, rinfo) => {
@@ -77,7 +77,7 @@ module.exports = {
     // Rescan for devices, clear devices list and search again.
     // Don't call this function within short intervals as it may lead to an erratic device list.
     rescan: (devices) => {
-        log("rescan");
+        log("Starting a rescan for devices...");
         devices.length = 0;
         // ssdpClient.search("urn:schemas-upnp-org:device:MediaRenderer"); // Search for MediaRenderer devices
         ssdpClient.search("urn:schemas-upnp-org:service:AVTransport:1"); // Search for AVTransport enabled devices
