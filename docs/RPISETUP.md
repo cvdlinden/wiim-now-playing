@@ -22,3 +22,12 @@ Node.js on Raspberry Pi OS (Bullseye):
   > sudo apt-get install libcap2-bin 
   > sudo setcap cap_net_bind_service=+ep `readlink -f \`which node\``
   ```
+
+??? Use crontab to auto-start node?
+
+```shell
+> sudo crontab -e
+
+# Start node on (re)boot
+> @reboot sudo /usr/bin/node /home/pi/www/index.js &
+```
