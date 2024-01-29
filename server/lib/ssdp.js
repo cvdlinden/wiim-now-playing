@@ -26,6 +26,15 @@ module.exports = {
         ssdpClient.on("response", (respSSDP, code, rinfo) => {
             log("Fetching:", respSSDP.LOCATION);
 
+            if (devices.some((d) => { return d.location === respSSDP.LOCATION})) {
+                log("Device already found");
+                // No need to add this device
+            }
+            else {
+                log("New device found");
+                // Add device...
+            }
+
             // Check the device description
             var client = upnp.createClient(respSSDP.LOCATION);
             client.getDeviceDescription(function (err, deviceDesc) {
