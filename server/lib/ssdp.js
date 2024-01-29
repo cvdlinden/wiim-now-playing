@@ -26,37 +26,36 @@ module.exports = {
         ssdpClient.on("response", (respSSDP, code, rinfo) => {
             log("Fetching:", respSSDP.LOCATION);
 
-            if (devices.some((d) => { return d.location === respSSDP.LOCATION})) {
-                log("Device already found");
+            if (devices.some((d) => { return d.location === respSSDP.LOCATION })) {
+                log("Device already found!");
                 // No need to add this device
             }
             else {
-                log("New device found");
-                // Add device...
-            }
+                log("New device found. Get the device description...");
+                // Check the device description
+                var client = upnp.createClient(respSSDP.LOCATION);
+                client.getDeviceDescription(function (err, deviceDesc) {
+                    if (err) { log("Error", err); }
+                    else {
 
-            // Check the device description
-            var client = upnp.createClient(respSSDP.LOCATION);
-            client.getDeviceDescription(function (err, deviceDesc) {
-                if (err) { log("Error", err); }
-                else {
+                        // Get the device's AVTransport service description
+                        client.getServiceDescription('AVTransport', function (err, serviceDesc) {
+                            if (err) { log("Error", err); }
+                            else {
+                                devices.push({
+                                    location: respSSDP.LOCATION,
+                                    ...deviceDesc,
+                                    AVTransport: serviceDesc.actions,
+                                    ssdp: respSSDP
+                                });
+                                log("Devices found:", devices.length, devices.map(d => ([d.friendlyName, d.manufacturer, d.modelName, d.location])));
+                            };
+                        });
 
-                    // Get the device's AVTransport service description
-                    client.getServiceDescription('AVTransport', function (err, serviceDesc) {
-                        if (err) { log("Error", err); }
-                        else {
-                            devices.push({
-                                location: respSSDP.LOCATION,
-                                ...deviceDesc,
-                                AVTransport: serviceDesc.actions,
-                                ssdp: respSSDP
-                            });
-                            log("Devices found:", devices.length, devices.map(d => ([d.friendlyName, d.manufacturer, d.modelName, d.location])));
-                        };
-                    });
+                    };
+                });
 
-                };
-            });
+            };
 
         });
 
