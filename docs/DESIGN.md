@@ -14,6 +14,7 @@
   See <https://expressjs.com/en/advanced/best-practice-performance.html#do-logging-correctly>
 - PM2?: A process manager to handle automatic (re)starts of the application  
   See <https://expressjs.com/en/advanced/best-practice-performance.html#ensure-your-app-automatically-restarts>
+- Add a virtual keyboard? <https://github.com/Mottie/Keyboard>
 
 ## Other work/Examples/Inspiration
 

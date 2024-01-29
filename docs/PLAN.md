@@ -10,6 +10,7 @@
   - [ ] Create Socket.IO to have realtime updates with client
   - [ ] Create basic webpage and test functionality
   - [ ] Create app to talk to server and show/handle info dynamically
+  - [ ] Add a virtual keyboard to the client for touchscreen?
   - [ ] Create ...
 
 - [ ] Solution will run on multiple enviroments, i.e. windows using a desktop browser and Raspberry Pi.
