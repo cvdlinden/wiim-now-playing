@@ -12,7 +12,7 @@ const ssdpClient = new SSDP({ explicitSocketBind: true });
 // Other modules
 // const http = require("http");
 // const xml2js = require("xml2js");
-const upnp = require("./_upnp.js"); // UPNP Client functionality
+const upnp = require("./upnpClient.js"); // UPNP Client functionality
 const log = require("debug")("lib:ssdp");
 
 // Exports

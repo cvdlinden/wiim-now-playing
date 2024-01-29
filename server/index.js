@@ -20,7 +20,7 @@ const io = new Server(server);
 // Other (custom) modules
 const ssdp = require("./lib/ssdp.js"); // SSDP functionality
 const cookies = require("./lib/cookies.js"); // Cookies functionality (need to rebuild for socket.io)
-// const upnp = require("./lib/_upnp.js"); // UPNP Client functionality
+// const upnp = require("./lib/upnpClient.js"); // UPNP Client functionality
 const sockets = require("./lib/sockets.js"); // Sockets.io functionality
 const lib = require("./lib/lib.js"); // Generic functionality
 const log = require("debug")("index"); // See README.md on debugging
