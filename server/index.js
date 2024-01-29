@@ -27,6 +27,7 @@ const log = require("debug")("index"); // See README.md on debugging
 
 // ===========================================================================
 // App variables
+const port = 80;
 var devices = []; // Placeholder for found devices through SSDP
 var streamState = null; // Interval for current state of device
 var streamMetadata = null; // Interval for current medio metadata from device
@@ -137,6 +138,6 @@ app.get('/debug', function (req, res) {
 });
 
 // Start the webserver and listen for traffic
-server.listen(8080, () => {
+server.listen(port, () => {
     console.log("Web Server started at http://localhost:%s", server.address().port);
 });
