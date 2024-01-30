@@ -2,15 +2,15 @@
 
 Show what the Wiim device is currently playing on a separate screen.
 
-... in design phase
+> in design/dev phase
 
 ## Also see
 
-- [PLAN.md](docs/PLAN.md)
-- [DESIGN.md](docs/DESIGN.md)
-- [RPISETUP.md](docs/RPISETUP.md)
+- [Plan](docs/PLAN.md)
+- [Design](docs/DESIGN.md)
+- [Raspberry Pi Setup](docs/RPISETUP.md)
 
-## First time
+## First time use
 
 Use ``npm install`` to get all required packages after a fresh clone.
 
@@ -24,10 +24,9 @@ Debugging in Windows:
 
 - In PowerShell use ``$env:DEBUG = "*"`` or ``$env:DEBUG = "*,-nodemon*"`` before starting ``nodemon`` to see all debugging information.
 - In CMD use ``set DEBUG=*`` before starting ``nodemon`` to see all debugging information.
+- In Shell/Bash use ``DEBUG="*" node server/index.js``.
 - In order to stop debugging information change to ``DEBUG=""``.
 - Use ``DEBUG="*,-nodemon*"`` to include all but nodemon module debug info.  
   Or use ``DEBUG="index"`` to only show debug info from the specific index.js module.
 
 [Read more](https://www.npmjs.com/package/debug#windows-command-prompt-notes)
-
-Debugging on Linux and Mac is different. Use ``DEBUG=* node ./index.js`` on the same command line.
