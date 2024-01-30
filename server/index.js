@@ -85,6 +85,9 @@ io.on("connection", (socket) => {
 
     });
 
+    // ======================================
+    // Devices related
+
     // On devices get
     socket.on("devices-get", () => {
         log("Socket event", "devices-get");
@@ -97,14 +100,23 @@ io.on("connection", (socket) => {
         sockets.scanDevices(io, ssdp, devices);
     });
 
-    // On device reboot
+    // ======================================
+    // Server related
+
+    // On server info
+    socket.on("server-info", () => {
+        log("Socket event", "server-info");
+        io.emit("server-info", lib.getServerInfo());
+    });
+
+    // On server reboot
     socket.on("server-reboot", () => {
         log("Socket event", "server-reboot");
         io.emit("server-reboot");
         shell.reboot();
     });
 
-    // On device reboot
+    // On server reboot
     socket.on("server-shutdown", () => {
         log("Socket event", "server-shutdown");
         io.emit("server-shutdown");

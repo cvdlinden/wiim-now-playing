@@ -14,6 +14,17 @@ module.exports = {
         log("getDate")
         var date = new Date();
         return date.toUTCString();
+    },
+
+    getServerInfo: () => {
+        var info = {
+            "selectedDevice": {
+                "location": "",
+                "friendlyName": ""
+            },
+            "isPi": false
+        }
+        return info;
     }
 
 };

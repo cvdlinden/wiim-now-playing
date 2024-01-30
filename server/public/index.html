@@ -50,12 +50,14 @@
         // var btn = document.getElementById("btn");
 
         // UI event listeners
+
         btnDevices.addEventListener("click", function () {
             socket.emit("devices-get");
         });
 
         btnRefresh.addEventListener("click", function () {
             socket.emit("devices-refresh");
+            // Wait for discovery to finish
             setTimeout(() => {
                 socket.emit("devices-get");
             }, 5000);
@@ -70,6 +72,13 @@
         });
 
         // Sockets
+
+        // Initial calls, wait a bit for socket to start
+        setTimeout(() => {
+            socket.emit("devices-get");
+            socket.emit("server-info");
+        }, 500);
+
         socket.on("state", function (msg) {
             state.innerHTML = msg.state;
         });
@@ -86,9 +95,6 @@
                 devices.appendChild(item);
             });
         });
-        setTimeout(() => {
-            socket.emit("devices-get");
-        }, 500);
 
         socket.on("devices-refresh", function (msg) {
             devices.innerHTML = "<li><em>" + msg + "</em></li>";
