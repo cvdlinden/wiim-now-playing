@@ -4,7 +4,7 @@
 - Create a solution that will:
   - [x] Create node.js app
   - [x] Create express server
-  - [ ] ~~Use cookies to remember client settings~~
+  - ~~Use cookies to remember client settings~~
   - [ ] Use storage on server to remember app settings
   - [x] Create SSDP discovery to find elligable media renderers
   - [ ] Create UPNP client to talk to media renderers
@@ -14,9 +14,11 @@
   - [ ] Add a virtual keyboard to the client for touchscreen?
   - [ ] Create ...
 
-- [ ] Solution will run on multiple enviroments, i.e. windows using a desktop browser and Raspberry Pi.
-- [ ] Solution will run on a Raspberry Pi with touch screen attached (DSI)
-- [ ] Create a Raspberry Pi with touch screen that loads a browser in kiosk mode, loading the app by default.
-  - Raspberry Pi OS lite?
-  - Screen enable
-  - Run Chrome in kiosk mode
+- [x] Solution will run on multiple enviroments, i.e. windows using a desktop browser and Raspberry Pi OS (Lite).
+- [x] Solution will run on a Raspberry Pi with touch screen attached (DSI)
+- [x] Create a Raspberry Pi with touch screen that loads a browser in kiosk mode, loading the app by default.
+  - Raspberry Pi OS (Bullseye Lite)
+    - Disable screensaver and lock screen
+  - Touchscreen enabled
+  - Autorun Chrome in kiosk mode
+  - Autorun node.js
