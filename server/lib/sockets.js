@@ -64,7 +64,7 @@ module.exports = {
     },
 
     getServerSettings: (io, serverSettings) => {
-        log("Get server settings...");
+        log("Get server settings...", serverSettings);
         io.emit("server-settings", serverSettings);
     }
 

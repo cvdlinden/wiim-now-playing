@@ -6,7 +6,6 @@
 // Express modules
 const express = require("express");
 const app = express();
-// const cookieParser = require("cookie-parser"); // Used for remembering settings on the client
 
 // Node.js modules
 const http = require("http");
@@ -19,7 +18,6 @@ const io = new Server(server);
 
 // Other (custom) modules
 const ssdp = require("./lib/ssdp.js"); // SSDP functionality
-// const cookies = require("./lib/_cookies.js"); // Cookies functionality (need to rebuild for socket.io)
 // const upnp = require("./lib/upnpClient.js"); // UPNP Client functionality
 const sockets = require("./lib/sockets.js"); // Sockets.io functionality
 const shell = require("./lib/shell.js"); // Shell command functionality
@@ -65,7 +63,6 @@ ssdp.scan(devices, serverSettings);
 
 // ===========================================================================
 // Set Express functionality
-// app.use(cookieParser());
 app.use(express.static(__dirname + "/public"));
 
 // ===========================================================================
