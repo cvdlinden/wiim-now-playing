@@ -45,9 +45,7 @@ var serverSettings = { // Placeholder for current server settings
         "modelName": null,
         "location": null,
     },
-    "server": {
-        "isPi": lib.isPi()
-    }
+    "os": lib.getOS()
 }
 
 // TEMP UPDATE OF STATE (change value every 5 seconds, should come from device UPNP state)

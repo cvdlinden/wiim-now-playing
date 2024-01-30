@@ -5,6 +5,7 @@
 // Contains generic functions to aid the server app
 
 // Other modules
+const os = require("os");
 const log = require("debug")("lib:lib");
 
 // Exports
@@ -16,11 +17,17 @@ module.exports = {
         return date.toUTCString();
     },
 
-    isPi: () => {
-        log("isPi?");
-        // Do some checks whether this is running on a Raspberry Pi to be able to run shell commands
-        // Returning false for now...
-        return false;
+    getOS: () => {
+        log("get OS capabilities");
+        return {
+            "arch": os.arch(),
+            "hostname": os.hostname(),
+            "platform": os.platform(),
+            "release": os.release(),
+            "userInfo": os.userInfo(),
+            "version": os.version(),
+            "machine": os.machine()
+        };
     }
 
 };
