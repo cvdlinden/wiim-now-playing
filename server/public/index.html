@@ -108,7 +108,7 @@
             serverSettings.innerHTML = JSON.stringify(msg);
             if(msg.os.userInfo.shell === "/bin/bash") { // RPi has bash, so possibly able to reboot/shutdown.
                 btnReboot.disabled = false;
-                btnShutdown.disabled = true;
+                btnShutdown.disabled = false;
             };
         });
 
