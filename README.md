@@ -6,9 +6,9 @@ Show what the Wiim device is currently playing on a separate screen.
 
 ## Also see
 
-- [Plan](docs/PLAN.md)
-- [Design](docs/DESIGN.md)
-- [Raspberry Pi Setup](docs/RPISETUP.md)
+- [Plan](docs/Plan.md)
+- [Design](docs/Design.md)
+- [Raspberry Pi Setup](docs/RPi-Setup.md)
 
 ## First time use
 
