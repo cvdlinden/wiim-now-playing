@@ -6,7 +6,7 @@
 // Express modules
 const express = require("express");
 const app = express();
-const cookieParser = require("cookie-parser"); // Used for remembering settings on the client
+// const cookieParser = require("cookie-parser"); // Used for remembering settings on the client
 
 // Node.js modules
 const http = require("http");
@@ -19,7 +19,7 @@ const io = new Server(server);
 
 // Other (custom) modules
 const ssdp = require("./lib/ssdp.js"); // SSDP functionality
-const cookies = require("./lib/cookies.js"); // Cookies functionality (need to rebuild for socket.io)
+// const cookies = require("./lib/_cookies.js"); // Cookies functionality (need to rebuild for socket.io)
 // const upnp = require("./lib/upnpClient.js"); // UPNP Client functionality
 const sockets = require("./lib/sockets.js"); // Sockets.io functionality
 const shell = require("./lib/shell.js"); // Shell command functionality
@@ -52,7 +52,7 @@ ssdp.scan(devices);
 
 // ===========================================================================
 // Set Express functionality
-app.use(cookieParser());
+// app.use(cookieParser());
 app.use(express.static(__dirname + "/public"));
 
 // ===========================================================================
@@ -115,24 +115,25 @@ io.on("connection", (socket) => {
 
 // ===========================================================================
 // Set Express Routing (should be removed and served from static)
+// TODO: Remove this debug part, moving to client side and node debug module
 app.get('/debug', function (req, res) {
 
-    // Handle cookies in order to use/store persistent client settings
-    // Expected behaviour:
-    // If a session is already running, the running session should take prevalence. And the newly joined client should adapt.
-    // If no session is running, then use whatever the user has stored from a previous session.
-    // If the first client has nothing stored, then default to the first found renderer.
-    // This means that any second client should tag along. And if anyone of the clients switches, so does everybody else.
-    log("Handling cookies...");
-    var userCookies = cookies.getAll(req);
-    // if (userCookies.Name == null || userCookies.Name !== "wiim-now-playing") {
-    //     cookies.set(res, userCookies, "Name", "wiim-now-playing");
+    // // Handle cookies in order to use/store persistent client settings
+    // // Expected behaviour:
+    // // If a session is already running, the running session should take prevalence. And the newly joined client should adapt.
+    // // If no session is running, then use whatever the user has stored from a previous session.
+    // // If the first client has nothing stored, then default to the first found renderer.
+    // // This means that any second client should tag along. And if anyone of the clients switches, so does everybody else.
+    // log("Handling cookies...");
+    // var userCookies = cookies.getAll(req);
+    // // if (userCookies.Name == null || userCookies.Name !== "wiim-now-playing") {
+    // //     cookies.set(res, userCookies, "Name", "wiim-now-playing");
+    // // };
+    // if (userCookies.RendererUri == null) {
+    //     // Selecting the first device found. Only valid on first startup. See above...
+    //     cookies.set(res, userCookies, "RendererUri", devices.location);
     // };
-    if (userCookies.RendererUri == null) {
-        // Selecting the first device found. Only valid on first startup. See above...
-        cookies.set(res, userCookies, "RendererUri", devices.location);
-    };
-    log("userCookies", userCookies);
+    // log("userCookies", userCookies);
 
     // // Get UPNP info (=async)
     // var upnpClient = upnp.createClient(userCookies.RendererUri);
@@ -144,7 +145,7 @@ app.get('/debug', function (req, res) {
     html += "<div><strong>Now:</strong> <code>" + lib.getDate() + "</samp></code>";
     html += "<div><strong>Device locations:</strong> <code>" + JSON.stringify(devices.map(a => a.location)) + "</code></div>";
     html += "<div><strong>Devices:</strong> <code>" + JSON.stringify(devices.map(d => ([d.friendlyName, d.manufacturer, d.modelName, d.location]))) + "</code></div>";
-    html += "<div><strong>User selected device:</strong> <code>" + userCookies.RendererUri + "</code></div>";
+    // html += "<div><strong>User selected device:</strong> <code>" + userCookies.RendererUri + "</code></div>";
     // html += "<div><strong>Renderer actions:</strong> <code>" + rendererActions + "</code></div>";
     // html += "<div><strong>Renderer info:</strong> <code>" + rendererInfo + "</code></div>";
     res.send(html);

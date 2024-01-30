@@ -4,7 +4,8 @@
 - Create a solution that will:
   - [x] Create node.js app
   - [x] Create express server
-  - [x] Use cookies to remember client settings
+  - [ ] ~~Use cookies to remember client settings~~
+  - [ ] Use storage on server to remember app settings
   - [x] Create SSDP discovery to find elligable media renderers
   - [ ] Create UPNP client to talk to media renderers
   - [ ] Create Socket.IO to have realtime updates with client
