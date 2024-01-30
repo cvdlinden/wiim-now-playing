@@ -22,6 +22,7 @@ const ssdp = require("./lib/ssdp.js"); // SSDP functionality
 const cookies = require("./lib/cookies.js"); // Cookies functionality (need to rebuild for socket.io)
 // const upnp = require("./lib/upnpClient.js"); // UPNP Client functionality
 const sockets = require("./lib/sockets.js"); // Sockets.io functionality
+const shell = require("./lib/shell.js"); // Shell command functionality
 const lib = require("./lib/lib.js"); // Generic functionality
 const log = require("debug")("index"); // See README.md on debugging
 
@@ -94,6 +95,20 @@ io.on("connection", (socket) => {
     socket.on("devices-refresh", () => {
         log("Socket event", "devices-refresh...");
         sockets.scanDevices(io, ssdp, devices);
+    });
+
+    // On device reboot
+    socket.on("server-reboot", () => {
+        log("Socket event", "server-reboot");
+        io.emit("server-reboot");
+        shell.reboot();
+    });
+
+    // On device reboot
+    socket.on("server-shutdown", () => {
+        log("Socket event", "server-shutdown");
+        io.emit("server-shutdown");
+        shell.shutdown();
     });
 
 });

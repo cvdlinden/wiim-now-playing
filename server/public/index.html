@@ -38,6 +38,9 @@
     <p>Metadata:</p>
     <textarea id="metadata" cols="80" rows="6"></textarea>
 
+    <p>Hardware (Pi only)</p>
+    <div><button id="btnReboot">Reboot server</button><button id="btnShutdown">Shutdown server</button></div>
+
     <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
     <script>
         var socket = io();
@@ -46,6 +49,27 @@
         // var state = document.getElementById("state");
         // var btn = document.getElementById("btn");
 
+        // UI event listeners
+        btnDevices.addEventListener("click", function () {
+            socket.emit("devices-get");
+        });
+
+        btnRefresh.addEventListener("click", function () {
+            socket.emit("devices-refresh");
+            setTimeout(() => {
+                socket.emit("devices-get");
+            }, 5000);
+        });
+
+        btnReboot.addEventListener("click", function () {
+            socket.emit("server-reboot");
+        });
+
+        btnShutdown.addEventListener("click", function () {
+            socket.emit("server-shutdown");
+        });
+
+        // Sockets
         socket.on("state", function (msg) {
             state.innerHTML = msg.state;
         });
@@ -68,17 +92,6 @@
 
         socket.on("devices-refresh", function (msg) {
             devices.innerHTML = "<li><em>" + msg + "</em></li>";
-        });
-
-        btnDevices.addEventListener("click", function () {
-            socket.emit("devices-get");
-        });
-
-        btnRefresh.addEventListener("click", function () {
-            socket.emit("devices-refresh");
-            setTimeout(() => {
-                socket.emit("devices-get");
-            }, 5000);
         });
 
     </script>
