@@ -16,15 +16,11 @@ module.exports = {
         return date.toUTCString();
     },
 
-    getServerInfo: () => {
-        var info = {
-            "selectedDevice": {
-                "location": "",
-                "friendlyName": ""
-            },
-            "isPi": false
-        }
-        return info;
+    isPi: () => {
+        log("isPi?");
+        // Do some checks whether this is running on a Raspberry Pi to be able to run shell commands
+        // Returning false for now...
+        return false;
     }
 
 };

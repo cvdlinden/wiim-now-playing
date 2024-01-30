@@ -40,15 +40,28 @@ var deviceMetadata = { // Placeholder for current device metadata
     "artist": "Bar",
     "modes": [2, 4, 8, 16, 32, 64, 128, 256]
 }
+var serverSettings = { // Placeholder for current server settings
+    "selectedDevice": {
+        "friendlyName": null,
+        "manufacturer": null,
+        "modelName": null,
+        "location": null,
+    },
+    "server": {
+        "isPi": lib.isPi()
+    }
+}
 
 // TEMP UPDATE OF STATE (change value every 5 seconds, should come from device UPNP state)
 setInterval(() => {
     deviceState.state = lib.getDate();
+    deviceState.location = serverSettings.selectedDevice.location;
+    deviceState.friendlyName = serverSettings.selectedDevice.friendlyName;
 }, 5000);
 
 // ===========================================================================
 // Initial SSDP scan for devices
-ssdp.scan(devices);
+ssdp.scan(devices, serverSettings);
 
 // ===========================================================================
 // Set Express functionality
@@ -103,24 +116,22 @@ io.on("connection", (socket) => {
     // ======================================
     // Server related
 
-    // On server info
-    socket.on("server-info", () => {
-        log("Socket event", "server-info");
-        io.emit("server-info", lib.getServerInfo());
+    // On server settings
+    socket.on("server-settings", () => {
+        log("Socket event", "server-settings");
+        sockets.getServerSettings(io, serverSettings);
     });
 
     // On server reboot
     socket.on("server-reboot", () => {
         log("Socket event", "server-reboot");
-        io.emit("server-reboot", "Rebooting...");
-        shell.reboot();
+        shell.reboot(io);
     });
 
-    // On server reboot
+    // On server shutdown
     socket.on("server-shutdown", () => {
         log("Socket event", "server-shutdown");
-        io.emit("server-shutdown", "Shutting down...");
-        shell.shutdown();
+        shell.shutdown(io);
     });
 
 });
@@ -130,36 +141,13 @@ io.on("connection", (socket) => {
 // TODO: Remove this debug part, moving to client side and node debug module
 app.get('/debug', function (req, res) {
 
-    // // Handle cookies in order to use/store persistent client settings
-    // // Expected behaviour:
-    // // If a session is already running, the running session should take prevalence. And the newly joined client should adapt.
-    // // If no session is running, then use whatever the user has stored from a previous session.
-    // // If the first client has nothing stored, then default to the first found renderer.
-    // // This means that any second client should tag along. And if anyone of the clients switches, so does everybody else.
-    // log("Handling cookies...");
-    // var userCookies = cookies.getAll(req);
-    // // if (userCookies.Name == null || userCookies.Name !== "wiim-now-playing") {
-    // //     cookies.set(res, userCookies, "Name", "wiim-now-playing");
-    // // };
-    // if (userCookies.RendererUri == null) {
-    //     // Selecting the first device found. Only valid on first startup. See above...
-    //     cookies.set(res, userCookies, "RendererUri", devices.location);
-    // };
-    // log("userCookies", userCookies);
-
-    // // Get UPNP info (=async)
-    // var upnpClient = upnp.createClient(userCookies.RendererUri);
-    // var rendererActions = upnp.getServiceDescription(upnpClient);
-    // var rendererInfo = upnp.callAction(upnpClient, "GetInfoEx");
-
     log("Loading homepage...");
     var html = "<h1>Hello World!</h1>";
     html += "<div><strong>Now:</strong> <code>" + lib.getDate() + "</samp></code>";
+    html += "<div><strong>Server Settings:</strong> <code>" + JSON.stringify(serverSettings) + "</code></div>";
     html += "<div><strong>Device locations:</strong> <code>" + JSON.stringify(devices.map(a => a.location)) + "</code></div>";
-    html += "<div><strong>Devices:</strong> <code>" + JSON.stringify(devices.map(d => ([d.friendlyName, d.manufacturer, d.modelName, d.location]))) + "</code></div>";
-    // html += "<div><strong>User selected device:</strong> <code>" + userCookies.RendererUri + "</code></div>";
-    // html += "<div><strong>Renderer actions:</strong> <code>" + rendererActions + "</code></div>";
-    // html += "<div><strong>Renderer info:</strong> <code>" + rendererInfo + "</code></div>";
+    // html += "<div><strong>Devices:</strong> <code>" + JSON.stringify(devices.map(d => ([d.friendlyName, d.manufacturer, d.modelName, d.location]))) + "</code></div>";
+    html += "<div><strong>Devices:</strong><br /><textarea cols=\"80\" rows=\"12\">" + JSON.stringify(devices) + "</textarea></div>";
     res.send(html);
     log("Homepage sent");
 

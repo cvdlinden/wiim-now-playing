@@ -19,7 +19,7 @@ const log = require("debug")("lib:ssdp");
 module.exports = {
 
     // Starts a scan for devices and handles the reponse by returning the result to the devices array.
-    scan: (devices) => {
+    scan: (devices, serverSettings) => {
         log("Scanning for devices with SSDP...");
 
         // Event listener on responses from device discovery
@@ -42,13 +42,30 @@ module.exports = {
                         client.getServiceDescription('AVTransport', function (err, serviceDesc) {
                             if (err) { log("Error", err); }
                             else {
-                                devices.push({
+                                var device = {
                                     location: respSSDP.LOCATION,
                                     ...deviceDesc,
                                     AVTransport: serviceDesc.actions,
                                     ssdp: respSSDP
+                                };
+                                devices.push(device);
+                                log("Devices found:", devices.length, {
+                                    "friendlyName": device.friendlyName,
+                                    "manufacturer": device.manufacturer,
+                                    "modelName": device.modelName,
+                                    "location": device.location
                                 });
-                                log("Devices found:", devices.length, devices.map(d => ([d.friendlyName, d.manufacturer, d.modelName, d.location])));
+                                // Do we need to set the default selected device?
+                                if (!serverSettings.selectedDevice.location &&
+                                    device.manufacturer.includes("Linkplay") ||
+                                    device.modelName.includes("WiiM")) {
+                                    serverSettings.selectedDevice = {
+                                        "friendlyName": device.friendlyName,
+                                        "manufacturer": device.manufacturer,
+                                        "modelName": device.modelName,
+                                        "location": device.location
+                                    };
+                                };
                             };
                         });
 

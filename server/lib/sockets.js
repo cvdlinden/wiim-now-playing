@@ -16,6 +16,7 @@ module.exports = {
         setTimeout(() => {
             io.emit("state", deviceState);
         }, 250);
+        // Then set an interval to stream the state
         return setInterval(() => {
             io.emit("state", deviceState);
         }, 1000);
@@ -33,6 +34,7 @@ module.exports = {
         setTimeout(() => {
             io.emit("metadata", deviceMetadata);
         }, 250);
+        // Then set an interval to stream the metadata
         return setInterval(() => {
             io.emit("metadata", deviceMetadata);
         }, 5000);
@@ -59,6 +61,11 @@ module.exports = {
         log("Scanning for devices...");
         ssdp.rescan(devices);
         io.emit("devices-refresh", "Scanning for devices...");
+    },
+
+    getServerSettings: (io, serverSettings) => {
+        log("Get server settings...");
+        io.emit("server-settings", serverSettings);
     }
 
 };

@@ -29,14 +29,17 @@
 
     <p>State (dummy): <span id="state">...</span></p>
 
+    <p>Metadata:</p>
+    <textarea id="metadata" cols="80" rows="2"></textarea>
+
     <p>Currently available devices:</p>
     <ul id="devices">
         <li><em>...</em></li>
     </ul>
     <div><button id="btnDevices">Get devices</button><button id="btnRefresh">Refresh devices</button></div>
 
-    <p>Metadata:</p>
-    <textarea id="metadata" cols="80" rows="6"></textarea>
+    <p>Server Settings</p>
+    <textarea id="serverSettings" cols="80" rows="4"></textarea>
 
     <p>Hardware (Pi only)</p>
     <div><button id="btnReboot">Reboot server</button><button id="btnShutdown">Shutdown server</button></div>
@@ -76,11 +79,11 @@
         // Initial calls, wait a bit for socket to start
         setTimeout(() => {
             socket.emit("devices-get");
-            socket.emit("server-info");
+            socket.emit("server-settings");
         }, 500);
 
         socket.on("state", function (msg) {
-            state.innerHTML = msg.state;
+            state.innerHTML = JSON.stringify(msg);
         });
 
         socket.on("metadata", function (msg) {
@@ -98,6 +101,10 @@
 
         socket.on("devices-refresh", function (msg) {
             devices.innerHTML = "<li><em>" + msg + "</em></li>";
+        });
+
+        socket.on("server-settings", function (msg) {
+            serverSettings.innerHTML = JSON.stringify(msg);
         });
 
     </script>

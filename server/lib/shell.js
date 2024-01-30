@@ -11,19 +11,27 @@ const log = require("debug")("lib:shell");
 // Exports
 module.exports = {
 
-    reboot: () => {
+    reboot: (io) => {
         log("Reboot requested...");
         exec('/usr/bin/sudo systemctl reboot', function (err, stdout, stderr) {
-            if (err) { log(err); }
-            // return "Rebooting..."
+            if (err) {
+                log("Error", err);
+            }
+            else {
+                io.emit("server-reboot", "Rebooting...");
+            }
         });
     },
 
-    shutdown: () => {
+    shutdown: (io) => {
         log("Shutdown requested...");
         exec('/usr/bin/sudo systemctl poweroff', function (err, stdout, stderr) {
-            if (err) { log(err); }
-            // return "Shutting down..."
+            if (err) {
+                log("Error", err);
+            }
+            else {
+                io.emit("server-shutdown", "Shutting down...");
+            }
         });
     }
 
