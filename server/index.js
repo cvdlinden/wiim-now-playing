@@ -112,14 +112,14 @@ io.on("connection", (socket) => {
     // On server reboot
     socket.on("server-reboot", () => {
         log("Socket event", "server-reboot");
-        io.emit("server-reboot");
+        io.emit("server-reboot", "Rebooting...");
         shell.reboot();
     });
 
     // On server reboot
     socket.on("server-shutdown", () => {
         log("Socket event", "server-shutdown");
-        io.emit("server-shutdown");
+        io.emit("server-shutdown", "Shutting down...");
         shell.shutdown();
     });
 
