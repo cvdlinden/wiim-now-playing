@@ -52,7 +52,8 @@ module.exports = {
             "friendlyName": d.friendlyName,
             "manufacturer": d.manufacturer,
             "modelName": d.modelName,
-            "location": d.location
+            "location": d.location,
+            // "actions": Object.keys(d.actions)
         }));
         io.emit("devices-get", devicesList);
     },

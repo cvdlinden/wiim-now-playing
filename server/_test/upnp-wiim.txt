@@ -12,110 +12,146 @@ GetDeviceCapabilities =  {
   RecMedia: 'NOT_IMPLEMENTED',
   RecQualityModes: 'NOT_IMPLEMENTED'
 }
+GetCurrentTransportActions =  { Actions: 'Stop,Seek,X_DLNA_SeekTime,Pause' }
 GetMediaInfo =  {
-  NrTracks: '1',
-  MediaDuration: '00:00:00',
-  CurrentURI: 'http://uyesee.vtuner.com/setupapp/uyesee/asp/func/dynamOD.asp?ex45v=4bf05f4a714f318f0e5ba6bc151594fc&id=38199',
+  NrTracks: '10',
+  MediaDuration: '00:02:47',
+  CurrentURI: 'https://sp-pr-fa.audio.tidal.com/mediatracks/CAEaKRInNjZhZmQyNDY5NzMyMGVjNjVhYWY0NDQ2NTgzNGQyY2FfNjEubXA0/0.flac?token=1706661754~ZGQ5MTgwNTQyYjk3NTRhYTEyNjFhYzRmMTk3MWVjMjRiZDRkYjNiZQ==',
   CurrentURIMetaData: '<?xml version="1.0"?>\r\n' +
-    '<DIDL-Lite xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:upnp="urn:schemas-upnp-org:metadata-1-0/upnp/" xmlns:song="www.linkplay.com/song/" xmlns:custom="www.linkplay.com/custom/" xmlns="urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/">\r\n' +
+    '<DIDL-Lite xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:upnp="urn:schemas-upnp-org:metadata-1-0/upnp/" xmlns:song="www.wiimu.com/song/" xmlns="urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/">\r\n' +
     '<upnp:class>object.item.audioItem.musicTrack</upnp:class>\r\n' +
-    '<item>\r\n' +
-    '<song:id>38199</song:id>\r\n' +
-    '<song:albumid></song:albumid>\r\n' +
-    '<song:singerid></song:singerid>\r\n' +
-    '<dc:title>POM - RUN</dc:title>\r\n' +
-    '<upnp:artist>vTuner</upnp:artist>\r\n' +
-    '<upnp:album>vTuner</upnp:album>\r\n' +
-    '<res protocolInfo="http-get:*:audio/mpeg:DLNA.ORG_PN=MP3;DLNA.ORG_OP=01;" duration="0"></res>\r\n' +
-    '<song:rate_hz>48000</song:rate_hz>\r\n' +
+    '<item id="">\r\n' +
+    '<song:subid></song:subid>\r\n' +
+    '<song:description></song:description>\r\n' +
+    '<song:skiplimit>0</song:skiplimit>\r\n' +
+    '<song:id>319158672</song:id>\r\n' +
+    '<song:like>0</song:like>\r\n' +
+    '<song:singerid>10677020</song:singerid>\r\n' +
+    '<song:albumid>319158663</song:albumid>\r\n' +
+    '<song:quality>2</song:quality>\r\n' +
+    '<song:actualQuality>LOSSLESS</song:actualQuality>\r\n' +
+    '<song:atmos>0</song:atmos>\r\n' +
+    '<song:guibehavior></song:guibehavior>\r\n' +
+    '<song:soundScapeType></song:soundScapeType>\r\n' +
+    '<song:playCase></song:playCase>\r\n' +
+    '<song:originSource>Tidal</song:originSource>\r\n' +
+    '<res protocolInfo="http-get:*:audio/mpeg:DLNA.ORG_PN=MP3;DLNA.ORG_OP=01;" duration="00:02:47.000"></res>\r\n' +
+    '<dc:title>on the outside</dc:title>\r\n' +
+    '<upnp:artist>Charlotte Sands, Point North</upnp:artist>\r\n' +
+    '<upnp:album>can we start over?</upnp:album>\r\n' +
+    '<upnp:albumArtURI>https://resources.tidal.com/images/c13b2f82/5810/4993/82f7/ccad33dc133a/640x640.jpg</upnp:albumArtURI>\r\n' +
+    '<song:rate_hz>44100</song:rate_hz>\r\n' +
     '<song:format_s>16</song:format_s>\r\n' +
-    '<song:bitrate>192</song:bitrate>\r\n' +
+    '<song:bitrate>1085</song:bitrate>\r\n' +
     '</item>\r\n' +
     '</DIDL-Lite>\r\n',
   NextURI: '',
   NextURIMetaData: '',
-  TrackSource: 'vTuner',
-  PlayMedium: 'RADIO-NETWORK',
+  TrackSource: 'Tidal',
+  PlayMedium: 'SONGLIST-NETWORK',
   RecordMedium: 'NOT_IMPLEMENTED',
   WriteStatus: 'NOT_IMPLEMENTED'
 }
 GetPositionInfo =  {
-  Track: '1',
-  TrackDuration: '00:00:00',
+  Track: '8',
+  TrackDuration: '00:02:47',
   TrackMetaData: '<?xml version="1.0"?>\r\n' +
-    '<DIDL-Lite xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:upnp="urn:schemas-upnp-org:metadata-1-0/upnp/" xmlns:song="www.linkplay.com/song/" xmlns:custom="www.linkplay.com/custom/" xmlns="urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/">\r\n' +
+    '<DIDL-Lite xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:upnp="urn:schemas-upnp-org:metadata-1-0/upnp/" xmlns:song="www.wiimu.com/song/" xmlns="urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/">\r\n' +
     '<upnp:class>object.item.audioItem.musicTrack</upnp:class>\r\n' +
-    '<item>\r\n' +
-    '<song:id>38199</song:id>\r\n' +
-    '<song:albumid></song:albumid>\r\n' +
-    '<song:singerid></song:singerid>\r\n' +
-    '<dc:title>POM - RUN</dc:title>\r\n' +
-    '<upnp:artist>vTuner</upnp:artist>\r\n' +
-    '<upnp:album>vTuner</upnp:album>\r\n' +
-    '<res protocolInfo="http-get:*:audio/mpeg:DLNA.ORG_PN=MP3;DLNA.ORG_OP=01;" duration="0"></res>\r\n' +
-    '<song:rate_hz>48000</song:rate_hz>\r\n' +
+    '<item id="">\r\n' +
+    '<song:subid></song:subid>\r\n' +
+    '<song:description></song:description>\r\n' +
+    '<song:skiplimit>0</song:skiplimit>\r\n' +
+    '<song:id>319158672</song:id>\r\n' +
+    '<song:like>0</song:like>\r\n' +
+    '<song:singerid>10677020</song:singerid>\r\n' +
+    '<song:albumid>319158663</song:albumid>\r\n' +
+    '<song:quality>2</song:quality>\r\n' +
+    '<song:actualQuality>LOSSLESS</song:actualQuality>\r\n' +
+    '<song:atmos>0</song:atmos>\r\n' +
+    '<song:guibehavior></song:guibehavior>\r\n' +
+    '<song:soundScapeType></song:soundScapeType>\r\n' +
+    '<song:playCase></song:playCase>\r\n' +
+    '<song:originSource>Tidal</song:originSource>\r\n' +
+    '<res protocolInfo="http-get:*:audio/mpeg:DLNA.ORG_PN=MP3;DLNA.ORG_OP=01;" duration="00:02:47.000"></res>\r\n' +
+    '<dc:title>on the outside</dc:title>\r\n' +
+    '<upnp:artist>Charlotte Sands, Point North</upnp:artist>\r\n' +
+    '<upnp:album>can we start over?</upnp:album>\r\n' +
+    '<upnp:albumArtURI>https://resources.tidal.com/images/c13b2f82/5810/4993/82f7/ccad33dc133a/640x640.jpg</upnp:albumArtURI>\r\n' +
+    '<song:rate_hz>44100</song:rate_hz>\r\n' +
     '<song:format_s>16</song:format_s>\r\n' +
-    '<song:bitrate>192</song:bitrate>\r\n' +
+    '<song:bitrate>1085</song:bitrate>\r\n' +
     '</item>\r\n' +
     '</DIDL-Lite>\r\n',
-  TrackURI: 'http://uyesee.vtuner.com/setupapp/uyesee/asp/func/dynamOD.asp?ex45v=4bf05f4a714f318f0e5ba6bc151594fc&id=38199',
-  RelTime: '00:00:00',
+  TrackURI: 'https://sp-pr-fa.audio.tidal.com/mediatracks/CAEaKRInNjZhZmQyNDY5NzMyMGVjNjVhYWY0NDQ2NTgzNGQyY2FfNjEubXA0/0.flac?token=1706661754~ZGQ5MTgwNTQyYjk3NTRhYTEyNjFhYzRmMTk3MWVjMjRiZDRkYjNiZQ==',
+  RelTime: '00:00:42',
   AbsTime: 'NOT_IMPLEMENTED',
   RelCount: '2147483647',
   AbsCount: '2147483647'
 }
-GetCurrentTransportActions =  { Actions: 'Play' }
 GetTransportInfo =  {
-  CurrentTransportState: 'STOPPED',
+  CurrentTransportState: 'PLAYING',
   CurrentTransportStatus: 'OK',
   CurrentSpeed: '1'
 }
 GetTransportSettings =  { PlayMode: 'NORMAL', RecQualityMode: 'NOT_IMPLEMENTED' }
 GetPlayType =  { PlayType: '10' }
 GetInfoEx =  {
-  CurrentTransportState: 'STOPPED',
+  CurrentTransportState: 'PLAYING',
   CurrentTransportStatus: 'OK',
   CurrentSpeed: '1',
-  Track: '1',
-  TrackDuration: '00:00:00',
+  Track: '8',
+  TrackDuration: '00:02:47',
   TrackMetaData: '<?xml version="1.0"?>\r\n' +
-    '<DIDL-Lite xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:upnp="urn:schemas-upnp-org:metadata-1-0/upnp/" xmlns:song="www.linkplay.com/song/" xmlns:custom="www.linkplay.com/custom/" xmlns="urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/">\r\n' +
+    '<DIDL-Lite xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:upnp="urn:schemas-upnp-org:metadata-1-0/upnp/" xmlns:song="www.wiimu.com/song/" xmlns="urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/">\r\n' +
     '<upnp:class>object.item.audioItem.musicTrack</upnp:class>\r\n' +
-    '<item>\r\n' +
-    '<song:id>38199</song:id>\r\n' +
-    '<song:albumid></song:albumid>\r\n' +
-    '<song:singerid></song:singerid>\r\n' +
-    '<dc:title>POM - RUN</dc:title>\r\n' +
-    '<upnp:artist>vTuner</upnp:artist>\r\n' +
-    '<upnp:album>vTuner</upnp:album>\r\n' +
-    '<res protocolInfo="http-get:*:audio/mpeg:DLNA.ORG_PN=MP3;DLNA.ORG_OP=01;" duration="0"></res>\r\n' +
-    '<song:rate_hz>48000</song:rate_hz>\r\n' +
+    '<item id="">\r\n' +
+    '<song:subid></song:subid>\r\n' +
+    '<song:description></song:description>\r\n' +
+    '<song:skiplimit>0</song:skiplimit>\r\n' +
+    '<song:id>319158672</song:id>\r\n' +
+    '<song:like>0</song:like>\r\n' +
+    '<song:singerid>10677020</song:singerid>\r\n' +
+    '<song:albumid>319158663</song:albumid>\r\n' +
+    '<song:quality>2</song:quality>\r\n' +
+    '<song:actualQuality>LOSSLESS</song:actualQuality>\r\n' +
+    '<song:atmos>0</song:atmos>\r\n' +
+    '<song:guibehavior></song:guibehavior>\r\n' +
+    '<song:soundScapeType></song:soundScapeType>\r\n' +
+    '<song:playCase></song:playCase>\r\n' +
+    '<song:originSource>Tidal</song:originSource>\r\n' +
+    '<res protocolInfo="http-get:*:audio/mpeg:DLNA.ORG_PN=MP3;DLNA.ORG_OP=01;" duration="00:02:47.000"></res>\r\n' +
+    '<dc:title>on the outside</dc:title>\r\n' +
+    '<upnp:artist>Charlotte Sands, Point North</upnp:artist>\r\n' +
+    '<upnp:album>can we start over?</upnp:album>\r\n' +
+    '<upnp:albumArtURI>https://resources.tidal.com/images/c13b2f82/5810/4993/82f7/ccad33dc133a/640x640.jpg</upnp:albumArtURI>\r\n' +
+    '<song:rate_hz>44100</song:rate_hz>\r\n' +
     '<song:format_s>16</song:format_s>\r\n' +
-    '<song:bitrate>192</song:bitrate>\r\n' +
+    '<song:bitrate>1085</song:bitrate>\r\n' +
     '</item>\r\n' +
     '</DIDL-Lite>\r\n',
-  TrackURI: 'http://uyesee.vtuner.com/setupapp/uyesee/asp/func/dynamOD.asp?ex45v=4bf05f4a714f318f0e5ba6bc151594fc&id=38199',
-  RelTime: '00:00:00',
+  TrackURI: 'https://sp-pr-fa.audio.tidal.com/mediatracks/CAEaKRInNjZhZmQyNDY5NzMyMGVjNjVhYWY0NDQ2NTgzNGQyY2FfNjEubXA0/0.flac?token=1706661754~ZGQ5MTgwNTQyYjk3NTRhYTEyNjFhYzRmMTk3MWVjMjRiZDRkYjNiZQ==',
+  RelTime: '00:00:42',
   AbsTime: 'NOT_IMPLEMENTED',
   RelCount: '2147483647',
   AbsCount: '2147483647',
   LoopMode: '4',
   PlayType: '10',
-  CurrentVolume: '17',
+  CurrentVolume: '6',
   CurrentMute: '0',
   CurrentChannel: '0',
   SlaveFlag: '0',
   MasterUUID: '',
   SlaveList: '{ "slaves": 0, "wmrm_version": "4.2" }',
-  PlayMedium: 'RADIO-NETWORK',
-  TrackSource: 'vTuner',
+  PlayMedium: 'SONGLIST-NETWORK',
+  TrackSource: 'Tidal',
   InternetAccess: '1',
   VerUpdateFlag: '0',
   VerUpdateStatus: '20',
   BatteryFlag: '0',
   BatteryPercent: '0',
   AlarmFlag: '0',
-  TimeStamp: '31113054',
+  TimeStamp: '80032110',
   SubNum: '0',
-  SpotifyActive: '0'
+  SpotifyActive: '1'
 }

@@ -45,7 +45,7 @@ module.exports = {
                                 var device = {
                                     location: respSSDP.LOCATION,
                                     ...deviceDesc,
-                                    AVTransport: serviceDesc.actions,
+                                    actions: serviceDesc.actions,
                                     ssdp: respSSDP
                                 };
                                 devices.push(device);
@@ -63,7 +63,9 @@ module.exports = {
                                         "friendlyName": device.friendlyName,
                                         "manufacturer": device.manufacturer,
                                         "modelName": device.modelName,
-                                        "location": device.location
+                                        "location": device.location,
+                                        "actions": Object.keys(device.actions)
+                                        // "actions": Object.keys(serviceDesc.actions)
                                     };
                                 };
                             };
