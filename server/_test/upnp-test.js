@@ -12,12 +12,13 @@ var client = new Client('http://192.168.1.243:49152/description.xml');
 client.getDeviceDescription(function (err, description) {
     if (err) throw err;
     console.log("getDeviceDescription", description.friendlyName);
+    // console.log("getDeviceDescription", description);
 });
 
 // Get the device's AVTransport service description
 client.getServiceDescription('AVTransport', function (err, description) {
     if (err) throw err;
-    // console.log("getServiceDescription", description.actions);
+    // console.log("getServiceDescription", description);
     Object.keys(description.actions).forEach((key) => {
         if (key.startsWith("Get")) {
             console.log("Action:", key);
@@ -53,14 +54,22 @@ client.getServiceDescription('AVTransport', function (err, description) {
 //     console.log("GetInfoEx", result); // => { NrTracks: '1', MediaDuration: ... }
 // });
 
-// client.subscribe('AVTransport', function(e) {
-//   // Will receive events like { InstanceID: 0, TransportState: 'PLAYING' } when playing media
-//   console.log("subscribe", e); 
-// });
+// DONT DO SUBSCRIPTIONS!
+// var subEvents = function (e) {
+//     // Will receive events like { InstanceID: 0, TransportState: 'PLAYING' } when playing media
+//     console.log("subEvents", e);
+// }
+// client.subscribe('AVTransport', subEvents);
+
+// var clientInterval = setInterval(() => {
+//     console.log("CLIENT", client.subscriptions);
+// }, 1000);
 
 // client.unsubscribe('AVTransport', listener);
 
 // Wait a bit for results to come in...
 setTimeout(function () {
+    // client.unsubscribe('AVTransport', subEvents);
+    // clearInterval(clientInterval);
     console.log('Done!');
 }, 60000);
