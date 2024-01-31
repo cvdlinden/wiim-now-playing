@@ -31,12 +31,12 @@
 
     <h2>Wiim Now Playing (DEV)</h2>
 
-    <p>State:</p>
-    <textarea id="state" cols="80" rows="4"></textarea>
-    <img id="albumArt" />
+    <p>State: <span id="sTimeStampDiff"></span></p>
+    <textarea id="state" cols="80" rows="3"></textarea>
 
     <p>Metadata:</p>
-    <textarea id="metadata" cols="80" rows="2"></textarea>
+    <textarea id="metadata" cols="80" rows="6"></textarea>
+    <img id="albumArt" />
 
     <p>Currently available devices:</p>
     <ul id="devices">
@@ -90,16 +90,18 @@
 
         socket.on("state", function (msg) {
             state.innerHTML = JSON.stringify(msg);
-            if (msg.metadata.trackMetaData["upnp:albumArtURI"] && albumArt.src != msg.metadata.trackMetaData["upnp:albumArtURI"]) {
-                albumArt.src = msg.metadata.trackMetaData["upnp:albumArtURI"];
-            }
-            else if (!msg.metadata.trackMetaData["upnp:albumArtURI"]) {
-                albumArt.src = "";
-            }
+            var timeStampDiff = (msg.stateTimeStamp && msg.metadataTimeStamp) ? Math.round( (msg.stateTimeStamp - msg.metadataTimeStamp) / 1000 ) : 0;
+            sTimeStampDiff.innerHTML = "<em>diff = " + timeStampDiff + "s</em>";
         });
 
         socket.on("metadata", function (msg) {
             metadata.innerHTML = JSON.stringify(msg);
+            if (msg.trackMetaData["upnp:albumArtURI"] && albumArt.src != msg.trackMetaData["upnp:albumArtURI"]) {
+                albumArt.src = msg.trackMetaData["upnp:albumArtURI"];
+            }
+            else if (!msg.trackMetaData["upnp:albumArtURI"]) {
+                albumArt.src = "";
+            }
         });
 
         socket.on("devices-get", function (msg) {

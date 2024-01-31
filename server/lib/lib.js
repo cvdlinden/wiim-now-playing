@@ -11,10 +11,15 @@ const log = require("debug")("lib:lib");
 // Exports
 module.exports = {
 
-    getDate: () => { // Sample
+    getDate: () => { // Get date in UTC
         log("getDate")
         var date = new Date();
         return date.toUTCString();
+    },
+
+    getTimeStamp: () => { // Get date in Unix timestamp
+        log("getTimeStamp");
+        return Date.now();
     },
 
     getOS: () => {

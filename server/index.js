@@ -28,17 +28,21 @@ const log = require("debug")("index"); // See README.md on debugging
 // ===========================================================================
 // App variables
 const port = 80; // Port 80 is the default www port, if the server won't start then choose another port i.e. 3000, 8000, 8080
-var devices = []; // Placeholder for found devices through SSDP
+var deviceList = []; // Placeholder for found devices through SSDP
+var deviceInfo = { // Placeholder for device info
+    transportInfo: null, // Keeps the current transport info
+    metadata: null // Keeps the media metadata
+};
 var streamState = null; // Interval for current state of device
 var streamMetadata = null; // Interval for current medio metadata from device
-var deviceState = { // Placeholder for current device state
-    // state: lib.getDate()
-};
-var deviceMetadata = { // Placeholder for current device metadata
-    "dc:title": "Foo",
-    "artist": "Bar",
-    "modes": [2, 4, 8, 16, 32, 64, 128, 256]
-}
+// var deviceState = { // Placeholder for current device state
+//     // state: lib.getDate()
+// };
+// var deviceMetadata = { // Placeholder for current device metadata
+//     "dc:title": "Foo",
+//     "artist": "Bar",
+//     "modes": [2, 4, 8, 16, 32, 64, 128, 256]
+// }
 var serverSettings = { // Placeholder for current server settings
     "selectedDevice": {
         "friendlyName": null,
@@ -49,15 +53,44 @@ var serverSettings = { // Placeholder for current server settings
     "os": lib.getOS()
 }
 
-// TEMP UPDATE OF STATE (change value every 5 seconds, should come from device UPNP state)
-setInterval(() => {
-    // deviceState.state = lib.getDate();
-    // deviceState.location = serverSettings.selectedDevice.location;
-    // deviceState.friendlyName = serverSettings.selectedDevice.friendlyName;
-    updateDeviceState();
-}, 1000);
 // TODO: Move to upnpclient?
 function updateDeviceState() {
+    log("updateDeviceState");
+    if (serverSettings.selectedDevice.location) {
+        // log("DEVICE SELECTED")
+        var client = upnp.createClient(serverSettings.selectedDevice.location);
+        if (serverSettings.selectedDevice.actions.includes("GetTransportInfo")) {
+            client.callAction(
+                "AVTransport",
+                "GetTransportInfo",
+                { InstanceID: 0 },
+                (err, result) => {
+                    if (err) { 
+                        log("GetTransportInfo error", err); 
+                    }
+                    else {
+                        // log("GetTransportInfo result", result);
+                        deviceInfo.transportInfo = {
+                            ...result,
+                            RelTime: (deviceInfo.metadata && deviceInfo.metadata.RelTime) ? deviceInfo.metadata.RelTime : null,
+                            TimeStamp: (deviceInfo.metadata && deviceInfo.metadata.TimeStamp) ? deviceInfo.metadata.TimeStamp : null,
+                            TrackDuration: (deviceInfo.metadata && deviceInfo.metadata.TrackDuration) ? deviceInfo.metadata.TrackDuration : null,
+                            metadataTimeStamp: (deviceInfo.metadata && deviceInfo.metadata.metadataTimeStamp) ? deviceInfo.metadata.metadataTimeStamp : null,
+                            stateTimeStamp: lib.getTimeStamp(),
+                        };
+                    }
+                }
+            );
+        }
+        client = null;
+    }
+    else {
+        // log("No default device selected yet");
+    };
+};
+
+function updateDeviceMetadata() {
+    log("updateDeviceMetadata")
     if (serverSettings.selectedDevice.location) {
         // log("DEVICE SELECTED")
         var client = upnp.createClient(serverSettings.selectedDevice.location);
@@ -68,39 +101,43 @@ function updateDeviceState() {
                 "GetInfoEx",
                 { InstanceID: 0 },
                 (err, result) => {
-                    if (err) { log("GetInfoEx error", err); }
-                    log("callAction result", result.CurrentTransportState);
-                    const metadata = result.TrackMetaData;
-                    if (metadata) {
-                        const metaReq = xml2js.parseString(
-                            metadata,
-                            { explicitArray: false, ignoreAttrs: true },
-                            (err, metadataJson) => {
-                                if (err) { log(err) }
-                                /* PlayMedium : SONGLIST-NETWORK / RADIO-NETWORK / STATION-NETWORK / UNKOWN
-                                 *
-                                 * TrackSource : Prime / Qobuz / SPOTIFY / newTuneIn / iHeartRadio / Deezer / UPnPServer
-                                 *
-                                 * LoopMode :
-                                 * repeat / no shuffle 0
-                                 * repeat 1 / no shuffle 1
-                                 * repeat / shuffle 2
-                                 * no repeat / shuffle 3
-                                 * no repeat / no shuffle 4
-                                 * repeat 1 / shuffle 5
-                                 */
-
-                                mergeData = {
-                                    trackMetaData: metadataJson["DIDL-Lite"]["item"],
-                                    ...result
-                                };
-                                // socket.emit("metadata", mergeData);
-                                deviceState.metadata = mergeData;
-                            }
-                        );
+                    if (err) {
+                        log("GetInfoEx error", err);
                     }
                     else {
-                        deviceState.metadata = result;
+                        log("GetInfoEx result", result.CurrentTransportState);
+                        const metadata = result.TrackMetaData;
+                        if (metadata) {
+                            const metaReq = xml2js.parseString(
+                                metadata,
+                                { explicitArray: false, ignoreAttrs: true },
+                                (err, metadataJson) => {
+                                    if (err) { log(err) }
+                                    /* PlayMedium : SONGLIST-NETWORK / RADIO-NETWORK / STATION-NETWORK / UNKOWN
+                                    *
+                                    * TrackSource : Prime / Qobuz / SPOTIFY / newTuneIn / iHeartRadio / Deezer / UPnPServer
+                                    *
+                                    * LoopMode :
+                                    * repeat / no shuffle 0
+                                    * repeat 1 / no shuffle 1
+                                    * repeat / shuffle 2
+                                    * no repeat / shuffle 3
+                                    * no repeat / no shuffle 4
+                                    * repeat 1 / shuffle 5
+                                    */
+
+                                    mergeData = {
+                                        trackMetaData: metadataJson["DIDL-Lite"]["item"],
+                                        ...result,
+                                        metadataTimeStamp: lib.getTimeStamp()
+                                    };
+                                    deviceInfo.metadata = mergeData;
+                                }
+                            );
+                        }
+                        else {
+                            deviceInfo.metadata = result;
+                        }
                     }
                 }
             );
@@ -108,7 +145,7 @@ function updateDeviceState() {
         else {
             // GET "GetPositionInfo" and "GetTransportInfo"
         }
-        // client = null;
+        client = null;
     }
     else {
         // log("No default device selected yet");
@@ -117,7 +154,7 @@ function updateDeviceState() {
 
 // ===========================================================================
 // Initial SSDP scan for devices
-ssdp.scan(devices, serverSettings);
+ssdp.scan(deviceList, serverSettings);
 
 // ===========================================================================
 // Set Express functionality
@@ -134,8 +171,19 @@ io.on("connection", (socket) => {
     // If so, start streaming to the device(s)
     log("No. of sockets:", io.sockets.sockets.size);
     if (io.sockets.sockets.size === 1) {
-        streamState = sockets.startState(io, deviceState);
-        streamMetadata = sockets.startMetadata(io, deviceMetadata)
+        // TODO: Move to upnpclient?
+        updateDeviceState();
+        pollState = setInterval(() => {
+            updateDeviceState();
+        }, 1000);
+        // TODO: Move to upnpclient?
+        updateDeviceMetadata();
+        pollMetadata = setInterval(() => {
+            updateDeviceMetadata();
+        }, 5000);
+        // Start streaming to client(s)
+        streamState = sockets.startState(io, deviceInfo);
+        streamMetadata = sockets.startMetadata(io, deviceInfo)
     }
 
     // On disconnect
@@ -149,6 +197,9 @@ io.on("connection", (socket) => {
             log("No sockets are connected!");
             streamState = sockets.stopState(streamState);
             streamMetadata = sockets.stopMetadata(streamMetadata);
+            // TODO: Move to upnpclient?
+            if (pollState) { clearInterval(pollState) };
+            if (pollMetadata) { clearInterval(pollMetadata) };
         }
 
     });
@@ -159,13 +210,13 @@ io.on("connection", (socket) => {
     // On devices get
     socket.on("devices-get", () => {
         log("Socket event", "devices-get");
-        sockets.getDevices(io, devices);
+        sockets.getDevices(io, deviceList);
     });
 
     // On devices refresh
     socket.on("devices-refresh", () => {
         log("Socket event", "devices-refresh...");
-        sockets.scanDevices(io, ssdp, devices);
+        sockets.scanDevices(io, ssdp, deviceList);
     });
 
     // ======================================
@@ -200,9 +251,9 @@ app.get('/debug', function (req, res) {
     var html = "<h1>Hello World!</h1>";
     html += "<div><strong>Now:</strong> <code>" + lib.getDate() + "</samp></code>";
     html += "<div><strong>Server Settings:</strong> <code>" + JSON.stringify(serverSettings) + "</code></div>";
-    html += "<div><strong>Device locations:</strong> <code>" + JSON.stringify(devices.map(a => a.location)) + "</code></div>";
-    // html += "<div><strong>Devices:</strong> <code>" + JSON.stringify(devices.map(d => ([d.friendlyName, d.manufacturer, d.modelName, d.location]))) + "</code></div>";
-    html += "<div><strong>Devices:</strong><br /><textarea cols=\"80\" rows=\"12\">" + JSON.stringify(devices) + "</textarea></div>";
+    html += "<div><strong>Device locations:</strong> <code>" + JSON.stringify(deviceList.map(a => a.location)) + "</code></div>";
+    // html += "<div><strong>Devices:</strong> <code>" + JSON.stringify(deviceList.map(d => ([d.friendlyName, d.manufacturer, d.modelName, d.location]))) + "</code></div>";
+    html += "<div><strong>Devices:</strong><br /><textarea cols=\"80\" rows=\"12\">" + JSON.stringify(deviceList) + "</textarea></div>";
     res.send(html);
     log("Homepage sent");
 

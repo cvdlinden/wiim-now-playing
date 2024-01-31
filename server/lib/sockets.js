@@ -10,15 +10,15 @@ const log = require("debug")("lib:sockets");
 // Exports
 module.exports = {
 
-    startState: (io, deviceState) => {
+    startState: (io, device) => {
         log("Start streaming state...");
         // Start 'immediately' with a first package
         setTimeout(() => {
-            io.emit("state", deviceState);
+            io.emit("state", device.transportInfo);
         }, 250);
         // Then set an interval to stream the state
         return setInterval(() => {
-            io.emit("state", deviceState);
+            io.emit("state", device.transportInfo);
         }, 1000);
     },
 
@@ -28,15 +28,15 @@ module.exports = {
         return null;
     },
 
-    startMetadata: (io, deviceMetadata) => {
+    startMetadata: (io, device) => {
         log("Start streaming metadata...");
         // Start 'immediately' with a first package
         setTimeout(() => {
-            io.emit("metadata", deviceMetadata);
+            io.emit("metadata", device.metadata);
         }, 250);
         // Then set an interval to stream the metadata
         return setInterval(() => {
-            io.emit("metadata", deviceMetadata);
+            io.emit("metadata", device.metadata);
         }, 5000);
     },
 
@@ -65,7 +65,7 @@ module.exports = {
     },
 
     getServerSettings: (io, serverSettings) => {
-        log("Get server settings...", serverSettings);
+        log("Get server settings...");
         io.emit("server-settings", serverSettings);
     }
 
