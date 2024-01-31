@@ -6,10 +6,11 @@
   - [x] Create express server
   - ~~Use cookies to remember client settings~~
   - [ ] Use storage on server to remember app settings
-  - [x] Create SSDP discovery to find elligable media renderers
-  - [ ] Create UPNP client to talk to media renderers
-  - [ ] Create Socket.IO to have realtime updates with client
-  - [ ] Create basic webpage and test functionality
+  - [ ] Make device switchable
+  - [x] Create SSDP discovery to find eligible media renderers
+  - [x] Create UPNP client to talk to media renderers
+  - [x] Create Socket.IO to have realtime updates with client
+  - [x] Create basic webpage and test functionality
   - [ ] Create app to talk to server and show/handle info dynamically
   - [ ] Add a virtual keyboard to the client for touchscreen?
   - [ ] Create ...

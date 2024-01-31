@@ -10,6 +10,7 @@
 - Socket.IO: Realtime connection between server and client
 - Gulp?: Build tools
 - Vue.js?: Client framework for presentation (or should I go with Angular?)
+  - BootstrapVue vs Vuetify? <https://moiva.io/?npm=bootstrap-vue+vuetify>
 - [debug](https://www.npmjs.com/package/debug): To handle debug messages  
   See <https://expressjs.com/en/advanced/best-practice-performance.html#do-logging-correctly>
 - PM2?: A process manager to handle automatic (re)starts of the application  
