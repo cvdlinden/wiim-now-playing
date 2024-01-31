@@ -20,6 +20,9 @@
             min-height: 100%;
             font-family: arial, sans-serif;
         }
+        #albumArt {
+            max-height: 120px;
+        }
     </style>
 
 </head>
@@ -28,7 +31,9 @@
 
     <h2>Wiim Now Playing (DEV)</h2>
 
-    <p>State (dummy): <span id="state">...</span></p>
+    <p>State:</p>
+    <textarea id="state" cols="80" rows="4"></textarea>
+    <img id="albumArt" />
 
     <p>Metadata:</p>
     <textarea id="metadata" cols="80" rows="2"></textarea>
@@ -85,6 +90,12 @@
 
         socket.on("state", function (msg) {
             state.innerHTML = JSON.stringify(msg);
+            if (msg.metadata.trackMetaData["upnp:albumArtURI"] && albumArt.src != msg.metadata.trackMetaData["upnp:albumArtURI"]) {
+                albumArt.src = msg.metadata.trackMetaData["upnp:albumArtURI"];
+            }
+            else if (!msg.metadata.trackMetaData["upnp:albumArtURI"]) {
+                albumArt.src = "";
+            }
         });
 
         socket.on("metadata", function (msg) {

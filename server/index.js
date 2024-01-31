@@ -17,8 +17,9 @@ const { Server } = require("socket.io");
 const io = new Server(server);
 
 // Other (custom) modules
+const xml2js = require("xml2js");
 const ssdp = require("./lib/ssdp.js"); // SSDP functionality
-// const upnp = require("./lib/upnpClient.js"); // UPNP Client functionality
+const upnp = require("./lib/upnpClient.js"); // UPNP Client functionality
 const sockets = require("./lib/sockets.js"); // Sockets.io functionality
 const shell = require("./lib/shell.js"); // Shell command functionality
 const lib = require("./lib/lib.js"); // Generic functionality
@@ -31,7 +32,7 @@ var devices = []; // Placeholder for found devices through SSDP
 var streamState = null; // Interval for current state of device
 var streamMetadata = null; // Interval for current medio metadata from device
 var deviceState = { // Placeholder for current device state
-    state: lib.getDate()
+    // state: lib.getDate()
 };
 var deviceMetadata = { // Placeholder for current device metadata
     "dc:title": "Foo",
@@ -50,10 +51,69 @@ var serverSettings = { // Placeholder for current server settings
 
 // TEMP UPDATE OF STATE (change value every 5 seconds, should come from device UPNP state)
 setInterval(() => {
-    deviceState.state = lib.getDate();
-    deviceState.location = serverSettings.selectedDevice.location;
-    deviceState.friendlyName = serverSettings.selectedDevice.friendlyName;
-}, 5000);
+    // deviceState.state = lib.getDate();
+    // deviceState.location = serverSettings.selectedDevice.location;
+    // deviceState.friendlyName = serverSettings.selectedDevice.friendlyName;
+    updateDeviceState();
+}, 1000);
+// TODO: Move to upnpclient?
+function updateDeviceState() {
+    if (serverSettings.selectedDevice.location) {
+        // log("DEVICE SELECTED")
+        var client = upnp.createClient(serverSettings.selectedDevice.location);
+        if (serverSettings.selectedDevice.actions.includes("GetInfoEx")) {
+            // GET "GetInfoEx";
+            client.callAction(
+                "AVTransport",
+                "GetInfoEx",
+                { InstanceID: 0 },
+                (err, result) => {
+                    if (err) { log("GetInfoEx error", err); }
+                    log("callAction result", result.CurrentTransportState);
+                    const metadata = result.TrackMetaData;
+                    if (metadata) {
+                        const metaReq = xml2js.parseString(
+                            metadata,
+                            { explicitArray: false, ignoreAttrs: true },
+                            (err, metadataJson) => {
+                                if (err) { log(err) }
+                                /* PlayMedium : SONGLIST-NETWORK / RADIO-NETWORK / STATION-NETWORK / UNKOWN
+                                 *
+                                 * TrackSource : Prime / Qobuz / SPOTIFY / newTuneIn / iHeartRadio / Deezer / UPnPServer
+                                 *
+                                 * LoopMode :
+                                 * repeat / no shuffle 0
+                                 * repeat 1 / no shuffle 1
+                                 * repeat / shuffle 2
+                                 * no repeat / shuffle 3
+                                 * no repeat / no shuffle 4
+                                 * repeat 1 / shuffle 5
+                                 */
+
+                                mergeData = {
+                                    trackMetaData: metadataJson["DIDL-Lite"]["item"],
+                                    ...result
+                                };
+                                // socket.emit("metadata", mergeData);
+                                deviceState.metadata = mergeData;
+                            }
+                        );
+                    }
+                    else {
+                        deviceState.metadata = result;
+                    }
+                }
+            );
+        }
+        else {
+            // GET "GetPositionInfo" and "GetTransportInfo"
+        }
+        // client = null;
+    }
+    else {
+        // log("No default device selected yet");
+    };
+};
 
 // ===========================================================================
 // Initial SSDP scan for devices

@@ -33,6 +33,7 @@ module.exports = {
             else {
                 log("New device found. Get the device description...");
                 // Check the device description
+                // TODO: Move to upnpClient.js?
                 var client = upnp.createClient(respSSDP.LOCATION);
                 client.getDeviceDescription(function (err, deviceDesc) {
                     if (err) { log("Error", err); }

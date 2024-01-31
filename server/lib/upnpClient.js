@@ -34,24 +34,24 @@ module.exports = {
                     // throw err;
                     return null;
                 }
-                log("callAction result", action, result)
+                // log("callAction result", action, result)
                 return result;
             }
         );
     },
 
     // Get the device's AVTransport service description
-    getServiceDescription: (client) => {
-        log("getServiceDescription");
-        client.getServiceDescription('AVTransport', function (err, description) {
-            // if (err) throw err;
-            var availableActions = [];
-            Object.keys(description.actions).forEach((key) => {
-                availableActions.push(key);
-            });
-            log("availableActions", availableActions);
-            return availableActions;
-        });
-    }
+    // getServiceDescription: (client) => {
+    //     log("getServiceDescription");
+    //     client.getServiceDescription('AVTransport', function (err, description) {
+    //         // if (err) throw err;
+    //         var availableActions = [];
+    //         Object.keys(description.actions).forEach((key) => {
+    //             availableActions.push(key);
+    //         });
+    //         log("availableActions", availableActions);
+    //         return availableActions;
+    //     });
+    // }
 
 };
