@@ -11,8 +11,9 @@
 
     <style>
         html {
-            height: 100%;
+            min-height: 100%;
         }
+
         body {
             background-color: #333;
             background-image: linear-gradient(#033536, #010c12);
@@ -20,8 +21,10 @@
             min-height: 100%;
             font-family: arial, sans-serif;
         }
+
         #albumArt {
-            max-height: 120px;
+            max-height: 32px;
+            border-radius: 5px;
         }
     </style>
 
@@ -35,8 +38,13 @@
     <textarea id="state" cols="80" rows="3"></textarea>
 
     <p>Metadata:</p>
-    <textarea id="metadata" cols="80" rows="6"></textarea>
-    <img id="albumArt" />
+    <textarea id="metadata" cols="80" rows="4"></textarea>
+    <div>
+        <span id="sTitle"></span>,
+        <span id="sArtist"></span>,
+        <span id="sAlbum"></span>
+        <img id="albumArt" />
+    </div>
 
     <p>Currently available devices:</p>
     <ul id="devices">
@@ -48,7 +56,8 @@
     <textarea id="serverSettings" cols="80" rows="4"></textarea>
 
     <p>Hardware (Pi only)</p>
-    <div><button id="btnReboot" disabled>Reboot server</button><button id="btnShutdown" disabled>Shutdown server</button></div>
+    <div><button id="btnReboot" disabled>Reboot server</button><button id="btnShutdown" disabled>Shutdown
+            server</button></div>
 
     <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
     <script>
@@ -90,12 +99,15 @@
 
         socket.on("state", function (msg) {
             state.innerHTML = JSON.stringify(msg);
-            var timeStampDiff = (msg.stateTimeStamp && msg.metadataTimeStamp) ? Math.round( (msg.stateTimeStamp - msg.metadataTimeStamp) / 1000 ) : 0;
+            var timeStampDiff = (msg.stateTimeStamp && msg.metadataTimeStamp) ? Math.round((msg.stateTimeStamp - msg.metadataTimeStamp) / 1000) : 0;
             sTimeStampDiff.innerHTML = "<em>diff = " + timeStampDiff + "s</em>";
         });
 
         socket.on("metadata", function (msg) {
             metadata.innerHTML = JSON.stringify(msg);
+            sTitle.innerHTML = (msg.trackMetaData["dc:title"]) ? msg.trackMetaData["dc:title"] : "...";
+            sArtist.innerHTML = (msg.trackMetaData["upnp:artist"]) ? msg.trackMetaData["upnp:artist"] : "...";
+            sAlbum.innerHTML = (msg.trackMetaData["upnp:album"]) ? msg.trackMetaData["upnp:album"] : "...";
             if (msg.trackMetaData["upnp:albumArtURI"] && albumArt.src != msg.trackMetaData["upnp:albumArtURI"]) {
                 albumArt.src = msg.trackMetaData["upnp:albumArtURI"];
             }
@@ -119,7 +131,7 @@
 
         socket.on("server-settings", function (msg) {
             serverSettings.innerHTML = JSON.stringify(msg);
-            if(msg.os.userInfo.shell === "/bin/bash") { // RPi has bash, so possibly able to reboot/shutdown.
+            if (msg.os.userInfo.shell === "/bin/bash") { // RPi has bash, so possibly able to reboot/shutdown.
                 btnReboot.disabled = false;
                 btnShutdown.disabled = false;
             };
