@@ -10,16 +10,16 @@ const log = require("debug")("lib:sockets");
 // Exports
 module.exports = {
 
-    startState: (io, device) => {
+    startState: (io, device, serverSettings) => {
         log("Start streaming state...");
         // Start 'immediately' with a first package
         setTimeout(() => {
-            io.emit("state", device.transportInfo);
-        }, 250);
+            io.emit("state", device.state);
+        }, serverSettings.timeouts.immediate);
         // Then set an interval to stream the state
         return setInterval(() => {
-            io.emit("state", device.transportInfo);
-        }, 1000);
+            io.emit("state", device.state);
+        }, serverSettings.timeouts.state);
     },
 
     stopState: (streamState) => {
@@ -28,16 +28,16 @@ module.exports = {
         return null;
     },
 
-    startMetadata: (io, device) => {
+    startMetadata: (io, device, serverSettings) => {
         log("Start streaming metadata...");
         // Start 'immediately' with a first package
         setTimeout(() => {
             io.emit("metadata", device.metadata);
-        }, 250);
+        }, serverSettings.timeouts.immediate);
         // Then set an interval to stream the metadata
         return setInterval(() => {
             io.emit("metadata", device.metadata);
-        }, 5000);
+        }, serverSettings.timeouts.metadata);
     },
 
     stopMetadata: (streamMetadata) => {
@@ -56,6 +56,27 @@ module.exports = {
             // "actions": Object.keys(d.actions)
         }));
         io.emit("devices-get", devicesList);
+    },
+
+    setDevice: (io, deviceList, deviceInfo, serverSettings, location) => {
+        log("Change selected device...");
+        var selDevice = deviceList.filter((d) => { return d.location === location })
+        if (selDevice.length > 0) {
+            deviceInfo.state = null;
+            deviceInfo.metadata = null;
+            serverSettings.selectedDevice = {
+                "friendlyName": selDevice[0].friendlyName,
+                "manufacturer": selDevice[0].manufacturer,
+                "modelName": selDevice[0].modelName,
+                "location": selDevice[0].location,
+                "actions": Object.keys(selDevice[0].actions)
+            };
+            io.emit("device-set", serverSettings.selectedDevice);
+            module.exports.getServerSettings(io, serverSettings);    
+        }
+        else {
+            log("Selected device not in found list!");
+        }
     },
 
     scanDevices: (io, ssdp, devices) => {

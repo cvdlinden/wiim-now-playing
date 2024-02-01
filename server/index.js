@@ -26,38 +26,39 @@ const lib = require("./lib/lib.js"); // Generic functionality
 const log = require("debug")("index"); // See README.md on debugging
 
 // ===========================================================================
-// App variables
+// App constants & variables
 const port = 80; // Port 80 is the default www port, if the server won't start then choose another port i.e. 3000, 8000, 8080
 var deviceList = []; // Placeholder for found devices through SSDP
 var deviceInfo = { // Placeholder for device info
-    transportInfo: null, // Keeps the current transport info
-    metadata: null // Keeps the media metadata
+    state: null, // Keeps the device state updates
+    metadata: null // Keeps the device metadata updates
 };
 var streamState = null; // Interval for current state of device
 var streamMetadata = null; // Interval for current medio metadata from device
-// var deviceState = { // Placeholder for current device state
-//     // state: lib.getDate()
-// };
-// var deviceMetadata = { // Placeholder for current device metadata
-//     "dc:title": "Foo",
-//     "artist": "Bar",
-//     "modes": [2, 4, 8, 16, 32, 64, 128, 256]
-// }
 var serverSettings = { // Placeholder for current server settings
-    "selectedDevice": {
+    "selectedDevice": { // The selected device properties, a placeholder for now. Will be filled once a (default) device selection has been made.
         "friendlyName": null,
         "manufacturer": null,
         "modelName": null,
         "location": null,
+        "actions": null
     },
-    "os": lib.getOS()
+    "os": lib.getOS(), // Grab the environment we are running in.
+    "timeouts": {
+        "immediate": 250, // Timeout for 'immediate' updates in milliseconds.
+        "state": 1000, // Timeout for state updates in milliseconds.
+        "metadata": 5000 // Timeout for metadata updates in milliseconds.
+    }
 }
 
+// TODO: Get the serverSetting from storage
+//...
+
 // TODO: Move to upnpclient?
-function updateDeviceState() {
+function updateDeviceState(deviceInfo, serverSettings) {
     log("updateDeviceState");
-    if (serverSettings.selectedDevice.location) {
-        // log("DEVICE SELECTED")
+    if (serverSettings.selectedDevice.location && 
+        serverSettings.selectedDevice.actions.includes("GetTransportInfo")) {
         var client = upnp.createClient(serverSettings.selectedDevice.location);
         if (serverSettings.selectedDevice.actions.includes("GetTransportInfo")) {
             client.callAction(
@@ -65,12 +66,12 @@ function updateDeviceState() {
                 "GetTransportInfo",
                 { InstanceID: 0 },
                 (err, result) => {
-                    if (err) { 
-                        log("GetTransportInfo error", err); 
+                    if (err) {
+                        log("GetTransportInfo error", err);
                     }
                     else {
                         // log("GetTransportInfo result", result);
-                        deviceInfo.transportInfo = {
+                        deviceInfo.state = {
                             ...result,
                             RelTime: (deviceInfo.metadata && deviceInfo.metadata.RelTime) ? deviceInfo.metadata.RelTime : null,
                             TimeStamp: (deviceInfo.metadata && deviceInfo.metadata.TimeStamp) ? deviceInfo.metadata.TimeStamp : null,
@@ -85,17 +86,16 @@ function updateDeviceState() {
         client = null;
     }
     else {
-        // log("No default device selected yet");
+        // Not able to get transport info
+        deviceInfo.state = null;
     };
 };
-
-function updateDeviceMetadata() {
+// TODO: Move to upnpclient?
+function updateDeviceMetadata(deviceInfo, serverSettings) {
     log("updateDeviceMetadata")
     if (serverSettings.selectedDevice.location) {
-        // log("DEVICE SELECTED")
         var client = upnp.createClient(serverSettings.selectedDevice.location);
         if (serverSettings.selectedDevice.actions.includes("GetInfoEx")) {
-            // GET "GetInfoEx";
             client.callAction(
                 "AVTransport",
                 "GetInfoEx",
@@ -103,6 +103,7 @@ function updateDeviceMetadata() {
                 (err, result) => {
                     if (err) {
                         log("GetInfoEx error", err);
+                        // May be a transient error, just wait a bit and carry on...
                     }
                     else {
                         log("GetInfoEx result", result.CurrentTransportState);
@@ -136,14 +137,56 @@ function updateDeviceMetadata() {
                             );
                         }
                         else {
-                            deviceInfo.metadata = result;
+                            deviceInfo.metadata = {
+                                ...result,
+                                metadataTimeStamp: lib.getTimeStamp()
+                            };
+                        }
+                    }
+                }
+            );
+        }
+        else if (serverSettings.selectedDevice.actions.includes("GetPositionInfo")) {
+            client.callAction(
+                "AVTransport",
+                "GetPositionInfo",
+                { InstanceID: 0 },
+                (err, result) => {
+                    if (err) {
+                        log("GetPositionInfo error", err);
+                        // May be a transient error, just wait a bit and carry on...
+                    }
+                    else {
+                        log("GetPositionInfo result", result.CurrentTransportState);
+                        const metadata = result.TrackMetaData;
+                        if (metadata) {
+                            const metaReq = xml2js.parseString(
+                                metadata,
+                                { explicitArray: false, ignoreAttrs: true },
+                                (err, metadataJson) => {
+                                    if (err) { log(err) }
+                                    mergeData = {
+                                        trackMetaData: metadataJson["DIDL-Lite"]["item"],
+                                        ...result,
+                                        metadataTimeStamp: lib.getTimeStamp()
+                                    };
+                                    deviceInfo.metadata = mergeData;
+                                }
+                            );
+                        }
+                        else {
+                            deviceInfo.metadata = {
+                                ...result,
+                                metadataTimeStamp: lib.getTimeStamp()
+                            };
                         }
                     }
                 }
             );
         }
         else {
-            // GET "GetPositionInfo" and "GetTransportInfo"
+            // Not able to fetch metadata either through GetInfoEx nor GetPositionInfo.
+            deviceInfo.metadata = null;
         }
         client = null;
     }
@@ -172,18 +215,18 @@ io.on("connection", (socket) => {
     log("No. of sockets:", io.sockets.sockets.size);
     if (io.sockets.sockets.size === 1) {
         // TODO: Move to upnpclient?
-        updateDeviceState();
-        pollState = setInterval(() => {
-            updateDeviceState();
-        }, 1000);
-        // TODO: Move to upnpclient?
-        updateDeviceMetadata();
+        updateDeviceMetadata(deviceInfo, serverSettings);
         pollMetadata = setInterval(() => {
-            updateDeviceMetadata();
-        }, 5000);
+            updateDeviceMetadata(deviceInfo, serverSettings);
+        }, serverSettings.timeouts.metadata);
+        // TODO: Move to upnpclient?
+        updateDeviceState(deviceInfo, serverSettings);
+        pollState = setInterval(() => {
+            updateDeviceState(deviceInfo, serverSettings);
+        }, serverSettings.timeouts.state);
         // Start streaming to client(s)
-        streamState = sockets.startState(io, deviceInfo);
-        streamMetadata = sockets.startMetadata(io, deviceInfo)
+        streamState = sockets.startState(io, deviceInfo, serverSettings);
+        streamMetadata = sockets.startMetadata(io, deviceInfo, serverSettings)
     }
 
     // On disconnect
@@ -215,8 +258,23 @@ io.on("connection", (socket) => {
 
     // On devices refresh
     socket.on("devices-refresh", () => {
-        log("Socket event", "devices-refresh...");
+        log("Socket event", "devices-refresh");
         sockets.scanDevices(io, ssdp, deviceList);
+    });
+
+    // On device selection
+    socket.on("device-set", (msg) => {
+        log("Socket event", "device-set", msg);
+        sockets.setDevice(io, deviceList, deviceInfo, serverSettings, msg);
+        // Immediately do a polling to the new device
+        updateDeviceMetadata(deviceInfo, serverSettings);
+        updateDeviceState(deviceInfo, serverSettings);
+        setTimeout(() => {
+            io.emit("metadata", deviceInfo.metadata);
+        }, serverSettings.timeouts.immediate);
+        setTimeout(() => {
+            io.emit("state", deviceInfo.state);
+        }, serverSettings.timeouts.immediate);
     });
 
     // ======================================

@@ -43,6 +43,7 @@ module.exports = {
                         client.getServiceDescription('AVTransport', function (err, serviceDesc) {
                             if (err) { log("Error", err); }
                             else {
+
                                 var device = {
                                     location: respSSDP.LOCATION,
                                     ...deviceDesc,
@@ -50,13 +51,16 @@ module.exports = {
                                     ssdp: respSSDP
                                 };
                                 devices.push(device);
-                                log("Devices found:", devices.length, {
+                                log("Total devices found:", devices.length);
+                                log("New device found:", {
                                     "friendlyName": device.friendlyName,
                                     "manufacturer": device.manufacturer,
                                     "modelName": device.modelName,
                                     "location": device.location
                                 });
+
                                 // Do we need to set the default selected device?
+                                // If it is a WiiM device and no other has been selected, then yes.
                                 if (!serverSettings.selectedDevice.location &&
                                     device.manufacturer.includes("Linkplay") ||
                                     device.modelName.includes("WiiM")) {
@@ -69,6 +73,8 @@ module.exports = {
                                         // "actions": Object.keys(serviceDesc.actions)
                                     };
                                 };
+
+
                             };
                         });
 

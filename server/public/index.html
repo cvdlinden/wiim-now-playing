@@ -40,20 +40,20 @@
     <p>Metadata:</p>
     <textarea id="metadata" cols="80" rows="4"></textarea>
     <div>
-        <span id="sTitle"></span>,
-        <span id="sArtist"></span>,
-        <span id="sAlbum"></span>
+        <em id="sTitleArtistAlbum"></em>
         <img id="albumArt" />
     </div>
 
-    <p>Currently available devices:</p>
-    <ul id="devices">
-        <li><em>...</em></li>
-    </ul>
-    <div><button id="btnDevices">Get devices</button><button id="btnRefresh">Refresh devices</button></div>
+    <div>
+        <label for="deviceChoices">Select a device:</label>
+        <select id="deviceChoices">
+            <option disabled="disabled">Waiting for devices...</option>
+        </select>
+        <button id="btnDevices">Get devices</button><button id="btnRefresh">Refresh devices</button>
+    </div>
 
     <p>Server Settings</p>
-    <textarea id="serverSettings" cols="80" rows="4"></textarea>
+    <textarea id="sServerSettings" cols="80" rows="4"></textarea>
 
     <p>Hardware (Pi only)</p>
     <div><button id="btnReboot" disabled>Reboot server</button><button id="btnShutdown" disabled>Shutdown
@@ -81,6 +81,10 @@
             }, 5000);
         });
 
+        deviceChoices.addEventListener("change", function () {
+            socket.emit("device-set", this.value);
+        })
+
         btnReboot.addEventListener("click", function () {
             socket.emit("server-reboot");
         });
@@ -92,10 +96,72 @@
         // Sockets
 
         // Initial calls, wait a bit for socket to start
+        var serverSettings = null;
+        var deviceList = null;
         setTimeout(() => {
-            socket.emit("devices-get");
             socket.emit("server-settings");
+            socket.emit("devices-get");
         }, 500);
+
+        socket.on("server-settings", function (msg) {
+
+            // Store server settings
+            serverSettings = msg;
+
+            sServerSettings.innerHTML = JSON.stringify(msg);
+            if (msg.os.userInfo.shell === "/bin/bash") { // RPi has bash, so possibly able to reboot/shutdown.
+                btnReboot.disabled = false;
+                btnShutdown.disabled = false;
+            };
+
+        });
+
+        socket.on("devices-get", function (msg) {
+
+            // Store and sort device list
+            deviceList = msg;
+            deviceList.sort((a, b) => { return (a.friendlyName < b.friendlyName) ? -1 : 1 });
+
+            // Clear choices
+            deviceChoices.innerHTML = "";
+
+            // Add WiiM devices
+            var devicesWiiM = deviceList.filter((d) => { return d.manufacturer.startsWith("Linkplay") });
+            var optGroup = document.createElement("optgroup");
+            optGroup.label = "WiiM devices";
+            devicesWiiM.forEach((device) => {
+                var opt = document.createElement("option");
+                opt.value = device.location;
+                opt.innerText = device.friendlyName;
+                opt.title = "By " + device.manufacturer;
+                if (serverSettings && serverSettings.selectedDevice && serverSettings.selectedDevice.location === device.location) {
+                    opt.setAttribute("selected", "selected");
+                };
+                optGroup.appendChild(opt);
+            })
+            deviceChoices.appendChild(optGroup);
+
+            // Other devices
+            var devicesOther = deviceList.filter((d) => { return !d.manufacturer.startsWith("Linkplay") });
+            var optGroup = document.createElement("optgroup");
+            optGroup.label = "Other devices";
+            devicesOther.forEach((device) => {
+                var opt = document.createElement("option");
+                opt.value = device.location;
+                opt.innerText = device.friendlyName;
+                opt.title = "By " + device.manufacturer;
+                if (serverSettings && serverSettings.selectedDevice && serverSettings.selectedDevice.location === device.location) {
+                    opt.setAttribute("selected", "selected");
+                };
+                optGroup.appendChild(opt);
+            })
+            deviceChoices.appendChild(optGroup);
+
+        });
+
+        socket.on("devices-refresh", function (msg) {
+            deviceChoices.innerHTML = "<option disabled=\"disabled\">Waiting for devices...</em></li>";
+        });
 
         socket.on("state", function (msg) {
             state.innerHTML = JSON.stringify(msg);
@@ -105,36 +171,19 @@
 
         socket.on("metadata", function (msg) {
             metadata.innerHTML = JSON.stringify(msg);
-            sTitle.innerHTML = (msg.trackMetaData["dc:title"]) ? msg.trackMetaData["dc:title"] : "...";
-            sArtist.innerHTML = (msg.trackMetaData["upnp:artist"]) ? msg.trackMetaData["upnp:artist"] : "...";
-            sAlbum.innerHTML = (msg.trackMetaData["upnp:album"]) ? msg.trackMetaData["upnp:album"] : "...";
-            if (msg.trackMetaData["upnp:albumArtURI"] && albumArt.src != msg.trackMetaData["upnp:albumArtURI"]) {
+            var aTitleArtistAlbum = []
+            if (msg.trackMetaData) {
+                if ((msg.trackMetaData["dc:title"])) { aTitleArtistAlbum.push(msg.trackMetaData["dc:title"]) };
+                if ((msg.trackMetaData["upnp:artist"])) { aTitleArtistAlbum.push(msg.trackMetaData["upnp:artist"]) };
+                if ((msg.trackMetaData["upnp:album"])) { aTitleArtistAlbum.push(msg.trackMetaData["upnp:album"]) };
+            };
+            sTitleArtistAlbum.innerText = aTitleArtistAlbum.join(", ");
+            if (msg.trackMetaData && msg.trackMetaData["upnp:albumArtURI"] && albumArt.src != msg.trackMetaData["upnp:albumArtURI"]) {
                 albumArt.src = msg.trackMetaData["upnp:albumArtURI"];
             }
-            else if (!msg.trackMetaData["upnp:albumArtURI"]) {
+            else if (!msg.trackMetaData || !msg.trackMetaData["upnp:albumArtURI"]) {
                 albumArt.src = "";
             }
-        });
-
-        socket.on("devices-get", function (msg) {
-            devices.innerHTML = "";
-            msg.forEach(device => {
-                var item = document.createElement('li');
-                item.innerHTML = device.friendlyName;
-                devices.appendChild(item);
-            });
-        });
-
-        socket.on("devices-refresh", function (msg) {
-            devices.innerHTML = "<li><em>" + msg + "</em></li>";
-        });
-
-        socket.on("server-settings", function (msg) {
-            serverSettings.innerHTML = JSON.stringify(msg);
-            if (msg.os.userInfo.shell === "/bin/bash") { // RPi has bash, so possibly able to reboot/shutdown.
-                btnReboot.disabled = false;
-                btnShutdown.disabled = false;
-            };
         });
 
     </script>
