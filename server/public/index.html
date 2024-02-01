@@ -168,6 +168,12 @@
 
         });
 
+        socket.on("device-set", function(msg) {
+            // Device wissel? Haal 'alles' opnieuw op
+            socket.emit("server-settings");
+            socket.emit("devices-get");
+        });
+
         socket.on("devices-refresh", function (msg) {
             deviceChoices.innerHTML = "<option disabled=\"disabled\">Waiting for devices...</em></li>";
         });

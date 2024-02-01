@@ -71,8 +71,7 @@ module.exports = {
                 "location": selDevice[0].location,
                 "actions": Object.keys(selDevice[0].actions)
             };
-            io.emit("device-set", serverSettings.selectedDevice);
-            module.exports.getServerSettings(io, serverSettings);    
+            io.emit("device-set", serverSettings.selectedDevice); // Send selected device props
         }
         else {
             log("Selected device not in found list!");

@@ -12,13 +12,13 @@ const log = require("debug")("lib:lib");
 module.exports = {
 
     getDate: () => { // Get date in UTC
-        log("getDate")
+        // log("getDate")
         var date = new Date();
         return date.toUTCString();
     },
 
     getTimeStamp: () => { // Get date in Unix timestamp
-        log("getTimeStamp");
+        // log("getTimeStamp");
         return Date.now();
     },
 

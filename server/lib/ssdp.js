@@ -62,8 +62,7 @@ module.exports = {
                                 // Do we need to set the default selected device?
                                 // If it is a WiiM device and no other has been selected, then yes.
                                 if (!serverSettings.selectedDevice.location &&
-                                    device.manufacturer.includes("Linkplay") ||
-                                    device.modelName.includes("WiiM")) {
+                                    (device.manufacturer.includes("Linkplay") || device.modelName.includes("WiiM"))) {
                                     serverSettings.selectedDevice = {
                                         "friendlyName": device.friendlyName,
                                         "manufacturer": device.manufacturer,
@@ -88,6 +87,10 @@ module.exports = {
         // ssdpClient.search('ssdp:all'); // Search all devices
         // ssdpClient.search("urn:schemas-upnp-org:device:MediaRenderer"); // Search for MediaRenderer devices
         ssdpClient.search("urn:schemas-upnp-org:service:AVTransport:1"); // Search for AVTransport enabled devices
+
+        // OpenHome?
+        // const searchType1 = 'urn:av-openhome-org:service:Product:1';
+        // const searchType2 = 'urn:av-openhome-org:service:Product:2';
 
     },
 
