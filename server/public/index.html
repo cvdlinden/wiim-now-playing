@@ -127,35 +127,44 @@
 
             // Add WiiM devices
             var devicesWiiM = deviceList.filter((d) => { return d.manufacturer.startsWith("Linkplay") });
-            var optGroup = document.createElement("optgroup");
-            optGroup.label = "WiiM devices";
-            devicesWiiM.forEach((device) => {
-                var opt = document.createElement("option");
-                opt.value = device.location;
-                opt.innerText = device.friendlyName;
-                opt.title = "By " + device.manufacturer;
-                if (serverSettings && serverSettings.selectedDevice && serverSettings.selectedDevice.location === device.location) {
-                    opt.setAttribute("selected", "selected");
-                };
-                optGroup.appendChild(opt);
-            })
-            deviceChoices.appendChild(optGroup);
+            if (devicesWiiM.length > 0) {
+                var optGroup = document.createElement("optgroup");
+                optGroup.label = "WiiM devices";
+                devicesWiiM.forEach((device) => {
+                    var opt = document.createElement("option");
+                    opt.value = device.location;
+                    opt.innerText = device.friendlyName;
+                    opt.title = "By " + device.manufacturer;
+                    if (serverSettings && serverSettings.selectedDevice && serverSettings.selectedDevice.location === device.location) {
+                        opt.setAttribute("selected", "selected");
+                    };
+                    optGroup.appendChild(opt);
+                })
+                deviceChoices.appendChild(optGroup);
+            };
 
             // Other devices
             var devicesOther = deviceList.filter((d) => { return !d.manufacturer.startsWith("Linkplay") });
-            var optGroup = document.createElement("optgroup");
-            optGroup.label = "Other devices";
-            devicesOther.forEach((device) => {
-                var opt = document.createElement("option");
-                opt.value = device.location;
-                opt.innerText = device.friendlyName;
-                opt.title = "By " + device.manufacturer;
-                if (serverSettings && serverSettings.selectedDevice && serverSettings.selectedDevice.location === device.location) {
-                    opt.setAttribute("selected", "selected");
-                };
-                optGroup.appendChild(opt);
-            })
-            deviceChoices.appendChild(optGroup);
+            if (devicesOther.length > 0) {
+                var optGroup = document.createElement("optgroup");
+                optGroup.label = "Other devices";
+                devicesOther.forEach((device) => {
+                    var opt = document.createElement("option");
+                    opt.value = device.location;
+                    opt.innerText = device.friendlyName;
+                    opt.title = "By " + device.manufacturer;
+                    if (serverSettings && serverSettings.selectedDevice && serverSettings.selectedDevice.location === device.location) {
+                        opt.setAttribute("selected", "selected");
+                    };
+                    optGroup.appendChild(opt);
+                })
+                deviceChoices.appendChild(optGroup);
+
+            };
+
+            if (devicesWiiM.length == 0 && devicesOther.length == 0) {
+                deviceChoices.innerHTML = "<option disabled=\"disabled\">No devices found!</em></li>";
+            };
 
         });
 
