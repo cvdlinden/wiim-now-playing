@@ -14,44 +14,43 @@ const UPNP = require("upnp-device-client");
 // Other modules
 const log = require("debug")("lib:upnp");
 
-// Exports
-module.exports = {
+/**
+ * This function creates the UPnP Device Client.
+ * @param {string} rendererUri - The device renderer uri.
+ * @returns {object} The UPnP Device Client object.
+ */
+const createClient = (rendererUri) => {
+    log("createClient", rendererUri);
+    return new UPNP(rendererUri);
+}
 
-    createClient: (rendererUri) => {
-        log("createClient", rendererUri);
-        return new UPNP(rendererUri);
-    },
-
-    callAction: (client, action) => {
-        log("callAction", action);
-        client.callAction(
-            "AVTransport",
-            action,
-            { InstanceID: 0 },
-            (err, result) => {
-                if (err) {
-                    log("UPNP Error", err);
-                    // throw err;
-                    return null;
-                }
-                // log("callAction result", action, result)
-                return result;
+/**
+ * This function calls an action to perform on the device renderer.
+ * E.g. "Next","Pause","Play","Previous","Seek".
+ * See the selected device actions to see what the renderer is capable of.
+ * @param {object} rendererUri - A UPnP Device Client object.
+ * @param {string} action - The AVTransport action to perform.
+ * @returns {object} The restulting object of the action (or null).
+ */
+const callAction = (client, action) => {
+    log("callAction", action);
+    client.callAction(
+        "AVTransport",
+        action,
+        { InstanceID: 0 },
+        (err, result) => {
+            if (err) {
+                log("UPNP Error", err);
+                // throw err;
+                return null;
             }
-        );
-    },
+            // log("callAction result", action, result)
+            return result;
+        }
+    );
+}
 
-    // Get the device's AVTransport service description
-    // getServiceDescription: (client) => {
-    //     log("getServiceDescription");
-    //     client.getServiceDescription('AVTransport', function (err, description) {
-    //         // if (err) throw err;
-    //         var availableActions = [];
-    //         Object.keys(description.actions).forEach((key) => {
-    //             availableActions.push(key);
-    //         });
-    //         log("availableActions", availableActions);
-    //         return availableActions;
-    //     });
-    // }
-
+module.exports = {
+    createClient,
+    callAction
 };

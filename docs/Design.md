@@ -17,6 +17,7 @@
   See <https://expressjs.com/en/advanced/best-practice-performance.html#ensure-your-app-automatically-restarts>
 - Add a virtual keyboard? <https://github.com/Mottie/Keyboard>
 - Add storage to remember app settings <https://github.com/simonlast/node-persist>
+- Use JSDoc for generation of documentation? <https://github.com/jsdoc/jsdoc>
 
 ## Other work/Examples/Inspiration
 

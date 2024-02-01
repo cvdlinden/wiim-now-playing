@@ -29,7 +29,7 @@ const log = require("debug")("index"); // See README.md on debugging
 // App constants & variables
 const port = 80; // Port 80 is the default www port, if the server won't start then choose another port i.e. 3000, 8000, 8080
 var deviceList = []; // Placeholder for found devices through SSDP
-var deviceInfo = { // Placeholder for device info
+var deviceInfo = { // Placeholder for the currently selected device info
     state: null, // Keeps the device state updates
     metadata: null // Keeps the device metadata updates
 };

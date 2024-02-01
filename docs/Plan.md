@@ -6,13 +6,14 @@
   - [x] Create express server
   - ~~Use cookies to remember client settings~~
   - [ ] Use storage on server to remember app settings
-  - [ ] Make device switchable
+  - [x] Make device switchable
   - [x] Create SSDP discovery to find eligible media renderers
   - [x] Create UPNP client to talk to media renderers
   - [x] Create Socket.IO to have realtime updates with client
   - [x] Create basic webpage and test functionality
   - [ ] Create app to talk to server and show/handle info dynamically
   - [ ] Add a virtual keyboard to the client for touchscreen?
+  - [ ] Use JSDoc for documentation generation?
   - [ ] Create ...
 
 - [x] Solution will run on multiple enviroments, i.e. windows using a desktop browser and Raspberry Pi OS (Lite).
