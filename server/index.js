@@ -129,7 +129,7 @@ function updateDeviceMetadata(deviceInfo, serverSettings) {
                                     */
 
                                     mergeData = {
-                                        trackMetaData: metadataJson["DIDL-Lite"]["item"],
+                                        trackMetaData: (metadataJson["DIDL-Lite"] && metadataJson["DIDL-Lite"]["item"]) ? metadataJson["DIDL-Lite"]["item"] : null,
                                         ...result,
                                         metadataTimeStamp: lib.getTimeStamp()
                                     };
