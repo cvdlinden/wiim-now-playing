@@ -14,6 +14,7 @@
   - [ ] Create app to talk to server and show/handle info dynamically
   - [ ] Add a virtual keyboard to the client for touchscreen?
   - [ ] Use JSDoc for documentation generation?
+  - [ ] Also make use of OpenHome devices?
   - [ ] Create ...
 
 - [x] Solution will run on multiple enviroments, i.e. windows using a desktop browser and Raspberry Pi OS (Lite).
