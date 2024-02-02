@@ -58,7 +58,7 @@ var serverSettings = { // Placeholder for current server settings
 // TODO: Move to upnpclient?
 function updateDeviceState(deviceInfo, serverSettings) {
     log("updateDeviceState");
-    if (serverSettings.selectedDevice.location && 
+    if (serverSettings.selectedDevice.location &&
         serverSettings.selectedDevice.actions.includes("GetTransportInfo")) {
         var client = upnp.createClient(serverSettings.selectedDevice.location);
         if (serverSettings.selectedDevice.actions.includes("GetTransportInfo")) {
@@ -114,26 +114,30 @@ function updateDeviceMetadata(deviceInfo, serverSettings) {
                                 metadata,
                                 { explicitArray: false, ignoreAttrs: true },
                                 (err, metadataJson) => {
-                                    if (err) { log(err) }
-                                    /* PlayMedium : SONGLIST-NETWORK / RADIO-NETWORK / STATION-NETWORK / UNKOWN
-                                    *
-                                    * TrackSource : Prime / Qobuz / SPOTIFY / newTuneIn / iHeartRadio / Deezer / UPnPServer
-                                    *
-                                    * LoopMode :
-                                    * repeat / no shuffle 0
-                                    * repeat 1 / no shuffle 1
-                                    * repeat / shuffle 2
-                                    * no repeat / shuffle 3
-                                    * no repeat / no shuffle 4
-                                    * repeat 1 / shuffle 5
-                                    */
+                                    if (err) {
+                                        log(err)
+                                    }
+                                    else {
+                                        /* PlayMedium : SONGLIST-NETWORK / RADIO-NETWORK / STATION-NETWORK / UNKOWN
+                                        *
+                                        * TrackSource : Prime / Qobuz / SPOTIFY / newTuneIn / iHeartRadio / Deezer / UPnPServer
+                                        *
+                                        * LoopMode :
+                                        * repeat / no shuffle 0
+                                        * repeat 1 / no shuffle 1
+                                        * repeat / shuffle 2
+                                        * no repeat / shuffle 3
+                                        * no repeat / no shuffle 4
+                                        * repeat 1 / shuffle 5
+                                        */
 
-                                    mergeData = {
-                                        trackMetaData: (metadataJson["DIDL-Lite"] && metadataJson["DIDL-Lite"]["item"]) ? metadataJson["DIDL-Lite"]["item"] : null,
-                                        ...result,
-                                        metadataTimeStamp: lib.getTimeStamp()
-                                    };
-                                    deviceInfo.metadata = mergeData;
+                                        mergeData = {
+                                            trackMetaData: (metadataJson["DIDL-Lite"] && metadataJson["DIDL-Lite"]["item"]) ? metadataJson["DIDL-Lite"]["item"] : null,
+                                            ...result,
+                                            metadataTimeStamp: lib.getTimeStamp()
+                                        };
+                                        deviceInfo.metadata = mergeData;
+                                    }
                                 }
                             );
                         }
