@@ -45,22 +45,29 @@ The app **WILL NOT**:
 
 The wiim-now-playing app is built using the following tools (may change over time):
 
+Confirmed:
+
 - [Node.js & NPM](https://nodejs.org/en): The basics
 - [Express](https://www.npmjs.com/package/express): HTTP handling  
-  See <https://expressjs.com/en/advanced/best-practice-performance.html#set-node_env-to-production>
-- SSDP: Discovery of (Wiim) MediaRenderer devices on the network
-- UPNP client: Talk to MediaRenderer devices on the network
-- Socket.IO: Realtime connection between server and client
+  Also see [Express.js: set-node_env-to-production](https://expressjs.com/en/advanced/best-practice-performance.html#set-node_env-to-production)
+- [node-ssdp](https://www.npmjs.com/package/node-ssdp): Discovery of (Wiim) MediaRenderer devices on the network
+- [upnp-device-client](https://www.npmjs.com/package/upnp-device-client): Talk to MediaRenderer devices on the network
+- [socket.io](https://www.npmjs.com/package/socket.io): Realtime connection between server and client
+- [debug](https://www.npmjs.com/package/debug): To handle debug messages  
+  Also see [Express.js: do-logging-correctly](https://expressjs.com/en/advanced/best-practice-performance.html#do-logging-correctly)
+- Add storage to remember server settings, using fs
+- [xml2js](https://www.npmjs.com/package/xml2js): In order to parse any XML metadata
+
+Possibly:
+
 - Gulp?: Build tools
 - Vue.js?: Client framework for presentation (or should I go with Angular?)
   - BootstrapVue vs Vuetify? <https://moiva.io/?npm=bootstrap-vue+vuetify>
-- [debug](https://www.npmjs.com/package/debug): To handle debug messages  
-  See <https://expressjs.com/en/advanced/best-practice-performance.html#do-logging-correctly>
 - PM2?: A process manager to handle automatic (re)starts of the application  
   See <https://expressjs.com/en/advanced/best-practice-performance.html#ensure-your-app-automatically-restarts>
 - Add a virtual keyboard? <https://github.com/Mottie/Keyboard>
-- Add storage to remember app settings <https://github.com/simonlast/node-persist>
 - Use JSDoc for generation of documentation? <https://github.com/jsdoc/jsdoc>
+
 
 ## Other works/examples/inspiration/mentions
 
