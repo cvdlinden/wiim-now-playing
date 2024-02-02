@@ -13,6 +13,7 @@ const SSDP = require('node-ssdp').Client
 const ssdpClient = new SSDP({ explicitSocketBind: true }); // explicitSocketBind enabled to make it work on Windows 11
 
 // Other modules
+const lib = require("./lib.js"); // Generic functionality
 const upnp = require("./upnpClient.js"); // UPNP Client functionality
 const log = require("debug")("lib:ssdp");
 
@@ -74,6 +75,7 @@ const scan = (deviceList, serverSettings) => {
                                     "actions": Object.keys(device.actions)
                                     // "actions": Object.keys(serviceDesc.actions)
                                 };
+                                lib.saveSettings(serverSettings); // Make sure the settings are stored
                             };
 
                         };

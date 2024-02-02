@@ -8,6 +8,7 @@
  */
 
 // Other modules
+const lib = require("./lib.js"); // Generic functionality
 const log = require("debug")("lib:sockets");
 
 /**
@@ -111,6 +112,7 @@ const setDevice = (io, deviceList, deviceInfo, serverSettings, location) => {
             "actions": Object.keys(selDevice[0].actions)
         };
         io.emit("device-set", serverSettings.selectedDevice); // Send selected device props
+        lib.saveSettings(serverSettings); // Make sure the settings are stored
     }
     else {
         log("Selected device not in found list!");

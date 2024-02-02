@@ -49,11 +49,12 @@ var serverSettings = { // Placeholder for current server settings
         "immediate": 250, // Timeout for 'immediate' updates in milliseconds.
         "state": 1000, // Timeout for state updates in milliseconds.
         "metadata": 5000 // Timeout for metadata updates in milliseconds.
-    }
+    },
+    "ui": null // Placeholder for future UI settings
 }
 
-// TODO: Get the serverSetting from storage
-//...
+// Get the server settings from local file storage
+lib.getSettings(serverSettings);
 
 // TODO: Move to upnpclient?
 function updateDeviceState(deviceInfo, serverSettings) {
