@@ -13,7 +13,7 @@ const fs = require('fs');
 const log = require("debug")("lib:lib");
 
 // Module constants
-const settingsFile = "./server/settings.json";
+const settingsFile = __dirname + "/../settings.json";
 
 /**
  * This function provides the current date and time in UTC format.
