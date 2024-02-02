@@ -168,7 +168,7 @@
 
         });
 
-        socket.on("device-set", function(msg) {
+        socket.on("device-set", function (msg) {
             // Device wissel? Haal 'alles' opnieuw op
             socket.emit("server-settings");
             socket.emit("devices-get");
@@ -180,23 +180,28 @@
 
         socket.on("state", function (msg) {
             state.innerHTML = JSON.stringify(msg);
-            var timeStampDiff = (msg.stateTimeStamp && msg.metadataTimeStamp) ? Math.round((msg.stateTimeStamp - msg.metadataTimeStamp) / 1000) : 0;
-            sTimeStampDiff.innerHTML = "<em>diff = " + timeStampDiff + "s</em>";
+            if (msg && msg.stateTimeStamp && msg.metadataTimeStamp) {
+                var timeStampDiff = (msg.stateTimeStamp && msg.metadataTimeStamp) ? Math.round((msg.stateTimeStamp - msg.metadataTimeStamp) / 1000) : 0;
+                sTimeStampDiff.innerHTML = "<em>diff = " + timeStampDiff + "s</em>";
+            }
+            else {
+                sTimeStampDiff.innerHTML = "";
+            }
         });
 
         socket.on("metadata", function (msg) {
             metadata.innerHTML = JSON.stringify(msg);
             var aTitleArtistAlbum = []
-            if (msg.trackMetaData) {
+            if (msg && msg.trackMetaData) {
                 if ((msg.trackMetaData["dc:title"])) { aTitleArtistAlbum.push(msg.trackMetaData["dc:title"]) };
                 if ((msg.trackMetaData["upnp:artist"])) { aTitleArtistAlbum.push(msg.trackMetaData["upnp:artist"]) };
                 if ((msg.trackMetaData["upnp:album"])) { aTitleArtistAlbum.push(msg.trackMetaData["upnp:album"]) };
             };
             sTitleArtistAlbum.innerText = aTitleArtistAlbum.join(", ");
-            if (msg.trackMetaData && msg.trackMetaData["upnp:albumArtURI"] && albumArt.src != msg.trackMetaData["upnp:albumArtURI"]) {
+            if (msg && msg.trackMetaData && msg.trackMetaData["upnp:albumArtURI"] && albumArt.src != msg.trackMetaData["upnp:albumArtURI"]) {
                 albumArt.src = msg.trackMetaData["upnp:albumArtURI"];
             }
-            else if (!msg.trackMetaData || !msg.trackMetaData["upnp:albumArtURI"]) {
+            else {
                 albumArt.src = "";
             }
         });
