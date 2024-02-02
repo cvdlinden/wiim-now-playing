@@ -1,8 +1,11 @@
 // ===========================================================================
 // socket.js
-//
-// Socket.io functionality module
-// Contains generic functions to aid the sockets in the app
+
+/**
+ * Socket.io functionality module.
+ * Contains generic functions to aid the sockets in the app.
+ * @module
+ */
 
 // Other modules
 const log = require("debug")("lib:sockets");

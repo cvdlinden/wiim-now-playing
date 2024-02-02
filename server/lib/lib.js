@@ -1,8 +1,11 @@
 // ===========================================================================
 // lib.js
-//
-// Custom functionality module
-// Contains generic functions to aid the server app
+
+/**
+ * Custom functionality module.
+ * Contains generic functions to aid the server app.
+ * @module
+ */
 
 // Other modules
 const os = require("os");

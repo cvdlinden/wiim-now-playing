@@ -1,8 +1,11 @@
 // ===========================================================================
 // shell.js
-//
-// Shell functionality module
-// Handle shell commands
+
+/**
+ * Shell functionality module.
+ * Handle shell commands.
+ * @module
+ */
 
 // Other modules
 const exec = require('child_process').exec;

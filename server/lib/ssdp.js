@@ -1,8 +1,12 @@
 // ===========================================================================
 // ssdp.js
 //
-// SSDP functionality module
-// The processes are asynchronous and take a wile, so wait for results to come in.
+
+/**
+ * SSDP functionality module.
+ * The processes are asynchronous and take a wile, so wait for results to come in.
+ * @module
+ */
 
 // Use SSDP module
 const SSDP = require('node-ssdp').Client

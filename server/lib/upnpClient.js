@@ -1,12 +1,15 @@
 // ===========================================================================
-// upnp.js
-//
-// UPNP functionality module - ASYNC!!!
-//
-// NOTE! We can't do a subscription on events as WiiM does not send any state variables (other than advertised LastChange).
-// Furthermore, the WiiM device really doesn't like setting up a subscription and will behave erratically -> Reboot WiiM
-// Seems we're bound to polling the current state every second or so.
-// TODO: Ask WiiM to implement UPNP subscriptions?
+// upnpClient.js
+
+/**
+ * UPNP functionality module - ASYNC!!!
+ *
+ * NOTE! We can't do a subscription on events as WiiM does not send any state variables (other than advertised LastChange).
+ * Furthermore, the WiiM device really doesn't like setting up a subscription and will behave erratically -> Reboot WiiM
+ * Seems we're bound to polling the current state every second or so.
+ * TODO: Ask WiiM to implement UPNP subscriptions?
+ * @module
+ */
 
 // Use upnp-device-client module
 const UPNP = require("upnp-device-client");
