@@ -25,7 +25,7 @@ const log = require("debug")("lib:upnpClient");
  * @returns {object} The UPnP Device Client object.
  */
 const createClient = (rendererUri) => {
-    log("createClient", rendererUri);
+    // log("createClient", rendererUri);
     return new UPNP(rendererUri);
 }
 
@@ -45,12 +45,12 @@ const callAction = (client, action) => {
         { InstanceID: 0 },
         (err, result) => {
             if (err) {
-                log("UPNP Error", err);
-                // throw err;
-                return null;
+                log("callAction()", "UPNP Error", err);
             }
-            // log("callAction result", action, result)
-            return result;
+            else {
+                log("callAction result", action, result)
+                return result;
+            }
         }
     );
 }
@@ -102,7 +102,7 @@ const stopPolling = (interval, name) => {
  * This function ...
  */
 const updateDeviceState = (deviceInfo, serverSettings) => {
-    log("updateDeviceState");
+    log("updateDeviceState()");
     if (serverSettings.selectedDevice.location &&
         serverSettings.selectedDevice.actions.includes("GetTransportInfo")) {
         const client = module.exports.createClient(serverSettings.selectedDevice.location);
@@ -113,10 +113,15 @@ const updateDeviceState = (deviceInfo, serverSettings) => {
                 { InstanceID: 0 },
                 (err, result) => {
                     if (err) {
-                        log("GetTransportInfo error", err);
+                        log("updateDeviceState()", "GetTransportInfo error", err);
+                        // If errors are persistent, what do we do? Change to any other available device?
+                        // Device could be rebooting. Or turned off. Or disposed off, ...
+                        // After x amount of polling should we give up? Stop polling and streaming?
+                        // Or wait for the device to be turned on again?
+                        // Or let the clients kindly know of a disruption? Could be the task of the client.
                     }
                     else {
-                        // log("GetTransportInfo result", result.CurrentTransportState);
+                        log("updateDeviceState()", "GetTransportInfo:", result.CurrentTransportState);
                         deviceInfo.state = {
                             ...result,
                             RelTime: (deviceInfo.metadata && deviceInfo.metadata.RelTime) ? deviceInfo.metadata.RelTime : null,
@@ -125,7 +130,7 @@ const updateDeviceState = (deviceInfo, serverSettings) => {
                             metadataTimeStamp: (deviceInfo.metadata && deviceInfo.metadata.metadataTimeStamp) ? deviceInfo.metadata.metadataTimeStamp : null,
                             stateTimeStamp: lib.getTimeStamp(),
                         };
-                        // log("GetTransportInfo result", deviceInfo.state);
+                        // log("updateDeviceState()","GetTransportInfo result", deviceInfo.state);
                     }
                 }
             );
@@ -133,7 +138,7 @@ const updateDeviceState = (deviceInfo, serverSettings) => {
         // client = null;
     }
     else {
-        log("Not able to get transport info for this device");
+        log("updateDeviceState()", "Not able to get transport info for this device");
         deviceInfo.state = null;
     };
 }
@@ -142,7 +147,7 @@ const updateDeviceState = (deviceInfo, serverSettings) => {
  * This function ...
  */
 const updateDeviceMetadata = (deviceInfo, serverSettings) => {
-    log("updateDeviceMetadata")
+    log("updateDeviceMetadata()")
     if (serverSettings.selectedDevice.location) {
         const client = module.exports.createClient(serverSettings.selectedDevice.location);
         if (serverSettings.selectedDevice.actions.includes("GetInfoEx")) {
@@ -152,11 +157,11 @@ const updateDeviceMetadata = (deviceInfo, serverSettings) => {
                 { InstanceID: 0 },
                 (err, result) => {
                     if (err) {
-                        log("GetInfoEx error", err);
+                        log("updateDeviceMetadata()", "GetInfoEx error", err);
                         // May be a transient error, just wait a bit and carry on...
                     }
                     else {
-                        // log("GetInfoEx result", result.CurrentTransportState);
+                        log("updateDeviceMetadata()", "GetInfoEx:", result.RelTime);
                         const metadata = result.TrackMetaData;
                         if (metadata) {
                             const metaReq = xml2js.parseString(
@@ -164,7 +169,7 @@ const updateDeviceMetadata = (deviceInfo, serverSettings) => {
                                 { explicitArray: false, ignoreAttrs: true },
                                 (err, metadataJson) => {
                                     if (err) {
-                                        log(err)
+                                        log("updateDeviceMetadata()", err);
                                     }
                                     else {
                                         /* PlayMedium : SONGLIST-NETWORK / RADIO-NETWORK / STATION-NETWORK / UNKOWN
@@ -180,12 +185,11 @@ const updateDeviceMetadata = (deviceInfo, serverSettings) => {
                                         * repeat 1 / shuffle 5
                                         */
 
-                                        mergeData = {
+                                        deviceInfo.metadata = {
                                             trackMetaData: (metadataJson["DIDL-Lite"] && metadataJson["DIDL-Lite"]["item"]) ? metadataJson["DIDL-Lite"]["item"] : null,
                                             ...result,
                                             metadataTimeStamp: lib.getTimeStamp()
-                                        };
-                                        deviceInfo.metadata = mergeData;
+                                        };;
                                     }
                                 }
                             );
@@ -207,23 +211,27 @@ const updateDeviceMetadata = (deviceInfo, serverSettings) => {
                 { InstanceID: 0 },
                 (err, result) => {
                     if (err) {
-                        log("GetPositionInfo error", err);
+                        log("updateDeviceMetadata()", "GetPositionInfo error", err);
                         // May be a transient error, just wait a bit and carry on...
                     }
                     else {
+                        log("updateDeviceMetadata()", "GetPositionInfo:", result.RelTime);
                         const metadata = result.TrackMetaData;
                         if (metadata) {
                             const metaReq = xml2js.parseString(
                                 metadata,
                                 { explicitArray: false, ignoreAttrs: true },
                                 (err, metadataJson) => {
-                                    if (err) { log(err) }
-                                    mergeData = {
-                                        trackMetaData: metadataJson["DIDL-Lite"]["item"],
-                                        ...result,
-                                        metadataTimeStamp: lib.getTimeStamp()
-                                    };
-                                    deviceInfo.metadata = mergeData;
+                                    if (err) {
+                                        log("updateDeviceMetadata()", err)
+                                    }
+                                    else {
+                                        deviceInfo.metadata = {
+                                            trackMetaData: metadataJson["DIDL-Lite"]["item"],
+                                            ...result,
+                                            metadataTimeStamp: lib.getTimeStamp()
+                                        };
+                                    }
                                 }
                             );
                         }
