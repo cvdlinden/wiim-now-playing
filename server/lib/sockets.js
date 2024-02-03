@@ -89,7 +89,7 @@ const getDevices = (io, deviceList) => {
  */
 const setDevice = (io, deviceList, deviceInfo, serverSettings, location) => {
     log("Change selected device...");
-    var selDevice = deviceList.filter((d) => { return d.location === location })
+    const selDevice = deviceList.filter((d) => { return d.location === location })
     if (selDevice.length > 0) {
         deviceInfo.state = null;
         deviceInfo.metadata = null;

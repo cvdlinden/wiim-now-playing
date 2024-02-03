@@ -1,12 +1,12 @@
 // See: https://www.npmjs.com/package/upnp-device-client
 
-var Client = require('upnp-device-client');
+let Client = require('upnp-device-client');
 
 // Instanciate a client with a device description URL (discovered by SSDP)
-var client = new Client('http://192.168.1.243:49152/description.xml');
-// var client = new Client('http://192.168.1.152:49152/uuid-7226dbfc-0701-f6bc-f8db-d83add8197a0/description.xml');
-// var client = new Client('http://192.168.1.102:52323/MediaRenderer.xml');
-// var client = new Client('http://192.168.1.137:52323/dmr.xml');
+let client = new Client('http://192.168.1.243:49152/description.xml');
+// let client = new Client('http://192.168.1.152:49152/uuid-7226dbfc-0701-f6bc-f8db-d83add8197a0/description.xml');
+// let client = new Client('http://192.168.1.102:52323/MediaRenderer.xml');
+// let client = new Client('http://192.168.1.137:52323/dmr.xml');
 
 // Get the device description
 client.getDeviceDescription(function (err, description) {
@@ -55,13 +55,13 @@ client.getServiceDescription('AVTransport', function (err, description) {
 // });
 
 // DONT DO SUBSCRIPTIONS!
-// var subEvents = function (e) {
+// let subEvents = function (e) {
 //     // Will receive events like { InstanceID: 0, TransportState: 'PLAYING' } when playing media
 //     console.log("subEvents", e);
 // }
 // client.subscribe('AVTransport', subEvents);
 
-// var clientInterval = setInterval(() => {
+// let clientInterval = setInterval(() => {
 //     console.log("CLIENT", client.subscriptions);
 // }, 1000);
 

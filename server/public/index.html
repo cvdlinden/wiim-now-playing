@@ -45,7 +45,7 @@
     <textarea id="metadata" cols="80" rows="4"></textarea>
     <div>
         <em id="sTitleArtistAlbum"></em>
-        <img id="albumArt" onerror="this.src = 'img/missing.png';" />
+        <img id="albumArt" onerror="console.log(this.src);this.src = 'img/missing.png';" />
     </div>
 
     <div>
@@ -212,8 +212,8 @@
             if (msg && msg.trackMetaData && msg.trackMetaData["upnp:albumArtURI"] && albumArt.src != msg.trackMetaData["upnp:albumArtURI"]) {
                 albumArt.src = msg.trackMetaData["upnp:albumArtURI"];
             }
-            else {
-                albumArt.src = "";
+            else if (!msg || !msg.trackMetaData || !msg.trackMetaData["upnp:albumArtURI"]) {
+                albumArt.src = "/img/missing.png";
             }
         });
 

@@ -20,7 +20,7 @@ const settingsFile = __dirname + "/../settings.json"; // Make absolute path to s
  * @returns {string} The date in UTC format.
  */
 const getDate = () => {
-    var date = new Date();
+    const date = new Date();
     return date.toUTCString();
 }
 

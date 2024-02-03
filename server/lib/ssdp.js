@@ -38,7 +38,7 @@ const scan = (deviceList, serverSettings) => {
             log("New device found. Get the device description...");
             // Check the device description
             // TODO: Move to upnpClient.js?
-            var client = upnp.createClient(respSSDP.LOCATION);
+            const client = upnp.createClient(respSSDP.LOCATION);
             client.getDeviceDescription(function (err, deviceDesc) {
                 if (err) { log("Error", err); }
                 else {
@@ -48,7 +48,7 @@ const scan = (deviceList, serverSettings) => {
                         if (err) { log("Error", err); }
                         else {
 
-                            var device = {
+                            const device = {
                                 location: respSSDP.LOCATION,
                                 ...deviceDesc,
                                 actions: serviceDesc.actions,
