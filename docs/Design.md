@@ -68,7 +68,6 @@ Possibly:
 - Add a virtual keyboard? <https://github.com/Mottie/Keyboard>
 - Use JSDoc for generation of documentation? <https://github.com/jsdoc/jsdoc>
 
-
 ## Other works/examples/inspiration/mentions
 
 - <https://github.com/chrishuangcf/wiim-mini-ui>  

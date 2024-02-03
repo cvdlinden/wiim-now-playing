@@ -31,17 +31,6 @@ const startState = (io, deviceInfo, serverSettings) => {
 }
 
 /**
- * This function stops the streaming of the selected device state to the clients.
- * @param {object} interval - The set interval reference.
- * @returns {null} Null to mute the interval reference.
- */
-const stopState = (interval) => {
-    log("Stop streaming state!");
-    clearInterval(interval);
-    return null;
-}
-
-/**
  * This function starts the streaming of the selected device metadata to the clients.
  * @param {object} io - The Socket.IO object to emit to clients.
  * @param {object} deviceInfo - The device info object.
@@ -61,14 +50,14 @@ const startMetadata = (io, deviceInfo, serverSettings) => {
 }
 
 /**
- * This function stops the streaming of the selected device metadata to the clients.
- * @param {object} interval - The set interval reference.
- * @returns {null} Null to mute the interval reference.
+ * This function stops the polling of the selected device, given the interval.
+ * @param {interval} interval - The set interval reference.
+ * @param {string} name - The set interval name, for logging purposes only.
+ * @returns {undefined}
  */
-const stopMetadata = (interval) => {
-    log("Stop streaming metadata!");
+const stopStreaming = (interval, name) => {
+    log("Stop streaming:", name);
     clearInterval(interval);
-    return null;
 }
 
 /**
@@ -147,9 +136,8 @@ const getServerSettings = (io, serverSettings) => {
 
 module.exports = {
     startState,
-    stopState,
     startMetadata,
-    stopMetadata,
+    stopStreaming,
     getDevices,
     setDevice,
     scanDevices,

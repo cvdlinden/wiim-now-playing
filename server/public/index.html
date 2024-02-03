@@ -26,6 +26,10 @@
             max-height: 32px;
             border-radius: 5px;
         }
+        button,
+        select {
+            padding: 10px;
+        }
     </style>
 
 </head>
@@ -55,9 +59,12 @@
     <p>Server Settings</p>
     <textarea id="sServerSettings" cols="80" rows="4"></textarea>
 
-    <p>Hardware (Pi only)</p>
-    <div><button id="btnReboot" disabled>Reboot server</button><button id="btnShutdown" disabled>Shutdown
-            server</button></div>
+    <p>Hardware (Reboot/Shutdown = Pi only)</p>
+    <div>
+        <button id="btnReboot" disabled>Reboot server</button>
+        <button id="btnShutdown" disabled>Shutdown server</button>
+        <button id="btnReloadUI">Reload UI</button>
+    </div>
 
     <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
     <script>
@@ -92,6 +99,10 @@
         btnShutdown.addEventListener("click", function () {
             socket.emit("server-shutdown");
         });
+
+        btnReloadUI.addEventListener("click", function () {
+            location.reload();
+        })
 
         // Sockets
 

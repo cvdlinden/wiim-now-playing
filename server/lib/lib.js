@@ -62,18 +62,19 @@ const getSettings = (serverSettings) => {
         let settings = fs.readFileSync(settingsFile);
         log("fs", "Settings file found! Processing...");
         settings = JSON.parse(settings);
-        log("fs", "settings:", settings);
+        // log("fs", "settings:", settings);
         if (!settings.selectedDevice || !settings.selectedDevice.location) { // Short sanity check
             log("fs", "Previous selected device not stored correctly or invalid.");
-            log("fs", "The file exists though. Silently ignoring, will be overwritten eventually.");
+            log("fs", "The file exists though. Silently ignoring, will be overwritten eventually...");
         }
         else {
+            log("fs", "selectedDevice:", settings.selectedDevice.friendlyName, settings.selectedDevice.location);
             log("fs", "Amend the current server settings with the stored values.");
             serverSettings.selectedDevice = settings.selectedDevice;
             serverSettings.ui = settings.ui;
         }
     }
-    catch { // Not found, create one
+    catch { // Not found, create a settings file
         log("fs", "No settings file found! Trying to create one...");
         module.exports.saveSettings(serverSettings);
     }

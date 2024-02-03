@@ -15,7 +15,9 @@
 const UPNP = require("upnp-device-client");
 
 // Other modules
-const log = require("debug")("lib:upnp");
+const xml2js = require("xml2js");
+const lib = require("./lib.js"); // Generic functionality
+const log = require("debug")("lib:upnpClient");
 
 /**
  * This function creates the UPnP Device Client.
@@ -53,7 +55,205 @@ const callAction = (client, action) => {
     );
 }
 
+/**
+ * This function starts the polling for the selected device state.
+ * @param {object} deviceInfo - The device info object.
+ * @param {object} serverSettings - The server settings object.
+ * @returns {interval} Interval reference.
+ */
+const startState = (deviceInfo, serverSettings) => {
+    log("Start polling for device state...");
+    // Start immediately with polling device for state
+    module.exports.updateDeviceState(deviceInfo, serverSettings);
+    // Then set an interval to poll the device state regularly
+    return setInterval(() => {
+        module.exports.updateDeviceState(deviceInfo, serverSettings);
+    }, serverSettings.timeouts.state);
+}
+
+/**
+ * This function starts the polling for the selected device metadata.
+ * @param {object} deviceInfo - The device info object.
+ * @param {object} serverSettings - The server settings object.
+ * @returns {interval} Interval reference.
+ */
+const startMetadata = (deviceInfo, serverSettings) => {
+    log("Start polling for device metadata...");
+    // Start immediately with polling device for metadata
+    module.exports.updateDeviceMetadata(deviceInfo, serverSettings);
+    // Then set an interval to poll the device metadata regularly
+    return setInterval(() => {
+        module.exports.updateDeviceMetadata(deviceInfo, serverSettings);
+    }, serverSettings.timeouts.metadata);
+}
+
+/**
+ * This function stops the polling of the selected device, given the interval.
+ * @param {interval} interval - The set interval reference.
+ * @param {string} name - The set interval name, for logging purposes only.
+ * @returns {undefined}
+ */
+const stopPolling = (interval, name) => {
+    log("Stop polling:", name);
+    clearInterval(interval);
+}
+
+/**
+ * This function ...
+ */
+const updateDeviceState = (deviceInfo, serverSettings) => {
+    log("updateDeviceState");
+    if (serverSettings.selectedDevice.location &&
+        serverSettings.selectedDevice.actions.includes("GetTransportInfo")) {
+        const client = module.exports.createClient(serverSettings.selectedDevice.location);
+        if (serverSettings.selectedDevice.actions.includes("GetTransportInfo")) {
+            client.callAction(
+                "AVTransport",
+                "GetTransportInfo",
+                { InstanceID: 0 },
+                (err, result) => {
+                    if (err) {
+                        log("GetTransportInfo error", err);
+                    }
+                    else {
+                        // log("GetTransportInfo result", result.CurrentTransportState);
+                        deviceInfo.state = {
+                            ...result,
+                            RelTime: (deviceInfo.metadata && deviceInfo.metadata.RelTime) ? deviceInfo.metadata.RelTime : null,
+                            TimeStamp: (deviceInfo.metadata && deviceInfo.metadata.TimeStamp) ? deviceInfo.metadata.TimeStamp : null,
+                            TrackDuration: (deviceInfo.metadata && deviceInfo.metadata.TrackDuration) ? deviceInfo.metadata.TrackDuration : null,
+                            metadataTimeStamp: (deviceInfo.metadata && deviceInfo.metadata.metadataTimeStamp) ? deviceInfo.metadata.metadataTimeStamp : null,
+                            stateTimeStamp: lib.getTimeStamp(),
+                        };
+                        // log("GetTransportInfo result", deviceInfo.state);
+                    }
+                }
+            );
+        }
+        // client = null;
+    }
+    else {
+        log("Not able to get transport info for this device");
+        deviceInfo.state = null;
+    };
+}
+
+/**
+ * This function ...
+ */
+const updateDeviceMetadata = (deviceInfo, serverSettings) => {
+    log("updateDeviceMetadata")
+    if (serverSettings.selectedDevice.location) {
+        const client = module.exports.createClient(serverSettings.selectedDevice.location);
+        if (serverSettings.selectedDevice.actions.includes("GetInfoEx")) {
+            client.callAction(
+                "AVTransport",
+                "GetInfoEx",
+                { InstanceID: 0 },
+                (err, result) => {
+                    if (err) {
+                        log("GetInfoEx error", err);
+                        // May be a transient error, just wait a bit and carry on...
+                    }
+                    else {
+                        // log("GetInfoEx result", result.CurrentTransportState);
+                        const metadata = result.TrackMetaData;
+                        if (metadata) {
+                            const metaReq = xml2js.parseString(
+                                metadata,
+                                { explicitArray: false, ignoreAttrs: true },
+                                (err, metadataJson) => {
+                                    if (err) {
+                                        log(err)
+                                    }
+                                    else {
+                                        /* PlayMedium : SONGLIST-NETWORK / RADIO-NETWORK / STATION-NETWORK / UNKOWN
+                                        *
+                                        * TrackSource : Prime / Qobuz / SPOTIFY / newTuneIn / iHeartRadio / Deezer / UPnPServer
+                                        *
+                                        * LoopMode :
+                                        * repeat / no shuffle 0
+                                        * repeat 1 / no shuffle 1
+                                        * repeat / shuffle 2
+                                        * no repeat / shuffle 3
+                                        * no repeat / no shuffle 4
+                                        * repeat 1 / shuffle 5
+                                        */
+
+                                        mergeData = {
+                                            trackMetaData: (metadataJson["DIDL-Lite"] && metadataJson["DIDL-Lite"]["item"]) ? metadataJson["DIDL-Lite"]["item"] : null,
+                                            ...result,
+                                            metadataTimeStamp: lib.getTimeStamp()
+                                        };
+                                        deviceInfo.metadata = mergeData;
+                                    }
+                                }
+                            );
+                        }
+                        else {
+                            deviceInfo.metadata = {
+                                ...result,
+                                metadataTimeStamp: lib.getTimeStamp()
+                            };
+                        }
+                    }
+                }
+            );
+        }
+        else if (serverSettings.selectedDevice.actions.includes("GetPositionInfo")) {
+            client.callAction(
+                "AVTransport",
+                "GetPositionInfo",
+                { InstanceID: 0 },
+                (err, result) => {
+                    if (err) {
+                        log("GetPositionInfo error", err);
+                        // May be a transient error, just wait a bit and carry on...
+                    }
+                    else {
+                        const metadata = result.TrackMetaData;
+                        if (metadata) {
+                            const metaReq = xml2js.parseString(
+                                metadata,
+                                { explicitArray: false, ignoreAttrs: true },
+                                (err, metadataJson) => {
+                                    if (err) { log(err) }
+                                    mergeData = {
+                                        trackMetaData: metadataJson["DIDL-Lite"]["item"],
+                                        ...result,
+                                        metadataTimeStamp: lib.getTimeStamp()
+                                    };
+                                    deviceInfo.metadata = mergeData;
+                                }
+                            );
+                        }
+                        else {
+                            deviceInfo.metadata = {
+                                ...result,
+                                metadataTimeStamp: lib.getTimeStamp()
+                            };
+                        }
+                    }
+                }
+            );
+        }
+        else {
+            // Not able to fetch metadata either through GetInfoEx nor GetPositionInfo.
+            deviceInfo.metadata = null;
+        }
+        // client = null;
+    }
+    else {
+        // log("No default device selected yet");
+    };
+}
+
 module.exports = {
     createClient,
-    callAction
+    callAction,
+    startState,
+    startMetadata,
+    stopPolling,
+    updateDeviceState,
+    updateDeviceMetadata
 };
