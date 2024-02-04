@@ -9,6 +9,8 @@
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png">
     <link rel="manifest" href="/favicon/site.webmanifest">
 
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+        integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
     <style>
         html {
             min-height: 100%;
@@ -23,49 +25,70 @@
         }
 
         #albumArt {
-            max-height: 32px;
+            max-height: 120px;
             border-radius: 5px;
         }
-        button,
+
+        /* button,
         select {
             padding: 10px;
-        }
+        } */
     </style>
 
 </head>
 
 <body>
+    <div class="container-fluid">
 
-    <h2>Wiim Now Playing (DEV)</h2>
+        <h2>Wiim Now Playing (DEV)</h2>
 
-    <p>State: <span id="sTimeStampDiff"></span></p>
-    <textarea id="state" cols="80" rows="3"></textarea>
+        <div class="form-floating">
+            <textarea id="state" class="form-control" style="height: 80px"></textarea>
+            <label for="state">State: <span id="sTimeStampDiff"></span></label>
+        </div>
 
-    <p>Metadata:</p>
-    <textarea id="metadata" cols="80" rows="4"></textarea>
-    <div>
-        <em id="sTitleArtistAlbum"></em>
-        <img id="albumArt" onerror="console.log(this.src);this.src = 'img/missing.png';" />
+        <div class="form-floating">
+            <textarea id="metadata" class="form-control" style="height: 130px"></textarea>
+            <label for="metadata">Metadata:</label>
+        </div>
+
+        <div>
+            <img id="albumArt" onerror="console.log(this.src);this.src = 'img/missing.png';" />
+            <em id="sTitleArtistAlbum"></em>
+        </div>
+
+        <div class="btn-toolbar justify-content-between">
+            <div class="input-group">
+                <div class="input-group-text" id="btnGroupAddon">Select a device:</div>
+                <select id="deviceChoices" class="form-select">
+                    <option disabled="disabled">Waiting for devices...</option>
+                </select>
+            </div>
+            <div class="btn-group" role="group" aria-label="Device actions">
+                <button type="button" class="btn btn-secondary" id="btnDevices">Get devices</button>
+                <button type="button" class="btn btn-secondary" id="btnRefresh">Refresh devices</button>
+            </div>
+        </div>
+
+        <div class="form-floating">
+            <textarea id="sServerSettings" class="form-control" style="height: 130px"></textarea>
+            <label for="sServerSettings">Server Settings</label>
+        </div>
+
+        <div class="btn-toolbar justify-content-between">
+            <p>Hardware (Reboot/Shutdown = Pi only)</p>
+            <div class="btn-group" role="group" aria-label="Server actions">
+                <button id="btnReboot" class="btn btn-secondary" disabled>Reboot server</button>
+                <button id="btnShutdown" class="btn btn-secondary" disabled>Shutdown server</button>
+                <button id="btnReloadUI" class="btn btn-secondary">Reload UI</button>
+            </div>
+        </div>
+
     </div>
 
-    <div>
-        <label for="deviceChoices">Select a device:</label>
-        <select id="deviceChoices">
-            <option disabled="disabled">Waiting for devices...</option>
-        </select>
-        <button id="btnDevices">Get devices</button><button id="btnRefresh">Refresh devices</button>
-    </div>
-
-    <p>Server Settings</p>
-    <textarea id="sServerSettings" cols="80" rows="4"></textarea>
-
-    <p>Hardware (Reboot/Shutdown = Pi only)</p>
-    <div>
-        <button id="btnReboot" disabled>Reboot server</button>
-        <button id="btnShutdown" disabled>Shutdown server</button>
-        <button id="btnReloadUI">Reload UI</button>
-    </div>
-
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+        crossorigin="anonymous"></script>
     <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
     <script>
         var socket = io();
