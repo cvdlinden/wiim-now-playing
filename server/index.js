@@ -69,6 +69,9 @@ ssdp.scan(deviceList, serverSettings);
 // ===========================================================================
 // Set Express functionality, reroute all clients to the /public folder
 app.use(express.static(__dirname + "/public"));
+app.get('/debug', function (req, res) {
+    res.sendFile(__dirname + "/public/debug.html");
+})
 
 // ===========================================================================
 // Socket.io definitions

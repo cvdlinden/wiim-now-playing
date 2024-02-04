@@ -2,7 +2,7 @@
 <html>
 
 <head>
-    <title>Wiim Now Playing</title>
+    <title>Wiim Now Playing (DEBUG)</title>
     <!-- <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"> -->
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 
@@ -67,7 +67,7 @@
 
         <div id="uiContainer">
 
-            <h2>Wiim Now Playing</h2>
+            <h2>Wiim Now Playing (DEBUG)</h2>
 
             <div class="form-floating">
                 <textarea id="state" class="form-control" style="height: 90px"></textarea>
@@ -121,6 +121,10 @@
     <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
     <script>
         var socket = io();
+
+        // DEBUG
+        // var state = document.getElementById("state");
+        // var btn = document.getElementById("btn");
 
         // UI event listeners
 
