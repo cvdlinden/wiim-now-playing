@@ -75,6 +75,12 @@ app.get('/debug', function (req, res) {
 
 // ===========================================================================
 // Socket.io definitions
+
+/**
+ * On (new) client connection.
+ * If first client to connect, then start polling and streaming.
+ * @returns {undefined}
+ */
 io.on("connection", (socket) => {
     log("Client connected");
 
@@ -90,7 +96,11 @@ io.on("connection", (socket) => {
         streamMetadata = sockets.startMetadata(io, deviceInfo, serverSettings)
     }
 
-    // On disconnect
+    /**
+     * On client disconnect.
+     * If no clients are connected stop polling and streaming.
+     * @returns {undefined}
+     */
     socket.on("disconnect", () => {
         log('Client disconnected');
 
@@ -112,25 +122,37 @@ io.on("connection", (socket) => {
     // ======================================
     // Devices related
 
-    // On devices get
+    /**
+     * Listener for devices get.
+     * @returns {undefined}
+     */
     socket.on("devices-get", () => {
         log("Socket event", "devices-get");
         sockets.getDevices(io, deviceList);
     });
 
-    // On devices refresh
+    /**
+     * Listener for devices refresh.
+     * @returns {undefined}
+     */
     socket.on("devices-refresh", () => {
         log("Socket event", "devices-refresh");
         sockets.scanDevices(io, ssdp, deviceList);
     });
 
-    // On device selection
+    /**
+     * Listener for device selection.
+     * @param {string} msg - The selected device location URI.
+     * @returns {undefined}
+     */
     socket.on("device-set", (msg) => {
         log("Socket event", "device-set", msg);
         sockets.setDevice(io, deviceList, deviceInfo, serverSettings, msg);
         // Immediately do a polling to the new device
         upnp.updateDeviceMetadata(deviceInfo, serverSettings);
         upnp.updateDeviceState(deviceInfo, serverSettings);
+        // Then  wait a bit for the results to come in and tell the client.
+        // TODO: Make this async?
         setTimeout(() => {
             io.emit("metadata", deviceInfo.metadata);
         }, serverSettings.timeouts.immediate);
@@ -142,19 +164,28 @@ io.on("connection", (socket) => {
     // ======================================
     // Server related
 
-    // On server settings
+    /**
+     * Listener for server settings.
+     * @returns {undefined}
+     */
     socket.on("server-settings", () => {
         log("Socket event", "server-settings");
         sockets.getServerSettings(io, serverSettings);
     });
 
-    // On server reboot
+    /**
+     * Listener for server reboot.
+     * @returns {undefined}
+     */
     socket.on("server-reboot", () => {
         log("Socket event", "server-reboot");
         shell.reboot(io);
     });
 
-    // On server shutdown
+    /**
+     * Listener for server shutdown.
+     * @returns {undefined}
+     */
     socket.on("server-shutdown", () => {
         log("Socket event", "server-shutdown");
         shell.shutdown(io);

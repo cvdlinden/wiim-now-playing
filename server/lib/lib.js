@@ -53,6 +53,7 @@ const getOS = () => {
  * This function fetches the stored settings if any.
  * If no settings file was found, it will create one.
  * If found, it will amend the current server settings.
+ * @param {object} serverSettings - The reference to the server settings.
  * @returns {undefined}
  */
 const getSettings = (serverSettings) => {
@@ -84,6 +85,7 @@ const getSettings = (serverSettings) => {
 /**
  * This function saves the current settings to filesystem.
  * It will overwrite the previous stored values.
+ * @param {object} serverSettings - The reference to the server settings.
  * @returns {undefined}
  */
 const saveSettings = (serverSettings) => {
