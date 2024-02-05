@@ -93,7 +93,12 @@ io.on("connection", (socket) => {
         pollState = upnp.startState(deviceInfo, serverSettings);
         // Start streaming to client(s)
         streamState = sockets.startState(io, deviceInfo, serverSettings);
-        streamMetadata = sockets.startMetadata(io, deviceInfo, serverSettings)
+        streamMetadata = sockets.startMetadata(io, deviceInfo, serverSettings);
+    }
+    else if (io.sockets.sockets.size >= 1) {
+        // If new client, send current state and metadata immediately
+        io.emit("state", deviceInfo.state);
+        io.emit("metadata", deviceInfo.metadata);
     }
 
     /**
@@ -120,7 +125,7 @@ io.on("connection", (socket) => {
     });
 
     // ======================================
-    // Devices related
+    // Device(s) related
 
     /**
      * Listener for devices get.
@@ -148,6 +153,26 @@ io.on("connection", (socket) => {
     socket.on("device-set", (msg) => {
         log("Socket event", "device-set", msg);
         sockets.setDevice(io, deviceList, deviceInfo, serverSettings, msg);
+        // Immediately do a polling to the new device
+        upnp.updateDeviceMetadata(deviceInfo, serverSettings);
+        upnp.updateDeviceState(deviceInfo, serverSettings);
+        // Then  wait a bit for the results to come in and tell the client.
+        // TODO: Make this async?
+        setTimeout(() => {
+            io.emit("metadata", deviceInfo.metadata);
+        }, serverSettings.timeouts.immediate);
+        setTimeout(() => {
+            io.emit("state", deviceInfo.state);
+        }, serverSettings.timeouts.immediate);
+    });
+
+    /**
+     * Listener for device interaction.
+     * @param {string} msg - The action to perform on the device.
+     * @returns {undefined}
+     */
+    socket.on("device-action", (msg) => {
+        io.emit("device-action", msg); // Should be an action in sockets.js...
         // Immediately do a polling to the new device
         upnp.updateDeviceMetadata(deviceInfo, serverSettings);
         upnp.updateDeviceState(deviceInfo, serverSettings);

@@ -13,61 +13,53 @@
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
         integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
-    <style>
-        html {
-            min-height: 100%;
-        }
-
-        body {
-            background-color: #333;
-            background-image: linear-gradient(#033536, #010c12);
-            color: #fff;
-            min-height: 100%;
-            font-family: arial, sans-serif;
-        }
-
-        #albumArt {
-            max-height: 120px;
-            border-radius: 5px;
-        }
-
-        #viewPort {
-            height: calc(var(--vh, 1vh)*100);
-            overflow: hidden;
-        }
-
-        #bgImageBlur {
-            /* Center and scale the image nicely */
-            background-image: url("img/fake-album-1.png");
-            background-position: center;
-            background-repeat: no-repeat;
-            background-size: cover;
-            /* Add the blur effect */
-            filter: blur(10px) brightness(.5) opacity(0.25);
-            /* Zoom in */
-            transform: scale(1.25);
-            /* Full height */
-            height: 100%;
-        }
-
-        #uiContainer {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-        }
-    </style>
+    <link rel="stylesheet" href="styles/wnp.css">
 
 </head>
 
 <body>
+
+    <div id="wnpApp">
+
+        <div id="wnpBgAlbumArt">
+            <div id="bgAlbumArtBlur"></div>
+        </div>
+
+        <div class="wnpContainer">
+            <div class="wnpMediaInfo">
+                <div id="mediaSource">{SOURCE}</div>
+                <h2 id="mediaTitle">{SONG}</h2>
+                <div><span id="mediaArtist">{ARTIST}</span>, <span id="mediaAlbum">{ALBUM TITLE}</span></div>
+                <div><span id="mediaSubTitle">{SUBTITLE}</span></div>
+                <div><span id="mediaBitRate">{xxx kpbs}</span>, <span id="mediaBitDepth">{yy bits}</span>, <span
+                        id="mediaSampleRate">{zz,z kHz}</span></div>
+                <div><span id="mediaQuality">{x}</span>, <span id="mediaActualQuality">{y}</span></div>
+            </div>
+            <div class="wnpAlbumArt">
+                <img id="albumArt" src="img/fake-album-1.png" onerror="this.src = rndAlbumArt()" alt="Album art">
+            </div>
+            <div class="wnpFooter">
+                <div style="text-align: center;">
+                    <div>|==============-------------------| {<span id="devPlayTime"></span>}</div>
+                    <div>
+                        {<span id="devName">Device</span>}
+                        [Shuffle|Stop]
+                        [Prev]
+                        [Play/Pause]
+                        [Next]
+                        [Repeat]
+                        {Volume}
+                        <span id="wnpSettings">[Settings]</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
     <div id="viewPort">
 
-        <div id="bgImageBlur"></div>
-
         <div id="uiContainer">
-
-            <h2>Wiim Now Playing</h2>
 
             <div class="form-floating">
                 <textarea id="state" class="form-control" style="height: 90px"></textarea>
@@ -80,7 +72,7 @@
             </div>
 
             <div>
-                <img id="albumArt" onerror="this.src = rndAlbumArt()" />
+                <img id="zzalbumArt" onerror="this.src = rndAlbumArt()" />
                 <em id="sTitleArtistAlbum"></em>
             </div>
 
@@ -119,172 +111,6 @@
         integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
         crossorigin="anonymous"></script>
     <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
-    <script>
-        var socket = io();
-
-        // UI event listeners
-
-        btnDevices.addEventListener("click", function () {
-            socket.emit("devices-get");
-        });
-
-        btnRefresh.addEventListener("click", function () {
-            socket.emit("devices-refresh");
-            // Wait for discovery to finish
-            setTimeout(() => {
-                socket.emit("devices-get");
-            }, 5000);
-        });
-
-        deviceChoices.addEventListener("change", function () {
-            socket.emit("device-set", this.value);
-        })
-
-        btnReboot.addEventListener("click", function () {
-            socket.emit("server-reboot");
-        });
-
-        btnShutdown.addEventListener("click", function () {
-            socket.emit("server-shutdown");
-        });
-
-        btnReloadUI.addEventListener("click", function () {
-            location.reload();
-        })
-
-        // Sockets
-
-        // Initial calls, wait a bit for socket to start
-        var serverSettings = null;
-        var deviceList = null;
-        setTimeout(() => {
-            socket.emit("server-settings");
-            socket.emit("devices-get");
-        }, 500);
-
-        socket.on("server-settings", function (msg) {
-
-            // Store server settings
-            serverSettings = msg;
-
-            sServerSettings.innerHTML = JSON.stringify(msg);
-            if (msg.os.userInfo.shell === "/bin/bash") { // RPi has bash, so possibly able to reboot/shutdown.
-                btnReboot.disabled = false;
-                btnShutdown.disabled = false;
-            };
-
-        });
-
-        socket.on("devices-get", function (msg) {
-
-            // Store and sort device list
-            deviceList = msg;
-            deviceList.sort((a, b) => { return (a.friendlyName < b.friendlyName) ? -1 : 1 });
-
-            // Clear choices
-            deviceChoices.innerHTML = "";
-
-            // Add WiiM devices
-            var devicesWiiM = deviceList.filter((d) => { return d.manufacturer.startsWith("Linkplay") });
-            if (devicesWiiM.length > 0) {
-                var optGroup = document.createElement("optgroup");
-                optGroup.label = "WiiM devices";
-                devicesWiiM.forEach((device) => {
-                    var opt = document.createElement("option");
-                    opt.value = device.location;
-                    opt.innerText = device.friendlyName;
-                    opt.title = "By " + device.manufacturer;
-                    if (serverSettings && serverSettings.selectedDevice && serverSettings.selectedDevice.location === device.location) {
-                        opt.setAttribute("selected", "selected");
-                    };
-                    optGroup.appendChild(opt);
-                })
-                deviceChoices.appendChild(optGroup);
-            };
-
-            // Other devices
-            var devicesOther = deviceList.filter((d) => { return !d.manufacturer.startsWith("Linkplay") });
-            if (devicesOther.length > 0) {
-                var optGroup = document.createElement("optgroup");
-                optGroup.label = "Other devices";
-                devicesOther.forEach((device) => {
-                    var opt = document.createElement("option");
-                    opt.value = device.location;
-                    opt.innerText = device.friendlyName;
-                    opt.title = "By " + device.manufacturer;
-                    if (serverSettings && serverSettings.selectedDevice && serverSettings.selectedDevice.location === device.location) {
-                        opt.setAttribute("selected", "selected");
-                    };
-                    optGroup.appendChild(opt);
-                })
-                deviceChoices.appendChild(optGroup);
-
-            };
-
-            if (devicesWiiM.length == 0 && devicesOther.length == 0) {
-                deviceChoices.innerHTML = "<option disabled=\"disabled\">No devices found!</em></li>";
-            };
-
-        });
-
-        socket.on("device-set", function (msg) {
-            // Device wissel? Haal 'alles' opnieuw op
-            socket.emit("server-settings");
-            socket.emit("devices-get");
-        });
-
-        socket.on("devices-refresh", function (msg) {
-            deviceChoices.innerHTML = "<option disabled=\"disabled\">Waiting for devices...</em></li>";
-        });
-
-        socket.on("state", function (msg) {
-            state.innerHTML = JSON.stringify(msg);
-            if (msg && msg.stateTimeStamp && msg.metadataTimeStamp) {
-                var timeStampDiff = (msg.stateTimeStamp && msg.metadataTimeStamp) ? Math.round((msg.stateTimeStamp - msg.metadataTimeStamp) / 1000) : 0;
-                sTimeStampDiff.innerHTML = "<em>diff = " + timeStampDiff + "s</em>";
-            }
-            else {
-                sTimeStampDiff.innerHTML = "";
-            }
-        });
-
-        socket.on("metadata", function (msg) {
-            metadata.innerHTML = JSON.stringify(msg);
-            var aTitleArtistAlbum = []
-            if (msg && msg.trackMetaData) {
-                if ((msg.trackMetaData["dc:title"])) { aTitleArtistAlbum.push(msg.trackMetaData["dc:title"]) };
-                if ((msg.trackMetaData["upnp:artist"])) { aTitleArtistAlbum.push(msg.trackMetaData["upnp:artist"]) };
-                if ((msg.trackMetaData["upnp:album"])) { aTitleArtistAlbum.push(msg.trackMetaData["upnp:album"]) };
-            };
-            sTitleArtistAlbum.innerText = aTitleArtistAlbum.join(", ");
-            if (msg && msg.trackMetaData &&
-                msg.trackMetaData["upnp:albumArtURI"] &&
-                albumArt.src != msg.trackMetaData["upnp:albumArtURI"]) {
-                if (msg.trackMetaData["upnp:albumArtURI"].startsWith("http")) {
-                    setAlbumArt(msg.trackMetaData["upnp:albumArtURI"]);
-                }
-                else {
-                    setAlbumArt(rndAlbumArt());
-                }
-            }
-            else if (!msg || !msg.trackMetaData || !msg.trackMetaData["upnp:albumArtURI"]) {
-                setAlbumArt(rndAlbumArt());
-            }
-        });
-
-        rndFive = function (min, max) {
-            return Math.floor(Math.random() * (max - min + 1) + min);
-        }
-
-        rndAlbumArt = function () {
-            return "/img/fake-album-" + rndFive(1, 5) + ".png";
-        }
-
-        setAlbumArt = function (imgUri) {
-            albumArt.src = imgUri;
-            bgImageBlur.style.backgroundImage = "url('" + imgUri + "')";
-        }
-
-    </script>
+    <script src="script/wnp.js"></script>
 
 </body>
