@@ -46,6 +46,7 @@
 
 .wnpFooter {
     grid-area: wnpFooter;
+    padding: 0 30px;
 }
 
 /* Background Album Art */

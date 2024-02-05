@@ -1,6 +1,25 @@
 // =======================================================
 // WiiM Now Playing
 
+// var myApp = {
+
+//     vars: {
+//         serverSettings: null,
+//         deviceList: null,
+//         prevTransportState: null
+//     },
+
+//     someFunc: () => {
+//         self = this;
+//         console.log("someFunc")
+//         console.log(serverSettings)
+//         console.log(this.serverSettings)
+//         console.log(this)
+//         console.log(myApp.vars)
+//     }
+
+// };
+
 // Init Socket.IO
 var socket = io();
 
@@ -8,6 +27,7 @@ var socket = io();
 // Vars
 var serverSettings = null;
 var deviceList = null;
+var prevTransportState = null;
 
 // =======================================================
 // UI event listeners
@@ -122,21 +142,66 @@ socket.on("devices-get", function (msg) {
 
 // On state
 socket.on("state", function (msg) {
-    // if (msg && msg.stateTimeStamp && msg.metadataTimeStamp) {
-    //     var timeStampDiff = (msg.stateTimeStamp && msg.metadataTimeStamp) ? Math.round((msg.stateTimeStamp - msg.metadataTimeStamp) / 1000) : 0;
-    //     sTimeStampDiff.innerHTML = "<em>diff = " + timeStampDiff + "s</em>";
-    // }
-    // else {
-    //     sTimeStampDiff.innerHTML = "";
-    // }
+
+    // Get current player progress
     var timeStampDiff = (msg.stateTimeStamp && msg.metadataTimeStamp) ? Math.round((msg.stateTimeStamp - msg.metadataTimeStamp) / 1000) : 0;
-    var sPlayTime = "";
-    sPlayTime += (msg.RelTime) ? msg.RelTime : "00:00:00";
-    sPlayTime += " - ";
-    sPlayTime += (msg.TrackDuration) ? msg.TrackDuration : "00:00:00";
-    sPlayTime += " (+" + timeStampDiff + "s)"
-    devPlayTime.innerText = sPlayTime;
+    var relTime = (msg.RelTime) ? msg.RelTime : "00:00:00";
+    var trackDuration = (msg.TrackDuration) ? msg.TrackDuration : "00:00:00";
+    const progress = getPlayerProgress(relTime, trackDuration, timeStampDiff);
+    progressStart.children[0].innerText = progress.start;
+    progressEnd.children[0].innerText = progress.end;
+    progressPercent.setAttribute("style", "width:" + progress.percent + "%");;
+
+    // Did the device start playing? Maybe fetch some new metadata.
+    if (prevTransportState != msg.CurrentTransportState && msg.CurrentTransportState === "PLAYING") {
+        console.log("TransportState changed to PLAYING! -> Should fetch new metadata...")
+    };
+    prevTransportState = msg.CurrentTransportState;
+
 });
+
+// 
+getPlayerProgress = function (relTime, trackDuration, timeStampDiff) {
+    let relTimeSec = convertToSeconds(relTime) + timeStampDiff;
+    let trackDurationSec = convertToSeconds(trackDuration);
+    let percentPlayed = 0;
+    if (trackDurationSec > 0) {
+        percentPlayed = Math.floor(relTimeSec / (trackDurationSec / 100));
+        return {
+            start: convertToTime(relTimeSec),
+            end: convertToTime(trackDurationSec),
+            percent: percentPlayed
+        };
+    }
+    else {
+        return {
+            start: "Live",
+            end: "",
+            percent: 0
+        };
+    };
+};
+
+// Convert time format '00:00:00' to total seconds.
+convertToSeconds = function (sDuration) {
+    const timeSections = sDuration.split(":");
+    let totalSeconds = 0;
+    for (let i = 0; i < timeSections.length; i++) {
+        nFactor = timeSections.length - 1 - i;
+        nMultiplier = Math.pow(60, nFactor);
+        totalSeconds += nMultiplier * parseInt(timeSections[i]);
+    }
+    return totalSeconds
+}
+
+// Convert number of seconds to '00:00' string format. Sorry for those hour+ long songs.
+convertToTime = function (seconds) {
+    var tempDate = new Date(0);
+    tempDate.setSeconds(seconds);
+    var result = tempDate.toISOString().substring(14, 19);
+    return result;
+};
+
 
 // On metadata
 socket.on("metadata", function (msg) {
@@ -157,7 +222,7 @@ socket.on("metadata", function (msg) {
     // Audio quality
     mediaBitRate.innerText = (msg.trackMetaData && msg.trackMetaData["song:bitrate"]) ? msg.trackMetaData["song:bitrate"] + " kpbs" : "";
     mediaBitDepth.innerText = (msg.trackMetaData && msg.trackMetaData["song:format_s"]) ? msg.trackMetaData["song:format_s"] + " bits" : "";
-    mediaSampleRate.innerText = (msg.trackMetaData && msg.trackMetaData["song:rate_hz"]) ? (msg.trackMetaData["song:rate_hz"]/1000) + " kHz" : "";
+    mediaSampleRate.innerText = (msg.trackMetaData && msg.trackMetaData["song:rate_hz"]) ? (msg.trackMetaData["song:rate_hz"] / 1000) + " kHz" : "";
     // Sample High: "song:quality":"2","song:actualQuality":"LOSSLESS"
     // Sample MQA: "song:quality":"3","song:actualQuality":"HI_RES",
     // Sample FLAC: "4","song:actualQuality":"HI_RES_LOSSLESS", "TrackURI":"https://sp-pr-fa.audio.tidal.com/mediatracks/CAEaKRInZDQxN2NmYzZkNmNmNzQ0YjI4N2QzYWFlNzQzZjliM2NfNjIubXA0/0.flac?token=1707106396~NGQ4Y2JkYWJkZWM2N2I0MDQzZWE1MWNhNDc4ZDExYmE2ZWJmYTVlMw=="
@@ -178,6 +243,9 @@ socket.on("metadata", function (msg) {
     else if (!msg || !msg.trackMetaData || !msg.trackMetaData["upnp:albumArtURI"]) {
         setAlbumArt(rndAlbumArt());
     }
+
+    // Device volume
+    devVol.innerText = (msg.CurrentVolume) ? msg.CurrentVolume : "-";
 
 });
 

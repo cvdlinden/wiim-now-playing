@@ -172,18 +172,22 @@ const updateDeviceMetadata = (deviceInfo, serverSettings) => {
                                         log("updateDeviceMetadata()", err);
                                     }
                                     else {
-                                        /* PlayMedium : SONGLIST-NETWORK / RADIO-NETWORK / STATION-NETWORK / UNKOWN
-                                        *
-                                        * TrackSource : Prime / Qobuz / SPOTIFY / newTuneIn / iHeartRadio / Deezer / UPnPServer
-                                        *
-                                        * LoopMode :
-                                        * repeat / no shuffle 0
-                                        * repeat 1 / no shuffle 1
-                                        * repeat / shuffle 2
-                                        * no repeat / shuffle 3
-                                        * no repeat / no shuffle 4
-                                        * repeat 1 / shuffle 5
-                                        */
+                                        /**
+                                         * Possible values
+                                         * 
+                                         * PlayMedium: SONGLIST-NETWORK / RADIO-NETWORK / STATION-NETWORK / UNKOWN
+                                         * PlayMedia: NONE, STATION-NETWORK, SONGLIST-NETWORK, SONGLIST-LOCAL, SONGLIST-LOCAL_TF, THIRD-DLNA,AIRPLAY, UNKNOWN
+                                         * CurrentTransportState : PLAYING, STOPPED, PLAYING, PAUSED_PLAYBACK, TRANSITIONING, NO_MEDIA_PRESENT
+                                         * TrackSource : Prime, Qobuz, SPOTIFY, newTuneIn, iHeartRadio, Deezer, UPnPServer, Tidal, vTuner
+                                         *
+                                         * LoopMode :
+                                         * repeat / no shuffle 0
+                                         * repeat 1 / no shuffle 1
+                                         * repeat / shuffle 2
+                                         * no repeat / shuffle 3
+                                         * no repeat / no shuffle 4
+                                         * repeat 1 / shuffle 5
+                                         */
 
                                         deviceInfo.metadata = {
                                             trackMetaData: (metadataJson["DIDL-Lite"] && metadataJson["DIDL-Lite"]["item"]) ? metadataJson["DIDL-Lite"]["item"] : null,
