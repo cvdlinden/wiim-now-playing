@@ -43,9 +43,9 @@
                     <div>|==============-------------------| {<span id="devPlayTime"></span>}</div>
                     <div>
                         {<span id="devName">Device</span>}
-                        [Shuffle|Stop]
+                        [Shuffle]
                         [Prev]
-                        [Play/Pause]
+                        [Play|Pause|Stop]
                         [Next]
                         [Repeat]
                         {Volume}
@@ -53,56 +53,6 @@
                     </div>
                 </div>
             </div>
-        </div>
-
-    </div>
-
-    <div id="viewPort">
-
-        <div id="uiContainer">
-
-            <div class="form-floating">
-                <textarea id="state" class="form-control" style="height: 90px"></textarea>
-                <label for="state">State: <span id="sTimeStampDiff"></span></label>
-            </div>
-
-            <div class="form-floating">
-                <textarea id="metadata" class="form-control" style="height: 130px"></textarea>
-                <label for="metadata">Metadata:</label>
-            </div>
-
-            <div>
-                <img id="zzalbumArt" onerror="this.src = rndAlbumArt()" />
-                <em id="sTitleArtistAlbum"></em>
-            </div>
-
-            <div class="btn-toolbar justify-content-between">
-                <div class="input-group">
-                    <div class="input-group-text" id="btnGroupAddon">Select a device:</div>
-                    <select id="deviceChoices" class="form-select">
-                        <option disabled="disabled">Waiting for devices...</option>
-                    </select>
-                </div>
-                <div class="btn-group" role="group" aria-label="Device actions">
-                    <button type="button" class="btn btn-secondary" id="btnDevices">Get devices</button>
-                    <button type="button" class="btn btn-secondary" id="btnRefresh">Refresh devices</button>
-                </div>
-            </div>
-
-            <div class="form-floating">
-                <textarea id="sServerSettings" class="form-control" style="height: 130px"></textarea>
-                <label for="sServerSettings">Server Settings</label>
-            </div>
-
-            <div class="btn-toolbar justify-content-between">
-                <p>Hardware (Reboot/Shutdown = Pi only)</p>
-                <div class="btn-group" role="group" aria-label="Server actions">
-                    <button id="btnReboot" class="btn btn-secondary" disabled>Reboot server</button>
-                    <button id="btnShutdown" class="btn btn-secondary" disabled>Shutdown server</button>
-                    <button id="btnReloadUI" class="btn btn-secondary">Reload UI</button>
-                </div>
-            </div>
-
         </div>
 
     </div>

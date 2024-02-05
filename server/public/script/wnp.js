@@ -12,33 +12,33 @@ var deviceList = null;
 // =======================================================
 // UI event listeners
 
-btnDevices.addEventListener("click", function () {
-    socket.emit("devices-get");
-});
+// btnDevices.addEventListener("click", function () {
+//     socket.emit("devices-get");
+// });
 
-btnRefresh.addEventListener("click", function () {
-    socket.emit("devices-refresh");
-    // Wait for discovery to finish
-    setTimeout(() => {
-        socket.emit("devices-get");
-    }, 5000);
-});
+// btnRefresh.addEventListener("click", function () {
+//     socket.emit("devices-refresh");
+//     // Wait for discovery to finish
+//     setTimeout(() => {
+//         socket.emit("devices-get");
+//     }, 5000);
+// });
 
-deviceChoices.addEventListener("change", function () {
-    socket.emit("device-set", this.value);
-})
+// deviceChoices.addEventListener("change", function () {
+//     socket.emit("device-set", this.value);
+// })
 
-btnReboot.addEventListener("click", function () {
-    socket.emit("server-reboot");
-});
+// btnReboot.addEventListener("click", function () {
+//     socket.emit("server-reboot");
+// });
 
-btnShutdown.addEventListener("click", function () {
-    socket.emit("server-shutdown");
-});
+// btnShutdown.addEventListener("click", function () {
+//     socket.emit("server-shutdown");
+// });
 
-btnReloadUI.addEventListener("click", function () {
-    location.reload();
-})
+// btnReloadUI.addEventListener("click", function () {
+//     location.reload();
+// })
 
 // =======================================================
 // Socket definitions
@@ -74,49 +74,49 @@ socket.on("devices-get", function (msg) {
     deviceList = msg;
     deviceList.sort((a, b) => { return (a.friendlyName < b.friendlyName) ? -1 : 1 });
 
-    // Clear choices
-    deviceChoices.innerHTML = "";
+    // // Clear choices
+    // deviceChoices.innerHTML = "";
 
-    // Add WiiM devices
-    var devicesWiiM = deviceList.filter((d) => { return d.manufacturer.startsWith("Linkplay") });
-    if (devicesWiiM.length > 0) {
-        var optGroup = document.createElement("optgroup");
-        optGroup.label = "WiiM devices";
-        devicesWiiM.forEach((device) => {
-            var opt = document.createElement("option");
-            opt.value = device.location;
-            opt.innerText = device.friendlyName;
-            opt.title = "By " + device.manufacturer;
-            if (serverSettings && serverSettings.selectedDevice && serverSettings.selectedDevice.location === device.location) {
-                opt.setAttribute("selected", "selected");
-            };
-            optGroup.appendChild(opt);
-        })
-        deviceChoices.appendChild(optGroup);
-    };
+    // // Add WiiM devices
+    // var devicesWiiM = deviceList.filter((d) => { return d.manufacturer.startsWith("Linkplay") });
+    // if (devicesWiiM.length > 0) {
+    //     var optGroup = document.createElement("optgroup");
+    //     optGroup.label = "WiiM devices";
+    //     devicesWiiM.forEach((device) => {
+    //         var opt = document.createElement("option");
+    //         opt.value = device.location;
+    //         opt.innerText = device.friendlyName;
+    //         opt.title = "By " + device.manufacturer;
+    //         if (serverSettings && serverSettings.selectedDevice && serverSettings.selectedDevice.location === device.location) {
+    //             opt.setAttribute("selected", "selected");
+    //         };
+    //         optGroup.appendChild(opt);
+    //     })
+    //     deviceChoices.appendChild(optGroup);
+    // };
 
-    // Other devices
-    var devicesOther = deviceList.filter((d) => { return !d.manufacturer.startsWith("Linkplay") });
-    if (devicesOther.length > 0) {
-        var optGroup = document.createElement("optgroup");
-        optGroup.label = "Other devices";
-        devicesOther.forEach((device) => {
-            var opt = document.createElement("option");
-            opt.value = device.location;
-            opt.innerText = device.friendlyName;
-            opt.title = "By " + device.manufacturer;
-            if (serverSettings && serverSettings.selectedDevice && serverSettings.selectedDevice.location === device.location) {
-                opt.setAttribute("selected", "selected");
-            };
-            optGroup.appendChild(opt);
-        })
-        deviceChoices.appendChild(optGroup);
+    // // Other devices
+    // var devicesOther = deviceList.filter((d) => { return !d.manufacturer.startsWith("Linkplay") });
+    // if (devicesOther.length > 0) {
+    //     var optGroup = document.createElement("optgroup");
+    //     optGroup.label = "Other devices";
+    //     devicesOther.forEach((device) => {
+    //         var opt = document.createElement("option");
+    //         opt.value = device.location;
+    //         opt.innerText = device.friendlyName;
+    //         opt.title = "By " + device.manufacturer;
+    //         if (serverSettings && serverSettings.selectedDevice && serverSettings.selectedDevice.location === device.location) {
+    //             opt.setAttribute("selected", "selected");
+    //         };
+    //         optGroup.appendChild(opt);
+    //     })
+    //     deviceChoices.appendChild(optGroup);
 
-    };
+    // };
 
-    if (devicesWiiM.length == 0 && devicesOther.length == 0) {
-        deviceChoices.innerHTML = "<option disabled=\"disabled\">No devices found!</em></li>";
-    };
+    // if (devicesWiiM.length == 0 && devicesOther.length == 0) {
+    //     deviceChoices.innerHTML = "<option disabled=\"disabled\">No devices found!</em></li>";
+    // };
 
 });
 
@@ -149,13 +149,6 @@ socket.on("metadata", function (msg) {
     mediaSource.innerText = sSource
 
     // Song, Artist, Album, Subtitle
-    var aTitleArtistAlbum = []
-    if (msg && msg.trackMetaData) {
-        if ((msg.trackMetaData["dc:title"])) { aTitleArtistAlbum.push(msg.trackMetaData["dc:title"]) };
-        if ((msg.trackMetaData["upnp:artist"])) { aTitleArtistAlbum.push(msg.trackMetaData["upnp:artist"]) };
-        if ((msg.trackMetaData["upnp:album"])) { aTitleArtistAlbum.push(msg.trackMetaData["upnp:album"]) };
-    };
-    sTitleArtistAlbum.innerText = aTitleArtistAlbum.join(", ");
     mediaTitle.innerText = (msg.trackMetaData && msg.trackMetaData["dc:title"]) ? msg.trackMetaData["dc:title"] : "";
     mediaArtist.innerText = (msg.trackMetaData && msg.trackMetaData["upnp:artist"]) ? msg.trackMetaData["upnp:artist"] : "";
     mediaAlbum.innerText = (msg.trackMetaData && msg.trackMetaData["upnp:album"]) ? msg.trackMetaData["upnp:album"] : "";
@@ -167,6 +160,7 @@ socket.on("metadata", function (msg) {
     mediaSampleRate.innerText = (msg.trackMetaData && msg.trackMetaData["song:rate_hz"]) ? (msg.trackMetaData["song:rate_hz"]/1000) + " kHz" : "";
     // Sample High: "song:quality":"2","song:actualQuality":"LOSSLESS"
     // Sample MQA: "song:quality":"3","song:actualQuality":"HI_RES",
+    // Sample FLAC: "4","song:actualQuality":"HI_RES_LOSSLESS", "TrackURI":"https://sp-pr-fa.audio.tidal.com/mediatracks/CAEaKRInZDQxN2NmYzZkNmNmNzQ0YjI4N2QzYWFlNzQzZjliM2NfNjIubXA0/0.flac?token=1707106396~NGQ4Y2JkYWJkZWM2N2I0MDQzZWE1MWNhNDc4ZDExYmE2ZWJmYTVlMw=="
     mediaQuality.innerText = (msg.trackMetaData && msg.trackMetaData["song:quality"]) ? msg.trackMetaData["song:quality"] : "";
     mediaActualQuality.innerText = (msg.trackMetaData && msg.trackMetaData["song:actualQuality"]) ? msg.trackMetaData["song:actualQuality"] : "";
 
@@ -202,12 +196,12 @@ socket.on("devices-refresh", function (msg) {
 // =======================================================
 // Helper functions
 
-rndFive = function (min, max) {
+rndNumber = function (min, max) {
     return Math.floor(Math.random() * (max - min + 1) + min);
 }
 
 rndAlbumArt = function () {
-    return "/img/fake-album-" + rndFive(1, 5) + ".png";
+    return "/img/fake-album-" + rndNumber(1, 5) + ".png";
 }
 
 setAlbumArt = function (imgUri) {
