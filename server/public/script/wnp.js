@@ -96,8 +96,8 @@ WNP.setSocketDefinitions = function () {
 
         // RPi has bash, so possibly able to reboot/shutdown.
         if (msg.os.userInfo.shell === "/bin/bash") {
-            btnReboot.disabled = false;
-            btnShutdown.disabled = false;
+            // btnReboot.disabled = false;
+            // btnShutdown.disabled = false;
         };
 
         // Set device name
