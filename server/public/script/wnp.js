@@ -1,279 +1,345 @@
 // =======================================================
 // WiiM Now Playing
 
-// var myApp = {
+// Namespacing
+window.WNP = window.WNP || {};
 
-//     vars: {
-//         serverSettings: null,
-//         deviceList: null,
-//         prevTransportState: null
-//     },
+// Default settings
+WNP.s = {
+    rndAlbumArtUri: "/img/fake-album-1.png",
+    rndRadioArtUri: "/img/webradio-1.png"
+};
 
-//     someFunc: () => {
-//         self = this;
-//         console.log("someFunc")
-//         console.log(serverSettings)
-//         console.log(this.serverSettings)
-//         console.log(this)
-//         console.log(myApp.vars)
-//     }
+// Data placeholders.
+WNP.d = {
+    serverSettings: null,
+    deviceList: null,
+    prevTransportState: null
+}
 
-// };
+/**
+ * Initialisation of app.
+ * @returns {undefined}
+ */
+WNP.Init = function () {
+    console.log("WNP","Initialising...");
 
-// Init Socket.IO
-var socket = io();
+    // Set Socket.IO definitions
+    this.setSocketDefinitions();
 
-// =======================================================
-// Vars
-var serverSettings = null;
-var deviceList = null;
-var prevTransportState = null;
+    // Set UI event listeners
+    this.setUIListeners();
 
-// =======================================================
-// UI event listeners
+    // Initial calls, wait a bit for socket to start
+    setTimeout(() => {
+        socket.emit("server-settings");
+        socket.emit("devices-get");
+    }, 500);
 
-// btnDevices.addEventListener("click", function () {
-//     socket.emit("devices-get");
-// });
+    // Create random album intervals, every 3 minutes
+    rndAlbumInterval = setInterval(function () {
+        WNP.s.rndAlbumArtUri = WNP.rndAlbumArt("fake-album-");
+        WNP.s.rndRadioArtUri = WNP.rndAlbumArt("webradio-");
+    }, 3 * 60 * 1000);
 
-// btnRefresh.addEventListener("click", function () {
-//     socket.emit("devices-refresh");
-//     // Wait for discovery to finish
-//     setTimeout(() => {
-//         socket.emit("devices-get");
-//     }, 5000);
-// });
+};
 
-// deviceChoices.addEventListener("change", function () {
-//     socket.emit("device-set", this.value);
-// })
+/**
+ * Setting the listeners on the UI elements of the app.
+ * @returns {undefined}
+ */
+WNP.setUIListeners = function () {
+    console.log("WNP", "Set UI Listeners...")
 
-// btnReboot.addEventListener("click", function () {
-//     socket.emit("server-reboot");
-// });
+    // btnDevices.addEventListener("click", function () {
+    //     socket.emit("devices-get");
+    // });
 
-// btnShutdown.addEventListener("click", function () {
-//     socket.emit("server-shutdown");
-// });
+    // btnRefresh.addEventListener("click", function () {
+    //     socket.emit("devices-refresh");
+    //     // Wait for discovery to finish
+    //     setTimeout(() => {
+    //         socket.emit("devices-get");
+    //     }, 5000);
+    // });
 
-// btnReloadUI.addEventListener("click", function () {
-//     location.reload();
-// })
+    // deviceChoices.addEventListener("change", function () {
+    //     socket.emit("device-set", this.value);
+    // })
 
-// =======================================================
-// Socket definitions
+    // btnReboot.addEventListener("click", function () {
+    //     socket.emit("server-reboot");
+    // });
 
-// Initial calls, wait a bit for socket to start
-setTimeout(() => {
-    socket.emit("server-settings");
-    socket.emit("devices-get");
-}, 500);
+    // btnShutdown.addEventListener("click", function () {
+    //     socket.emit("server-shutdown");
+    // });
 
-// On server settings
-socket.on("server-settings", function (msg) {
+    // btnReloadUI.addEventListener("click", function () {
+    //     location.reload();
+    // })
 
-    // Store server settings
-    serverSettings = msg;
+};
 
-    if (msg.os.userInfo.shell === "/bin/bash") { // RPi has bash, so possibly able to reboot/shutdown.
-        btnReboot.disabled = false;
-        btnShutdown.disabled = false;
-    };
+/**
+ * Set the socket definitions to listen for specific websocket traffic and handle accordingly.
+ * @returns {undefined}
+ */
+WNP.setSocketDefinitions = function () {
+    console.log("WNP", "Setting Socket definitions...")
 
-    // Set device name
-    if (msg.selectedDevice && msg.selectedDevice.friendlyName) {
-        devName.innerText = msg.selectedDevice.friendlyName;
-    };
+    // On server settings
+    socket.on("server-settings", function (msg) {
 
-});
+        // Store server settings
+        WNP.d.serverSettings = msg
 
-// On devices get
-socket.on("devices-get", function (msg) {
+        // RPi has bash, so possibly able to reboot/shutdown.
+        if (msg.os.userInfo.shell === "/bin/bash") {
+            btnReboot.disabled = false;
+            btnShutdown.disabled = false;
+        };
 
-    // Store and sort device list
-    deviceList = msg;
-    deviceList.sort((a, b) => { return (a.friendlyName < b.friendlyName) ? -1 : 1 });
+        // Set device name
+        if (msg.selectedDevice && msg.selectedDevice.friendlyName) {
+            devName.innerText = msg.selectedDevice.friendlyName;
+        };
 
-    // // Clear choices
-    // deviceChoices.innerHTML = "";
+    });
 
-    // // Add WiiM devices
-    // var devicesWiiM = deviceList.filter((d) => { return d.manufacturer.startsWith("Linkplay") });
-    // if (devicesWiiM.length > 0) {
-    //     var optGroup = document.createElement("optgroup");
-    //     optGroup.label = "WiiM devices";
-    //     devicesWiiM.forEach((device) => {
-    //         var opt = document.createElement("option");
-    //         opt.value = device.location;
-    //         opt.innerText = device.friendlyName;
-    //         opt.title = "By " + device.manufacturer;
-    //         if (serverSettings && serverSettings.selectedDevice && serverSettings.selectedDevice.location === device.location) {
-    //             opt.setAttribute("selected", "selected");
-    //         };
-    //         optGroup.appendChild(opt);
-    //     })
-    //     deviceChoices.appendChild(optGroup);
-    // };
+    // On devices get
+    socket.on("devices-get", function (msg) {
 
-    // // Other devices
-    // var devicesOther = deviceList.filter((d) => { return !d.manufacturer.startsWith("Linkplay") });
-    // if (devicesOther.length > 0) {
-    //     var optGroup = document.createElement("optgroup");
-    //     optGroup.label = "Other devices";
-    //     devicesOther.forEach((device) => {
-    //         var opt = document.createElement("option");
-    //         opt.value = device.location;
-    //         opt.innerText = device.friendlyName;
-    //         opt.title = "By " + device.manufacturer;
-    //         if (serverSettings && serverSettings.selectedDevice && serverSettings.selectedDevice.location === device.location) {
-    //             opt.setAttribute("selected", "selected");
-    //         };
-    //         optGroup.appendChild(opt);
-    //     })
-    //     deviceChoices.appendChild(optGroup);
+        // Store and sort device list
+        WNP.d.deviceList = msg;
+        WNP.d.deviceList.sort((a, b) => { return (a.friendlyName < b.friendlyName) ? -1 : 1 });
 
-    // };
+        // // Clear choices
+        // deviceChoices.innerHTML = "";
 
-    // if (devicesWiiM.length == 0 && devicesOther.length == 0) {
-    //     deviceChoices.innerHTML = "<option disabled=\"disabled\">No devices found!</em></li>";
-    // };
+        // // Add WiiM devices
+        // var devicesWiiM = deviceList.filter((d) => { return d.manufacturer.startsWith("Linkplay") });
+        // if (devicesWiiM.length > 0) {
+        //     var optGroup = document.createElement("optgroup");
+        //     optGroup.label = "WiiM devices";
+        //     devicesWiiM.forEach((device) => {
+        //         var opt = document.createElement("option");
+        //         opt.value = device.location;
+        //         opt.innerText = device.friendlyName;
+        //         opt.title = "By " + device.manufacturer;
+        //         if (serverSettings && serverSettings.selectedDevice && serverSettings.selectedDevice.location === device.location) {
+        //             opt.setAttribute("selected", "selected");
+        //         };
+        //         optGroup.appendChild(opt);
+        //     })
+        //     deviceChoices.appendChild(optGroup);
+        // };
 
-});
+        // // Other devices
+        // var devicesOther = deviceList.filter((d) => { return !d.manufacturer.startsWith("Linkplay") });
+        // if (devicesOther.length > 0) {
+        //     var optGroup = document.createElement("optgroup");
+        //     optGroup.label = "Other devices";
+        //     devicesOther.forEach((device) => {
+        //         var opt = document.createElement("option");
+        //         opt.value = device.location;
+        //         opt.innerText = device.friendlyName;
+        //         opt.title = "By " + device.manufacturer;
+        //         if (serverSettings && serverSettings.selectedDevice && serverSettings.selectedDevice.location === device.location) {
+        //             opt.setAttribute("selected", "selected");
+        //         };
+        //         optGroup.appendChild(opt);
+        //     })
+        //     deviceChoices.appendChild(optGroup);
 
-// On state
-socket.on("state", function (msg) {
+        // };
 
-    // Get current player progress
-    var timeStampDiff = (msg.stateTimeStamp && msg.metadataTimeStamp) ? Math.round((msg.stateTimeStamp - msg.metadataTimeStamp) / 1000) : 0;
-    var relTime = (msg.RelTime) ? msg.RelTime : "00:00:00";
-    var trackDuration = (msg.TrackDuration) ? msg.TrackDuration : "00:00:00";
-    const progress = getPlayerProgress(relTime, trackDuration, timeStampDiff);
-    progressStart.children[0].innerText = progress.start;
-    progressEnd.children[0].innerText = progress.end;
-    progressPercent.setAttribute("style", "width:" + progress.percent + "%");;
+        // if (devicesWiiM.length == 0 && devicesOther.length == 0) {
+        //     deviceChoices.innerHTML = "<option disabled=\"disabled\">No devices found!</em></li>";
+        // };
 
-    // Did the device start playing? Maybe fetch some new metadata.
-    if (prevTransportState != msg.CurrentTransportState && msg.CurrentTransportState === "PLAYING") {
-        console.log("TransportState changed to PLAYING! -> Should fetch new metadata...")
-    };
-    prevTransportState = msg.CurrentTransportState;
+    });
 
-});
+    // On state
+    socket.on("state", function (msg) {
+        // console.log(msg);
 
-// 
-getPlayerProgress = function (relTime, trackDuration, timeStampDiff) {
-    let relTimeSec = convertToSeconds(relTime) + timeStampDiff;
-    let trackDurationSec = convertToSeconds(trackDuration);
-    let percentPlayed = 0;
-    if (trackDurationSec > 0) {
-        percentPlayed = Math.floor(relTimeSec / (trackDurationSec / 100));
+        // Get player progress data from the state message.
+        var timeStampDiff = 0;
+        if (msg.CurrentTransportState === "PLAYING") {
+            timeStampDiff = (msg.stateTimeStamp && msg.metadataTimeStamp) ? Math.round((msg.stateTimeStamp - msg.metadataTimeStamp) / 1000) : 0;
+        }
+        var relTime = (msg.RelTime) ? msg.RelTime : "00:00:00";
+        var trackDuration = (msg.TrackDuration) ? msg.TrackDuration : "00:00:00";
+
+        // Get current player progress and set UI elements accordingly.
+        var playerProgress = WNP.getPlayerProgress(relTime, trackDuration, timeStampDiff);
+        progressPlayed.children[0].innerText = playerProgress.played;
+        progressLeft.children[0].innerText = (playerProgress.left != "") ? "-" + playerProgress.left : "";
+        progressPercent.setAttribute("aria-valuenow", playerProgress.percent)
+        progressPercent.children[0].setAttribute("style", "width:" + playerProgress.percent + "%");
+
+        // Did the device start playing? Maybe fetch some new metadata.
+        if (WNP.d.prevTransportState != msg.CurrentTransportState && msg.CurrentTransportState === "PLAYING") {
+            console.log("TransportState changed to PLAYING! -> Should fetch new metadata...")
+            // ...
+        };
+        WNP.d.prevTransportState = msg.CurrentTransportState; // Remember the last transport state
+
+    });
+
+    // On metadata
+    socket.on("metadata", function (msg) {
+
+        // Source detection, needs work...
+        // TODO: Wrap it in source icon.
+        var sSource = "";
+        sSource += (msg.PlayMedium) ? msg.PlayMedium + ": " : "";
+        sSource += (msg.TrackSource) ? msg.TrackSource : "";
+        mediaSource.innerText = sSource
+
+        // Song, Artist, Album, Subtitle
+        mediaTitle.innerText = (msg.trackMetaData && msg.trackMetaData["dc:title"]) ? msg.trackMetaData["dc:title"] : "";
+        mediaArtist.innerText = (msg.trackMetaData && msg.trackMetaData["upnp:artist"]) ? msg.trackMetaData["upnp:artist"] : "";
+        mediaAlbum.innerText = (msg.trackMetaData && msg.trackMetaData["upnp:album"]) ? msg.trackMetaData["upnp:album"] : "";
+        mediaSubTitle.innerText = (msg.trackMetaData && msg.trackMetaData["dc:subtitle"]) ? msg.trackMetaData["dc:subtitle"] : "";
+
+        // Audio quality
+        mediaBitRate.innerText = (msg.trackMetaData && msg.trackMetaData["song:bitrate"]) ? msg.trackMetaData["song:bitrate"] + " kpbs" : "";
+        mediaBitDepth.innerText = (msg.trackMetaData && msg.trackMetaData["song:format_s"]) ? msg.trackMetaData["song:format_s"] + " bits" : "";
+        mediaSampleRate.innerText = (msg.trackMetaData && msg.trackMetaData["song:rate_hz"]) ? (msg.trackMetaData["song:rate_hz"] / 1000) + " kHz" : "";
+        // Sample High: "song:quality":"2","song:actualQuality":"LOSSLESS"
+        // Sample MQA: "song:quality":"3","song:actualQuality":"HI_RES",
+        // Sample FLAC: "4","song:actualQuality":"HI_RES_LOSSLESS", "TrackURI":"https://sp-pr-fa.audio.tidal.com/mediatracks/CAEaKRInZDQxN2NmYzZkNmNmNzQ0YjI4N2QzYWFlNzQzZjliM2NfNjIubXA0/0.flac?token=1707106396~NGQ4Y2JkYWJkZWM2N2I0MDQzZWE1MWNhNDc4ZDExYmE2ZWJmYTVlMw=="
+        mediaQuality.innerText = (msg.trackMetaData && msg.trackMetaData["song:quality"]) ? msg.trackMetaData["song:quality"] : "";
+        mediaActualQuality.innerText = (msg.trackMetaData && msg.trackMetaData["song:actualQuality"]) ? msg.trackMetaData["song:actualQuality"] : "";
+
+        // Album Art
+        if (msg && msg.trackMetaData &&
+            msg.trackMetaData["upnp:albumArtURI"] &&
+            albumArt.src != msg.trackMetaData["upnp:albumArtURI"]) {
+            if (msg.trackMetaData["upnp:albumArtURI"].startsWith("http")) {
+                WNP.setAlbumArt(msg.trackMetaData["upnp:albumArtURI"]);
+            }
+            else {
+                WNP.setAlbumArt(WNP.s.rndAlbumArtUri);
+            }
+        }
+        else if (!msg || !msg.trackMetaData || !msg.trackMetaData["upnp:albumArtURI"]) {
+            WNP.setAlbumArt(WNP.s.rndAlbumArtUri);
+        }
+
+        // Device volume
+        devVol.innerText = (msg.CurrentVolume) ? msg.CurrentVolume : "-";
+
+    });
+
+    // On device set
+    socket.on("device-set", function (msg) {
+        // Device switch? Fetch settings and device info again.
+        socket.emit("server-settings");
+        socket.emit("devices-get");
+    });
+
+    // On device refresh
+    socket.on("devices-refresh", function (msg) {
+        deviceChoices.innerHTML = "<option disabled=\"disabled\">Waiting for devices...</em></li>";
+    });
+
+};
+
+/**
+ * Get player progress helper.
+ * @param {string} relTime - Time elapsed while playing, format 00:00:00
+ * @param {string} trackDuration - Total play time, format 00:00:00
+ * @param {integer} timeStampDiff - Possible play time offset in seconds
+ * @returns {object} An object with corrected played, left, total and percentage played
+ */
+WNP.getPlayerProgress = function (relTime, trackDuration, timeStampDiff) {
+    var relTimeSec = this.convertToSeconds(relTime) + timeStampDiff;
+    var trackDurationSec = this.convertToSeconds(trackDuration);
+    if (trackDurationSec > 0 && relTimeSec < trackDurationSec) {
+        var percentPlayed = Math.floor(relTimeSec / (trackDurationSec / 100));
         return {
-            start: convertToTime(relTimeSec),
-            end: convertToTime(trackDurationSec),
+            played: WNP.convertToMinutes(relTimeSec),
+            left: WNP.convertToMinutes(trackDurationSec - relTimeSec),
+            total: WNP.convertToMinutes(trackDurationSec),
             percent: percentPlayed
         };
     }
     else {
         return {
-            start: "Live",
-            end: "",
+            played: "Live",
+            left: "",
+            total: "",
             percent: 0
         };
     };
 };
 
-// Convert time format '00:00:00' to total seconds.
-convertToSeconds = function (sDuration) {
+/**
+ * Convert time format '00:00:00' to total number of seconds.
+ * @param {string} sDuration - Time, format 00:00:00.
+ * @returns {integer} The number of seconds that the string represents.
+ */
+WNP.convertToSeconds = function (sDuration) {
     const timeSections = sDuration.split(":");
     let totalSeconds = 0;
     for (let i = 0; i < timeSections.length; i++) {
-        nFactor = timeSections.length - 1 - i;
-        nMultiplier = Math.pow(60, nFactor);
-        totalSeconds += nMultiplier * parseInt(timeSections[i]);
+        nFactor = timeSections.length - 1 - i; // Count backwards
+        nMultiplier = Math.pow(60, nFactor); // 60^n
+        totalSeconds += nMultiplier * parseInt(timeSections[i]); // Calculate the seconds
     }
     return totalSeconds
 }
 
-// Convert number of seconds to '00:00' string format. Sorry for those hour+ long songs.
-convertToTime = function (seconds) {
+/**
+ * Convert number of seconds to '00:00' string format. 
+ * Sorry for those hour+ long songs...
+ * @param {integer} seconds - Number of seconds total.
+ * @returns {string} The string representation of seconds in minutes, format 00:00.
+ */
+WNP.convertToMinutes = function (seconds) {
     var tempDate = new Date(0);
     tempDate.setSeconds(seconds);
     var result = tempDate.toISOString().substring(14, 19);
     return result;
 };
 
-
-// On metadata
-socket.on("metadata", function (msg) {
-
-    // Source detection, needs work...
-    // TODO: Wrap it in source icon.
-    var sSource = "";
-    sSource += (msg.PlayMedium) ? msg.PlayMedium + ": " : "";
-    sSource += (msg.TrackSource) ? msg.TrackSource : "";
-    mediaSource.innerText = sSource
-
-    // Song, Artist, Album, Subtitle
-    mediaTitle.innerText = (msg.trackMetaData && msg.trackMetaData["dc:title"]) ? msg.trackMetaData["dc:title"] : "";
-    mediaArtist.innerText = (msg.trackMetaData && msg.trackMetaData["upnp:artist"]) ? msg.trackMetaData["upnp:artist"] : "";
-    mediaAlbum.innerText = (msg.trackMetaData && msg.trackMetaData["upnp:album"]) ? msg.trackMetaData["upnp:album"] : "";
-    mediaSubTitle.innerText = (msg.trackMetaData && msg.trackMetaData["dc:subtitle"]) ? msg.trackMetaData["dc:subtitle"] : "";
-
-    // Audio quality
-    mediaBitRate.innerText = (msg.trackMetaData && msg.trackMetaData["song:bitrate"]) ? msg.trackMetaData["song:bitrate"] + " kpbs" : "";
-    mediaBitDepth.innerText = (msg.trackMetaData && msg.trackMetaData["song:format_s"]) ? msg.trackMetaData["song:format_s"] + " bits" : "";
-    mediaSampleRate.innerText = (msg.trackMetaData && msg.trackMetaData["song:rate_hz"]) ? (msg.trackMetaData["song:rate_hz"] / 1000) + " kHz" : "";
-    // Sample High: "song:quality":"2","song:actualQuality":"LOSSLESS"
-    // Sample MQA: "song:quality":"3","song:actualQuality":"HI_RES",
-    // Sample FLAC: "4","song:actualQuality":"HI_RES_LOSSLESS", "TrackURI":"https://sp-pr-fa.audio.tidal.com/mediatracks/CAEaKRInZDQxN2NmYzZkNmNmNzQ0YjI4N2QzYWFlNzQzZjliM2NfNjIubXA0/0.flac?token=1707106396~NGQ4Y2JkYWJkZWM2N2I0MDQzZWE1MWNhNDc4ZDExYmE2ZWJmYTVlMw=="
-    mediaQuality.innerText = (msg.trackMetaData && msg.trackMetaData["song:quality"]) ? msg.trackMetaData["song:quality"] : "";
-    mediaActualQuality.innerText = (msg.trackMetaData && msg.trackMetaData["song:actualQuality"]) ? msg.trackMetaData["song:actualQuality"] : "";
-
-    // Album Art
-    if (msg && msg.trackMetaData &&
-        msg.trackMetaData["upnp:albumArtURI"] &&
-        albumArt.src != msg.trackMetaData["upnp:albumArtURI"]) {
-        if (msg.trackMetaData["upnp:albumArtURI"].startsWith("http")) {
-            setAlbumArt(msg.trackMetaData["upnp:albumArtURI"]);
-        }
-        else {
-            setAlbumArt(rndAlbumArt());
-        }
-    }
-    else if (!msg || !msg.trackMetaData || !msg.trackMetaData["upnp:albumArtURI"]) {
-        setAlbumArt(rndAlbumArt());
-    }
-
-    // Device volume
-    devVol.innerText = (msg.CurrentVolume) ? msg.CurrentVolume : "-";
-
-});
-
-// On device set
-socket.on("device-set", function (msg) {
-    // Device wissel? Haal 'alles' opnieuw op
-    socket.emit("server-settings");
-    socket.emit("devices-get");
-});
-
-// On device refresh
-socket.on("devices-refresh", function (msg) {
-    deviceChoices.innerHTML = "<option disabled=\"disabled\">Waiting for devices...</em></li>";
-});
-
-// =======================================================
-// Helper functions
-
-rndNumber = function (min, max) {
-    return Math.floor(Math.random() * (max - min + 1) + min);
-}
-
-rndAlbumArt = function () {
-    return "/img/fake-album-" + rndNumber(1, 5) + ".png";
-}
-
-setAlbumArt = function (imgUri) {
+/**
+ * Sets the album art. Both on the foreground and background.
+ * @param {integer} imgUri - The URI of the album art.
+ * @returns {undefined}
+ */
+WNP.setAlbumArt = function (imgUri) {
     albumArt.src = imgUri;
     bgAlbumArtBlur.style.backgroundImage = "url('" + imgUri + "')";
-}
+};
 
+/**
+ * Come up with a random album art URI (locally from the img folder).
+ * @param {string} prefix - The prefix for the album art URI, i.e. 'fake-album-' or 'webradio-'
+ * @returns {string} An URI for album art
+ */
+WNP.rndAlbumArt = function (prefix) {
+    return "/img/" + prefix + this.rndNumber(1, 5) + ".png";
+};
+
+/**
+ * Get a random number between min and max, including min and max.
+ * @param {integer} min - Minimum number to pick, keep it lower than max.
+ * @param {integer} max - Maximum number to pick.
+ * @returns {integer} The random number
+ */
+WNP.rndNumber = function (min, max) {
+    return Math.floor(Math.random() * (max - min + 1) + min);
+};
+
+// =======================================================
+// Starting the app
+
+// Init Socket.IO
+var socket = io();
+
+// Start WiiM Now Playing app
+WNP.Init();
