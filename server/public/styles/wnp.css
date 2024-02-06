@@ -93,6 +93,26 @@
     right: 15px;
 }
 
+/* Footer */
+#devNameHolder {
+    position: absolute;
+    left: 30px;
+    bottom: 15px;
+}
+
+#devVolumeHolder {
+    position: absolute;
+    right: 30px;
+    bottom: 15px;
+    text-align: right;
+    width: 50%;
+}
+
+/* Modals */
+.modal {
+    color: #000;
+}
+
 /* Layout - CSS Grid */
 /* Portrait mode */
 @media screen and (max-width:500px) {
@@ -112,10 +132,4 @@
         padding: 0 30px;
     }
 
-}
-
-/* ------------------ */
-
-#viewPort {
-    display: none;
 }

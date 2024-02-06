@@ -3,7 +3,6 @@
 
 <head>
     <title>Wiim Now Playing</title>
-    <!-- <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"> -->
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 
     <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png">
@@ -42,22 +41,98 @@
             <div class="wnpFooter">
                 <div style="text-align: center;">
                     <div class="clearfix">
-                        <div id="progressPlayed" class="float-start"><small class="text-secondary">{Live|Played}</small></div>
+                        <div id="progressPlayed" class="float-start"><small class="text-secondary">{Live|Played}</small>
+                        </div>
                         <div id="progressLeft" class="float-end"><small class="text-secondary">{Total}</small></div>
                     </div>
-                    <div id="progressPercent" class="progress bg-secondary" role="progressbar" aria-label="Player progress" aria-valuenow="0"
-                        aria-valuemin="0" aria-valuemax="100" style="height: 3px">
+                    <div id="progressPercent" class="progress bg-secondary" role="progressbar"
+                        aria-label="Player progress" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
+                        style="height: 3px">
                         <div class="progress-bar bg-white" style="width: 0"></div>
                     </div>
                     <div>
-                        {<i class="bi bi-speaker"></i> <span id="devName">Device</span>}
-                        [<i class="bi bi-shuffle"></i> Shuffle]
-                        [<i class="bi bi-skip-start-fill"></i> Prev]
-                        [<i class="bi bi-play-circle-fill"></i> Play|<i class="bi bi-pause-circle-fill"></i> Pause|<i class="bi bi-stop-circle-fill"></i> Stop]
-                        [<i class="bi bi-skip-end-fill"></i> Next]
-                        [<i class="bi bi-repeat"></i> <i class="bi bi-repeat-1"></i> Repeat]
-                        {<i class="bi bi-volume-down-fill"></i> <span id="devVol"></span>}
-                        <span id="wnpSettings"><i class="bi bi-gear"></i> <i class="bi bi-sliders"></i> [Settings]</span>
+                        <div class="btn-group" style="margin-top: 15px;">
+                            <!-- Shuffle -->
+                            <button id="btnShuffle" type="button" class="btn btn-outline-light" disabled>
+                                <i class="bi bi-shuffle"></i>
+                            </button>
+                            <!-- Skip to start|Previous -->
+                            <button id="btnPrev" type="button" class="btn btn-outline-light">
+                                <i class="bi bi-skip-start-fill"></i>
+                            </button>
+                            <!-- Play|Pause|Stop -->
+                            <button id="btnPlay" type="button" class="btn btn-outline-light">
+                                <i class="bi bi-play-circle-fill"></i>
+                                <i class="bi bi-pause-circle-fill"></i>
+                                <i class="bi bi-stop-circle-fill"></i>
+                            </button>
+                            <!-- Skip to end|Next -->
+                            <button id="btnNext" type="button" class="btn btn-outline-light">
+                                <i class="bi bi-skip-end-fill"></i>
+                            </button>
+                            <!-- Repeat -->
+                            <button id="btnRepeat" type="button" class="btn btn-outline-light" disabled>
+                                <i class="bi bi-repeat"></i>
+                                <i class="bi bi-repeat-1"></i>
+                            </button>
+                        </div>
+                        <!-- Device info -->
+                        <div id="devNameHolder" class="text-secondary"><i class="bi bi-speaker"></i> <span
+                                id="devName">...</span></div>
+                        <div id="devVolumeHolder" class="text-secondary">
+                            <i class="bi bi-volume-down-fill"></i>
+                            <span id="devVol"></span>
+                        </div>
+                        <!-- Settings button -->
+                        <button id="wnpSettings" type="button" class="btn btn-outline-light" data-bs-toggle="modal"
+                            data-bs-target="#exampleModal">
+                            <i class="bi bi-gear"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings modal -->
+        <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Now Playing Settings</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+
+                        <!-- Device selection -->
+                        <label for="deviceChoices" class="form-label">Select a device:</label>
+                        <div class="input-group">
+                            <select id="deviceChoices" class="form-select">
+                                <option disabled="disabled">Waiting for devices...</option>
+                            </select>
+                            <div class="input-group-append">
+                                <!-- <button type="button" class="btn btn-secondary" id="btnDevices">Get devices</button> -->
+                                <button id="btnRefresh" class="btn btn-outline-secondary" type="button">Refresh
+                                    devices</button>
+                            </div>
+                        </div>
+                        <div class="form-text">
+                            If you can't find your WiiM device, make sure that it is turned on, on the same network and
+                            press 'Refresh devices'. Please wait for the devices to be discovered.
+                        </div>
+
+                        <label for="deviceChoices" class="form-label">Server actions:</label>
+                        <div class="btn-group" role="group" aria-label="Server actions">
+                            <button id="btnReboot" class="btn btn-secondary" disabled>Reboot server</button>
+                            <button id="btnShutdown" class="btn btn-secondary" disabled>Shutdown server</button>
+                            <button id="btnReloadUI" class="btn btn-secondary">Reload UI</button>
+                        </div>
+                        <div class="form-text">
+                            Some functions are only available on a Raspberry Pi, i.e. Reboot and Refresh.
+                        </div>
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
                     </div>
                 </div>
             </div>

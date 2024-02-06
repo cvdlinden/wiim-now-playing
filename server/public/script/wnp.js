@@ -22,7 +22,7 @@ WNP.d = {
  * @returns {undefined}
  */
 WNP.Init = function () {
-    console.log("WNP","Initialising...");
+    console.log("WNP", "Initialising...");
 
     // Set Socket.IO definitions
     this.setSocketDefinitions();
@@ -55,29 +55,29 @@ WNP.setUIListeners = function () {
     //     socket.emit("devices-get");
     // });
 
-    // btnRefresh.addEventListener("click", function () {
-    //     socket.emit("devices-refresh");
-    //     // Wait for discovery to finish
-    //     setTimeout(() => {
-    //         socket.emit("devices-get");
-    //     }, 5000);
-    // });
+    btnRefresh.addEventListener("click", function () {
+        socket.emit("devices-refresh");
+        // Wait for discovery to finish
+        setTimeout(() => {
+            socket.emit("devices-get");
+        }, 5000);
+    });
 
-    // deviceChoices.addEventListener("change", function () {
-    //     socket.emit("device-set", this.value);
-    // })
+    deviceChoices.addEventListener("change", function () {
+        socket.emit("device-set", this.value);
+    })
 
-    // btnReboot.addEventListener("click", function () {
-    //     socket.emit("server-reboot");
-    // });
+    btnReboot.addEventListener("click", function () {
+        socket.emit("server-reboot");
+    });
 
-    // btnShutdown.addEventListener("click", function () {
-    //     socket.emit("server-shutdown");
-    // });
+    btnShutdown.addEventListener("click", function () {
+        socket.emit("server-shutdown");
+    });
 
-    // btnReloadUI.addEventListener("click", function () {
-    //     location.reload();
-    // })
+    btnReloadUI.addEventListener("click", function () {
+        location.reload();
+    });
 
 };
 
@@ -96,8 +96,8 @@ WNP.setSocketDefinitions = function () {
 
         // RPi has bash, so possibly able to reboot/shutdown.
         if (msg.os.userInfo.shell === "/bin/bash") {
-            // btnReboot.disabled = false;
-            // btnShutdown.disabled = false;
+            btnReboot.disabled = false;
+            btnShutdown.disabled = false;
         };
 
         // Set device name
@@ -114,49 +114,49 @@ WNP.setSocketDefinitions = function () {
         WNP.d.deviceList = msg;
         WNP.d.deviceList.sort((a, b) => { return (a.friendlyName < b.friendlyName) ? -1 : 1 });
 
-        // // Clear choices
-        // deviceChoices.innerHTML = "";
+        // Clear choices
+        deviceChoices.innerHTML = "";
 
-        // // Add WiiM devices
-        // var devicesWiiM = deviceList.filter((d) => { return d.manufacturer.startsWith("Linkplay") });
-        // if (devicesWiiM.length > 0) {
-        //     var optGroup = document.createElement("optgroup");
-        //     optGroup.label = "WiiM devices";
-        //     devicesWiiM.forEach((device) => {
-        //         var opt = document.createElement("option");
-        //         opt.value = device.location;
-        //         opt.innerText = device.friendlyName;
-        //         opt.title = "By " + device.manufacturer;
-        //         if (serverSettings && serverSettings.selectedDevice && serverSettings.selectedDevice.location === device.location) {
-        //             opt.setAttribute("selected", "selected");
-        //         };
-        //         optGroup.appendChild(opt);
-        //     })
-        //     deviceChoices.appendChild(optGroup);
-        // };
+        // Add WiiM devices
+        var devicesWiiM = WNP.d.deviceList.filter((d) => { return d.manufacturer.startsWith("Linkplay") });
+        if (devicesWiiM.length > 0) {
+            var optGroup = document.createElement("optgroup");
+            optGroup.label = "WiiM devices";
+            devicesWiiM.forEach((device) => {
+                var opt = document.createElement("option");
+                opt.value = device.location;
+                opt.innerText = device.friendlyName;
+                opt.title = "By " + device.manufacturer;
+                if (WNP.d.serverSettings && WNP.d.serverSettings.selectedDevice && WNP.d.serverSettings.selectedDevice.location === device.location) {
+                    opt.setAttribute("selected", "selected");
+                };
+                optGroup.appendChild(opt);
+            })
+            deviceChoices.appendChild(optGroup);
+        };
 
-        // // Other devices
-        // var devicesOther = deviceList.filter((d) => { return !d.manufacturer.startsWith("Linkplay") });
-        // if (devicesOther.length > 0) {
-        //     var optGroup = document.createElement("optgroup");
-        //     optGroup.label = "Other devices";
-        //     devicesOther.forEach((device) => {
-        //         var opt = document.createElement("option");
-        //         opt.value = device.location;
-        //         opt.innerText = device.friendlyName;
-        //         opt.title = "By " + device.manufacturer;
-        //         if (serverSettings && serverSettings.selectedDevice && serverSettings.selectedDevice.location === device.location) {
-        //             opt.setAttribute("selected", "selected");
-        //         };
-        //         optGroup.appendChild(opt);
-        //     })
-        //     deviceChoices.appendChild(optGroup);
+        // Other devices
+        var devicesOther = WNP.d.deviceList.filter((d) => { return !d.manufacturer.startsWith("Linkplay") });
+        if (devicesOther.length > 0) {
+            var optGroup = document.createElement("optgroup");
+            optGroup.label = "Other devices";
+            devicesOther.forEach((device) => {
+                var opt = document.createElement("option");
+                opt.value = device.location;
+                opt.innerText = device.friendlyName;
+                opt.title = "By " + device.manufacturer;
+                if (WNP.d.serverSettings && WNP.d.serverSettings.selectedDevice && WNP.d.serverSettings.selectedDevice.location === device.location) {
+                    opt.setAttribute("selected", "selected");
+                };
+                optGroup.appendChild(opt);
+            })
+            deviceChoices.appendChild(optGroup);
 
-        // };
+        };
 
-        // if (devicesWiiM.length == 0 && devicesOther.length == 0) {
-        //     deviceChoices.innerHTML = "<option disabled=\"disabled\">No devices found!</em></li>";
-        // };
+        if (devicesWiiM.length == 0 && devicesOther.length == 0) {
+            deviceChoices.innerHTML = "<option disabled=\"disabled\">No devices found!</em></li>";
+        };
 
     });
 
