@@ -63,7 +63,9 @@ lib.getSettings(serverSettings);
 
 // ===========================================================================
 // Initial SSDP scan for devices.
-ssdp.scan(deviceList, serverSettings);
+io.emit("debug", "SSDP start")
+ssdp.scan(deviceList, serverSettings, io);
+io.emit("debug", "SSDP started")
 
 // ===========================================================================
 // Set Express functionality, reroute all clients to the /public folder

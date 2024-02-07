@@ -23,12 +23,14 @@ const log = require("debug")("lib:ssdp");
  * @param {object} serverSettings - The server settings object.
  * @returns {undefined}
  */
-const scan = (deviceList, serverSettings) => {
+const scan = (deviceList, serverSettings, io) => {
     log("Scanning for devices with SSDP...");
+    io.emit("debug", "Scanning for devices with SSDP...")
 
     // Event listener on responses from device discovery
     ssdpClient.on("response", (respSSDP, code, rinfo) => {
         log("Fetching:", respSSDP.LOCATION);
+        io.emit("debug", "Fetching:", respSSDP.LOCATION)
 
         if (deviceList.some((d) => { return d.location === respSSDP.LOCATION })) {
             log("Device already found!");
@@ -40,8 +42,12 @@ const scan = (deviceList, serverSettings) => {
             // TODO: Move to upnpClient.js? -> Do proper async
             const client = upnp.createClient(respSSDP.LOCATION);
             client.getDeviceDescription(function (err, deviceDesc) {
-                if (err) { log("Error", err); }
+                if (err) { 
+                    log("Error", err); 
+                    io.emit("debug", "Error:", JSON.stringify(err))
+                }
                 else {
+                    io.emit("debug", "deviceDesc:", JSON.stringify(deviceDesc))
 
                     // Get the device's AVTransport service description
                     client.getServiceDescription('AVTransport', function (err, serviceDesc) {
@@ -105,8 +111,9 @@ const scan = (deviceList, serverSettings) => {
  * @param {array} deviceList - The array of found device objects.
  * @returns {undefined}
  */
-const rescan = (deviceList) => {
+const rescan = (deviceList, io) => {
     log("Starting a rescan for devices...");
+    io.emit("debug", "Starting a rescan for devices...")
     deviceList.length = 0; // Reset already found device list
     // ssdpClient.search("urn:schemas-upnp-org:device:MediaRenderer"); // Search for MediaRenderer devices
     ssdpClient.search("urn:schemas-upnp-org:service:AVTransport:1"); // Search for AVTransport enabled devices
