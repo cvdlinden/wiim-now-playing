@@ -57,17 +57,17 @@
                                 <i class="bi bi-shuffle"></i>
                             </button>
                             <!-- Skip to start|Previous -->
-                            <button id="btnPrev" type="button" class="btn btn-outline-light">
+                            <button id="btnPrev" type="button" class="btn btn-outline-light" disabled>
                                 <i class="bi bi-skip-start-fill"></i>
                             </button>
                             <!-- Play|Pause|Stop -->
-                            <button id="btnPlay" type="button" class="btn btn-outline-light">
+                            <button id="btnPlay" type="button" class="btn btn-outline-light" disabled>
                                 <i class="bi bi-play-circle-fill"></i>
                                 <i class="bi bi-pause-circle-fill"></i>
                                 <i class="bi bi-stop-circle-fill"></i>
                             </button>
                             <!-- Skip to end|Next -->
-                            <button id="btnNext" type="button" class="btn btn-outline-light">
+                            <button id="btnNext" type="button" class="btn btn-outline-light" disabled>
                                 <i class="bi bi-skip-end-fill"></i>
                             </button>
                             <!-- Repeat -->
@@ -120,15 +120,17 @@
                             press 'Refresh devices'. Please wait for the devices to be discovered.
                         </div>
 
-                        <label for="deviceChoices" class="form-label">Server actions:</label>
+                        <label class="form-label">Server actions:</label>
                         <div class="btn-group" role="group" aria-label="Server actions">
                             <button id="btnReboot" class="btn btn-secondary" disabled>Reboot server</button>
                             <button id="btnShutdown" class="btn btn-secondary" disabled>Shutdown server</button>
                             <button id="btnReloadUI" class="btn btn-secondary">Reload UI</button>
                         </div>
                         <div class="form-text">
-                            <strong>Reboot server</strong>: Will reboot the server, just wait for it to come back up. (Raspberry Pi only)<br />
-                            <strong>Shutdown server</strong>: Will shutdown the server. Wait for it to shut down completely before unplugging the power. (Raspberry Pi only)<br />
+                            <strong>Reboot server</strong>: Will reboot the server, just wait for it to come back up.
+                            (Raspberry Pi only)<br />
+                            <strong>Shutdown server</strong>: Will shutdown the server. Wait for it to shut down
+                            completely before unplugging the power. (Raspberry Pi only)<br />
                             <strong>Reload UI</strong>: Will refresh the browser. In case it is no longer reponsive.
                         </div>
 

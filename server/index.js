@@ -48,8 +48,7 @@ let serverSettings = { // Placeholder for current server settings
         "immediate": 250, // Timeout for 'immediate' updates in milliseconds.
         "state": 1000, // Timeout for state updates in milliseconds.
         "metadata": 5000 // Timeout for metadata updates in milliseconds.
-    },
-    "ui": null // Placeholder for future UI settings
+    }
 };
 
 // Interval placeholders:
@@ -125,6 +124,33 @@ io.on("connection", (socket) => {
     });
 
     // ======================================
+    // State and Metadata related
+
+    // /**
+    //  * Listener for state refresh.
+    //  * @returns {undefined}
+    //  */
+    // socket.on("state-refresh", () => {
+    //     log("Socket event", "state");
+    //     // TODO: immediately refresh state?
+    //     // I.e. when transport state or media changes or new song has started... if possible. 
+    //     // There's only a second to play with here. So may not be useful.
+    //     io.emit("state", deviceInfo.state);
+    // });
+
+    // /**
+    //  * Listener for metadata refresh.
+    //  * @returns {undefined}
+    //  */
+    // socket.on("metadata-refresh", () => {
+    //     log("Socket event", "metadata");
+    //     // TODO: immediately refresh state?
+    //     // I.e. when transport state or media changes or new song has started... if possible.
+    //     // Worst case now, we have to wait 5 seconds to see any updated metadata.
+    //     io.emit("metadata", deviceInfo.metadata);
+    // });
+
+    // ======================================
     // Device(s) related
 
     /**
@@ -153,11 +179,11 @@ io.on("connection", (socket) => {
     socket.on("device-set", (msg) => {
         log("Socket event", "device-set", msg);
         sockets.setDevice(io, deviceList, deviceInfo, serverSettings, msg);
+        // TODO: Make this async? To wait properly for state and metadata updates.
         // Immediately do a polling to the new device
         upnp.updateDeviceMetadata(deviceInfo, serverSettings);
         upnp.updateDeviceState(deviceInfo, serverSettings);
         // Then  wait a bit for the results to come in and tell the client.
-        // TODO: Make this async?
         setTimeout(() => {
             io.emit("metadata", deviceInfo.metadata);
         }, serverSettings.timeouts.immediate);
@@ -167,17 +193,18 @@ io.on("connection", (socket) => {
     });
 
     /**
-     * Listener for device interaction.
+     * Listener for device interaction. I.e. Play, Stop, Pause, ...
+     * Not yet implemented in client!
      * @param {string} msg - The action to perform on the device.
      * @returns {undefined}
      */
     socket.on("device-action", (msg) => {
         io.emit("device-action", msg); // Should be an action in sockets.js...
+        // TODO: Make this async? To wait properly for state and metadata updates.
         // Immediately do a polling to the new device
         upnp.updateDeviceMetadata(deviceInfo, serverSettings);
         upnp.updateDeviceState(deviceInfo, serverSettings);
         // Then  wait a bit for the results to come in and tell the client.
-        // TODO: Make this async?
         setTimeout(() => {
             io.emit("metadata", deviceInfo.metadata);
         }, serverSettings.timeouts.immediate);

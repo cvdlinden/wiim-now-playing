@@ -37,7 +37,7 @@ const scan = (deviceList, serverSettings) => {
         else {
             log("New device found. Get the device description...");
             // Check the device description
-            // TODO: Move to upnpClient.js?
+            // TODO: Move to upnpClient.js? -> Do proper async
             const client = upnp.createClient(respSSDP.LOCATION);
             client.getDeviceDescription(function (err, deviceDesc) {
                 if (err) { log("Error", err); }

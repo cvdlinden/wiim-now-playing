@@ -3,7 +3,6 @@
 
 <head>
     <title>Wiim Now Playing (DEBUG)</title>
-    <!-- <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"> -->
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 
     <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png">
@@ -13,80 +12,64 @@
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
         integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
-    <style>
-        html {
-            min-height: 100%;
-        }
-
-        body {
-            background-color: #333;
-            background-image: linear-gradient(#033536, #010c12);
-            color: #fff;
-            min-height: 100%;
-            font-family: arial, sans-serif;
-        }
-
-        #albumArt {
-            max-height: 120px;
-            border-radius: 5px;
-        }
-
-        #viewPort {
-            height: calc(var(--vh, 1vh)*100);
-            overflow: hidden;
-        }
-
-        #bgImageBlur {
-            /* Center and scale the image nicely */
-            background-image: url("img/fake-album-1.png");
-            background-position: center;
-            background-repeat: no-repeat;
-            background-size: cover;
-            /* Add the blur effect */
-            filter: blur(10px) brightness(.5) opacity(0.25);
-            /* Zoom in */
-            transform: scale(1.25);
-            /* Full height */
-            height: 100%;
-        }
-
-        #uiContainer {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-        }
-    </style>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="styles/debug.css">
 
 </head>
 
 <body>
-    <div id="viewPort">
 
-        <div id="bgImageBlur"></div>
+    <div class="container">
 
-        <div id="uiContainer">
-
+        <div class="row mb-3">
             <h2>Wiim Now Playing (DEBUG)</h2>
+        </div>
 
-            <div class="form-floating">
-                <textarea id="state" class="form-control" style="height: 90px"></textarea>
-                <label for="state">State: <span id="sTimeStampDiff"></span></label>
+        <div class="row mb-3">
+            <label class="form-label">State:
+                <span id="tickStateUp" class="tick tickUp"><i class="bi bi-arrow-up-circle-fill"></i>
+                </span>
+                <span id="tickStateDown" class="tick tickDown"><i class="bi bi-arrow-down-circle-fill"></i></span>
+            </label>
+            <textarea id="state" class="form-control" style="height: 60px"></textarea>
+            <div class="form-text text-white">
+                Difference between metadataTimeStamp and stateTimeStamp: <span id="sTimeStampDiff"></span>.
             </div>
+        </div>
 
-            <div class="form-floating">
-                <textarea id="metadata" class="form-control" style="height: 130px"></textarea>
-                <label for="metadata">Metadata:</label>
+        <div class="row mb-3">
+            <label class="form-label">Metadata:
+                <span id="tickMetadataUp" class="tick tickUp"><i class="bi bi-arrow-up-circle-fill"></i>
+                </span>
+                <span id="tickMetadataDown" class="tick tickDown"><i class="bi bi-arrow-down-circle-fill"></i></span>
+            </label>
+            <textarea id="metadata" class="form-control" style="height: 180px"></textarea>
+            <div class="form-text text-white">
+                <ul>
+                    <li id="sTitle">Title: <span></span></li>
+                    <li id="sArtist">Artist: <span></span></li>
+                    <li id="sAlbum">Album: <span></span></li>
+                    <li id="sAlbumArtUri">Album Art URI: <span></span></li>
+                    <li id="sSubtitle">Subtitle: <span></span></li>
+                </ul>
             </div>
+        </div>
 
-            <div>
-                <img id="albumArt" onerror="this.src = rndAlbumArt()" />
-                <em id="sTitleArtistAlbum"></em>
-            </div>
-
+        <div class="row mb-3">
+            <label class="form-label" for="deviceChoices">Devices:
+                <span id="tickDevicesGetUp" class="tick tickUp"><i class="bi bi-arrow-up-circle-fill"></i>
+                </span>
+                <span id="tickDevicesGetDown" class="tick tickDown"><i class="bi bi-arrow-down-circle-fill"></i></span>
+                (set device: <span id="tickDeviceSetUp" class="tick tickUp"><i class="bi bi-arrow-up-circle-fill"></i>
+                </span>
+                <span id="tickDeviceSetDown" class="tick tickDown"><i class="bi bi-arrow-down-circle-fill"></i></span>)
+                (refresh: <span id="tickDevicesRefreshUp" class="tick tickUp"><i class="bi bi-arrow-up-circle-fill"></i>
+                </span>
+                <span id="tickDevicesRefreshDown" class="tick tickDown"><i
+                        class="bi bi-arrow-down-circle-fill"></i></span>)
+            </label>
             <div class="btn-toolbar justify-content-between">
                 <div class="input-group">
-                    <div class="input-group-text" id="btnGroupAddon">Select a device:</div>
                     <select id="deviceChoices" class="form-select">
                         <option disabled="disabled">Waiting for devices...</option>
                     </select>
@@ -96,21 +79,38 @@
                     <button type="button" class="btn btn-secondary" id="btnRefresh">Refresh devices</button>
                 </div>
             </div>
+        </div>
 
-            <div class="form-floating">
-                <textarea id="sServerSettings" class="form-control" style="height: 130px"></textarea>
-                <label for="sServerSettings">Server Settings</label>
+        <div class="row mb-3">
+            <label class="form-label">Server Settings:
+                <span id="tickServerSettingsUp" class="tick tickUp"><i class="bi bi-arrow-up-circle-fill"></i>
+                </span>
+                <span id="tickServerSettingsDown" class="tick tickDown"><i
+                        class="bi bi-arrow-down-circle-fill"></i></span>
+            </label>
+            <textarea id="sServerSettings" class="form-control" style="height: 180px"></textarea>
+            <div class="form-text text-white">
+                <ul>
+                    <li id="sFriendlyname">Friendlyname: <span></span></li>
+                    <li id="sManufacturer">Manufacturer: <span></span></li>
+                    <li id="sModelName">ModelName: <span></span></li>
+                    <li id="sLocation">Location: <span></span></li>
+                </ul>
             </div>
+        </div>
 
-            <div class="btn-toolbar justify-content-between">
-                <p>Hardware (Reboot/Shutdown = Pi only)</p>
+        <div class="row mb-3">
+            <label class="form-label">Server Actions:</label>
+            <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
                 <div class="btn-group" role="group" aria-label="Server actions">
                     <button id="btnReboot" class="btn btn-secondary" disabled>Reboot server</button>
                     <button id="btnShutdown" class="btn btn-secondary" disabled>Shutdown server</button>
                     <button id="btnReloadUI" class="btn btn-secondary">Reload UI</button>
                 </div>
             </div>
-
+            <div class="form-text text-white">
+                Reboot and Shutdown are only available when shell/bash is available, i.e. on a Raspberry Pi.
+            </div>
         </div>
 
     </div>
@@ -119,176 +119,6 @@
         integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
         crossorigin="anonymous"></script>
     <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
-    <script>
-        var socket = io();
-
-        // DEBUG
-        // var state = document.getElementById("state");
-        // var btn = document.getElementById("btn");
-
-        // UI event listeners
-
-        btnDevices.addEventListener("click", function () {
-            socket.emit("devices-get");
-        });
-
-        btnRefresh.addEventListener("click", function () {
-            socket.emit("devices-refresh");
-            // Wait for discovery to finish
-            setTimeout(() => {
-                socket.emit("devices-get");
-            }, 5000);
-        });
-
-        deviceChoices.addEventListener("change", function () {
-            socket.emit("device-set", this.value);
-        })
-
-        btnReboot.addEventListener("click", function () {
-            socket.emit("server-reboot");
-        });
-
-        btnShutdown.addEventListener("click", function () {
-            socket.emit("server-shutdown");
-        });
-
-        btnReloadUI.addEventListener("click", function () {
-            location.reload();
-        })
-
-        // Sockets
-
-        // Initial calls, wait a bit for socket to start
-        var serverSettings = null;
-        var deviceList = null;
-        setTimeout(() => {
-            socket.emit("server-settings");
-            socket.emit("devices-get");
-        }, 500);
-
-        socket.on("server-settings", function (msg) {
-
-            // Store server settings
-            serverSettings = msg;
-
-            sServerSettings.innerHTML = JSON.stringify(msg);
-            if (msg.os.userInfo.shell === "/bin/bash") { // RPi has bash, so possibly able to reboot/shutdown.
-                btnReboot.disabled = false;
-                btnShutdown.disabled = false;
-            };
-
-        });
-
-        socket.on("devices-get", function (msg) {
-
-            // Store and sort device list
-            deviceList = msg;
-            deviceList.sort((a, b) => { return (a.friendlyName < b.friendlyName) ? -1 : 1 });
-
-            // Clear choices
-            deviceChoices.innerHTML = "";
-
-            // Add WiiM devices
-            var devicesWiiM = deviceList.filter((d) => { return d.manufacturer.startsWith("Linkplay") });
-            if (devicesWiiM.length > 0) {
-                var optGroup = document.createElement("optgroup");
-                optGroup.label = "WiiM devices";
-                devicesWiiM.forEach((device) => {
-                    var opt = document.createElement("option");
-                    opt.value = device.location;
-                    opt.innerText = device.friendlyName;
-                    opt.title = "By " + device.manufacturer;
-                    if (serverSettings && serverSettings.selectedDevice && serverSettings.selectedDevice.location === device.location) {
-                        opt.setAttribute("selected", "selected");
-                    };
-                    optGroup.appendChild(opt);
-                })
-                deviceChoices.appendChild(optGroup);
-            };
-
-            // Other devices
-            var devicesOther = deviceList.filter((d) => { return !d.manufacturer.startsWith("Linkplay") });
-            if (devicesOther.length > 0) {
-                var optGroup = document.createElement("optgroup");
-                optGroup.label = "Other devices";
-                devicesOther.forEach((device) => {
-                    var opt = document.createElement("option");
-                    opt.value = device.location;
-                    opt.innerText = device.friendlyName;
-                    opt.title = "By " + device.manufacturer;
-                    if (serverSettings && serverSettings.selectedDevice && serverSettings.selectedDevice.location === device.location) {
-                        opt.setAttribute("selected", "selected");
-                    };
-                    optGroup.appendChild(opt);
-                })
-                deviceChoices.appendChild(optGroup);
-
-            };
-
-            if (devicesWiiM.length == 0 && devicesOther.length == 0) {
-                deviceChoices.innerHTML = "<option disabled=\"disabled\">No devices found!</em></li>";
-            };
-
-        });
-
-        socket.on("device-set", function (msg) {
-            // Device wissel? Haal 'alles' opnieuw op
-            socket.emit("server-settings");
-            socket.emit("devices-get");
-        });
-
-        socket.on("devices-refresh", function (msg) {
-            deviceChoices.innerHTML = "<option disabled=\"disabled\">Waiting for devices...</em></li>";
-        });
-
-        socket.on("state", function (msg) {
-            state.innerHTML = JSON.stringify(msg);
-            if (msg && msg.stateTimeStamp && msg.metadataTimeStamp) {
-                var timeStampDiff = (msg.stateTimeStamp && msg.metadataTimeStamp) ? Math.round((msg.stateTimeStamp - msg.metadataTimeStamp) / 1000) : 0;
-                sTimeStampDiff.innerHTML = "<em>diff = " + timeStampDiff + "s</em>";
-            }
-            else {
-                sTimeStampDiff.innerHTML = "";
-            }
-        });
-
-        socket.on("metadata", function (msg) {
-            metadata.innerHTML = JSON.stringify(msg);
-            var aTitleArtistAlbum = []
-            if (msg && msg.trackMetaData) {
-                if ((msg.trackMetaData["dc:title"])) { aTitleArtistAlbum.push(msg.trackMetaData["dc:title"]) };
-                if ((msg.trackMetaData["upnp:artist"])) { aTitleArtistAlbum.push(msg.trackMetaData["upnp:artist"]) };
-                if ((msg.trackMetaData["upnp:album"])) { aTitleArtistAlbum.push(msg.trackMetaData["upnp:album"]) };
-            };
-            sTitleArtistAlbum.innerText = aTitleArtistAlbum.join(", ");
-            if (msg && msg.trackMetaData &&
-                msg.trackMetaData["upnp:albumArtURI"] &&
-                albumArt.src != msg.trackMetaData["upnp:albumArtURI"]) {
-                if (msg.trackMetaData["upnp:albumArtURI"].startsWith("http")) {
-                    setAlbumArt(msg.trackMetaData["upnp:albumArtURI"]);
-                }
-                else {
-                    setAlbumArt(rndAlbumArt());
-                }
-            }
-            else if (!msg || !msg.trackMetaData || !msg.trackMetaData["upnp:albumArtURI"]) {
-                setAlbumArt(rndAlbumArt());
-            }
-        });
-
-        rndFive = function (min, max) {
-            return Math.floor(Math.random() * (max - min + 1) + min);
-        }
-
-        rndAlbumArt = function () {
-            return "/img/fake-album-" + rndFive(1, 5) + ".png";
-        }
-
-        setAlbumArt = function (imgUri) {
-            albumArt.src = imgUri;
-            bgImageBlur.style.backgroundImage = "url('" + imgUri + "')";
-        }
-
-    </script>
+    <script src="script/debug.js"></script>
 
 </body>

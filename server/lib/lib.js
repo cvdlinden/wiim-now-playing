@@ -72,7 +72,6 @@ const getSettings = (serverSettings) => {
             log("fs", "selectedDevice:", settings.selectedDevice.friendlyName, settings.selectedDevice.location);
             log("fs", "Amend the current server settings with the stored values.");
             serverSettings.selectedDevice = settings.selectedDevice;
-            serverSettings.ui = settings.ui;
         }
     }
     catch { // Not found, create a settings file
@@ -92,8 +91,7 @@ const saveSettings = (serverSettings) => {
     log("fs", "Saving settings to:", settingsFile);
 
     const settingsToStore = {
-        "selectedDevice": serverSettings.selectedDevice,
-        "ui": serverSettings.ui
+        "selectedDevice": serverSettings.selectedDevice
     };
     log("fs", "Settings to store", settingsToStore);
 
