@@ -47,7 +47,8 @@ let serverSettings = { // Placeholder for current server settings
     "timeouts": {
         "immediate": 250, // Timeout for 'immediate' updates in milliseconds.
         "state": 1000, // Timeout for state updates in milliseconds.
-        "metadata": 5000 // Timeout for metadata updates in milliseconds.
+        "metadata": 5 * 1000, // Timeout for metadata updates in milliseconds.
+        "rescan": 10 * 1000 // Timeout for possible rescan of devices
     }
 };
 
@@ -66,6 +67,16 @@ lib.getSettings(serverSettings);
 io.emit("debug", "SSDP start")
 ssdp.scan(deviceList, serverSettings, io);
 io.emit("debug", "SSDP started")
+
+// Check after x minutes whether any devices have been found.
+// Due to wifi initialisation delay the scan may have failed.
+// Not aware of method of knowing whether wifi connection has been established fully.
+// Thus a rescan of the devices mey be required.
+setTimeout(() => {
+    if (deviceList.length === 0) {
+        ssdp.scan(deviceList, serverSettings, io);
+    }
+}, serverSettings.timeouts.rescan);
 
 // ===========================================================================
 // Set Express functionality, reroute all clients to the /public folder
