@@ -170,7 +170,7 @@ io.on("connection", (socket) => {
      */
     socket.on("devices-refresh", () => {
         log("Socket event", "devices-refresh");
-        sockets.scanDevices(io, ssdp, deviceList);
+        sockets.scanDevices(io, ssdp, deviceList, serverSettings);
     });
 
     /**

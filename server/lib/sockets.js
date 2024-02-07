@@ -117,9 +117,9 @@ const setDevice = (io, deviceList, deviceInfo, serverSettings, location) => {
  * @param {array} deviceList - The array of found device objects.
  * @returns {undefined}
  */
-const scanDevices = (io, ssdp, deviceList) => {
+const scanDevices = (io, ssdp, deviceList, serverSettings) => {
     log("Scanning for devices...");
-    ssdp.rescan(deviceList, io);
+    ssdp.scan(deviceList, serverSettings, io);
     io.emit("devices-refresh", "Scanning for devices...");
 }
 

@@ -10,7 +10,6 @@
 
 // Use SSDP module
 const SSDP = require('node-ssdp').Client
-const ssdpClient = new SSDP({ explicitSocketBind: true }); // explicitSocketBind enabled to make it work on Windows 11
 
 // Other modules
 const lib = require("./lib.js"); // Generic functionality
@@ -27,6 +26,12 @@ const scan = (deviceList, serverSettings, io) => {
     log("Scanning for devices with SSDP...");
     io.emit("debug", "Scanning for devices with SSDP...")
 
+    // Reset the already found device list by emptying the list
+    deviceList.length = 0;
+
+    // Create client
+    const ssdpClient = new SSDP({ explicitSocketBind: true }); // explicitSocketBind enabled to make it work on Windows 11
+
     // Event listener on responses from device discovery
     ssdpClient.on("response", (respSSDP, code, rinfo) => {
         log("Fetching:", respSSDP.LOCATION);
@@ -42,12 +47,11 @@ const scan = (deviceList, serverSettings, io) => {
             // TODO: Move to upnpClient.js? -> Do proper async
             const client = upnp.createClient(respSSDP.LOCATION);
             client.getDeviceDescription(function (err, deviceDesc) {
-                if (err) { 
-                    log("Error", err); 
-                    io.emit("debug", "Error:", JSON.stringify(err))
+                if (err) {
+                    log("Error", err);
                 }
                 else {
-                    io.emit("debug", "deviceDesc:", JSON.stringify(deviceDesc))
+                    io.emit("debug", "friendlyName:", deviceDesc.friendlyName)
 
                     // Get the device's AVTransport service description
                     client.getServiceDescription('AVTransport', function (err, serviceDesc) {
@@ -105,30 +109,30 @@ const scan = (deviceList, serverSettings, io) => {
 
 }
 
-/**
- * This function performs a rescan for devices, i.e. clears the devices list and starts a fresh search.
- * Don't call this function within short intervals as it may lead to an erratic device list.
- * @param {array} deviceList - The array of found device objects.
- * @returns {undefined}
- */
-const rescan = (deviceList, io) => {
-    log("Starting a rescan for devices...");
-    io.emit("debug", "Starting a rescan for devices...")
-    deviceList.length = 0; // Reset already found device list
+// /**
+//  * This function performs a rescan for devices, i.e. clears the devices list and starts a fresh search.
+//  * Don't call this function within short intervals as it may lead to an erratic device list.
+//  * @param {array} deviceList - The array of found device objects.
+//  * @returns {undefined}
+//  */
+// const rescan = (deviceList, io) => {
+//     log("Starting a rescan for devices...");
+//     io.emit("debug", "Starting a rescan for devices...")
+//     deviceList.length = 0; // Reset already found device list
 
-    const tempClient = new SSDP({ explicitSocketBind: true }); // explicitSocketBind enabled to make it work on Windows 11
+//     const tempClient = new SSDP({ explicitSocketBind: true }); // explicitSocketBind enabled to make it work on Windows 11
 
-    // Event listener on responses from device discovery
-    tempClient.on("response", (respSSDP, code, rinfo) => {
-        log("Fetching:", respSSDP.LOCATION);
-        io.emit("debug", "RESCAN:", respSSDP.LOCATION)
-    });
+//     // Event listener on responses from device discovery
+//     tempClient.on("response", (respSSDP, code, rinfo) => {
+//         log("Fetching:", respSSDP.LOCATION);
+//         io.emit("debug", "RESCAN:", respSSDP.LOCATION)
+//     });
 
-    // tempClient.search("urn:schemas-upnp-org:device:MediaRenderer"); // Search for MediaRenderer devices
-    tempClient.search("urn:schemas-upnp-org:service:AVTransport:1"); // Search for AVTransport enabled devices
-}
+//     // tempClient.search("urn:schemas-upnp-org:device:MediaRenderer"); // Search for MediaRenderer devices
+//     tempClient.search("urn:schemas-upnp-org:service:AVTransport:1"); // Search for AVTransport enabled devices
+// }
 
 module.exports = {
     scan,
-    rescan
+    // rescan
 }
