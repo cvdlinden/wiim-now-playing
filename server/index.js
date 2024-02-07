@@ -48,7 +48,7 @@ let serverSettings = { // Placeholder for current server settings
         "immediate": 250, // Timeout for 'immediate' updates in milliseconds.
         "state": 1000, // Timeout for state updates in milliseconds.
         "metadata": 5 * 1000, // Timeout for metadata updates in milliseconds.
-        "rescan": 5 * 1000 // Timeout for possible rescan of devices
+        "rescan": 10 * 1000 // Timeout for possible rescan of devices
     }
 };
 
@@ -64,7 +64,7 @@ lib.getSettings(serverSettings);
 
 // ===========================================================================
 // Initial SSDP scan for devices.
-ssdp.scan(deviceList, serverSettings, io);
+ssdp.scan(deviceList, serverSettings);
 
 // Check after x minutes whether any devices have been found.
 // Due to wifi initialisation delay the scan may have failed.
@@ -72,7 +72,7 @@ ssdp.scan(deviceList, serverSettings, io);
 // Thus a rescan of the devices mey be required.
 setTimeout(() => {
     if (deviceList.length === 0) {
-        ssdp.scan(deviceList, serverSettings, io);
+        ssdp.scan(deviceList, serverSettings);
     }
 }, serverSettings.timeouts.rescan);
 

@@ -60,6 +60,7 @@ WNP.setUIListeners = function () {
         // Wait for discovery to finish
         setTimeout(() => {
             socket.emit("devices-get");
+            socket.emit("server-settings");
         }, 5000);
     });
 

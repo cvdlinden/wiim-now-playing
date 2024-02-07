@@ -119,7 +119,7 @@ const setDevice = (io, deviceList, deviceInfo, serverSettings, location) => {
  */
 const scanDevices = (io, ssdp, deviceList, serverSettings) => {
     log("Scanning for devices...");
-    ssdp.scan(deviceList, serverSettings, io);
+    ssdp.scan(deviceList, serverSettings);
     io.emit("devices-refresh", "Scanning for devices...");
 }
 
