@@ -115,6 +115,13 @@ const rescan = (deviceList, io) => {
     log("Starting a rescan for devices...");
     io.emit("debug", "Starting a rescan for devices...")
     deviceList.length = 0; // Reset already found device list
+
+    // Event listener on responses from device discovery
+    ssdpClient.on("response", (respSSDP, code, rinfo) => {
+        log("Fetching:", respSSDP.LOCATION);
+        io.emit("debug", "RESCAN:", respSSDP.LOCATION)
+    });
+
     // ssdpClient.search("urn:schemas-upnp-org:device:MediaRenderer"); // Search for MediaRenderer devices
     ssdpClient.search("urn:schemas-upnp-org:service:AVTransport:1"); // Search for AVTransport enabled devices
 }
