@@ -66,14 +66,18 @@ lib.getSettings(serverSettings);
 // Initial SSDP scan for devices.
 ssdp.scan(deviceList, serverSettings);
 
-// Check after x minutes whether any devices have been found.
+// Check after a while whether any device has been found.
 // Due to wifi initialisation delay the scan may have failed.
-// Not aware of method of knowing whether wifi connection has been established fully.
-// Thus a rescan of the devices mey be required.
+// Not aware of a method of knowing whether wifi connection has been established fully.
 setTimeout(() => {
+    // Start new scan
     if (deviceList.length === 0) {
         ssdp.scan(deviceList, serverSettings);
     }
+    // Client may not be aware of any devices and have an empty list, wait a bit and let them know regardless
+    setTimeout(() => {
+        sockets.getDevices(io, deviceList);
+    }, serverSettings.timeouts.metadata)
 }, serverSettings.timeouts.rescan);
 
 // ===========================================================================
