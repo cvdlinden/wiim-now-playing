@@ -116,14 +116,16 @@ const rescan = (deviceList, io) => {
     io.emit("debug", "Starting a rescan for devices...")
     deviceList.length = 0; // Reset already found device list
 
+    const tempClient = new SSDP({ explicitSocketBind: true }); // explicitSocketBind enabled to make it work on Windows 11
+
     // Event listener on responses from device discovery
-    ssdpClient.on("response", (respSSDP, code, rinfo) => {
+    tempClient.on("response", (respSSDP, code, rinfo) => {
         log("Fetching:", respSSDP.LOCATION);
         io.emit("debug", "RESCAN:", respSSDP.LOCATION)
     });
 
-    // ssdpClient.search("urn:schemas-upnp-org:device:MediaRenderer"); // Search for MediaRenderer devices
-    ssdpClient.search("urn:schemas-upnp-org:service:AVTransport:1"); // Search for AVTransport enabled devices
+    // tempClient.search("urn:schemas-upnp-org:device:MediaRenderer"); // Search for MediaRenderer devices
+    tempClient.search("urn:schemas-upnp-org:service:AVTransport:1"); // Search for AVTransport enabled devices
 }
 
 module.exports = {
