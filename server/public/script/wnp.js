@@ -193,11 +193,20 @@ WNP.setSocketDefinitions = function () {
     socket.on("metadata", function (msg) {
 
         // Source detection, needs work...
-        // TODO: Wrap it in source icon.
-        var sSource = "";
-        sSource += (msg.PlayMedium) ? msg.PlayMedium + ": " : "";
-        sSource += (msg.TrackSource) ? msg.TrackSource : "";
-        mediaSource.innerText = sSource
+        playMedium = (msg.PlayMedium) ? msg.PlayMedium : "";
+        trackSource = (msg.TrackSource) ? msg.TrackSource : "";
+        sourceIdent = WNP.getSourceIdent(playMedium, trackSource);
+        console.log(sourceIdent)
+        if (sourceIdent !== "") {
+            var identImg = document.createElement("img");
+            identImg.src = sourceIdent;
+            identImg.alt = playMedium + ": " + trackSource;
+            identImg.title = playMedium + ": " + trackSource;
+            mediaSource.innerHTML = identImg.outerHTML;
+        }
+        else {
+            mediaSource.innerText = playMedium + ": " + trackSource;
+        }
 
         // Song, Artist, Album, Subtitle
         mediaTitle.innerText = (msg.trackMetaData && msg.trackMetaData["dc:title"]) ? msg.trackMetaData["dc:title"] : "";
@@ -248,6 +257,9 @@ WNP.setSocketDefinitions = function () {
     });
 
 };
+
+// =======================================================
+// Helper functions
 
 /**
  * Get player progress helper.
@@ -334,6 +346,60 @@ WNP.rndAlbumArt = function (prefix) {
  */
 WNP.rndNumber = function (min, max) {
     return Math.floor(Math.random() * (max - min + 1) + min);
+};
+
+/**
+ * Get an identifier for the current play medium combined with the tracksource.
+ * @param {string} playMedium - Minimum number to pick, keep it lower than max.
+ * @param {string} trackSource - Maximum number to pick.
+ * @returns {string} The uri to the source identifier (image url)
+ */
+WNP.getSourceIdent = function (playMedium, trackSource) {
+    console.log("getSourceIdent", playMedium, trackSource);
+
+    var sIdentUri = "";
+
+    switch (playMedium.toLowerCase()) {
+        case "airplay":
+            sIdentUri = "/img/idents/airplay.png";
+            break;
+        case "cast":
+            sIdentUri = "/img/idents/chromecast.png";
+            break;
+        case "spotify":
+            sIdentUri = "/img/idents/spotify-connect.png";
+            break;
+    }
+
+    switch (trackSource.toLowerCase()) {
+        case "deezer":
+            sIdentUri = "/img/idents/deezer.png";
+            break;
+        case "iheartradio":
+            sIdentUri = "/img/idents/iheart.png";
+            break;
+        case "newtunein":
+            sIdentUri = "/img/idents/newtunein.png";
+            break;
+        case "prime":
+            sIdentUri = "/img/idents/amazon-music.png";
+            break;
+        case "qobuz":
+            sIdentUri = "/img/idents/qobuz.png";
+            break;
+        case "tidal":
+            sIdentUri = "/img/idents/tidal.png";
+            break;
+        case "upnpserver":
+            sIdentUri = "/img/idents/dlna.png";
+            break;
+        case "vtuner":
+            sIdentUri = "/img/idents/vtuner.png";
+            break;
+    }
+
+    return sIdentUri;
+
 };
 
 // =======================================================

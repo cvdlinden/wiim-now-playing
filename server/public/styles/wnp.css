@@ -86,6 +86,10 @@
 #mediaSource {
     text-align: center;
 }
+    #mediaSource img {
+        max-height: 32px;
+        margin-bottom: 5px;
+    }
 
 #wnpSettings {
     position: absolute;
