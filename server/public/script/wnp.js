@@ -192,11 +192,10 @@ WNP.setSocketDefinitions = function () {
     // On metadata
     socket.on("metadata", function (msg) {
 
-        // Source detection, needs work...
+        // Source detection
         playMedium = (msg.PlayMedium) ? msg.PlayMedium : "";
         trackSource = (msg.TrackSource) ? msg.TrackSource : "";
         sourceIdent = WNP.getSourceIdent(playMedium, trackSource);
-        console.log(sourceIdent)
         if (sourceIdent !== "") {
             var identImg = document.createElement("img");
             identImg.src = sourceIdent;
@@ -218,6 +217,7 @@ WNP.setSocketDefinitions = function () {
         mediaBitRate.innerText = (msg.trackMetaData && msg.trackMetaData["song:bitrate"]) ? msg.trackMetaData["song:bitrate"] + " kpbs" : "";
         mediaBitDepth.innerText = (msg.trackMetaData && msg.trackMetaData["song:format_s"]) ? msg.trackMetaData["song:format_s"] + " bits" : "";
         mediaSampleRate.innerText = (msg.trackMetaData && msg.trackMetaData["song:rate_hz"]) ? (msg.trackMetaData["song:rate_hz"] / 1000) + " kHz" : "";
+        // TODO: Add quality ident icon (HD/Hi-res/CD/...)
         // Sample High: "song:quality":"2","song:actualQuality":"LOSSLESS"
         // Sample MQA: "song:quality":"3","song:actualQuality":"HI_RES",
         // Sample FLAC: "4","song:actualQuality":"HI_RES_LOSSLESS", "TrackURI":"https://sp-pr-fa.audio.tidal.com/mediatracks/CAEaKRInZDQxN2NmYzZkNmNmNzQ0YjI4N2QzYWFlNzQzZjliM2NfNjIubXA0/0.flac?token=1707106396~NGQ4Y2JkYWJkZWM2N2I0MDQzZWE1MWNhNDc4ZDExYmE2ZWJmYTVlMw=="
@@ -350,12 +350,13 @@ WNP.rndNumber = function (min, max) {
 
 /**
  * Get an identifier for the current play medium combined with the tracksource.
+ * TODO: Verify all/most sources...
+ * TODO: Make logos white on transparent.
  * @param {string} playMedium - Minimum number to pick, keep it lower than max.
  * @param {string} trackSource - Maximum number to pick.
  * @returns {string} The uri to the source identifier (image url)
  */
 WNP.getSourceIdent = function (playMedium, trackSource) {
-    console.log("getSourceIdent", playMedium, trackSource);
 
     var sIdentUri = "";
 

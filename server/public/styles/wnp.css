@@ -86,19 +86,30 @@
 #mediaSource {
     text-align: center;
 }
-    #mediaSource img {
-        max-height: 32px;
-        margin-bottom: 5px;
-    }
 
-#wnpSettings {
-    position: absolute;
-    top: 5px;
-    right: 15px;
-    border: none;
+#mediaSource img {
+    max-height: 24px;
+    margin-bottom: 5px;
 }
 
 /* Footer */
+.wnpFooter .btn-group {
+    margin-top: 0;
+}
+
+.wnpFooter .btn-group button {
+    border: none;
+}
+
+#btnPlay {
+    font-size: 2.25rem;
+}
+
+#btnPrev,
+#btnNext {
+    font-size: 1.75rem;
+}
+
 #devNameHolder {
     position: absolute;
     left: 30px;
@@ -110,7 +121,13 @@
     right: 30px;
     bottom: 15px;
     text-align: right;
-    width: 50%;
+}
+
+#wnpSettings {
+    position: absolute;
+    top: 5px;
+    right: 15px;
+    border: none;
 }
 
 /* Modals */

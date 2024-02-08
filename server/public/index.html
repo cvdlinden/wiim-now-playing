@@ -22,7 +22,7 @@
     <div id="wnpApp">
 
         <div id="wnpBgAlbumArt">
-            <div id="bgAlbumArtBlur" style="background-image: url(img/fake-album-1.png);"></div>
+            <div id="bgAlbumArtBlur"></div>
         </div>
 
         <div class="wnpContainer">
@@ -30,16 +30,16 @@
                 <div id="mediaSource">{SOURCE}</div>
                 <h2 id="mediaTitle">{SONG}</h2>
                 <div><span id="mediaArtist">{ARTIST}</span>, <span id="mediaAlbum">{ALBUM TITLE}</span></div>
-                <div><span id="mediaSubTitle">{SUBTITLE}</span></div>
-                <div><span id="mediaBitRate">{xxx kpbs}</span>, <span id="mediaBitDepth">{yy bits}</span>, <span
+                <div class="text-secondary"><span id="mediaSubTitle">{SUBTITLE}</span></div>
+                <div class="text-secondary"><span id="mediaBitRate">{xxx kpbs}</span>, <span id="mediaBitDepth">{yy bits}</span>, <span
                         id="mediaSampleRate">{zz,z kHz}</span></div>
-                <div><span id="mediaQuality">{x}</span>, <span id="mediaActualQuality">{y}</span></div>
+                <div class="text-secondary"><span id="mediaQuality">{x}</span>, <span id="mediaActualQuality">{y}</span></div>
             </div>
             <div class="wnpAlbumArt">
                 <img id="albumArt" src="img/fake-album-1.png" onerror="this.src = WNP.s.rndAlbumArtUri" alt="Album art">
             </div>
             <div class="wnpFooter">
-                <div style="text-align: center;">
+                <div class="text-center">
                     <div class="clearfix">
                         <div id="progressPlayed" class="float-start"><small class="text-secondary">{Live|Played}</small>
                         </div>
@@ -51,7 +51,7 @@
                         <div class="progress-bar bg-white" style="width: 0"></div>
                     </div>
                     <div>
-                        <div class="btn-group" style="margin-top: 15px;">
+                        <div class="btn-group">
                             <!-- Shuffle -->
                             <button id="btnShuffle" type="button" class="btn btn-outline-light" disabled>
                                 <i class="bi bi-shuffle"></i>
