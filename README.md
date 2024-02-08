@@ -2,10 +2,13 @@
 
 Show what the Wiim device is currently playing on a separate screen.
 
-> in design/dev phase
+> In design/dev phase
 
 ![Preview screenshot](./assets/Screenshot%202024-02-08%20043659.png)  
 *preview screenshot*
+
+![Preview settings](./assets/Screenshot%202024-02-08%20044241.png)  
+*Preview settings*
 
 ## I just want it to run!
 
@@ -63,4 +66,4 @@ Debugging in Windows:
 - Use ``DEBUG="*,-nodemon*"`` to include all but nodemon module debug info.  
   Or use ``DEBUG="index"`` to only show debug info from the specific index.js module.
 
-[Read more](https://www.npmjs.com/package/debug#windows-command-prompt-notes)
+[Read more on DEBUG](https://www.npmjs.com/package/debug#windows-command-prompt-notes)
