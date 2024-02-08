@@ -63,7 +63,7 @@
 #bgAlbumArtBlur {
     height: 100%;
     /* Center and scale the image nicely */
-    background-image: url("img/fake-album-1.png");
+    background-image: url("/img/fake-album-1.png");
     background-position: center;
     background-repeat: no-repeat;
     background-size: cover;
@@ -88,8 +88,9 @@
 }
 
 #mediaSource img {
-    max-height: 24px;
-    margin-bottom: 5px;
+    max-height: 16px;
+    margin-bottom: 15px;
+    filter: invert(1);
 }
 
 /* Footer */

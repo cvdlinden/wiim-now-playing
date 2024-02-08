@@ -367,6 +367,9 @@ WNP.getSourceIdent = function (playMedium, trackSource) {
         case "cast":
             sIdentUri = "/img/idents/chromecast.png";
             break;
+        case "radio-network":
+            sIdentUri = "/img/idents/radio.png";
+            break;
         case "spotify":
             sIdentUri = "/img/idents/spotify-connect.png";
             break;
