@@ -255,7 +255,7 @@ WNP.setSocketDefinitions = function () {
         mediaSubTitle.innerText = (msg.trackMetaData && msg.trackMetaData["dc:subtitle"]) ? msg.trackMetaData["dc:subtitle"] : "";
 
         // Audio quality
-        mediaBitRate.innerText = (msg.trackMetaData && msg.trackMetaData["song:bitrate"]) ? msg.trackMetaData["song:bitrate"] + " kpbs" : "";
+        mediaBitRate.innerText = (msg.trackMetaData && msg.trackMetaData["song:bitrate"]) ? ( (msg.trackMetaData["song:bitrate"]>1000) ? (msg.trackMetaData["song:bitrate"]/1000).toFixed(2) + " mbps" : msg.trackMetaData["song:bitrate"] + " kbps") : "";
         mediaBitDepth.innerText = (msg.trackMetaData && msg.trackMetaData["song:format_s"]) ? msg.trackMetaData["song:format_s"] + " bits" : "";
         mediaSampleRate.innerText = (msg.trackMetaData && msg.trackMetaData["song:rate_hz"]) ? (msg.trackMetaData["song:rate_hz"] / 1000) + " kHz" : "";
         // TODO: Add quality ident icon (HD/Hi-res/CD/...)
