@@ -51,9 +51,19 @@ WNP.Init = function () {
 WNP.setUIListeners = function () {
     console.log("WNP", "Set UI Listeners...")
 
-    btnPlay.addEventListener("click", function() {
-        alert("Not implemented yet!");
-        return false;
+    // Temporary not implemented message
+    var toastBootstrap = bootstrap.Toast.getOrCreateInstance(liveToast)
+
+    btnPrev.addEventListener("click", function () {
+        toastBootstrap.show()
+    });
+
+    btnPlay.addEventListener("click", function () {
+        toastBootstrap.show()
+    });
+
+    btnNext.addEventListener("click", function () {
+        toastBootstrap.show()
     });
 
     // btnDevices.addEventListener("click", function () {
@@ -191,12 +201,12 @@ WNP.setSocketDefinitions = function () {
             if (msg.CurrentTransportState === "PLAYING") {
                 // TransportState changed to PLAYING! -> Should fetch new metadata immediately...
                 btnPlay.children[0].classList.remove("bi-play-circle-fill")
-                btnPlay.children[0].classList.remove("bi-pause-circle-fill");
-                btnPlay.children[0].classList.remove("bi-stop-circle-fill");
                 if (msg.PlayMedium && msg.PlayMedium === "RADIO-NETWORK") {
+                    btnPlay.children[0].classList.remove("bi-pause-circle-fill");
                     btnPlay.children[0].classList.add("bi-stop-circle-fill");
                 }
                 else {
+                    btnPlay.children[0].classList.remove("bi-stop-circle-fill");
                     btnPlay.children[0].classList.add("bi-pause-circle-fill");
                 }
             }
@@ -206,6 +216,16 @@ WNP.setSocketDefinitions = function () {
                 btnPlay.children[0].classList.add("bi-play-circle-fill");
             }
             WNP.d.prevTransportState = msg.CurrentTransportState; // Remember the last transport state
+        }
+
+        // If internet radio, there is no skipping...
+        if (msg.PlayMedium && msg.PlayMedium === "RADIO-NETWORK") {
+            btnPrev.disabled = true;
+            btnNext.disabled = true;
+        }
+        else {
+            btnPrev.disabled = false;
+            btnNext.disabled = false;
         }
 
     });

@@ -31,9 +31,10 @@
                 <h2 id="mediaTitle">{SONG}</h2>
                 <div><span id="mediaArtist">{ARTIST}</span>, <span id="mediaAlbum">{ALBUM TITLE}</span></div>
                 <div class="text-secondary"><span id="mediaSubTitle">{SUBTITLE}</span></div>
-                <div class="text-secondary"><span id="mediaBitRate">{xxx kpbs}</span>, <span id="mediaBitDepth">{yy bits}</span>, <span
-                        id="mediaSampleRate">{zz,z kHz}</span></div>
-                <div class="text-secondary"><span id="mediaQuality">{x}</span>, <span id="mediaActualQuality">{y}</span></div>
+                <div class="text-secondary"><span id="mediaBitRate">{xxx kpbs}</span>, <span id="mediaBitDepth">{yy
+                        bits}</span>, <span id="mediaSampleRate">{zz,z kHz}</span></div>
+                <div class="text-secondary"><span id="mediaQuality">{x}</span>, <span id="mediaActualQuality">{y}</span>
+                </div>
             </div>
             <div class="wnpAlbumArt">
                 <img id="albumArt" src="img/fake-album-1.png" onerror="this.src = WNP.s.rndAlbumArtUri" alt="Album art">
@@ -136,6 +137,15 @@
                     <div class="modal-footer">
                         <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Temporary not implemented message -->
+        <div class="position-fixed top-0 end-0 p-3" style="z-index: 100">
+            <div id="liveToast" class="toast hide" role="alert" aria-live="assertive" aria-atomic="true">
+                <div class="toast-body bg-danger">
+                    This hasn't been implemented yet!
                 </div>
             </div>
         </div>
