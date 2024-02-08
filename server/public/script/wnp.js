@@ -51,6 +51,11 @@ WNP.Init = function () {
 WNP.setUIListeners = function () {
     console.log("WNP", "Set UI Listeners...")
 
+    btnPlay.addEventListener("click", function() {
+        alert("Not implemented yet!");
+        return false;
+    });
+
     // btnDevices.addEventListener("click", function () {
     //     socket.emit("devices-get");
     // });
@@ -180,12 +185,28 @@ WNP.setSocketDefinitions = function () {
         progressPercent.setAttribute("aria-valuenow", playerProgress.percent)
         progressPercent.children[0].setAttribute("style", "width:" + playerProgress.percent + "%");
 
+        // Player transport state changed...
         // Did the device start playing? Maybe fetch some new metadata.
-        if (WNP.d.prevTransportState != msg.CurrentTransportState && msg.CurrentTransportState === "PLAYING") {
-            console.log("TransportState changed to PLAYING! -> Should fetch new metadata...")
-            // ...
-        };
-        WNP.d.prevTransportState = msg.CurrentTransportState; // Remember the last transport state
+        if (WNP.d.prevTransportState != msg.CurrentTransportState) {
+            if (msg.CurrentTransportState === "PLAYING") {
+                // TransportState changed to PLAYING! -> Should fetch new metadata immediately...
+                btnPlay.children[0].classList.remove("bi-play-circle-fill")
+                btnPlay.children[0].classList.remove("bi-pause-circle-fill");
+                btnPlay.children[0].classList.remove("bi-stop-circle-fill");
+                if (msg.PlayMedium && msg.PlayMedium === "RADIO-NETWORK") {
+                    btnPlay.children[0].classList.add("bi-stop-circle-fill");
+                }
+                else {
+                    btnPlay.children[0].classList.add("bi-pause-circle-fill");
+                }
+            }
+            else if (msg.CurrentTransportState === "PAUSED_PLAYBACK" || msg.CurrentTransportState === "STOPPED") {
+                btnPlay.children[0].classList.remove("bi-pause-circle-fill");
+                btnPlay.children[0].classList.remove("bi-stop-circle-fill");
+                btnPlay.children[0].classList.add("bi-play-circle-fill");
+            }
+            WNP.d.prevTransportState = msg.CurrentTransportState; // Remember the last transport state
+        }
 
     });
 
@@ -371,7 +392,7 @@ WNP.getSourceIdent = function (playMedium, trackSource) {
             sIdentUri = "/img/idents/radio.png";
             break;
         case "spotify":
-            sIdentUri = "/img/idents/spotify-connect.png";
+            sIdentUri = "/img/idents/spotify.png";
             break;
     }
 

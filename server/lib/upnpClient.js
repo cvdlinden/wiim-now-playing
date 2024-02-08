@@ -127,6 +127,7 @@ const updateDeviceState = (deviceInfo, serverSettings) => {
                             RelTime: (deviceInfo.metadata && deviceInfo.metadata.RelTime) ? deviceInfo.metadata.RelTime : null,
                             TimeStamp: (deviceInfo.metadata && deviceInfo.metadata.TimeStamp) ? deviceInfo.metadata.TimeStamp : null,
                             TrackDuration: (deviceInfo.metadata && deviceInfo.metadata.TrackDuration) ? deviceInfo.metadata.TrackDuration : null,
+                            PlayMedium: (deviceInfo.metadata && deviceInfo.metadata.PlayMedium) ? deviceInfo.metadata.PlayMedium : null,
                             metadataTimeStamp: (deviceInfo.metadata && deviceInfo.metadata.metadataTimeStamp) ? deviceInfo.metadata.metadataTimeStamp : null,
                             stateTimeStamp: lib.getTimeStamp(),
                         };
