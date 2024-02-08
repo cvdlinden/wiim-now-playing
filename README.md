@@ -4,6 +4,9 @@ Show what the Wiim device is currently playing on a separate screen.
 
 > in design/dev phase
 
+![Preview screenshot](./assets/Screenshot%202024-02-08%20043659.png)  
+*preview screenshot*
+
 ## I just want it to run!
 
 If you just want it to run and see what it does? Go to your command prompt!  
