@@ -5,6 +5,7 @@
 
 // Express modules
 const express = require("express");
+var cors = require('cors');
 const app = express();
 
 // Node.js modules
@@ -82,6 +83,7 @@ setTimeout(() => {
 
 // ===========================================================================
 // Set Express functionality, reroute all clients to the /public folder
+app.use(cors());
 app.use(express.static(__dirname + "/public"));
 app.get('/debug', function (req, res) {
     res.sendFile(__dirname + "/public/debug.html");
