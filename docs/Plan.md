@@ -28,11 +28,14 @@
 TODOs:
 
 - Implement Play/Pause functionality (CallAction method).
-- Rework/refactor some functionality to async/await. Too many setTimeouts for comfort.
+
+- Rework/refactor some functionality to async/await/callbacks/Promise. Too many setTimeouts for comfort.
 - Force state/metadata refresh when required. I.e. switching sources, switching devices, TransportState changes, ...
-- Contingencies for when devices become unavailable? Network dropoffs/resets?
 - Rethink device discovery and handling of found devices. (ssdp.js > upnpClient.js)
+
+- Contingencies for when devices become unavailable? Network dropoffs/resets?
 - Persistence of upnp client? Currently recreating for every call. Is this bothersome?
 - Check more streaming sources to make sense of their metadata.
+- What kind of data is available when using other inputs on the WiiM Amp? Line In, Optical, HDMI, Bluetooth
 - Also make use of OpenHome devices?
 - Subscription to WiiM devices apparently doesn't work?

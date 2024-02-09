@@ -43,7 +43,7 @@ const callAction = (client, action) => {
         "AVTransport",
         action,
         { InstanceID: 0 },
-        (err, result) => {
+        (err, result) => { // Callback
             if (err) {
                 log("callAction()", "UPNP Error", err);
             }
@@ -111,7 +111,7 @@ const updateDeviceState = (deviceInfo, serverSettings) => {
                 "AVTransport",
                 "GetTransportInfo",
                 { InstanceID: 0 },
-                (err, result) => {
+                (err, result) => { // Callback
                     if (err) {
                         log("updateDeviceState()", "GetTransportInfo error", err);
                         // TODO: If errors are persistent, what do we do? Change to any other available device?
@@ -156,7 +156,7 @@ const updateDeviceMetadata = (deviceInfo, serverSettings) => {
                 "AVTransport",
                 "GetInfoEx",
                 { InstanceID: 0 },
-                (err, result) => {
+                (err, result) => { // Callback
                     if (err) {
                         log("updateDeviceMetadata()", "GetInfoEx error", err);
                         // May be a transient error, just wait a bit and carry on...
@@ -176,7 +176,7 @@ const updateDeviceMetadata = (deviceInfo, serverSettings) => {
                                         /**
                                          * Possible values
                                          * 
-                                         * PlayMedium: SONGLIST-NETWORK, RADIO-NETWORK, STATION-NETWORK, CAST, AIRPLAY, SPOTIFY, UNKOWN
+                                         * PlayMedium: SONGLIST-NETWORK, RADIO-NETWORK, STATION-NETWORK, CAST, AIRPLAY, SPOTIFY, OPTICAL, LINE-IN, HDMI, BLUETOOTH, UNKOWN
                                          * PlayMedia: NONE, STATION-NETWORK, SONGLIST-NETWORK, SONGLIST-LOCAL, SONGLIST-LOCAL_TF, THIRD-DLNA,AIRPLAY, UNKNOWN
                                          * CurrentTransportState : PLAYING, STOPPED, PLAYING, PAUSED_PLAYBACK, TRANSITIONING, NO_MEDIA_PRESENT
                                          * TrackSource : Prime, Qobuz, Spotify:..., newTuneIn, iHeartRadio, Deezer, UPnPServer, Tidal, vTuner
@@ -214,7 +214,7 @@ const updateDeviceMetadata = (deviceInfo, serverSettings) => {
                 "AVTransport",
                 "GetPositionInfo",
                 { InstanceID: 0 },
-                (err, result) => {
+                (err, result) => { // Callback
                     if (err) {
                         log("updateDeviceMetadata()", "GetPositionInfo error", err);
                         // May be a transient error, just wait a bit and carry on...
