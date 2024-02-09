@@ -54,7 +54,7 @@ Confirmed:
 - [Node.js & NPM](https://nodejs.org/en): The basics
 - [Express](https://www.npmjs.com/package/express): HTTP handling  
   Also see [Express.js: set-node_env-to-production](https://expressjs.com/en/advanced/best-practice-performance.html#set-node_env-to-production)
-- [node-ssdp](https://www.npmjs.com/package/node-ssdp): Discovery of (Wiim) MediaRenderer devices on the network
+- [node-ssdp](https://www.npmjs.com/package/node-ssdp): Discovery of (WiiM) MediaRenderer devices on the network
 - [upnp-device-client](https://www.npmjs.com/package/upnp-device-client): Talk to the (WiiM) MediaRenderer devices on the network
 - [socket.io](https://www.npmjs.com/package/socket.io): Realtime connection between server and client
 - [debug](https://www.npmjs.com/package/debug): To handle debug messages  

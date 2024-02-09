@@ -176,10 +176,10 @@ const updateDeviceMetadata = (deviceInfo, serverSettings) => {
                                         /**
                                          * Possible values
                                          * 
-                                         * PlayMedium: SONGLIST-NETWORK / RADIO-NETWORK / STATION-NETWORK / UNKOWN
+                                         * PlayMedium: SONGLIST-NETWORK, RADIO-NETWORK, STATION-NETWORK, CAST, AIRPLAY, SPOTIFY, UNKOWN
                                          * PlayMedia: NONE, STATION-NETWORK, SONGLIST-NETWORK, SONGLIST-LOCAL, SONGLIST-LOCAL_TF, THIRD-DLNA,AIRPLAY, UNKNOWN
                                          * CurrentTransportState : PLAYING, STOPPED, PLAYING, PAUSED_PLAYBACK, TRANSITIONING, NO_MEDIA_PRESENT
-                                         * TrackSource : Prime, Qobuz, SPOTIFY, newTuneIn, iHeartRadio, Deezer, UPnPServer, Tidal, vTuner
+                                         * TrackSource : Prime, Qobuz, Spotify:..., newTuneIn, iHeartRadio, Deezer, UPnPServer, Tidal, vTuner
                                          *
                                          * LoopMode :
                                          * repeat / no shuffle 0

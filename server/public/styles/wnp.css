@@ -78,7 +78,6 @@
     object-fit: contain;
     max-width: 100%;
     max-height: 100%;
-    border-radius: 5px;
     box-shadow: 3px 3px 20px rgba(0, 0, 0, .75);
 }
 
@@ -91,6 +90,18 @@
     max-height: 16px;
     margin-bottom: 15px;
     filter: invert(1);
+}
+
+#mediaQualityIdent img {
+    max-height: 13px;
+    margin-right: 5px;
+    filter: invert(1);
+    vertical-align: baseline;
+}
+
+.badge-outlined {
+    border: 1px solid rgba(var(--bs-secondary-rgb),var(--bs-text-opacity));
+    font-weight: var(--bs-body-font-weight);
 }
 
 /* Footer */

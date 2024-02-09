@@ -1,6 +1,6 @@
-# Wiim Now Playing
+# WiiM Now Playing
 
-Show what the Wiim device is currently playing on a separate screen.
+Show what the WiiM device is currently playing on a separate screen.
 
 > In design/dev phase
 
@@ -32,6 +32,7 @@ Steps to run as fast as possible:
    ```shell
    git clone https://github.com/cvdlinden/wiim-now-playing.git
    ```
+
 4. Use ``cd wiim-now-playing`` to move into the newly created folder.
 5. Use ``npm install`` to get all of the dependencies and prepare for execution.  
    Tend to any errors! If anything pops up you could try the next step, but it is probably best to fix any beforehand.

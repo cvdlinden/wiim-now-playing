@@ -178,6 +178,7 @@ WNP.setSocketDefinitions = function () {
 
     // On state
     socket.on("state", function (msg) {
+        if (!msg) { return false; }
         // console.log(msg);
 
         // Get player progress data from the state message.
@@ -232,6 +233,7 @@ WNP.setSocketDefinitions = function () {
 
     // On metadata
     socket.on("metadata", function (msg) {
+        if (!msg) { return false; }
 
         // Source detection
         playMedium = (msg.PlayMedium) ? msg.PlayMedium : "";
@@ -248,22 +250,34 @@ WNP.setSocketDefinitions = function () {
             mediaSource.innerText = playMedium + ": " + trackSource;
         }
 
-        // Song, Artist, Album, Subtitle
+        // Song Title, Subtitle, Artist, Album
         mediaTitle.innerText = (msg.trackMetaData && msg.trackMetaData["dc:title"]) ? msg.trackMetaData["dc:title"] : "";
-        mediaArtist.innerText = (msg.trackMetaData && msg.trackMetaData["upnp:artist"]) ? msg.trackMetaData["upnp:artist"] : "";
-        mediaAlbum.innerText = (msg.trackMetaData && msg.trackMetaData["upnp:album"]) ? msg.trackMetaData["upnp:album"] : "";
         mediaSubTitle.innerText = (msg.trackMetaData && msg.trackMetaData["dc:subtitle"]) ? msg.trackMetaData["dc:subtitle"] : "";
+        mediaArtist.innerText = (msg.trackMetaData && msg.trackMetaData["upnp:artist"]) ? msg.trackMetaData["upnp:artist"] + ", " : "";
+        mediaAlbum.innerText = (msg.trackMetaData && msg.trackMetaData["upnp:album"]) ? msg.trackMetaData["upnp:album"] : "";
 
         // Audio quality
-        mediaBitRate.innerText = (msg.trackMetaData && msg.trackMetaData["song:bitrate"]) ? ( (msg.trackMetaData["song:bitrate"]>1000) ? (msg.trackMetaData["song:bitrate"]/1000).toFixed(2) + " mbps" : msg.trackMetaData["song:bitrate"] + " kbps") : "";
-        mediaBitDepth.innerText = (msg.trackMetaData && msg.trackMetaData["song:format_s"]) ? msg.trackMetaData["song:format_s"] + " bits" : "";
-        mediaSampleRate.innerText = (msg.trackMetaData && msg.trackMetaData["song:rate_hz"]) ? (msg.trackMetaData["song:rate_hz"] / 1000) + " kHz" : "";
-        // TODO: Add quality ident icon (HD/Hi-res/CD/...)
-        // Sample High: "song:quality":"2","song:actualQuality":"LOSSLESS"
-        // Sample MQA: "song:quality":"3","song:actualQuality":"HI_RES",
-        // Sample FLAC: "4","song:actualQuality":"HI_RES_LOSSLESS", "TrackURI":"https://sp-pr-fa.audio.tidal.com/mediatracks/CAEaKRInZDQxN2NmYzZkNmNmNzQ0YjI4N2QzYWFlNzQzZjliM2NfNjIubXA0/0.flac?token=1707106396~NGQ4Y2JkYWJkZWM2N2I0MDQzZWE1MWNhNDc4ZDExYmE2ZWJmYTVlMw=="
-        mediaQuality.innerText = (msg.trackMetaData && msg.trackMetaData["song:quality"]) ? msg.trackMetaData["song:quality"] : "";
-        mediaActualQuality.innerText = (msg.trackMetaData && msg.trackMetaData["song:actualQuality"]) ? msg.trackMetaData["song:actualQuality"] : "";
+        songBitrate = (msg.trackMetaData && msg.trackMetaData["song:bitrate"]) ? msg.trackMetaData["song:bitrate"] : "";
+        songBitDepth = (msg.trackMetaData && msg.trackMetaData["song:format_s"]) ? msg.trackMetaData["song:format_s"] : "";
+        songSampleRate = (msg.trackMetaData && msg.trackMetaData["song:rate_hz"]) ? msg.trackMetaData["song:rate_hz"] : "";
+        mediaBitRate.innerText = (songBitrate > 0) ? ((songBitrate > 1000) ? (songBitrate / 1000).toFixed(2) + " mbps, " : songBitrate + " kbps, ") : "";
+        mediaBitDepth.innerText = (songBitDepth > 0) ? ((songBitDepth > 24) ? "24 bits, " : songBitDepth + " bits, ") : ""; // TODO: 32 bits is suspect according to the WiiM app?
+        mediaSampleRate.innerText = (songSampleRate > 0) ? (songSampleRate / 1000).toFixed(1) + " kHz" : "";
+
+        // Audio quality ident badge (HD/Hi-res/CD/...)
+        songQuality = (msg.trackMetaData && msg.trackMetaData["song:quality"]) ? msg.trackMetaData["song:quality"] : "";
+        songActualQuality = (msg.trackMetaData && msg.trackMetaData["song:actualQuality"]) ? msg.trackMetaData["song:actualQuality"] : "";
+        qualiIdent = WNP.getQualityIdent(songQuality, songActualQuality, songBitrate, songBitDepth, songSampleRate);
+        if (qualiIdent !== "") {
+            mediaQualityIdent.innerText = qualiIdent;
+            mediaQualityIdent.title = "Quality: " + songQuality + ", " + songActualQuality;
+        }
+        else {
+            var identId = document.createElement("i");
+            identId.classList.add("bi", "bi-soundwave", "text-secondary");
+            identId.title = "Quality: " + songQuality + ", " + songActualQuality;
+            mediaQualityIdent.innerHTML = identId.outerHTML;
+        }
 
         // Album Art
         if (msg && msg.trackMetaData &&
@@ -392,9 +406,8 @@ WNP.rndNumber = function (min, max) {
 /**
  * Get an identifier for the current play medium combined with the tracksource.
  * TODO: Verify all/most sources...
- * TODO: Make logos white on transparent.
- * @param {string} playMedium - Minimum number to pick, keep it lower than max.
- * @param {string} trackSource - Maximum number to pick.
+ * @param {string} playMedium - The PlayMedium as indicated by the device. Values: SONGLIST-NETWORK, RADIO-NETWORK, STATION-NETWORK, CAST, AIRPLAY, SPOTIFY, UNKOWN
+ * @param {string} trackSource - The stream source as indicated by the device. Values: Prime, Qobuz, SPOTIFY, newTuneIn, iHeartRadio, Deezer, UPnPServer, Tidal, vTuner
  * @returns {string} The uri to the source identifier (image url)
  */
 WNP.getSourceIdent = function (playMedium, trackSource) {
@@ -403,47 +416,103 @@ WNP.getSourceIdent = function (playMedium, trackSource) {
 
     switch (playMedium.toLowerCase()) {
         case "airplay":
-            sIdentUri = "/img/idents/airplay.png";
+            sIdentUri = "/img/sources/airplay.png";
             break;
         case "cast":
-            sIdentUri = "/img/idents/chromecast.png";
+            sIdentUri = "/img/sources/chromecast.png";
             break;
         case "radio-network":
-            sIdentUri = "/img/idents/radio.png";
+            sIdentUri = "/img/sources/radio.png";
             break;
         case "spotify":
-            sIdentUri = "/img/idents/spotify.png";
+            sIdentUri = "/img/sources/spotify.png";
             break;
-    }
+    };
 
     switch (trackSource.toLowerCase()) {
         case "deezer":
-            sIdentUri = "/img/idents/deezer.png";
+            sIdentUri = "/img/sources/deezer.png";
             break;
         case "iheartradio":
-            sIdentUri = "/img/idents/iheart.png";
+            sIdentUri = "/img/sources/iheart.png";
             break;
         case "newtunein":
-            sIdentUri = "/img/idents/newtunein.png";
+            sIdentUri = "/img/sources/newtunein.png";
             break;
         case "prime":
-            sIdentUri = "/img/idents/amazon-music.png";
+            sIdentUri = "/img/sources/amazon-music.png";
             break;
         case "qobuz":
-            sIdentUri = "/img/idents/qobuz.png";
+            sIdentUri = "/img/sources/qobuz.png";
             break;
         case "tidal":
-            sIdentUri = "/img/idents/tidal.png";
+            sIdentUri = "/img/sources/tidal.png";
             break;
         case "upnpserver":
-            sIdentUri = "/img/idents/dlna.png";
+            sIdentUri = "/img/sources/dlna.png";
             break;
         case "vtuner":
-            sIdentUri = "/img/idents/vtuner.png";
+            sIdentUri = "/img/sources/vtuner.png";
             break;
-    }
+    };
 
     return sIdentUri;
+
+};
+
+/**
+ * Get an identifier for the current audio/song quality.
+ * TODO: Verify all/most sources...
+ * Found so far:
+ * 
+ * CD Quality: 44.1 KHz/16 bit. Bitrate 1,411 kbps. For mp3 bitrate can vary, but also be 320/192/160/128/... kbps.
+ * Hi-Res quality: 96 kHz/24 bit and up. Bitrate 9,216 kbps.
+ * 
+ * Spotify and Pandora usual bitrate 160 kbps, premium is 320 kbps
+ * Tidal has CD quality, and FLAC, MQA, Master, ...
+ * Qobuz apparently really has hi-res?
+ * Amazon Music (Unlimited) does Atmos?
+ * Apple Music -> Airplay 2, does hi-res?
+ * YouTube Music -> Cast, does what?
+ * 
+ * TIDAL -
+ * Sample High: "song:quality":"2","song:actualQuality":"LOSSLESS"
+ * Sample MQA: "song:quality":"3","song:actualQuality":"HI_RES"
+ * Sample FLAC: "song:quality":"4","song:actualQuality":"HI_RES_LOSSLESS"
+ * 
+ * @param {integer} songQuality - A number identifying the quality, as indicated by the streaming service(?).
+ * @param {string} songActualQuality - An indicator for the actual quality, as indicated by the streaming service(?).
+ * @param {integer} songBitrate - The current bitrate in kilobit per second.
+ * @param {integer} songBitDepth - The current sample depth in bits.
+ * @param {integer} songSampleRate - The current sample rate in Hz.
+ * @returns {string} The identifier for the audio quality, just a string.
+ */
+WNP.getQualityIdent = function (songQuality, songActualQuality, songBitrate, songBitDepth, songSampleRate) {
+    // console.log(songQuality, songActualQuality, songBitrate, songBitDepth, songSampleRate);
+
+    var sIdent = "";
+
+    if (songBitrate > 1000 && songBitDepth === 16 && songSampleRate === 44100) {
+        sIdent = "CD";
+    }
+    else if (songBitrate > 9000 && songBitDepth >= 24 && songSampleRate >= 9600) {
+        sIdent = "Hi-Res";
+    }
+
+    // Based of Tidal
+    switch (songQuality + ":" + songActualQuality) {
+        case "2:LOSSLESS":
+            sIdent = "HIGH";
+            break;
+        case "3:HI_RES":
+            sIdent = "MQA";
+            break;
+        case "4:HI_RES_LOSSLESS":
+            sIdent = "FLAC";
+            break;
+    };
+
+    return sIdent;
 
 };
 
