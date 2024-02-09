@@ -114,7 +114,7 @@ const updateDeviceState = (deviceInfo, serverSettings) => {
                 (err, result) => {
                     if (err) {
                         log("updateDeviceState()", "GetTransportInfo error", err);
-                        // If errors are persistent, what do we do? Change to any other available device?
+                        // TODO: If errors are persistent, what do we do? Change to any other available device?
                         // Device could be rebooting. Or turned off. Or disposed off, ...
                         // After x amount of polling should we give up? Stop polling and streaming?
                         // Or wait for the device to be turned on again?

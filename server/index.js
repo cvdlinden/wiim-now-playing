@@ -141,33 +141,6 @@ io.on("connection", (socket) => {
     });
 
     // ======================================
-    // State and Metadata related
-
-    // /**
-    //  * Listener for state refresh.
-    //  * @returns {undefined}
-    //  */
-    // socket.on("state-refresh", () => {
-    //     log("Socket event", "state");
-    //     // TODO: immediately refresh state?
-    //     // I.e. when transport state or media changes or new song has started... if possible. 
-    //     // There's only a second to play with here. So may not be useful.
-    //     io.emit("state", deviceInfo.state);
-    // });
-
-    // /**
-    //  * Listener for metadata refresh.
-    //  * @returns {undefined}
-    //  */
-    // socket.on("metadata-refresh", () => {
-    //     log("Socket event", "metadata");
-    //     // TODO: immediately refresh state?
-    //     // I.e. when transport state or media changes or new song has started... if possible.
-    //     // Worst case now, we have to wait 5 seconds to see any updated metadata.
-    //     io.emit("metadata", deviceInfo.metadata);
-    // });
-
-    // ======================================
     // Device(s) related
 
     /**

@@ -502,12 +502,14 @@ WNP.getQualityIdent = function (songQuality, songActualQuality, songBitrate, son
     // Based of Tidal
     switch (songQuality + ":" + songActualQuality) {
         case "2:LOSSLESS":
+        case ":LOSSLESS":
             sIdent = "HIGH";
             break;
         case "3:HI_RES":
             sIdent = "MQA";
             break;
         case "4:HI_RES_LOSSLESS":
+        case ":HI_RES_LOSSLESS":
             sIdent = "FLAC";
             break;
     };

@@ -11,7 +11,6 @@
   - [x] Use storage on server to remember app settings
   - [x] Make device switchable
   - [x] Create an app to talk to server and show/handle info dynamically
-  - [ ] Also make use of OpenHome devices?
   - [ ] ...
   - ~~Use cookies to remember client settings~~
   - ~~Use JSDoc for documentation generation?~~
@@ -25,3 +24,15 @@
   - Touchscreen enabled
   - Autorun Chrome in kiosk mode
   - Autorun node.js
+
+TODOs:
+
+- Implement Play/Pause functionality (CallAction method).
+- Rework/refactor some functionality to async/await. Too many setTimeouts for comfort.
+- Force state/metadata refresh when required. I.e. switching sources, switching devices, TransportState changes, ...
+- Contingencies for when devices become unavailable? Network dropoffs/resets?
+- Rethink device discovery and handling of found devices. (ssdp.js > upnpClient.js)
+- Persistence of upnp client? Currently recreating for every call. Is this bothersome?
+- Check more streaming sources to make sense of their metadata.
+- Also make use of OpenHome devices?
+- Subscription to WiiM devices apparently doesn't work?
