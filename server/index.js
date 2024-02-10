@@ -112,9 +112,11 @@ io.on("connection", (socket) => {
         // streamMetadata = sockets.startMetadata(io, deviceInfo, serverSettings);
     }
     else if (io.sockets.sockets.size >= 1) {
-        // If new client, send current state and metadata immediately
-        // socket.emit("state", deviceInfo.state);
-        // socket.emit("metadata", deviceInfo.metadata);
+        // If new client, send current state and metadata 'immediately'
+        setTimeout(() => {
+            socket.emit("state", deviceInfo.state);
+            socket.emit("metadata", deviceInfo.metadata);
+        }, serverSettings.timeouts.immediate)
     }
 
     /**
