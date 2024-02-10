@@ -93,7 +93,7 @@
 }
 
 #mediaQualityIdent.badge-outlined {
-    border: 1px solid rgba(var(--bs-secondary-rgb),var(--bs-text-opacity));
+    border: 1px solid rgba(var(--bs-secondary-rgb), var(--bs-text-opacity));
     font-weight: var(--bs-body-font-weight);
 }
 
@@ -104,6 +104,12 @@
 
 .wnpFooter .btn-group button {
     border: none;
+}
+
+.wnpFooter .btn-group button:hover,
+.wnpFooter .btn-group button:active {
+    background-color: transparent;
+    color: var(--bs-btn-color);
 }
 
 #btnPlay {
