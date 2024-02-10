@@ -24,67 +24,48 @@ const log = require("debug")("lib:upnpClient");
  * @param {string} rendererUri - The device renderer uri.
  * @returns {object} The UPnP Device Client object.
  */
+// TODO: We're creating lots of new clients, can we have a global UPnP Client?
 const createClient = (rendererUri) => {
     // log("createClient", rendererUri);
     return new UPNP(rendererUri);
 }
 
 /**
- * This function calls an action to perform on the device renderer.
- * E.g. "Next","Pause","Play","Previous","Seek".
- * See the selected device actions to see what the renderer is capable of.
- * @param {object} rendererUri - A UPnP Device Client object.
- * @param {string} action - The AVTransport action to perform.
- * @returns {object} The restulting object of the action (or null).
- */
-const callAction = (client, action) => {
-    log("callAction", action);
-    client.callAction(
-        "AVTransport",
-        action,
-        { InstanceID: 0 },
-        (err, result) => { // Callback
-            if (err) {
-                log("callAction()", "UPNP Error", err);
-            }
-            else {
-                log("callAction result", action, result)
-                return result;
-            }
-        }
-    );
-}
-
-/**
  * This function starts the polling for the selected device state.
+ * @param {object} io - The Socket.IO object to emit to clients.
  * @param {object} deviceInfo - The device info object.
  * @param {object} serverSettings - The server settings object.
  * @returns {interval} Interval reference.
  */
-const startState = (deviceInfo, serverSettings) => {
+const startState = (io, deviceInfo, serverSettings) => {
     log("Start polling for device state...");
+
     // Start immediately with polling device for state
-    module.exports.updateDeviceState(deviceInfo, serverSettings);
+    module.exports.updateDeviceState(io, deviceInfo, serverSettings);
     // Then set an interval to poll the device state regularly
     return setInterval(() => {
-        module.exports.updateDeviceState(deviceInfo, serverSettings);
+        module.exports.updateDeviceState(io, deviceInfo, serverSettings);
     }, serverSettings.timeouts.state);
+
 }
 
 /**
  * This function starts the polling for the selected device metadata.
+ * @param {object} io - The Socket.IO object to emit to clients.
  * @param {object} deviceInfo - The device info object.
  * @param {object} serverSettings - The server settings object.
  * @returns {interval} Interval reference.
  */
-const startMetadata = (deviceInfo, serverSettings) => {
+const startMetadata = (io, deviceInfo, serverSettings) => {
     log("Start polling for device metadata...");
+
     // Start immediately with polling device for metadata
-    module.exports.updateDeviceMetadata(deviceInfo, serverSettings);
+    module.exports.updateDeviceMetadata(io, deviceInfo, serverSettings);
     // Then set an interval to poll the device metadata regularly
     return setInterval(() => {
-        module.exports.updateDeviceMetadata(deviceInfo, serverSettings);
+        module.exports.updateDeviceMetadata(io, deviceInfo, serverSettings);
     }, serverSettings.timeouts.metadata);
+
 }
 
 /**
@@ -99,10 +80,15 @@ const stopPolling = (interval, name) => {
 }
 
 /**
- * This function ...
+ * This function fetches the current device state (GetTransportInfo).
+ * @param {object} io - The Socket.IO object to emit to clients.
+ * @param {object} deviceInfo - The device info object.
+ * @param {object} serverSettings - The server settings object.
+ * @returns {interval} Interval reference.
  */
-const updateDeviceState = (deviceInfo, serverSettings) => {
+const updateDeviceState = (io, deviceInfo, serverSettings) => {
     log("updateDeviceState()");
+
     if (serverSettings.selectedDevice.location &&
         serverSettings.selectedDevice.actions.includes("GetTransportInfo")) {
         const client = module.exports.createClient(serverSettings.selectedDevice.location);
@@ -131,7 +117,7 @@ const updateDeviceState = (deviceInfo, serverSettings) => {
                             metadataTimeStamp: (deviceInfo.metadata && deviceInfo.metadata.metadataTimeStamp) ? deviceInfo.metadata.metadataTimeStamp : null,
                             stateTimeStamp: lib.getTimeStamp(),
                         };
-                        // log("updateDeviceState()","GetTransportInfo result", deviceInfo.state);
+                        io.emit("state", deviceInfo.state);
                     }
                 }
             );
@@ -141,14 +127,21 @@ const updateDeviceState = (deviceInfo, serverSettings) => {
     else {
         log("updateDeviceState()", "Not able to get transport info for this device");
         deviceInfo.state = null;
+        io.emit("state", deviceInfo.state);
     };
+
 }
 
 /**
- * This function ...
+ * This function fetches the current device metadate (GetInfoEx or GetPositionInfo).
+ * @param {object} io - The Socket.IO object to emit to clients.
+ * @param {object} deviceInfo - The device info object.
+ * @param {object} serverSettings - The server settings object.
+ * @returns {interval} Interval reference.
  */
-const updateDeviceMetadata = (deviceInfo, serverSettings) => {
+const updateDeviceMetadata = (io, deviceInfo, serverSettings) => {
     log("updateDeviceMetadata()")
+
     if (serverSettings.selectedDevice.location) {
         const client = module.exports.createClient(serverSettings.selectedDevice.location);
         if (serverSettings.selectedDevice.actions.includes("GetInfoEx")) {
@@ -175,19 +168,10 @@ const updateDeviceMetadata = (deviceInfo, serverSettings) => {
                                     else {
                                         /**
                                          * Possible values
-                                         * 
                                          * PlayMedium: SONGLIST-NETWORK, RADIO-NETWORK, STATION-NETWORK, CAST, AIRPLAY, SPOTIFY, OPTICAL, LINE-IN, HDMI, BLUETOOTH, UNKOWN
                                          * PlayMedia: NONE, STATION-NETWORK, SONGLIST-NETWORK, SONGLIST-LOCAL, SONGLIST-LOCAL_TF, THIRD-DLNA,AIRPLAY, UNKNOWN
                                          * CurrentTransportState : PLAYING, STOPPED, PLAYING, PAUSED_PLAYBACK, TRANSITIONING, NO_MEDIA_PRESENT
                                          * TrackSource : Prime, Qobuz, Spotify:..., newTuneIn, iHeartRadio, Deezer, UPnPServer, Tidal, vTuner
-                                         *
-                                         * LoopMode :
-                                         * repeat / no shuffle 0
-                                         * repeat 1 / no shuffle 1
-                                         * repeat / shuffle 2
-                                         * no repeat / shuffle 3
-                                         * no repeat / no shuffle 4
-                                         * repeat 1 / shuffle 5
                                          */
 
                                         deviceInfo.metadata = {
@@ -195,6 +179,7 @@ const updateDeviceMetadata = (deviceInfo, serverSettings) => {
                                             ...result,
                                             metadataTimeStamp: lib.getTimeStamp()
                                         };;
+                                        io.emit("metadata", deviceInfo.metadata);
                                     }
                                 }
                             );
@@ -204,6 +189,7 @@ const updateDeviceMetadata = (deviceInfo, serverSettings) => {
                                 ...result,
                                 metadataTimeStamp: lib.getTimeStamp()
                             };
+                            io.emit("metadata", deviceInfo.metadata);
                         }
                     }
                 }
@@ -236,6 +222,7 @@ const updateDeviceMetadata = (deviceInfo, serverSettings) => {
                                             ...result,
                                             metadataTimeStamp: lib.getTimeStamp()
                                         };
+                                        io.emit("metadata", deviceInfo.metadata);
                                     }
                                 }
                             );
@@ -245,6 +232,7 @@ const updateDeviceMetadata = (deviceInfo, serverSettings) => {
                                 ...result,
                                 metadataTimeStamp: lib.getTimeStamp()
                             };
+                            io.emit("metadata", deviceInfo.metadata);
                         }
                     }
                 }
@@ -257,16 +245,61 @@ const updateDeviceMetadata = (deviceInfo, serverSettings) => {
         // client = null;
     }
     else {
-        // log("No default device selected yet");
+        log("updateDeviceMetadata()", "No default device selected yet");
+        deviceInfo.metadata = null;
     };
+
+}
+
+/**
+ * This function calls an action to perform on the device renderer.
+ * E.g. "Next","Pause","Play","Previous","Seek".
+ * See the selected device actions to see what the renderer is capable of.
+ * @param {string} action - The AVTransport action to perform.
+ * @param {object} serverSettings - The server settings object.
+ * @returns {object} The restulting object of the action (or null).
+ */
+const callDeviceAction = (io, action, deviceInfo, serverSettings) => {
+    log("callDeviceAction()", action);
+
+    if (serverSettings.selectedDevice.location &&
+        serverSettings.selectedDevice.actions.includes(action)) {
+
+        let options = { InstanceID: 0 }; // Always required
+        if (action === "Play") { options.Speed = 1 }; // Required for the Play action
+
+        const client = module.exports.createClient(serverSettings.selectedDevice.location);
+        client.callAction(
+            "AVTransport",
+            action,
+            options,
+            (err, result) => { // Callback
+                if (err) {
+                    log("callDeviceAction()", "UPNP Error", err);
+                }
+                else {
+                    log("callDeviceAction()", "Result", action, result);
+                    io.emit("device-action", action, result);
+                    // Update metadata info immediately
+                    module.exports.updateDeviceMetadata(io, deviceInfo, serverSettings);
+                    module.exports.updateDeviceState(io, deviceInfo, serverSettings);
+                }
+            }
+        );
+
+    }
+    else {
+        log("callDeviceAction()", "Device action cannot be executed!");
+    };
+
 }
 
 module.exports = {
     createClient,
-    callAction,
     startState,
     startMetadata,
     stopPolling,
     updateDeviceState,
-    updateDeviceMetadata
+    updateDeviceMetadata,
+    callDeviceAction
 };

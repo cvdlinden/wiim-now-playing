@@ -51,24 +51,29 @@ WNP.Init = function () {
 WNP.setUIListeners = function () {
     console.log("WNP", "Set UI Listeners...")
 
-    // Temporary not implemented message
-    var toastBootstrap = bootstrap.Toast.getOrCreateInstance(liveToast)
-
     btnPrev.addEventListener("click", function () {
-        toastBootstrap.show()
+        var wnpAction = this.getAttribute("wnp-action");
+        if (wnpAction) {
+            this.disabled = true;
+            socket.emit("device-action", wnpAction);
+        }
     });
 
     btnPlay.addEventListener("click", function () {
-        toastBootstrap.show()
+        var wnpAction = this.getAttribute("wnp-action");
+        if (wnpAction) {
+            this.disabled = true;
+            socket.emit("device-action", wnpAction);
+        }
     });
 
     btnNext.addEventListener("click", function () {
-        toastBootstrap.show()
+        var wnpAction = this.getAttribute("wnp-action");
+        if (wnpAction) {
+            this.disabled = true;
+            socket.emit("device-action", wnpAction);
+        }
     });
-
-    // btnDevices.addEventListener("click", function () {
-    //     socket.emit("devices-get");
-    // });
 
     btnRefresh.addEventListener("click", function () {
         socket.emit("devices-refresh");
@@ -196,30 +201,37 @@ WNP.setSocketDefinitions = function () {
         progressPercent.setAttribute("aria-valuenow", playerProgress.percent)
         progressPercent.children[0].setAttribute("style", "width:" + playerProgress.percent + "%");
 
-        // Player transport state changed...
-        // Did the device start playing? Maybe fetch some new metadata.
-        if (WNP.d.prevTransportState != msg.CurrentTransportState) {
+        // Device transport state changed...?
+        if (WNP.d.prevTransportState !== msg.CurrentTransportState) {
+            if (msg.CurrentTransportState === "TRANSITIONING") {
+                btnPlay.children[0].classList.remove("bi-play-circle-fill", "bi-pause-circle-fill", "bi-stop-circle-fill");
+                btnPlay.children[0].classList.add("bi-circle-fill");
+                btnPlay.disabled = true;
+            };
             if (msg.CurrentTransportState === "PLAYING") {
-                // TransportState changed to PLAYING! -> Should fetch new metadata immediately...
-                btnPlay.children[0].classList.remove("bi-play-circle-fill")
+                btnPlay.children[0].classList.remove("bi-play-circle-fill", "bi-pause-circle-fill", "bi-stop-circle-fill", "bi-soundwave");
+                // Radio live streams are preferrentialy stopped as pausing keeps cache for minutes/hours(?).
+                // Stop > Play resets the stream to 'now'. Pause works like 'live tv time shift'.
                 if (msg.PlayMedium && msg.PlayMedium === "RADIO-NETWORK") {
-                    btnPlay.children[0].classList.remove("bi-pause-circle-fill");
                     btnPlay.children[0].classList.add("bi-stop-circle-fill");
+                    btnPlay.setAttribute("wnp-action", "Stop")
                 }
                 else {
-                    btnPlay.children[0].classList.remove("bi-stop-circle-fill");
                     btnPlay.children[0].classList.add("bi-pause-circle-fill");
+                    btnPlay.setAttribute("wnp-action", "Pause")
                 }
+                btnPlay.disabled = false;
             }
             else if (msg.CurrentTransportState === "PAUSED_PLAYBACK" || msg.CurrentTransportState === "STOPPED") {
-                btnPlay.children[0].classList.remove("bi-pause-circle-fill");
-                btnPlay.children[0].classList.remove("bi-stop-circle-fill");
+                btnPlay.children[0].classList.remove("bi-pause-circle-fill", "bi-stop-circle-fill", "bi-soundwave");
                 btnPlay.children[0].classList.add("bi-play-circle-fill");
-            }
+                btnPlay.setAttribute("wnp-action", "Play")
+                btnPlay.disabled = false;
+            };
             WNP.d.prevTransportState = msg.CurrentTransportState; // Remember the last transport state
         }
 
-        // If internet radio, there is no skipping...
+        // If internet radio, there is no skipping... just start and stop!
         if (msg.PlayMedium && msg.PlayMedium === "RADIO-NETWORK") {
             btnPrev.disabled = true;
             btnNext.disabled = true;
@@ -296,6 +308,71 @@ WNP.setSocketDefinitions = function () {
 
         // Device volume
         devVol.innerText = (msg.CurrentVolume) ? msg.CurrentVolume : "-";
+
+        // Loop mode status
+        // TODO: Condens this stuff
+        if (msg.LoopMode) {
+            console.log(msg.LoopMode)
+            switch (msg.LoopMode) {
+                case "5": // repeat 1 / shuffle
+                    btnRepeat.classList.add("btn-outline-success");
+                    btnRepeat.classList.remove("btn-outline-light");
+                    btnRepeat.children[0].classList.remove("bi-repeat")
+                    btnRepeat.children[0].classList.add("bi-repeat-1")
+                    btnShuffle.classList.add("btn-outline-success");
+                    btnShuffle.classList.remove("btn-outline-light");
+                    // change repeat icon
+                    break;
+                case "3": // no repeat / shuffle
+                    btnRepeat.classList.remove("btn-outline-success");
+                    btnRepeat.classList.add("btn-outline-light");
+                    btnRepeat.children[0].classList.add("bi-repeat")
+                    btnRepeat.children[0].classList.remove("bi-repeat-1")
+                    btnShuffle.classList.add("btn-outline-success");
+                    btnShuffle.classList.remove("btn-outline-light");
+                    break;
+                case "2": // repeat / shuffle
+                    btnRepeat.classList.add("btn-outline-success");
+                    btnRepeat.classList.remove("btn-outline-light");
+                    btnRepeat.children[0].classList.add("bi-repeat")
+                    btnRepeat.children[0].classList.remove("bi-repeat-1")
+                    btnShuffle.classList.add("btn-outline-success");
+                    btnShuffle.classList.remove("btn-outline-light");
+                    break;
+                case "1": // repeat 1 / no shuffle
+                    btnRepeat.classList.add("btn-outline-success");
+                    btnRepeat.classList.remove("btn-outline-light");
+                    btnRepeat.children[0].classList.remove("bi-repeat")
+                    btnRepeat.children[0].classList.add("bi-repeat-1")
+                    btnShuffle.classList.remove("btn-outline-success");
+                    btnShuffle.classList.add("btn-outline-light");
+                    // change repeat icon
+                    break;
+                case "0": // repeat / no shuffle
+                    btnRepeat.classList.add("btn-outline-success");
+                    btnRepeat.classList.remove("btn-outline-light");
+                    btnRepeat.children[0].classList.add("bi-repeat")
+                    btnRepeat.children[0].classList.remove("bi-repeat-1")
+                    btnShuffle.classList.remove("btn-outline-success");
+                    btnShuffle.classList.add("btn-outline-light");
+                    break;
+                default: // no repeat / no shuffle #4
+                    btnRepeat.classList.remove("btn-outline-success");
+                    btnRepeat.classList.add("btn-outline-light");
+                    btnRepeat.children[0].classList.add("bi-repeat")
+                    btnRepeat.children[0].classList.remove("bi-repeat-1")
+                    btnShuffle.classList.remove("btn-outline-success");
+                    btnShuffle.classList.add("btn-outline-light");
+            }
+        }
+        else {
+            btnRepeat.classList.remove("btn-outline-success");
+            btnRepeat.classList.add("btn-outline-light");
+            btnRepeat.children[0].classList.add("bi-repeat")
+            btnRepeat.children[0].classList.remove("bi-repeat-1")
+            btnShuffle.classList.remove("btn-outline-success");
+            btnShuffle.classList.add("btn-outline-light");
+        }
 
     });
 

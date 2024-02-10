@@ -5,7 +5,6 @@
 
 // Express modules
 const express = require("express");
-// var cors = require('cors');
 const app = express();
 
 // Node.js modules
@@ -48,14 +47,12 @@ let serverSettings = { // Placeholder for current server settings
     "timeouts": {
         "immediate": 250, // Timeout for 'immediate' updates in milliseconds.
         "state": 1000, // Timeout for state updates in milliseconds.
-        "metadata": 5 * 1000, // Timeout for metadata updates in milliseconds.
+        "metadata": 4 * 1000, // Timeout for metadata updates in milliseconds.
         "rescan": 10 * 1000 // Timeout for possible rescan of devices
     }
 };
 
 // Interval placeholders:
-let streamState = null; // For current state of device
-let streamMetadata = null; // For current medio metadata from device
 let pollState = null; // For the renderer state
 let pollMetadata = null; // For the renderer metadata
 
@@ -83,7 +80,6 @@ setTimeout(() => {
 
 // ===========================================================================
 // Set Express functionality, reroute all clients to the /public folder
-// app.use(cors());
 app.use(express.static(__dirname + "/public"));
 app.get('/debug', function (req, res) {
     res.sendFile(__dirname + "/public/debug.html");
@@ -105,16 +101,16 @@ io.on("connection", (socket) => {
     log("No. of sockets:", io.sockets.sockets.size);
     if (io.sockets.sockets.size === 1) {
         // Start polling the selected device
-        pollMetadata = upnp.startMetadata(deviceInfo, serverSettings);
-        pollState = upnp.startState(deviceInfo, serverSettings);
-        // Start streaming to client(s)
-        streamState = sockets.startState(io, deviceInfo, serverSettings);
-        streamMetadata = sockets.startMetadata(io, deviceInfo, serverSettings);
+        pollMetadata = upnp.startMetadata(io, deviceInfo, serverSettings);
+        pollState = upnp.startState(io, deviceInfo, serverSettings);
     }
     else if (io.sockets.sockets.size >= 1) {
-        // If new client, send current state and metadata immediately
-        io.emit("state", deviceInfo.state);
-        io.emit("metadata", deviceInfo.metadata);
+        // If new client, send current state and metadata 'immediately'
+        // When sending directly after a reboot things get wonky
+        setTimeout(() => {
+            socket.emit("state", deviceInfo.state);
+            socket.emit("metadata", deviceInfo.metadata);
+        }, serverSettings.timeouts.immediate)
     }
 
     /**
@@ -130,9 +126,6 @@ io.on("connection", (socket) => {
         log("No. of sockets:", io.sockets.sockets.size);
         if (io.sockets.sockets.size === 0) {
             log("No sockets are connected!");
-            // Stop streaming to client(s)
-            sockets.stopStreaming(streamState, "streamState");
-            sockets.stopStreaming(streamMetadata, "streamMetadata");
             // Stop polling the selected device
             upnp.stopPolling(pollState, "pollState");
             upnp.stopPolling(pollMetadata, "pollMetadata");
@@ -169,38 +162,19 @@ io.on("connection", (socket) => {
     socket.on("device-set", (msg) => {
         log("Socket event", "device-set", msg);
         sockets.setDevice(io, deviceList, deviceInfo, serverSettings, msg);
-        // TODO: Make this async? To wait properly for state and metadata updates.
-        // Immediately do a polling to the new device
-        upnp.updateDeviceMetadata(deviceInfo, serverSettings);
-        upnp.updateDeviceState(deviceInfo, serverSettings);
-        // Then  wait a bit for the results to come in and tell the client.
-        setTimeout(() => {
-            io.emit("metadata", deviceInfo.metadata);
-        }, serverSettings.timeouts.immediate);
-        setTimeout(() => {
-            io.emit("state", deviceInfo.state);
-        }, serverSettings.timeouts.immediate);
+        // Immediately get new metadata and state from new device
+        upnp.updateDeviceMetadata(io, deviceInfo, serverSettings);
+        upnp.updateDeviceState(io, deviceInfo, serverSettings);
     });
 
     /**
      * Listener for device interaction. I.e. Play, Stop, Pause, ...
-     * Not yet implemented in client!
      * @param {string} msg - The action to perform on the device.
      * @returns {undefined}
      */
     socket.on("device-action", (msg) => {
-        io.emit("device-action", msg); // Should be an action in sockets.js...
-        // TODO: Make this async? To wait properly for state and metadata updates.
-        // Immediately do a polling to the new device
-        upnp.updateDeviceMetadata(deviceInfo, serverSettings);
-        upnp.updateDeviceState(deviceInfo, serverSettings);
-        // Then  wait a bit for the results to come in and tell the client.
-        setTimeout(() => {
-            io.emit("metadata", deviceInfo.metadata);
-        }, serverSettings.timeouts.immediate);
-        setTimeout(() => {
-            io.emit("state", deviceInfo.state);
-        }, serverSettings.timeouts.immediate);
+        log("Socket event", "device-action", msg);
+        upnp.callDeviceAction(io, msg, deviceInfo, serverSettings);
     });
 
     // ======================================

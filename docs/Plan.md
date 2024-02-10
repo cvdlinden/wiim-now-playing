@@ -11,6 +11,8 @@
   - [x] Use storage on server to remember app settings
   - [x] Make device switchable
   - [x] Create an app to talk to server and show/handle info dynamically
+  - [x] Implement Play/Pause functionality (CallAction method).
+  - [x] Force state/metadata refresh when required. I.e. switching sources, switching devices, TransportState changes, ...
   - [ ] ...
   - ~~Use cookies to remember client settings~~
   - ~~Use JSDoc for documentation generation?~~
@@ -27,10 +29,7 @@
 
 TODOs:
 
-- Implement Play/Pause functionality (CallAction method).
-
 - Rework/refactor some functionality to async/await/callbacks/Promise. Too many setTimeouts for comfort.
-- Force state/metadata refresh when required. I.e. switching sources, switching devices, TransportState changes, ...
 - Rethink device discovery and handling of found devices. (ssdp.js > upnpClient.js)
 
 - Contingencies for when devices become unavailable? Network dropoffs/resets?
