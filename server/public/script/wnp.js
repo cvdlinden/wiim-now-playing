@@ -312,7 +312,7 @@ WNP.setSocketDefinitions = function () {
         // Loop mode status
         // TODO: Condens this stuff
         if (msg.LoopMode) {
-            console.log(msg.LoopMode)
+            // console.log(msg.LoopMode)
             switch (msg.LoopMode) {
                 case "5": // repeat 1 / shuffle
                     btnRepeat.classList.add("btn-outline-success");
