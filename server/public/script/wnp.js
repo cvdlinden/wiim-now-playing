@@ -204,27 +204,24 @@ WNP.setSocketDefinitions = function () {
         // Device transport state changed...?
         if (WNP.d.prevTransportState !== msg.CurrentTransportState) {
             if (msg.CurrentTransportState === "TRANSITIONING") {
-                btnPlay.children[0].classList.remove("bi-play-circle-fill", "bi-pause-circle-fill", "bi-stop-circle-fill");
-                btnPlay.children[0].classList.add("bi-circle-fill");
+                btnPlay.children[0].className = "bi bi-circle-fill";
                 btnPlay.disabled = true;
             };
             if (msg.CurrentTransportState === "PLAYING") {
-                btnPlay.children[0].classList.remove("bi-play-circle-fill", "bi-pause-circle-fill", "bi-stop-circle-fill", "bi-soundwave");
                 // Radio live streams are preferrentialy stopped as pausing keeps cache for minutes/hours(?).
                 // Stop > Play resets the stream to 'now'. Pause works like 'live tv time shift'.
                 if (msg.PlayMedium && msg.PlayMedium === "RADIO-NETWORK") {
-                    btnPlay.children[0].classList.add("bi-stop-circle-fill");
+                    btnPlay.children[0].className = "bi bi-stop-circle-fill";
                     btnPlay.setAttribute("wnp-action", "Stop")
                 }
                 else {
-                    btnPlay.children[0].classList.add("bi-pause-circle-fill");
+                    btnPlay.children[0].className = "bi bi-pause-circle-fill";
                     btnPlay.setAttribute("wnp-action", "Pause")
                 }
                 btnPlay.disabled = false;
             }
             else if (msg.CurrentTransportState === "PAUSED_PLAYBACK" || msg.CurrentTransportState === "STOPPED") {
-                btnPlay.children[0].classList.remove("bi-pause-circle-fill", "bi-stop-circle-fill", "bi-soundwave");
-                btnPlay.children[0].classList.add("bi-play-circle-fill");
+                btnPlay.children[0].className = "bi bi-play-circle-fill";
                 btnPlay.setAttribute("wnp-action", "Play")
                 btnPlay.disabled = false;
             };
@@ -286,7 +283,7 @@ WNP.setSocketDefinitions = function () {
         }
         else {
             var identId = document.createElement("i");
-            identId.classList.add("bi", "bi-soundwave", "text-secondary");
+            identId.className = "bi bi-soundwave text-secondary";
             identId.title = "Quality: " + songQuality + ", " + songActualQuality;
             mediaQualityIdent.innerHTML = identId.outerHTML;
         }
@@ -310,68 +307,44 @@ WNP.setSocketDefinitions = function () {
         devVol.innerText = (msg.CurrentVolume) ? msg.CurrentVolume : "-";
 
         // Loop mode status
-        // TODO: Condens this stuff
         if (msg.LoopMode) {
-            // console.log(msg.LoopMode)
             switch (msg.LoopMode) {
-                case "5": // repeat 1 / shuffle
-                    btnRepeat.classList.add("btn-outline-success");
-                    btnRepeat.classList.remove("btn-outline-light");
-                    btnRepeat.children[0].classList.remove("bi-repeat")
-                    btnRepeat.children[0].classList.add("bi-repeat-1")
-                    btnShuffle.classList.add("btn-outline-success");
-                    btnShuffle.classList.remove("btn-outline-light");
+                case "5": // repeat-1 | shuffle
+                    btnRepeat.className = "btn btn-outline-success";
+                    btnRepeat.children[0].className = "bi bi-repeat-1";
+                    btnShuffle.className = "btn btn-outline-success";
+                    break;
+                case "3": // no repeat | shuffle
+                    btnRepeat.className = "btn btn-outline-light";
+                    btnRepeat.children[0].className = "bi bi-repeat";
+                    btnShuffle.className = "btn btn-outline-success";
+                    break;
+                case "2": // repeat | shuffle
+                    btnRepeat.className = "btn btn-outline-success";
+                    btnRepeat.children[0].className = "bi bi-repeat";
+                    btnShuffle.className = "btn btn-outline-success";
+                    break;
+                case "1": // repeat-1 | no shuffle
+                    btnRepeat.className = "btn btn-outline-success";
+                    btnRepeat.children[0].className = "bi bi-repeat-1";
+                    btnShuffle.className = "btn btn-outline-light";
                     // change repeat icon
                     break;
-                case "3": // no repeat / shuffle
-                    btnRepeat.classList.remove("btn-outline-success");
-                    btnRepeat.classList.add("btn-outline-light");
-                    btnRepeat.children[0].classList.add("bi-repeat")
-                    btnRepeat.children[0].classList.remove("bi-repeat-1")
-                    btnShuffle.classList.add("btn-outline-success");
-                    btnShuffle.classList.remove("btn-outline-light");
+                case "0": // repeat | no shuffle
+                    btnRepeat.className = "btn btn-outline-success";
+                    btnRepeat.children[0].className = "bi bi-repeat";
+                    btnShuffle.className = "btn btn-outline-light";
                     break;
-                case "2": // repeat / shuffle
-                    btnRepeat.classList.add("btn-outline-success");
-                    btnRepeat.classList.remove("btn-outline-light");
-                    btnRepeat.children[0].classList.add("bi-repeat")
-                    btnRepeat.children[0].classList.remove("bi-repeat-1")
-                    btnShuffle.classList.add("btn-outline-success");
-                    btnShuffle.classList.remove("btn-outline-light");
-                    break;
-                case "1": // repeat 1 / no shuffle
-                    btnRepeat.classList.add("btn-outline-success");
-                    btnRepeat.classList.remove("btn-outline-light");
-                    btnRepeat.children[0].classList.remove("bi-repeat")
-                    btnRepeat.children[0].classList.add("bi-repeat-1")
-                    btnShuffle.classList.remove("btn-outline-success");
-                    btnShuffle.classList.add("btn-outline-light");
-                    // change repeat icon
-                    break;
-                case "0": // repeat / no shuffle
-                    btnRepeat.classList.add("btn-outline-success");
-                    btnRepeat.classList.remove("btn-outline-light");
-                    btnRepeat.children[0].classList.add("bi-repeat")
-                    btnRepeat.children[0].classList.remove("bi-repeat-1")
-                    btnShuffle.classList.remove("btn-outline-success");
-                    btnShuffle.classList.add("btn-outline-light");
-                    break;
-                default: // no repeat / no shuffle #4
-                    btnRepeat.classList.remove("btn-outline-success");
-                    btnRepeat.classList.add("btn-outline-light");
-                    btnRepeat.children[0].classList.add("bi-repeat")
-                    btnRepeat.children[0].classList.remove("bi-repeat-1")
-                    btnShuffle.classList.remove("btn-outline-success");
-                    btnShuffle.classList.add("btn-outline-light");
+                default: // no repeat | no shuffle #4
+                    btnRepeat.className = "btn btn-outline-light";
+                    btnRepeat.children[0].className = "bi bi-repeat";
+                    btnShuffle.className = "btn btn-outline-light";
             }
         }
-        else {
-            btnRepeat.classList.remove("btn-outline-success");
-            btnRepeat.classList.add("btn-outline-light");
-            btnRepeat.children[0].classList.add("bi-repeat")
-            btnRepeat.children[0].classList.remove("bi-repeat-1")
-            btnShuffle.classList.remove("btn-outline-success");
-            btnShuffle.classList.add("btn-outline-light");
+        else { // Unknown, so set default
+            btnRepeat.className = "btn btn-outline-light";
+            btnRepeat.children[0].className = "bi bi-repeat";
+            btnShuffle.className = "btn btn-outline-light";
         }
 
     });
