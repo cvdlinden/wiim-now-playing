@@ -105,16 +105,16 @@ io.on("connection", (socket) => {
     log("No. of sockets:", io.sockets.sockets.size);
     if (io.sockets.sockets.size === 1) {
         // Start polling the selected device
-        pollMetadata = upnp.startMetadata(deviceInfo, serverSettings);
-        pollState = upnp.startState(deviceInfo, serverSettings);
+        pollMetadata = upnp.startMetadata(io, deviceInfo, serverSettings);
+        pollState = upnp.startState(io, deviceInfo, serverSettings);
         // Start streaming to client(s)
-        streamState = sockets.startState(io, deviceInfo, serverSettings);
-        streamMetadata = sockets.startMetadata(io, deviceInfo, serverSettings);
+        // streamState = sockets.startState(io, deviceInfo, serverSettings);
+        // streamMetadata = sockets.startMetadata(io, deviceInfo, serverSettings);
     }
     else if (io.sockets.sockets.size >= 1) {
         // If new client, send current state and metadata immediately
-        io.emit("state", deviceInfo.state);
-        io.emit("metadata", deviceInfo.metadata);
+        socket.emit("state", deviceInfo.state);
+        socket.emit("metadata", deviceInfo.metadata);
     }
 
     /**
@@ -131,8 +131,8 @@ io.on("connection", (socket) => {
         if (io.sockets.sockets.size === 0) {
             log("No sockets are connected!");
             // Stop streaming to client(s)
-            sockets.stopStreaming(streamState, "streamState");
-            sockets.stopStreaming(streamMetadata, "streamMetadata");
+            // sockets.stopStreaming(streamState, "streamState");
+            // sockets.stopStreaming(streamMetadata, "streamMetadata");
             // Stop polling the selected device
             upnp.stopPolling(pollState, "pollState");
             upnp.stopPolling(pollMetadata, "pollMetadata");
@@ -169,17 +169,9 @@ io.on("connection", (socket) => {
     socket.on("device-set", (msg) => {
         log("Socket event", "device-set", msg);
         sockets.setDevice(io, deviceList, deviceInfo, serverSettings, msg);
-        // TODO: Make this async? To wait properly for state and metadata updates.
-        // Immediately do a polling to the new device
-        upnp.updateDeviceMetadata(deviceInfo, serverSettings);
-        upnp.updateDeviceState(deviceInfo, serverSettings);
-        // Then  wait a bit for the results to come in and tell the client.
-        setTimeout(() => {
-            io.emit("metadata", deviceInfo.metadata);
-        }, serverSettings.timeouts.immediate);
-        setTimeout(() => {
-            io.emit("state", deviceInfo.state);
-        }, serverSettings.timeouts.immediate);
+        // Immediately get new metadata and state from new device
+        upnp.updateDeviceMetadata(io, deviceInfo, serverSettings);
+        upnp.updateDeviceState(io, deviceInfo, serverSettings);
     });
 
     /**
@@ -189,7 +181,7 @@ io.on("connection", (socket) => {
      */
     socket.on("device-action", (msg) => {
         log("Socket event", "device-action", msg);
-        upnp.callDeviceAction(io, msg, serverSettings);
+        upnp.callDeviceAction(io, msg, deviceInfo, serverSettings);
     });
 
     // ======================================

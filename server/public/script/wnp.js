@@ -52,27 +52,31 @@ WNP.setUIListeners = function () {
     console.log("WNP", "Set UI Listeners...")
 
     // Temporary not implemented message
-    var toastBootstrap = bootstrap.Toast.getOrCreateInstance(liveToast)
+    // var toastBootstrap = bootstrap.Toast.getOrCreateInstance(liveToast)
 
     btnPrev.addEventListener("click", function () {
-        toastBootstrap.show();
-        console.log(this)
+        // toastBootstrap.show();
         var wnpAction = this.getAttribute("wnp-action");
-        if (wnpAction) { socket.emit("device-action", wnpAction); }
+        if (wnpAction) {
+            this.disabled = true;
+            socket.emit("device-action", wnpAction);
+        }
     });
 
     btnPlay.addEventListener("click", function () {
         var wnpAction = this.getAttribute("wnp-action");
-        if (wnpAction) { 
+        if (wnpAction) {
             this.disabled = true;
-            socket.emit("device-action", wnpAction); 
+            socket.emit("device-action", wnpAction);
         }
     });
 
     btnNext.addEventListener("click", function () {
-        toastBootstrap.show();
         var wnpAction = this.getAttribute("wnp-action");
-        if (wnpAction) { socket.emit("device-action", wnpAction); }
+        if (wnpAction) {
+            this.disabled = true;
+            socket.emit("device-action", wnpAction);
+        }
     });
 
     // btnDevices.addEventListener("click", function () {
@@ -205,7 +209,7 @@ WNP.setSocketDefinitions = function () {
         progressPercent.setAttribute("aria-valuenow", playerProgress.percent)
         progressPercent.children[0].setAttribute("style", "width:" + playerProgress.percent + "%");
 
-        // Player transport state changed...
+        // Device transport state changed...?
         if (WNP.d.prevTransportState !== msg.CurrentTransportState) {
             if (msg.CurrentTransportState === "TRANSITIONING") {
                 btnPlay.children[0].classList.remove("bi-play-circle-fill", "bi-pause-circle-fill", "bi-stop-circle-fill");
@@ -213,8 +217,9 @@ WNP.setSocketDefinitions = function () {
                 btnPlay.disabled = true;
             };
             if (msg.CurrentTransportState === "PLAYING") {
-                // TODO: TransportState changed to PLAYING! -> Should fetch new metadata immediately...
                 btnPlay.children[0].classList.remove("bi-play-circle-fill", "bi-pause-circle-fill", "bi-stop-circle-fill", "bi-soundwave");
+                // Radio live streams are preferrentialy stopped as pausing keeps cache for minutes/hours(?).
+                // Stop > Play resets the stream to 'now'. Pause works like 'live tv time shift'.
                 if (msg.PlayMedium && msg.PlayMedium === "RADIO-NETWORK") {
                     btnPlay.children[0].classList.add("bi-stop-circle-fill");
                     btnPlay.setAttribute("wnp-action", "Stop")
@@ -234,7 +239,7 @@ WNP.setSocketDefinitions = function () {
             WNP.d.prevTransportState = msg.CurrentTransportState; // Remember the last transport state
         }
 
-        // If internet radio, there is no skipping...
+        // If internet radio, there is no skipping... just start and stop!
         if (msg.PlayMedium && msg.PlayMedium === "RADIO-NETWORK") {
             btnPrev.disabled = true;
             btnNext.disabled = true;

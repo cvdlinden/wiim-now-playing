@@ -18,17 +18,17 @@ const log = require("debug")("lib:sockets");
  * @param {object} serverSettings - The server settings object.
  * @returns {interval} Interval reference.
  */
-const startState = (io, deviceInfo, serverSettings) => {
-    log("Start streaming state...");
-    // Start 'immediately' with a first package
-    setTimeout(() => {
-        io.emit("state", deviceInfo.state);
-    }, serverSettings.timeouts.immediate);
-    // Then set an interval to stream the state
-    return setInterval(() => {
-        io.emit("state", deviceInfo.state);
-    }, serverSettings.timeouts.state);
-}
+// const startState = (io, deviceInfo, serverSettings) => {
+//     log("Start streaming state...");
+//     // Start 'immediately' with a first package
+//     setTimeout(() => {
+//         io.emit("state", deviceInfo.state);
+//     }, serverSettings.timeouts.immediate);
+//     // Then set an interval to stream the state
+//     return setInterval(() => {
+//         io.emit("state", deviceInfo.state);
+//     }, serverSettings.timeouts.state);
+// }
 
 /**
  * This function starts the streaming of the selected device metadata to the clients.
@@ -37,17 +37,17 @@ const startState = (io, deviceInfo, serverSettings) => {
  * @param {object} serverSettings - The server settings object.
  * @returns {interval} Interval reference.
  */
-const startMetadata = (io, deviceInfo, serverSettings) => {
-    log("Start streaming metadata...");
-    // Start 'immediately' with a first package
-    setTimeout(() => {
-        io.emit("metadata", deviceInfo.metadata);
-    }, serverSettings.timeouts.immediate);
-    // Then set an interval to stream the metadata
-    return setInterval(() => {
-        io.emit("metadata", deviceInfo.metadata);
-    }, serverSettings.timeouts.metadata);
-}
+// const startMetadata = (io, deviceInfo, serverSettings) => {
+//     log("Start streaming metadata...");
+//     // Start 'immediately' with a first package
+//     setTimeout(() => {
+//         io.emit("metadata", deviceInfo.metadata);
+//     }, serverSettings.timeouts.immediate);
+//     // Then set an interval to stream the metadata
+//     return setInterval(() => {
+//         io.emit("metadata", deviceInfo.metadata);
+//     }, serverSettings.timeouts.metadata);
+// }
 
 /**
  * This function stops the polling of the selected device, given the interval.
@@ -55,10 +55,10 @@ const startMetadata = (io, deviceInfo, serverSettings) => {
  * @param {string} name - The set interval name, for logging purposes only.
  * @returns {undefined}
  */
-const stopStreaming = (interval, name) => {
-    log("Stop streaming:", name);
-    clearInterval(interval);
-}
+// const stopStreaming = (interval, name) => {
+//     log("Stop streaming:", name);
+//     clearInterval(interval);
+// }
 
 /**
  * This function provides a cleaned up array of found devices emitted to clients.
@@ -134,9 +134,9 @@ const getServerSettings = (io, serverSettings) => {
 }
 
 module.exports = {
-    startState,
-    startMetadata,
-    stopStreaming,
+    // startState,
+    // startMetadata,
+    // stopStreaming,
     getDevices,
     setDevice,
     scanDevices,

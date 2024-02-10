@@ -36,14 +36,14 @@ const createClient = (rendererUri) => {
  * @param {object} serverSettings - The server settings object.
  * @returns {interval} Interval reference.
  */
-const startState = (deviceInfo, serverSettings) => {
+const startState = (io, deviceInfo, serverSettings) => {
     log("Start polling for device state...");
 
     // Start immediately with polling device for state
-    module.exports.updateDeviceState(deviceInfo, serverSettings);
+    module.exports.updateDeviceState(io, deviceInfo, serverSettings);
     // Then set an interval to poll the device state regularly
     return setInterval(() => {
-        module.exports.updateDeviceState(deviceInfo, serverSettings);
+        module.exports.updateDeviceState(io, deviceInfo, serverSettings);
     }, serverSettings.timeouts.state);
 
 }
@@ -54,14 +54,14 @@ const startState = (deviceInfo, serverSettings) => {
  * @param {object} serverSettings - The server settings object.
  * @returns {interval} Interval reference.
  */
-const startMetadata = (deviceInfo, serverSettings) => {
+const startMetadata = (io, deviceInfo, serverSettings) => {
     log("Start polling for device metadata...");
 
     // Start immediately with polling device for metadata
-    module.exports.updateDeviceMetadata(deviceInfo, serverSettings);
+    module.exports.updateDeviceMetadata(io, deviceInfo, serverSettings);
     // Then set an interval to poll the device metadata regularly
     return setInterval(() => {
-        module.exports.updateDeviceMetadata(deviceInfo, serverSettings);
+        module.exports.updateDeviceMetadata(io, deviceInfo, serverSettings);
     }, serverSettings.timeouts.metadata);
 
 }
@@ -80,7 +80,7 @@ const stopPolling = (interval, name) => {
 /**
  * This function ...
  */
-const updateDeviceState = (deviceInfo, serverSettings) => {
+const updateDeviceState = (io, deviceInfo, serverSettings) => {
     log("updateDeviceState()");
 
     if (serverSettings.selectedDevice.location &&
@@ -111,7 +111,7 @@ const updateDeviceState = (deviceInfo, serverSettings) => {
                             metadataTimeStamp: (deviceInfo.metadata && deviceInfo.metadata.metadataTimeStamp) ? deviceInfo.metadata.metadataTimeStamp : null,
                             stateTimeStamp: lib.getTimeStamp(),
                         };
-                        // log("updateDeviceState()","GetTransportInfo result", deviceInfo.state);
+                        io.emit("state", deviceInfo.state);
                     }
                 }
             );
@@ -121,6 +121,7 @@ const updateDeviceState = (deviceInfo, serverSettings) => {
     else {
         log("updateDeviceState()", "Not able to get transport info for this device");
         deviceInfo.state = null;
+        io.emit("state", deviceInfo.state);
     };
 
 }
@@ -128,7 +129,7 @@ const updateDeviceState = (deviceInfo, serverSettings) => {
 /**
  * This function ...
  */
-const updateDeviceMetadata = (deviceInfo, serverSettings) => {
+const updateDeviceMetadata = (io, deviceInfo, serverSettings) => {
     log("updateDeviceMetadata()")
 
     if (serverSettings.selectedDevice.location) {
@@ -177,6 +178,7 @@ const updateDeviceMetadata = (deviceInfo, serverSettings) => {
                                             ...result,
                                             metadataTimeStamp: lib.getTimeStamp()
                                         };;
+                                        io.emit("metadata", deviceInfo.metadata);
                                     }
                                 }
                             );
@@ -186,6 +188,7 @@ const updateDeviceMetadata = (deviceInfo, serverSettings) => {
                                 ...result,
                                 metadataTimeStamp: lib.getTimeStamp()
                             };
+                            io.emit("metadata", deviceInfo.metadata);
                         }
                     }
                 }
@@ -218,6 +221,7 @@ const updateDeviceMetadata = (deviceInfo, serverSettings) => {
                                             ...result,
                                             metadataTimeStamp: lib.getTimeStamp()
                                         };
+                                        io.emit("metadata", deviceInfo.metadata);
                                     }
                                 }
                             );
@@ -227,6 +231,7 @@ const updateDeviceMetadata = (deviceInfo, serverSettings) => {
                                 ...result,
                                 metadataTimeStamp: lib.getTimeStamp()
                             };
+                            io.emit("metadata", deviceInfo.metadata);
                         }
                     }
                 }
@@ -253,7 +258,7 @@ const updateDeviceMetadata = (deviceInfo, serverSettings) => {
  * @param {object} serverSettings - The server settings object.
  * @returns {object} The restulting object of the action (or null).
  */
-const callDeviceAction = (io, action, serverSettings) => {
+const callDeviceAction = (io, action, deviceInfo, serverSettings) => {
     log("callDeviceAction()", action);
 
     if (serverSettings.selectedDevice.location &&
@@ -273,7 +278,10 @@ const callDeviceAction = (io, action, serverSettings) => {
                 }
                 else {
                     log("callDeviceAction()", "Result", action, result);
-                    io.emit("device-action", action, result)
+                    io.emit("device-action", action, result);
+                    // Update metadata info immediately
+                    module.exports.updateDeviceMetadata(io, deviceInfo, serverSettings);
+                    module.exports.updateDeviceState(io, deviceInfo, serverSettings);
                 }
             }
         );
