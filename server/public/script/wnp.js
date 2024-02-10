@@ -317,6 +317,71 @@ WNP.setSocketDefinitions = function () {
         // Device volume
         devVol.innerText = (msg.CurrentVolume) ? msg.CurrentVolume : "-";
 
+        // Loop mode status
+        // TODO: Condens this stuff
+        if (msg.LoopMode) {
+            console.log(msg.LoopMode)
+            switch (msg.LoopMode) {
+                case "5": // repeat 1 / shuffle
+                    btnRepeat.classList.add("btn-outline-success");
+                    btnRepeat.classList.remove("btn-outline-light");
+                    btnRepeat.children[0].classList.remove("bi-repeat")
+                    btnRepeat.children[0].classList.add("bi-repeat-1")
+                    btnShuffle.classList.add("btn-outline-success");
+                    btnShuffle.classList.remove("btn-outline-light");
+                    // change repeat icon
+                    break;
+                case "3": // no repeat / shuffle
+                    btnRepeat.classList.remove("btn-outline-success");
+                    btnRepeat.classList.add("btn-outline-light");
+                    btnRepeat.children[0].classList.add("bi-repeat")
+                    btnRepeat.children[0].classList.remove("bi-repeat-1")
+                    btnShuffle.classList.add("btn-outline-success");
+                    btnShuffle.classList.remove("btn-outline-light");
+                    break;
+                case "2": // repeat / shuffle
+                    btnRepeat.classList.add("btn-outline-success");
+                    btnRepeat.classList.remove("btn-outline-light");
+                    btnRepeat.children[0].classList.add("bi-repeat")
+                    btnRepeat.children[0].classList.remove("bi-repeat-1")
+                    btnShuffle.classList.add("btn-outline-success");
+                    btnShuffle.classList.remove("btn-outline-light");
+                    break;
+                case "1": // repeat 1 / no shuffle
+                    btnRepeat.classList.add("btn-outline-success");
+                    btnRepeat.classList.remove("btn-outline-light");
+                    btnRepeat.children[0].classList.remove("bi-repeat")
+                    btnRepeat.children[0].classList.add("bi-repeat-1")
+                    btnShuffle.classList.remove("btn-outline-success");
+                    btnShuffle.classList.add("btn-outline-light");
+                    // change repeat icon
+                    break;
+                case "0": // repeat / no shuffle
+                    btnRepeat.classList.add("btn-outline-success");
+                    btnRepeat.classList.remove("btn-outline-light");
+                    btnRepeat.children[0].classList.add("bi-repeat")
+                    btnRepeat.children[0].classList.remove("bi-repeat-1")
+                    btnShuffle.classList.remove("btn-outline-success");
+                    btnShuffle.classList.add("btn-outline-light");
+                    break;
+                default: // no repeat / no shuffle #4
+                    btnRepeat.classList.remove("btn-outline-success");
+                    btnRepeat.classList.add("btn-outline-light");
+                    btnRepeat.children[0].classList.add("bi-repeat")
+                    btnRepeat.children[0].classList.remove("bi-repeat-1")
+                    btnShuffle.classList.remove("btn-outline-success");
+                    btnShuffle.classList.add("btn-outline-light");
+            }
+        }
+        else {
+            btnRepeat.classList.remove("btn-outline-success");
+            btnRepeat.classList.add("btn-outline-light");
+            btnRepeat.children[0].classList.add("bi-repeat")
+            btnRepeat.children[0].classList.remove("bi-repeat-1")
+            btnShuffle.classList.remove("btn-outline-success");
+            btnShuffle.classList.add("btn-outline-light");
+        }
+
     });
 
     // On device set
