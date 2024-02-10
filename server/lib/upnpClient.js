@@ -26,8 +26,23 @@ const log = require("debug")("lib:upnpClient");
  */
 // TODO: We're creating lots of new clients, can we have a global UPnP Client?
 const createClient = (rendererUri) => {
-    // log("createClient", rendererUri);
+    log("createClient", rendererUri);
     return new UPNP(rendererUri);
+}
+
+/**
+ * This function ensures a UPnP client is available in the global scope.
+ * If not, it will create one. Note: Switching devices clears existing client (see sockets.js -> setDevice)
+ * @param {object} deviceInfo - The device info object.
+ * @param {object} serverSettings - The server settings object.
+ * @returns {object} The restulting object of the action (or null).
+ */
+const ensureClient = (deviceInfo, serverSettings) => {
+    // log("ensureClient()");
+    if (!deviceInfo.client) {
+        log("ensureClient()", "No client established yet, creating one ...");
+        deviceInfo.client = createClient(serverSettings.selectedDevice.location);
+    }
 }
 
 /**
@@ -87,13 +102,13 @@ const stopPolling = (interval, name) => {
  * @returns {interval} Interval reference.
  */
 const updateDeviceState = (io, deviceInfo, serverSettings) => {
-    log("updateDeviceState()");
+    // log("updateDeviceState()");
 
     if (serverSettings.selectedDevice.location &&
         serverSettings.selectedDevice.actions.includes("GetTransportInfo")) {
-        const client = module.exports.createClient(serverSettings.selectedDevice.location);
+        ensureClient(deviceInfo, serverSettings);
         if (serverSettings.selectedDevice.actions.includes("GetTransportInfo")) {
-            client.callAction(
+            deviceInfo.client.callAction(
                 "AVTransport",
                 "GetTransportInfo",
                 { InstanceID: 0 },
@@ -140,12 +155,12 @@ const updateDeviceState = (io, deviceInfo, serverSettings) => {
  * @returns {interval} Interval reference.
  */
 const updateDeviceMetadata = (io, deviceInfo, serverSettings) => {
-    log("updateDeviceMetadata()")
+    // log("updateDeviceMetadata()")
 
     if (serverSettings.selectedDevice.location) {
-        const client = module.exports.createClient(serverSettings.selectedDevice.location);
+        ensureClient(deviceInfo, serverSettings);
         if (serverSettings.selectedDevice.actions.includes("GetInfoEx")) {
-            client.callAction(
+            deviceInfo.client.callAction(
                 "AVTransport",
                 "GetInfoEx",
                 { InstanceID: 0 },
@@ -196,7 +211,7 @@ const updateDeviceMetadata = (io, deviceInfo, serverSettings) => {
             );
         }
         else if (serverSettings.selectedDevice.actions.includes("GetPositionInfo")) {
-            client.callAction(
+            deviceInfo.client.callAction(
                 "AVTransport",
                 "GetPositionInfo",
                 { InstanceID: 0 },
@@ -268,8 +283,8 @@ const callDeviceAction = (io, action, deviceInfo, serverSettings) => {
         let options = { InstanceID: 0 }; // Always required
         if (action === "Play") { options.Speed = 1 }; // Required for the Play action
 
-        const client = module.exports.createClient(serverSettings.selectedDevice.location);
-        client.callAction(
+        ensureClient(deviceInfo, serverSettings);
+        deviceInfo.client.callAction(
             "AVTransport",
             action,
             options,

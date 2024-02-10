@@ -42,8 +42,13 @@ const setDevice = (io, deviceList, deviceInfo, serverSettings, location) => {
     log("Change selected device...");
     const selDevice = deviceList.filter((d) => { return d.location === location })
     if (selDevice.length > 0) {
+
+        // Reset device info
         deviceInfo.state = null;
         deviceInfo.metadata = null;
+        deviceInfo.client = null;
+
+        // Set currently selected device
         serverSettings.selectedDevice = {
             "friendlyName": selDevice[0].friendlyName,
             "manufacturer": selDevice[0].manufacturer,
@@ -51,8 +56,10 @@ const setDevice = (io, deviceList, deviceInfo, serverSettings, location) => {
             "location": selDevice[0].location,
             "actions": Object.keys(selDevice[0].actions)
         };
+
         io.emit("device-set", serverSettings.selectedDevice); // Send selected device props
         lib.saveSettings(serverSettings); // Make sure the settings are stored
+
     }
     else {
         log("Selected device not in found list!");
