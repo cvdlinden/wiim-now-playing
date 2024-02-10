@@ -113,8 +113,8 @@ io.on("connection", (socket) => {
     }
     else if (io.sockets.sockets.size >= 1) {
         // If new client, send current state and metadata immediately
-        socket.emit("state", deviceInfo.state);
-        socket.emit("metadata", deviceInfo.metadata);
+        // socket.emit("state", deviceInfo.state);
+        // socket.emit("metadata", deviceInfo.metadata);
     }
 
     /**
