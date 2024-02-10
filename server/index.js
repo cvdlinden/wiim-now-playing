@@ -184,23 +184,12 @@ io.on("connection", (socket) => {
 
     /**
      * Listener for device interaction. I.e. Play, Stop, Pause, ...
-     * Not yet implemented in client!
      * @param {string} msg - The action to perform on the device.
      * @returns {undefined}
      */
     socket.on("device-action", (msg) => {
-        io.emit("device-action", msg); // Should be an action in sockets.js...
-        // TODO: Make this async? To wait properly for state and metadata updates.
-        // Immediately do a polling to the new device
-        upnp.updateDeviceMetadata(deviceInfo, serverSettings);
-        upnp.updateDeviceState(deviceInfo, serverSettings);
-        // Then  wait a bit for the results to come in and tell the client.
-        setTimeout(() => {
-            io.emit("metadata", deviceInfo.metadata);
-        }, serverSettings.timeouts.immediate);
-        setTimeout(() => {
-            io.emit("state", deviceInfo.state);
-        }, serverSettings.timeouts.immediate);
+        log("Socket event", "device-action", msg);
+        upnp.callDeviceAction(io, msg, serverSettings);
     });
 
     // ======================================

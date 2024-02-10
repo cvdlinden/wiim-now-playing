@@ -24,35 +24,10 @@ const log = require("debug")("lib:upnpClient");
  * @param {string} rendererUri - The device renderer uri.
  * @returns {object} The UPnP Device Client object.
  */
+// TODO: We're creating lots of new clients, can we have a global UPnP Client?
 const createClient = (rendererUri) => {
     // log("createClient", rendererUri);
     return new UPNP(rendererUri);
-}
-
-/**
- * This function calls an action to perform on the device renderer.
- * E.g. "Next","Pause","Play","Previous","Seek".
- * See the selected device actions to see what the renderer is capable of.
- * @param {object} rendererUri - A UPnP Device Client object.
- * @param {string} action - The AVTransport action to perform.
- * @returns {object} The restulting object of the action (or null).
- */
-const callAction = (client, action) => {
-    log("callAction", action);
-    client.callAction(
-        "AVTransport",
-        action,
-        { InstanceID: 0 },
-        (err, result) => { // Callback
-            if (err) {
-                log("callAction()", "UPNP Error", err);
-            }
-            else {
-                log("callAction result", action, result)
-                return result;
-            }
-        }
-    );
 }
 
 /**
@@ -63,12 +38,14 @@ const callAction = (client, action) => {
  */
 const startState = (deviceInfo, serverSettings) => {
     log("Start polling for device state...");
+
     // Start immediately with polling device for state
     module.exports.updateDeviceState(deviceInfo, serverSettings);
     // Then set an interval to poll the device state regularly
     return setInterval(() => {
         module.exports.updateDeviceState(deviceInfo, serverSettings);
     }, serverSettings.timeouts.state);
+
 }
 
 /**
@@ -79,12 +56,14 @@ const startState = (deviceInfo, serverSettings) => {
  */
 const startMetadata = (deviceInfo, serverSettings) => {
     log("Start polling for device metadata...");
+
     // Start immediately with polling device for metadata
     module.exports.updateDeviceMetadata(deviceInfo, serverSettings);
     // Then set an interval to poll the device metadata regularly
     return setInterval(() => {
         module.exports.updateDeviceMetadata(deviceInfo, serverSettings);
     }, serverSettings.timeouts.metadata);
+
 }
 
 /**
@@ -103,6 +82,7 @@ const stopPolling = (interval, name) => {
  */
 const updateDeviceState = (deviceInfo, serverSettings) => {
     log("updateDeviceState()");
+
     if (serverSettings.selectedDevice.location &&
         serverSettings.selectedDevice.actions.includes("GetTransportInfo")) {
         const client = module.exports.createClient(serverSettings.selectedDevice.location);
@@ -142,6 +122,7 @@ const updateDeviceState = (deviceInfo, serverSettings) => {
         log("updateDeviceState()", "Not able to get transport info for this device");
         deviceInfo.state = null;
     };
+
 }
 
 /**
@@ -149,6 +130,7 @@ const updateDeviceState = (deviceInfo, serverSettings) => {
  */
 const updateDeviceMetadata = (deviceInfo, serverSettings) => {
     log("updateDeviceMetadata()")
+
     if (serverSettings.selectedDevice.location) {
         const client = module.exports.createClient(serverSettings.selectedDevice.location);
         if (serverSettings.selectedDevice.actions.includes("GetInfoEx")) {
@@ -257,16 +239,58 @@ const updateDeviceMetadata = (deviceInfo, serverSettings) => {
         // client = null;
     }
     else {
-        // log("No default device selected yet");
+        log("updateDeviceMetadata()", "No default device selected yet");
+        deviceInfo.metadata = null;
     };
+
+}
+
+/**
+ * This function calls an action to perform on the device renderer.
+ * E.g. "Next","Pause","Play","Previous","Seek".
+ * See the selected device actions to see what the renderer is capable of.
+ * @param {string} action - The AVTransport action to perform.
+ * @param {object} serverSettings - The server settings object.
+ * @returns {object} The restulting object of the action (or null).
+ */
+const callDeviceAction = (io, action, serverSettings) => {
+    log("callDeviceAction()", action);
+
+    if (serverSettings.selectedDevice.location &&
+        serverSettings.selectedDevice.actions.includes(action)) {
+
+        let options = { InstanceID: 0 }; // Always required
+        if (action === "Play") { options.Speed = 1 }; // Required for the Play action
+
+        const client = module.exports.createClient(serverSettings.selectedDevice.location);
+        client.callAction(
+            "AVTransport",
+            action,
+            options,
+            (err, result) => { // Callback
+                if (err) {
+                    log("callDeviceAction()", "UPNP Error", err);
+                }
+                else {
+                    log("callDeviceAction()", "Result", action, result);
+                    io.emit("device-action", action, result)
+                }
+            }
+        );
+
+    }
+    else {
+        log("callDeviceAction()", "Device action cannot be executed!");
+    };
+
 }
 
 module.exports = {
     createClient,
-    callAction,
     startState,
     startMetadata,
     stopPolling,
     updateDeviceState,
-    updateDeviceMetadata
+    updateDeviceMetadata,
+    callDeviceAction
 };

@@ -55,15 +55,24 @@ WNP.setUIListeners = function () {
     var toastBootstrap = bootstrap.Toast.getOrCreateInstance(liveToast)
 
     btnPrev.addEventListener("click", function () {
-        toastBootstrap.show()
+        toastBootstrap.show();
+        console.log(this)
+        var wnpAction = this.getAttribute("wnp-action");
+        if (wnpAction) { socket.emit("device-action", wnpAction); }
     });
 
     btnPlay.addEventListener("click", function () {
-        toastBootstrap.show()
+        var wnpAction = this.getAttribute("wnp-action");
+        if (wnpAction) { 
+            this.disabled = true;
+            socket.emit("device-action", wnpAction); 
+        }
     });
 
     btnNext.addEventListener("click", function () {
-        toastBootstrap.show()
+        toastBootstrap.show();
+        var wnpAction = this.getAttribute("wnp-action");
+        if (wnpAction) { socket.emit("device-action", wnpAction); }
     });
 
     // btnDevices.addEventListener("click", function () {
@@ -197,25 +206,31 @@ WNP.setSocketDefinitions = function () {
         progressPercent.children[0].setAttribute("style", "width:" + playerProgress.percent + "%");
 
         // Player transport state changed...
-        // Did the device start playing? Maybe fetch some new metadata.
-        if (WNP.d.prevTransportState != msg.CurrentTransportState) {
+        if (WNP.d.prevTransportState !== msg.CurrentTransportState) {
+            if (msg.CurrentTransportState === "TRANSITIONING") {
+                btnPlay.children[0].classList.remove("bi-play-circle-fill", "bi-pause-circle-fill", "bi-stop-circle-fill");
+                btnPlay.children[0].classList.add("bi-circle-fill");
+                btnPlay.disabled = true;
+            };
             if (msg.CurrentTransportState === "PLAYING") {
-                // TransportState changed to PLAYING! -> Should fetch new metadata immediately...
-                btnPlay.children[0].classList.remove("bi-play-circle-fill")
+                // TODO: TransportState changed to PLAYING! -> Should fetch new metadata immediately...
+                btnPlay.children[0].classList.remove("bi-play-circle-fill", "bi-pause-circle-fill", "bi-stop-circle-fill", "bi-soundwave");
                 if (msg.PlayMedium && msg.PlayMedium === "RADIO-NETWORK") {
-                    btnPlay.children[0].classList.remove("bi-pause-circle-fill");
                     btnPlay.children[0].classList.add("bi-stop-circle-fill");
+                    btnPlay.setAttribute("wnp-action", "Stop")
                 }
                 else {
-                    btnPlay.children[0].classList.remove("bi-stop-circle-fill");
                     btnPlay.children[0].classList.add("bi-pause-circle-fill");
+                    btnPlay.setAttribute("wnp-action", "Pause")
                 }
+                btnPlay.disabled = false;
             }
             else if (msg.CurrentTransportState === "PAUSED_PLAYBACK" || msg.CurrentTransportState === "STOPPED") {
-                btnPlay.children[0].classList.remove("bi-pause-circle-fill");
-                btnPlay.children[0].classList.remove("bi-stop-circle-fill");
+                btnPlay.children[0].classList.remove("bi-pause-circle-fill", "bi-stop-circle-fill", "bi-soundwave");
                 btnPlay.children[0].classList.add("bi-play-circle-fill");
-            }
+                btnPlay.setAttribute("wnp-action", "Play")
+                btnPlay.disabled = false;
+            };
             WNP.d.prevTransportState = msg.CurrentTransportState; // Remember the last transport state
         }
 

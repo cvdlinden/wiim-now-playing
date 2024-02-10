@@ -106,7 +106,6 @@ const setDevice = (io, deviceList, deviceInfo, serverSettings, location) => {
     else {
         log("Selected device not in found list!");
         // TODO: Should there be feedback to the clients?
-        // io.emit("device-set", null);
     }
 }
 
