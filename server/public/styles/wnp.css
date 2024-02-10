@@ -68,7 +68,7 @@
     background-repeat: no-repeat;
     background-size: cover;
     /* Add the blur effect */
-    filter: blur(20px) brightness(.5) opacity(0.5);
+    filter: blur(10px) brightness(.6) opacity(0.6);
     /* Zoom in */
     transform: scale(1.25);
 }
