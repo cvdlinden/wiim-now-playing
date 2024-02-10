@@ -29,14 +29,17 @@
             <div class="wnpMediaInfo">
                 <div id="mediaSource">{SOURCE}</div>
                 <h2 id="mediaTitle">{SONG}</h2>
-                <div class="mb-2"><span id="mediaArtist">{ARTIST}, </span><span id="mediaAlbum">{ALBUM TITLE}</span></div>
+                <div class="mb-2"><span id="mediaArtist">{ARTIST}, </span><span id="mediaAlbum">{ALBUM TITLE}</span>
+                </div>
                 <div class="mb-2"><span id="mediaSubTitle" class="text-secondary">{SUBTITLE}</span></div>
-                <div class="text-secondary mb-1"><span id="mediaQualityIdent" class="badge badge-outlined"><i class="bi bi-soundwave"></i></span><span
-                        id="mediaBitRate">{xxx kbps}, </span><span id="mediaBitDepth">{yy
+                <div class="text-secondary mb-1"><span id="mediaQualityIdent" class="badge badge-outlined"><i
+                            class="bi bi-soundwave"></i></span><span id="mediaBitRate">{xxx kbps}, </span><span
+                        id="mediaBitDepth">{yy
                         bits}, </span><span id="mediaSampleRate">{zz,z kHz}</span></div>
             </div>
             <div class="wnpAlbumArt">
-                <img id="albumArt" class="rounded" src="img/fake-album-1.png" onerror="this.src = WNP.s.rndAlbumArtUri" alt="Album art">
+                <img id="albumArt" class="rounded" src="img/fake-album-1.png" onerror="this.src = WNP.s.rndAlbumArtUri"
+                    alt="Album art">
             </div>
             <div class="wnpFooter">
                 <div class="text-center">
@@ -57,7 +60,8 @@
                                 <i class="bi bi-shuffle"></i>
                             </button>
                             <!-- Skip to start|Previous -->
-                            <button id="btnPrev" type="button" class="btn btn-outline-light" wnp-action="Previous" disabled>
+                            <button id="btnPrev" type="button" class="btn btn-outline-light" wnp-action="Previous"
+                                disabled>
                                 <i class="bi bi-skip-start-fill"></i>
                             </button>
                             <!-- Play|Pause|Stop -->
@@ -96,39 +100,46 @@
             <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLabel">Now Playing Settings</h5>
+                        <h5 class="modal-title" id="exampleModalLabel">Settings</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
 
                         <!-- Device selection -->
-                        <label for="deviceChoices" class="form-label">Select a device:</label>
-                        <div class="input-group">
-                            <select id="deviceChoices" class="form-select">
-                                <option disabled="disabled">Waiting for devices...</option>
-                            </select>
-                            <div class="input-group-append">
-                                <button id="btnRefresh" class="btn btn-outline-secondary" type="button">Refresh
-                                    devices</button>
+                        <div class="mb-3">
+                            <label for="deviceChoices" class="form-label">Select a device:</label>
+                            <div class="input-group">
+                                <select id="deviceChoices" class="form-select">
+                                    <option disabled="disabled">Waiting for devices...</option>
+                                </select>
+                                <div class="input-group-append">
+                                    <button id="btnRefresh" class="btn btn-outline-secondary" type="button">Refresh
+                                        devices</button>
+                                </div>
+                            </div>
+                            <div class="form-text">
+                                If you can't find your WiiM device, make sure that it is turned on, on the same network
+                                and
+                                press 'Refresh devices'. Please wait for the devices to be discovered.
                             </div>
                         </div>
-                        <div class="form-text">
-                            If you can't find your WiiM device, make sure that it is turned on, on the same network and
-                            press 'Refresh devices'. Please wait for the devices to be discovered.
-                        </div>
 
-                        <label class="form-label">Server actions:</label>
-                        <div class="btn-group" role="group" aria-label="Server actions">
-                            <button id="btnReboot" class="btn btn-secondary" disabled>Reboot server</button>
-                            <button id="btnShutdown" class="btn btn-secondary" disabled>Shutdown server</button>
-                            <button id="btnReloadUI" class="btn btn-secondary">Reload UI</button>
-                        </div>
-                        <div class="form-text">
-                            <strong>Reboot server</strong>: Will reboot the server, just wait for it to come back up.
-                            (Raspberry Pi only)<br />
-                            <strong>Shutdown server</strong>: Will shutdown the server. Wait for it to shut down
-                            completely before unplugging the power. (Raspberry Pi only)<br />
-                            <strong>Reload UI</strong>: Will refresh the browser. In case it is no longer reponsive.
+                        <!-- Server actions -->
+                        <div class="mb-3">
+                            <label class="form-label">Server actions:</label>
+                            <div class="btn-group" role="group" aria-label="Server actions">
+                                <button id="btnReboot" class="btn btn-secondary" disabled>Reboot server</button>
+                                <button id="btnShutdown" class="btn btn-secondary" disabled>Shutdown server</button>
+                                <button id="btnReloadUI" class="btn btn-secondary">Reload UI</button>
+                            </div>
+                            <div class="form-text">
+                                <strong>Reboot server</strong>: Will reboot the server, just wait for it to come back
+                                up.
+                                (Raspberry Pi only)<br />
+                                <strong>Shutdown server</strong>: Will shutdown the server. Wait for it to shut down
+                                completely before unplugging the power. (Raspberry Pi only)<br />
+                                <strong>Reload UI</strong>: Will refresh the browser. In case it is no longer responsive.
+                            </div>
                         </div>
 
                     </div>
