@@ -51,11 +51,7 @@ WNP.Init = function () {
 WNP.setUIListeners = function () {
     console.log("WNP", "Set UI Listeners...")
 
-    // Temporary not implemented message
-    // var toastBootstrap = bootstrap.Toast.getOrCreateInstance(liveToast)
-
     btnPrev.addEventListener("click", function () {
-        // toastBootstrap.show();
         var wnpAction = this.getAttribute("wnp-action");
         if (wnpAction) {
             this.disabled = true;
@@ -78,10 +74,6 @@ WNP.setUIListeners = function () {
             socket.emit("device-action", wnpAction);
         }
     });
-
-    // btnDevices.addEventListener("click", function () {
-    //     socket.emit("devices-get");
-    // });
 
     btnRefresh.addEventListener("click", function () {
         socket.emit("devices-refresh");

@@ -32,6 +32,7 @@ const createClient = (rendererUri) => {
 
 /**
  * This function starts the polling for the selected device state.
+ * @param {object} io - The Socket.IO object to emit to clients.
  * @param {object} deviceInfo - The device info object.
  * @param {object} serverSettings - The server settings object.
  * @returns {interval} Interval reference.
@@ -50,6 +51,7 @@ const startState = (io, deviceInfo, serverSettings) => {
 
 /**
  * This function starts the polling for the selected device metadata.
+ * @param {object} io - The Socket.IO object to emit to clients.
  * @param {object} deviceInfo - The device info object.
  * @param {object} serverSettings - The server settings object.
  * @returns {interval} Interval reference.
@@ -78,7 +80,11 @@ const stopPolling = (interval, name) => {
 }
 
 /**
- * This function ...
+ * This function fetches the current device state (GetTransportInfo).
+ * @param {object} io - The Socket.IO object to emit to clients.
+ * @param {object} deviceInfo - The device info object.
+ * @param {object} serverSettings - The server settings object.
+ * @returns {interval} Interval reference.
  */
 const updateDeviceState = (io, deviceInfo, serverSettings) => {
     log("updateDeviceState()");
@@ -127,7 +133,11 @@ const updateDeviceState = (io, deviceInfo, serverSettings) => {
 }
 
 /**
- * This function ...
+ * This function fetches the current device metadate (GetInfoEx or GetPositionInfo).
+ * @param {object} io - The Socket.IO object to emit to clients.
+ * @param {object} deviceInfo - The device info object.
+ * @param {object} serverSettings - The server settings object.
+ * @returns {interval} Interval reference.
  */
 const updateDeviceMetadata = (io, deviceInfo, serverSettings) => {
     log("updateDeviceMetadata()")
@@ -158,19 +168,10 @@ const updateDeviceMetadata = (io, deviceInfo, serverSettings) => {
                                     else {
                                         /**
                                          * Possible values
-                                         * 
                                          * PlayMedium: SONGLIST-NETWORK, RADIO-NETWORK, STATION-NETWORK, CAST, AIRPLAY, SPOTIFY, OPTICAL, LINE-IN, HDMI, BLUETOOTH, UNKOWN
                                          * PlayMedia: NONE, STATION-NETWORK, SONGLIST-NETWORK, SONGLIST-LOCAL, SONGLIST-LOCAL_TF, THIRD-DLNA,AIRPLAY, UNKNOWN
                                          * CurrentTransportState : PLAYING, STOPPED, PLAYING, PAUSED_PLAYBACK, TRANSITIONING, NO_MEDIA_PRESENT
                                          * TrackSource : Prime, Qobuz, Spotify:..., newTuneIn, iHeartRadio, Deezer, UPnPServer, Tidal, vTuner
-                                         *
-                                         * LoopMode :
-                                         * repeat / no shuffle 0
-                                         * repeat 1 / no shuffle 1
-                                         * repeat / shuffle 2
-                                         * no repeat / shuffle 3
-                                         * no repeat / no shuffle 4
-                                         * repeat 1 / shuffle 5
                                          */
 
                                         deviceInfo.metadata = {
