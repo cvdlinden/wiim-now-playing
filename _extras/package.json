@@ -1,0 +1,15 @@
+{
+  "name": "_extras",
+  "version": "1.0.0",
+  "description": "{Work in progress}",
+  "main": "test-ssdp.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "csv-stringify": "^6.4.5"
+  }
+}
