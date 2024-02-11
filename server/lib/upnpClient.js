@@ -339,7 +339,7 @@ const getDeviceDescription = (deviceList, serverSettings, respSSDP) => {
 }
 
 /**
- * This function gets the device description.
+ * This function gets the device service description.
  * @param {array} deviceList - The array of found device objects.
  * @param {object} serverSettings - The server settings object.
  * @param {object} deviceClient - The device client connection object. Not the same as the global UPnP client connection!
