@@ -6,13 +6,16 @@
   - [x] Create express server
   - [x] Create basic webpage and test functionality (debug page)
   - [x] Create SSDP discovery to find eligible media renderers
-  - [x] Create UPNP client to talk to media renderers
+  - [x] Create UPnP client to talk to media renderers
   - [x] Create Socket.IO to have realtime updates with client
   - [x] Use storage on server to remember app settings
   - [x] Make device switchable
   - [x] Create an app to talk to server and show/handle info dynamically
   - [x] Implement Play/Pause functionality (CallAction method).
   - [x] Force state/metadata refresh when required. I.e. switching sources, switching devices, TransportState changes, ...
+  - [x] Persistence of upnp client? Currently recreating for every call. Is this bothersome?
+  - [x] Rethink device discovery and handling of found devices. (ssdp.js > upnpClient.js)
+  - [x] Rework/refactor some functionality to async/await/callbacks/Promise. Too many setTimeouts for comfort.
   - [ ] ...
   - ~~Use cookies to remember client settings~~
   - ~~Use JSDoc for documentation generation?~~
@@ -29,12 +32,8 @@
 
 TODOs:
 
-- Rework/refactor some functionality to async/await/callbacks/Promise. Too many setTimeouts for comfort.
-- Rethink device discovery and handling of found devices. (ssdp.js > upnpClient.js)
-
 - Contingencies for when devices become unavailable? Network dropoffs/resets?
-- Persistence of upnp client? Currently recreating for every call. Is this bothersome?
 - Check more streaming sources to make sense of their metadata.
 - What kind of data is available when using other inputs on the WiiM Amp? Line In, Optical, HDMI, Bluetooth
-- Also make use of OpenHome devices?
+- Also make use of OpenHome devices? Discovery possible, not yet implemented.
 - Subscription to WiiM devices apparently doesn't work?

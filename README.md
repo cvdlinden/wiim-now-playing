@@ -2,7 +2,7 @@
 
 Show what the WiiM device is currently playing on a separate screen.
 
-> In design/dev phase
+> In dev/test phase!
 
 ![Preview screenshot](./assets/Screenshot%202024-02-10%20060442.png)  
 *Preview screenshot*

@@ -33,7 +33,8 @@ const port = 80; // Port 80 is the default www port, if the server won't start t
 let deviceList = []; // Placeholder for found devices through SSDP
 let deviceInfo = { // Placeholder for the currently selected device info
     state: null, // Keeps the device state updates
-    metadata: null // Keeps the device metadata updates
+    metadata: null, // Keeps the device metadata updates
+    client: null // Keeps the UPnP client object
 };
 let serverSettings = { // Placeholder for current server settings
     "selectedDevice": { // The selected device properties, a placeholder for now. Will be filled once a (default) device selection has been made.
@@ -68,14 +69,14 @@ ssdp.scan(deviceList, serverSettings);
 // Due to wifi initialisation delay the scan may have failed.
 // Not aware of a method of knowing whether wifi connection has been established fully.
 setTimeout(() => {
-    // Start new scan
+    // Start new scan, if first scan failed...
     if (deviceList.length === 0) {
         ssdp.scan(deviceList, serverSettings);
+        // The client may not be aware of any devices and have an empty list, waiting for rescan results and send the device list again
+        setTimeout(() => {
+            sockets.getDevices(io, deviceList);
+        }, serverSettings.timeouts.metadata)
     }
-    // Client may not be aware of any devices and have an empty list, wait a bit and let them know regardless
-    setTimeout(() => {
-        sockets.getDevices(io, deviceList);
-    }, serverSettings.timeouts.metadata)
 }, serverSettings.timeouts.rescan);
 
 // ===========================================================================
@@ -107,10 +108,10 @@ io.on("connection", (socket) => {
     else if (io.sockets.sockets.size >= 1) {
         // If new client, send current state and metadata 'immediately'
         // When sending directly after a reboot things get wonky
-        setTimeout(() => {
-            socket.emit("state", deviceInfo.state);
-            socket.emit("metadata", deviceInfo.metadata);
-        }, serverSettings.timeouts.immediate)
+        // setTimeout(() => {
+        socket.emit("state", deviceInfo.state);
+        socket.emit("metadata", deviceInfo.metadata);
+        // }, serverSettings.timeouts.immediate)
     }
 
     /**
