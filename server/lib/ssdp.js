@@ -12,7 +12,6 @@
 const SSDP = require('node-ssdp').Client
 
 // Other modules
-const lib = require("./lib.js"); // Generic functionality
 const upnp = require("./upnpClient.js"); // UPnP Client functionality
 const log = require("debug")("lib:ssdp");
 
