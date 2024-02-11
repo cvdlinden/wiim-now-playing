@@ -377,7 +377,8 @@ WNP.getPlayerProgress = function (relTime, trackDuration, timeStampDiff) {
     var relTimeSec = this.convertToSeconds(relTime) + timeStampDiff;
     var trackDurationSec = this.convertToSeconds(trackDuration);
     if (trackDurationSec > 0 && relTimeSec < trackDurationSec) {
-        var percentPlayed = Math.floor(relTimeSec / (trackDurationSec / 100));
+        // var percentPlayed = Math.floor((relTimeSec / trackDurationSec) * 100);
+        var percentPlayed = ((relTimeSec / trackDurationSec) * 100).toFixed(1);
         return {
             played: WNP.convertToMinutes(relTimeSec),
             left: WNP.convertToMinutes(trackDurationSec - relTimeSec),
