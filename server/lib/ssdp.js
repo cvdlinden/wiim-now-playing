@@ -46,7 +46,7 @@ const scan = (deviceList, serverSettings) => {
 
     });
 
-    // Start a search
+    // Start a UPnP/DLNA search
     // ssdpClient.search('ssdp:all'); // Search all devices
     // ssdpClient.search("urn:schemas-upnp-org:device:MediaRenderer"); // Search for MediaRenderer devices
     ssdpClient.search("urn:schemas-upnp-org:service:AVTransport:1"); // Search for AVTransport enabled devices

@@ -326,7 +326,6 @@ const getDeviceDescription = (deviceList, serverSettings, respSSDP) => {
             log("getDeviceDescription()", deviceDesc.friendlyName, deviceDesc.deviceType);
 
             if (deviceDesc.services["urn:upnp-org:serviceId:AVTransport"]) { // Does it support AVTransport?
-                // Get the device's AVTransport service description
                 getServiceDescription(deviceList, serverSettings, deviceClient, respSSDP, deviceDesc);
             }
             else { // OpenHome device?
@@ -339,6 +338,15 @@ const getDeviceDescription = (deviceList, serverSettings, respSSDP) => {
 
 }
 
+/**
+ * This function gets the device description.
+ * @param {array} deviceList - The array of found device objects.
+ * @param {object} serverSettings - The server settings object.
+ * @param {object} deviceClient - The device client connection object. Not the same as the global UPnP client connection!
+ * @param {object} respSSDP - The SSDP search response object.
+ * @param {object} deviceDesc - The device description object, found by getDeviceDescription.
+ * @returns {object} The restulting object of the action (or null).
+ */
 const getServiceDescription = (deviceList, serverSettings, deviceClient, respSSDP, deviceDesc) => {
     // log("getServiceDescription()");
 
@@ -366,7 +374,6 @@ const getServiceDescription = (deviceList, serverSettings, deviceClient, respSSD
                     "modelName": device.modelName,
                     "location": device.location,
                     "actions": Object.keys(device.actions)
-                    // "actions": Object.keys(serviceDesc.actions)
                 };
                 lib.saveSettings(serverSettings); // Make sure the settings are stored
             };
