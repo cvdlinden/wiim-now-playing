@@ -69,14 +69,14 @@ ssdp.scan(deviceList, serverSettings);
 // Due to wifi initialisation delay the scan may have failed.
 // Not aware of a method of knowing whether wifi connection has been established fully.
 setTimeout(() => {
-    // Start new scan
+    // Start new scan, if first scan failed...
     if (deviceList.length === 0) {
         ssdp.scan(deviceList, serverSettings);
+        // The client may not be aware of any devices and have an empty list, waiting for rescan results and send the device list again
+        setTimeout(() => {
+            sockets.getDevices(io, deviceList);
+        }, serverSettings.timeouts.metadata)
     }
-    // Client may not be aware of any devices and have an empty list, wait a bit and let them know regardless
-    setTimeout(() => {
-        sockets.getDevices(io, deviceList);
-    }, serverSettings.timeouts.metadata)
 }, serverSettings.timeouts.rescan);
 
 // ===========================================================================
@@ -109,8 +109,8 @@ io.on("connection", (socket) => {
         // If new client, send current state and metadata 'immediately'
         // When sending directly after a reboot things get wonky
         // setTimeout(() => {
-            socket.emit("state", deviceInfo.state);
-            socket.emit("metadata", deviceInfo.metadata);
+        socket.emit("state", deviceInfo.state);
+        socket.emit("metadata", deviceInfo.metadata);
         // }, serverSettings.timeouts.immediate)
     }
 

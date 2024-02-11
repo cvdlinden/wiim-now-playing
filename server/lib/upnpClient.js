@@ -2,17 +2,17 @@
 // upnpClient.js
 
 /**
- * UPNP functionality module - ASYNC!!!
+ * UPnP functionality module - ASYNC!!!
  *
  * NOTE! We can't do a subscription on events as WiiM does not send any state variables (other than advertised LastChange).
  * Furthermore, the WiiM device really doesn't like setting up a subscription and will behave erratically -> Reboot WiiM
  * Seems we're bound to polling the current state every second or so.
- * TODO: Ask WiiM to implement UPNP subscriptions?
+ * TODO: Ask WiiM to implement UPnP subscriptions?
  * @module
  */
 
 // Use upnp-device-client module
-const UPNP = require("upnp-device-client");
+const UPnP = require("upnp-device-client");
 
 // Other modules
 const xml2js = require("xml2js");
@@ -26,8 +26,8 @@ const log = require("debug")("lib:upnpClient");
  */
 // TODO: We're creating lots of new clients, can we have a global UPnP Client?
 const createClient = (rendererUri) => {
-    log("createClient", rendererUri);
-    return new UPNP(rendererUri);
+    log("createClient()", rendererUri);
+    return new UPnP(rendererUri);
 }
 
 /**
@@ -290,7 +290,7 @@ const callDeviceAction = (io, action, deviceInfo, serverSettings) => {
             options,
             (err, result) => { // Callback
                 if (err) {
-                    log("callDeviceAction()", "UPNP Error", err);
+                    log("callDeviceAction()", "UPnP Error", err);
                 }
                 else {
                     log("callDeviceAction()", "Result", action, result);
@@ -309,6 +309,73 @@ const callDeviceAction = (io, action, deviceInfo, serverSettings) => {
 
 }
 
+/**
+ * This function gets the device description.
+ * @param {array} deviceList - The array of found device objects.
+ * @param {object} serverSettings - The server settings object.
+ * @param {object} respSSDP - The SSDP search response object.
+ * @returns {object} The restulting object of the action (or null).
+ */
+const getDeviceDescription = (deviceList, serverSettings, respSSDP) => {
+    // log("getDeviceDescription()");
+
+    const deviceClient = createClient(respSSDP.LOCATION);
+    deviceClient.getDeviceDescription(function (err, deviceDesc) {
+        if (err) { log("getDeviceDescription()", "Error", err); }
+        else {
+            log("getDeviceDescription()", deviceDesc.friendlyName, deviceDesc.deviceType);
+
+            if (deviceDesc.services["urn:upnp-org:serviceId:AVTransport"]) { // Does it support AVTransport?
+                // Get the device's AVTransport service description
+                getServiceDescription(deviceList, serverSettings, deviceClient, respSSDP, deviceDesc);
+            }
+            else { // OpenHome device?
+                // Get OpenHome service description...
+                log("getDeviceDescription()", "OpenHome devices not implemented yet!")
+            };
+
+        };
+    });
+
+}
+
+const getServiceDescription = (deviceList, serverSettings, deviceClient, respSSDP, deviceDesc) => {
+    // log("getServiceDescription()");
+
+    deviceClient.getServiceDescription('AVTransport', function (err, serviceDesc) {
+        if (err) { log("getServiceDescription()", "Error", err); }
+        else {
+
+            const device = {
+                location: respSSDP.LOCATION,
+                ...deviceDesc,
+                actions: serviceDesc.actions,
+                ssdp: respSSDP
+            };
+            deviceList.push(device);
+            log("getServiceDescription()", "New device added:", device.friendlyName);
+            log("getServiceDescription()", "Total devices found:", deviceList.length);
+
+            // Do we need to set the default selected device?
+            // If it is a WiiM device and no other has been selected, then yes.
+            if (!serverSettings.selectedDevice.location &&
+                (device.manufacturer.includes("Linkplay") || device.modelName.includes("WiiM"))) {
+                serverSettings.selectedDevice = {
+                    "friendlyName": device.friendlyName,
+                    "manufacturer": device.manufacturer,
+                    "modelName": device.modelName,
+                    "location": device.location,
+                    "actions": Object.keys(device.actions)
+                    // "actions": Object.keys(serviceDesc.actions)
+                };
+                lib.saveSettings(serverSettings); // Make sure the settings are stored
+            };
+
+        };
+    });
+
+}
+
 module.exports = {
     createClient,
     startState,
@@ -316,5 +383,7 @@ module.exports = {
     stopPolling,
     updateDeviceState,
     updateDeviceMetadata,
-    callDeviceAction
+    callDeviceAction,
+    getDeviceDescription,
+    getServiceDescription
 };
