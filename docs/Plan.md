@@ -16,6 +16,7 @@
   - [x] Persistence of upnp client? Currently recreating for every call. Is this bothersome?
   - [x] Rethink device discovery and handling of found devices. (ssdp.js > upnpClient.js)
   - [x] Rework/refactor some functionality to async/await/callbacks/Promise. Too many setTimeouts for comfort.
+  - [ ] Check more streaming sources to make sense of their metadata.  
   - [ ] ...
   - ~~Use cookies to remember client settings~~
   - ~~Use JSDoc for documentation generation?~~
@@ -34,8 +35,6 @@ TODOs:
 
 - Contingencies for when devices become unavailable? Network dropoffs/resets?  
   _Socket.IO already does a fine job with network interuptions_
-- Check more streaming sources to make sense of their metadata.  
-  _Get trial accounts for streaming services..._
 - What kind of data is available when using other inputs on the WiiM Amp? Line In, Optical, HDMI, Bluetooth
 - Subscription to WiiM devices apparently doesn't work?  
   _Ask WiiM/LinkPlay to implement?_
