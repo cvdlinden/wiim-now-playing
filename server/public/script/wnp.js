@@ -546,11 +546,11 @@ WNP.getQualityIdent = function (songQuality, songActualQuality, songBitrate, son
     if (songBitrate > 1000 && songBitDepth === 16 && songSampleRate === 44100) {
         sIdent = "CD";
     }
-    else if (songBitrate > 9000 && songBitDepth >= 24 && songSampleRate >= 9600) {
+    else if (songBitrate > 7000 && songBitDepth >= 24 && songSampleRate >= 96000) {
         sIdent = "Hi-Res";
     }
 
-    // Based of Tidal
+    // Based of Tidal/Amazon Music Unlimited
     switch (songQuality + ":" + songActualQuality) {
         case "2:LOSSLESS":
         case ":LOSSLESS":
@@ -562,6 +562,12 @@ WNP.getQualityIdent = function (songQuality, songActualQuality, songBitrate, son
         case "4:HI_RES_LOSSLESS":
         case ":HI_RES_LOSSLESS":
             sIdent = "FLAC";
+            break;
+        case ":UHD":
+            sIdent = "ULTRA HD";
+            break;
+        case ":HD":
+            sIdent = "HD";
             break;
     };
 

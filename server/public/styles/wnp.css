@@ -101,7 +101,7 @@
 }
 
 #mediaQualityIdent.badge-outlined {
-    border: 1px solid rgba(var(--bs-secondary-rgb), var(--bs-text-opacity));
+    border: 1px solid rgba(179, 189, 186, 1);
     font-weight: var(--bs-body-font-weight);
     margin-right: 10px;
 }
