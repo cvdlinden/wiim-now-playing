@@ -2,16 +2,19 @@
 
 Show what the WiiM device is currently playing on a separate screen.
 
-> In dev/test phase!
+> In test/dev phase!
 
-![Preview screenshot](./assets/Screenshot%202024-02-10%20060442.png)  
-*Preview screenshot*
+![Tidal High](./assets/Screenshot%202024-02-12%20022212.png)  
+*Tidal High quality*
 
-![Preview screenshot](./assets/Screenshot%202024-02-10%20060156.png)  
-*Preview screenshot*
+![Tidal Flac](./assets/Screenshot%202024-02-12%20023330.png)  
+*Tidal Flac*
 
-![Preview settings](./assets/Screenshot%202024-02-08%20044241.png)  
-*Preview settings*
+![Spotify](./assets/Screenshot%202024-02-12%20021656.png)  
+*Spotify*
+
+![Settings](./assets/Screenshot%202024-02-12%20021621.png)  
+*Settings*
 
 ## I just want it to run!
 
