@@ -32,8 +32,12 @@
 
 TODOs:
 
-- Contingencies for when devices become unavailable? Network dropoffs/resets?
-- Check more streaming sources to make sense of their metadata.
+- Contingencies for when devices become unavailable? Network dropoffs/resets?  
+  _Socket.IO already does a fine job with network interuptions_
+- Check more streaming sources to make sense of their metadata.  
+  _Get trial accounts for streaming services..._
 - What kind of data is available when using other inputs on the WiiM Amp? Line In, Optical, HDMI, Bluetooth
-- Also make use of OpenHome devices? Discovery possible, not yet implemented.
-- Subscription to WiiM devices apparently doesn't work?
+- Subscription to WiiM devices apparently doesn't work?  
+  _Ask WiiM/LinkPlay to implement?_
+- Also make use of OpenHome devices? Discovery possible, not yet implemented. See: <http://wiki.openhome.org/wiki/OhMediaDevelopers>  
+  _Implementation is totally different from WiiMs UPnP. Further research into long term storage._
