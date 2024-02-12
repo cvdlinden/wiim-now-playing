@@ -482,6 +482,7 @@ WNP.getSourceIdent = function (playMedium, trackSource) {
 
     switch (trackSource.toLowerCase()) {
         case "deezer":
+        case "deezer2":
             sIdentUri = "/img/sources/deezer.png";
             break;
         case "iheartradio":
@@ -550,7 +551,7 @@ WNP.getQualityIdent = function (songQuality, songActualQuality, songBitrate, son
         sIdent = "Hi-Res";
     }
 
-    // Based of Tidal/Amazon Music Unlimited
+    // Based of Tidal/Amazon Music Unlimited/Deezer
     switch (songQuality + ":" + songActualQuality) {
         case "2:LOSSLESS":
         case ":LOSSLESS":
@@ -561,6 +562,7 @@ WNP.getQualityIdent = function (songQuality, songActualQuality, songBitrate, son
             break;
         case "4:HI_RES_LOSSLESS":
         case ":HI_RES_LOSSLESS":
+        case "0:LOSSLESS":
             sIdent = "FLAC";
             break;
         case ":UHD":
