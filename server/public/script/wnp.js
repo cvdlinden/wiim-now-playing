@@ -551,25 +551,32 @@ WNP.getQualityIdent = function (songQuality, songActualQuality, songBitrate, son
         sIdent = "Hi-Res";
     }
 
-    // Based of Tidal/Amazon Music Unlimited/Deezer
+    // Based of Tidal/Amazon Music Unlimited/Deezer/Qobuz
     switch (songQuality + ":" + songActualQuality) {
-        case "2:LOSSLESS":
-        case ":LOSSLESS":
+        case "2:LOSSLESS": // Tidal
+        case ":LOSSLESS": // Tidal
             sIdent = "HIGH";
             break;
-        case "3:HI_RES":
+        case "3:HI_RES": // Tidal
             sIdent = "MQA";
             break;
-        case "4:HI_RES_LOSSLESS":
-        case ":HI_RES_LOSSLESS":
-        case "0:LOSSLESS":
+        case "4:HI_RES_LOSSLESS": // Tidal
+        case ":HI_RES_LOSSLESS": // Tidal
+        case "0:LOSSLESS": // Deezer
             sIdent = "FLAC";
             break;
-        case ":UHD":
+        case ":UHD": // Amazon Music
             sIdent = "ULTRA HD";
             break;
         case ":HD":
-            sIdent = "HD";
+            sIdent = "HD"; // Amazon Music
+            break;
+        case "3:7":
+        case "4:27":
+            sIdent = "Hi-Res"; // Qobuz
+            break;
+        case "2:6":
+            sIdent = "CD"; // Qobuz
             break;
     };
 
