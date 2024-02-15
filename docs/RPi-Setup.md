@@ -99,8 +99,9 @@ First we will configure and update the Raspberry Pi itself.
 4. Whether you need to set anything from **2 Display Options** or **3 Interface Options** is up to your specific hardware. Normally you would not need to set anything here. The same goes for options 4 and 5.  
    _However I've had one instance that I needed to set the 'WLAN Country' (under the Localisation Options) 2 times before it remembered it correctly and accepted the WiFi connection._
 5. Under **6 Advanced Options** you may want to use **A1 Expand Filesystem**, in order for the entire capacity of the SD card to be recognised after reboot.
-6. Choose **8 Update** to get all of the latest updates to the system, while you're at it.
-7. Finally select Finish (arrow right key) and press Enter.
+6. While you're in **6 Advanced Options**, also visit **A6 Wayland** and choose **W1 X11**. The new Wayfire window manager really does not play nice yet with what we want, a kiosk device. This may change in the future!
+7. Choose **8 Update** to get all of the latest updates to the system, while you're at it.
+8. Finally select Finish (arrow right key) and press Enter.
 
 Maybe now is a good time to do a reboot of the RPi. Type at the command prompt:
 
@@ -337,13 +338,87 @@ Whenever the RPi reboots, i.e. due to the intentional or unintentional loss of p
 4. Use CTRL+X -> Y to confirm -> Enter to confirm the filename.  
    The change will now be implemented.
 
-To make sure, do a reboot (``sudo reboot``), wait for the RPi to come back up completely, open up a browser and point it to the RPi (i.e. ``servername.local``). It should now show you the app after each reboot.
+To make sure, do a reboot (``sudo reboot``), wait for the RPi to come back up completely, open up a browser and point it to the RPi (i.e. ``servername.local``). It should now show you the wiim-now-playing app after each reboot.
 
 If not, then redo the ``sudo crontab -e`` command to check if the rule you've set is correct.
 
+Note: If the app looks garbled in the browser, try a power cycle. Unplug the RPi completely, wait and then plug it in again.
+
 Note: In the RPi commandline you can use ``top`` or ``htop`` to see if there is a node process running. It should be on _top_ of the list.
 
-## Chromium-browser in Kiosk mode
+<!-- ## Chromium-browser in Kiosk mode
+
+Now that we've configured the RPi and the wiim-now-playing app (server part) to run every time the RPi (re)boots, we would like to show the client on the touchscreen as well.
+
+For this we need to get the chromium-browser to also start automatically in kiosk mode and point to the wiim-now-playing app.
+
+1. Make an SSH connection to the RPi.
+2. Install the chromium-browser and some basic desktop functionality (LXDE) by using the following command to install the required applications:
+
+   ```bash
+   sudo apt install chromium-browser unclutter lxde
+   ```
+
+   _Note: This will take a while..._  
+   _If your SSH connection is broken off, please wait a while before reconnecting. It also may take a power off from the RPi to return to normal operation._
+
+3. Once you can reconnect, then change the startup behaviour by opening ```sudo raspi-config```.
+4. From the menu select **1 System Options** > **S5 Boot / Auto Login**.  
+   Select **B2 Desktop Autologin** to automatically start the Desktop GUI.  
+   Finish and reboot.
+5. You will now be greeted by a desktop environment on the RPi display instead of a command prompt.
+6. Reconnect to the RPi through SSH and use the following command to edit the LXDE autostart file:
+
+   ```bash
+   sudo nano .config/lxsession/LXDE/autostart
+   ```
+
+7. Edit the autostart file by commenting out all of the lines already present.  
+   Add a line at the end like ``@/home/username/autostart.sh``.  
+   Replace username with **your** username!
+
+   ```bash
+   #@lxpanel --profile LXDE
+   #@pcmanfm --desktop --profile LXDE
+   #@xscreensaver -no-splash
+
+   @/home/username/autostart.sh
+   ```
+
+8. Then use CTRL+X -> Y to confirm -> Enter to confirm the filename.
+9. Next we will create and edit the autostart.sh file. Use:
+
+   ```bash
+   nano autostart.sh
+   ```
+
+   _Note that sudo is not required!_
+
+10. Add the following lines to the autostart.sh file:  
+
+    ```bash
+    #!/bin/bash
+
+    # Start chromium-browser in Kiosk mode
+    sed -i 's/"exited_cleanly": false/"exited_cleanly": true/' ~/.config/chromium/Default/Preferences
+    chromium-browser --app=http://localhost --kiosk --noerrdialogs --incognito --hide-scrollbars --no-first-run
+
+    exit 0
+    ```
+
+11. Then use CTRL+X -> Y to confirm -> Enter to confirm the filename.
+12. Before we do a reboot we need to make autostart.sh executable, use:
+
+    ```bash
+    chmod +x autostart.sh
+    ```
+
+13. Now do a reboot (``sudo reboot``) of the RPi.
+14. Wait for the RPi to reboot. This may take a while...
+
+Note: If the screen looks garbled, try a power cycle. Unplug the RPi completely, wait and then plug it in again. -->
+
+---
 
 Useful links to get kiosk mode working:
 
