@@ -16,7 +16,7 @@
   - [x] Persistence of upnp client? Currently recreating for every call. Is this bothersome?
   - [x] Rethink device discovery and handling of found devices. (ssdp.js > upnpClient.js)
   - [x] Rework/refactor some functionality to async/await/callbacks/Promise. Too many setTimeouts for comfort.
-  - [ ] Check more streaming sources to make sense of their metadata.  
+  - [x] Check more streaming sources to make sense of their metadata.  
   - [ ] ...
   - ~~Use cookies to remember client settings~~
   - ~~Use JSDoc for documentation generation?~~
@@ -31,7 +31,7 @@
   - Autorun Chrome in kiosk mode
   - Autorun node.js
 
-TODOs:
+(Possible) TODOs:
 
 - Contingencies for when devices become unavailable? Network dropoffs/resets?  
   _Socket.IO already does a fine job with network interuptions_
