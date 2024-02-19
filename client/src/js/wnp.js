@@ -6,8 +6,8 @@ window.WNP = window.WNP || {};
 
 // Default settings
 WNP.s = {
-    rndAlbumArtUri: "/img/fake-album-1.png",
-    rndRadioArtUri: "/img/webradio-1.png"
+    rndAlbumArtUri: "./img/fake-album-1.png",
+    rndRadioArtUri: "./img/webradio-1.png"
 };
 
 // Data placeholders.
@@ -441,7 +441,7 @@ WNP.setAlbumArt = function (imgUri) {
  * @returns {string} An URI for album art
  */
 WNP.rndAlbumArt = function (prefix) {
-    return "/img/" + prefix + this.rndNumber(1, 5) + ".png";
+    return "./img/" + prefix + this.rndNumber(1, 5) + ".png";
 };
 
 /**
@@ -467,44 +467,44 @@ WNP.getSourceIdent = function (playMedium, trackSource) {
 
     switch (playMedium.toLowerCase()) {
         case "airplay":
-            sIdentUri = "/img/sources/airplay.png";
+            sIdentUri = "./img/sources/airplay.png";
             break;
         case "cast":
-            sIdentUri = "/img/sources/chromecast.png";
+            sIdentUri = "./img/sources/chromecast.png";
             break;
         case "radio-network":
-            sIdentUri = "/img/sources/radio.png";
+            sIdentUri = "./img/sources/radio.png";
             break;
         case "spotify":
-            sIdentUri = "/img/sources/spotify.png";
+            sIdentUri = "./img/sources/spotify.png";
             break;
     };
 
     switch (trackSource.toLowerCase()) {
         case "deezer":
         case "deezer2":
-            sIdentUri = "/img/sources/deezer.png";
+            sIdentUri = "./img/sources/deezer.png";
             break;
         case "iheartradio":
-            sIdentUri = "/img/sources/iheart.png";
+            sIdentUri = "./img/sources/iheart.png";
             break;
         case "newtunein":
-            sIdentUri = "/img/sources/newtunein.png";
+            sIdentUri = "./img/sources/newtunein.png";
             break;
         case "prime":
-            sIdentUri = "/img/sources/amazon-music.png";
+            sIdentUri = "./img/sources/amazon-music.png";
             break;
         case "qobuz":
-            sIdentUri = "/img/sources/qobuz.png";
+            sIdentUri = "./img/sources/qobuz.png";
             break;
         case "tidal":
-            sIdentUri = "/img/sources/tidal.png";
+            sIdentUri = "./img/sources/tidal.png";
             break;
         case "upnpserver":
-            sIdentUri = "/img/sources/dlna.png";
+            sIdentUri = "./img/sources/dlna.png";
             break;
         case "vtuner":
-            sIdentUri = "/img/sources/vtuner.png";
+            sIdentUri = "./img/sources/vtuner.png";
             break;
     };
 
@@ -587,8 +587,8 @@ WNP.getQualityIdent = function (songQuality, songActualQuality, songBitrate, son
 // =======================================================
 // Starting the app
 
-// Init Socket.IO
-var socket = io();
+// Init Socket.IO, connect to port 80
+var socket = io.connect(':80');
 
 // Start WiiM Now Playing app
 WNP.Init();
