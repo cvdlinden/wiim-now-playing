@@ -24,6 +24,8 @@
     "nodemon": "^3.0.3"
   },
   "nodemonConfig": {
-    "ignore": ["server/*.json"]
+    "ignore": [
+      "server/*.json"
+    ]
   }
 }
