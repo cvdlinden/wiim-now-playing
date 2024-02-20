@@ -54,6 +54,9 @@ WNP.Init = function () {
 WNP.setUIListeners = function () {
     console.log("WNP", "Set UI Listeners...")
 
+    // ------------------------------------------------
+    // Player buttons
+
     btnPrev.addEventListener("click", function () {
         var wnpAction = this.getAttribute("wnp-action");
         if (wnpAction) {
@@ -77,6 +80,9 @@ WNP.setUIListeners = function () {
             socket.emit("device-action", wnpAction);
         }
     });
+
+    // ------------------------------------------------
+    // Settings buttons
 
     btnRefresh.addEventListener("click", function () {
         socket.emit("devices-refresh");
@@ -139,7 +145,7 @@ WNP.setSocketDefinitions = function () {
         WNP.d.deviceList.sort((a, b) => { return (a.friendlyName < b.friendlyName) ? -1 : 1 });
 
         // Clear choices
-        deviceChoices.innerHTML = "";
+        deviceChoices.innerHTML = "<option value=\"\">Select a device...</em></li>";
 
         // Add WiiM devices
         var devicesWiiM = WNP.d.deviceList.filter((d) => { return d.manufacturer.startsWith("Linkplay") });
