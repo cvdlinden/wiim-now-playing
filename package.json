@@ -25,7 +25,8 @@
   },
   "nodemonConfig": {
     "ignore": [
-      "server/*.json"
+      "server/*.json",
+      "client/**"
     ]
   }
 }

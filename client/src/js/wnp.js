@@ -24,6 +24,9 @@ WNP.d = {
 WNP.Init = function () {
     console.log("WNP", "Initialising...");
 
+    // Init Socket.IO, connect to port 80
+    window.socket = io.connect(':80');
+    
     // Set Socket.IO definitions
     this.setSocketDefinitions();
 
@@ -585,10 +588,5 @@ WNP.getQualityIdent = function (songQuality, songActualQuality, songBitrate, son
 };
 
 // =======================================================
-// Starting the app
-
-// Init Socket.IO, connect to port 80
-var socket = io.connect(':80');
-
 // Start WiiM Now Playing app
 WNP.Init();
