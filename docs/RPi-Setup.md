@@ -424,8 +424,13 @@ For this we need to get the chromium-browser to also start automatically in kios
 
     ![Chrome Kiosk](../assets/IMG_3693.jpg)
 
-    _Note: If the screen looks garbled, wait a while for it to settle. Or try a power cycle by unplugging the RPi completely, wait and then plug it in again._  
-    _It may also help to have the RPi connected through an Ethernet cable._
+Troubleshooting:
+
+- If the screen looks garbled, wait a little while for it to settle.  
+  Or try a power cycle by unplugging the RPi completely, wait and then plug it in again.
+- It may also help to have the RPi connected through an Ethernet cable. WiFi initalisation is much slower than an ethernet connection.
+- Try and add a ``sleep`` in front of the chromium browser line, like ``sleep 5 & chromium-browser ...``.  
+  This will delay the start of the browser in order to let the OS settle first.
 
 ### Screensaver
 
