@@ -1,2 +1,0 @@
-html{min-height:100%}body{color:#fff;background-color:#333;background-image:linear-gradient(#033536,#010c12);min-height:100%;font-family:arial,sans-serif}#albumArt{border-radius:5px;max-height:120px}.tick{opacity:.1}.tickDown{color:red}.tickUp{color:#0f0}.tickAnimate{animation:.3s forwards blink}@keyframes blink{0%{opacity:1}50%{opacity:.3}to{opacity:.2}}
-/*# sourceMappingURL=debug.4aebd7a8.css.map */

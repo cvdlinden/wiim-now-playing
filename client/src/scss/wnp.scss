@@ -11,7 +11,6 @@
     overflow: hidden;
     background: rgb(1, 12, 18);
     background: linear-gradient(0deg, rgba(1, 12, 18, 1) 0%, rgba(3, 53, 54, 1) 50%, rgba(40, 67, 74, 1) 100%);
-    color: #fff;
 
     .text-secondary {
         color: rgba(179, 189, 186, 1) !important;
@@ -34,6 +33,7 @@
         width: 100%;
         height: 100%;
         overflow: hidden;
+        color: #fff;
     }
 
     /* CSS Grid areas */
@@ -54,59 +54,90 @@
         padding: 0 30px;
     }
 
+    /* Layout - CSS Grid */
+    /* Portrait mode */
+    @media screen and (max-width:500px) {
+
+        .wnpContainer {
+            display: grid;
+            grid-template-columns: 1fr;
+            grid-template-rows: 2fr 1fr 140px;
+            gap: 0px 0px;
+            grid-template-areas:
+                "wnpAlbumArt"
+                "wnpMediaInfo"
+                "wnpFooter";
+        }
+
+        .wnpMediaInfo {
+            padding: 0 30px;
+        }
+
+    }
+
     /* Background Album Art */
     #wnpBgAlbumArt {
+
         position: absolute;
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
         overflow: hidden;
-    }
 
-    #bgAlbumArtBlur {
-        height: 100%;
-        /* Center and scale the image nicely */
-        background-image: url("../img/fake-album-1.png");
-        background-position: center;
-        background-repeat: no-repeat;
-        background-size: cover;
-        /* Add the blur effect */
-        filter: blur(12px) brightness(.6) opacity(0.6);
-        /* Zoom in */
-        transform: scale(1.25);
-    }
-
-    /* Album Art */
-    #albumArt {
-        object-fit: contain;
-        max-width: 100%;
-        max-height: 100%;
-        box-shadow: 3px 3px 16px rgba(0, 0, 0, .75);
-    }
-
-    /* Media info */
-    .wnpMediaInfo {
-        text-shadow: 3px 3px 8px rgba(0, 0, 0, .75);
-    }
-
-    #mediaSource {
-        text-align: center;
-
-        img {
-            max-height: 16px;
-            margin-bottom: 15px;
-            filter: invert(1);
+        #bgAlbumArtBlur {
+            height: 100%;
+            /* Center and scale the image nicely */
+            background-image: url("../img/fake-album-1.png");
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
+            /* Add the blur effect */
+            filter: blur(12px) brightness(.6) opacity(0.6);
+            /* Zoom in */
+            transform: scale(1.25);
         }
 
     }
 
-    #mediaQualityIdent {
+    /* Album Art */
+    .wnpAlbumArt {
 
-        &.badge-outlined {
-            border: 1px solid rgba(179, 189, 186, 1);
-            font-weight: var(--bs-body-font-weight);
-            margin-right: 10px;
+        #albumArt {
+            object-fit: contain;
+            max-width: 100%;
+            max-height: 100%;
+            box-shadow: 3px 3px 16px rgba(0, 0, 0, .75);
+        }
+
+    }
+
+    /* Media info */
+    .wnpMediaInfo {
+
+        text-shadow: 3px 3px 8px rgba(0, 0, 0, .75);
+
+        // Media Source Ident
+        #mediaSource {
+            text-align: center;
+
+            img {
+                max-height: 16px;
+                margin-bottom: 15px;
+                filter: invert(1);
+            }
+
+        }
+
+        // Media Quality Ident
+        #mediaQualityIdent {
+
+            &.badge-outlined {
+                border: 1px solid rgba(179, 189, 186, 1);
+                font-weight: var(--bs-body-font-weight);
+                margin-right: 10px;
+            }
+
         }
 
     }
@@ -159,32 +190,6 @@
             top: 5px;
             right: 15px;
             border: none;
-        }
-
-    }
-
-    /* Modals */
-    .modal {
-        color: #000;
-    }
-
-    /* Layout - CSS Grid */
-    /* Portrait mode */
-    @media screen and (max-width:500px) {
-
-        .wnpContainer {
-            display: grid;
-            grid-template-columns: 1fr;
-            grid-template-rows: 2fr 1fr 140px;
-            gap: 0px 0px;
-            grid-template-areas:
-                "wnpAlbumArt"
-                "wnpMediaInfo"
-                "wnpFooter";
-        }
-
-        .wnpMediaInfo {
-            padding: 0 30px;
         }
 
     }
