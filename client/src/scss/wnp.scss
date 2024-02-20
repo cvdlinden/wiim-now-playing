@@ -92,66 +92,75 @@
 
     #mediaSource {
         text-align: center;
+
+        img {
+            max-height: 16px;
+            margin-bottom: 15px;
+            filter: invert(1);
+        }
+
     }
 
-    #mediaSource img {
-        max-height: 16px;
-        margin-bottom: 15px;
-        filter: invert(1);
-    }
+    #mediaQualityIdent {
 
-    #mediaQualityIdent.badge-outlined {
-        border: 1px solid rgba(179, 189, 186, 1);
-        font-weight: var(--bs-body-font-weight);
-        margin-right: 10px;
+        &.badge-outlined {
+            border: 1px solid rgba(179, 189, 186, 1);
+            font-weight: var(--bs-body-font-weight);
+            margin-right: 10px;
+        }
+
     }
 
     /* Footer */
-    .wnpFooter #progressPercent {
-        --bs-bg-opacity: .5;
-    }
+    .wnpFooter {
 
-    .wnpFooter .btn-group {
-        margin-top: 5px;
-    }
+        #progressPercent {
+            --bs-bg-opacity: .5;
+        }
 
-    .wnpFooter .btn-group button {
-        border: none;
-    }
+        .btn-group {
+            margin-top: 5px;
+        }
 
-    .wnpFooter .btn-group button:hover,
-    .wnpFooter .btn-group button:active {
-        background-color: transparent;
-        color: var(--bs-btn-color);
-    }
+        .btn-group button {
+            border: none;
+        }
 
-    #btnPlay {
-        font-size: 2.25rem;
-    }
+        .btn-group button:hover,
+        .btn-group button:active {
+            background-color: transparent;
+            color: var(--bs-btn-color);
+        }
 
-    #btnPrev,
-    #btnNext {
-        font-size: 1.75rem;
-    }
+        #btnPlay {
+            font-size: 2.25rem;
+        }
 
-    #devNameHolder {
-        position: absolute;
-        left: 30px;
-        bottom: 15px;
-    }
+        #btnPrev,
+        #btnNext {
+            font-size: 1.75rem;
+        }
 
-    #devVolumeHolder {
-        position: absolute;
-        right: 30px;
-        bottom: 15px;
-        text-align: right;
-    }
+        #devNameHolder {
+            position: absolute;
+            left: 30px;
+            bottom: 15px;
+        }
 
-    #wnpSettings {
-        position: absolute;
-        top: 5px;
-        right: 15px;
-        border: none;
+        #devVolumeHolder {
+            position: absolute;
+            right: 30px;
+            bottom: 15px;
+            text-align: right;
+        }
+
+        #wnpSettings {
+            position: absolute;
+            top: 5px;
+            right: 15px;
+            border: none;
+        }
+
     }
 
     /* Modals */
