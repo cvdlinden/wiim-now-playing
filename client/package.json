@@ -5,11 +5,11 @@
   "source": "./src/index.html",
   "scripts": {
     "clean:parcel": "rimraf .parcel-cache && rimraf dist && mkdir dist",
-    "clean:public": "rimraf ../server/public",
+    "publish:public": "rimraf ../server/public && cp -R ./dist ../server/public",
     "copy:img": "cp -R ./src/img ./dist",
     "init": "npm run clean:parcel && npm run copy:img",
     "start": "npm run init && parcel ./src/*.html",
-    "build": "npm run init && parcel build ./src/*.html && npm run clean:public && cp -R ./dist ../server/public",    
+    "build": "npm run init && parcel build ./src/*.html && npm run publish:public",    
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

@@ -40,7 +40,7 @@ WNP.Init = function () {
     }, 500);
 
     // Create random album intervals, every 3 minutes
-    rndAlbumInterval = setInterval(function () {
+    var rndAlbumInterval = setInterval(function () {
         WNP.s.rndAlbumArtUri = WNP.rndAlbumArt("fake-album-");
         WNP.s.rndRadioArtUri = WNP.rndAlbumArt("webradio-");
     }, 3 * 60 * 1000);
@@ -248,9 +248,9 @@ WNP.setSocketDefinitions = function () {
         if (!msg) { return false; }
 
         // Source detection
-        playMedium = (msg.PlayMedium) ? msg.PlayMedium : "";
-        trackSource = (msg.TrackSource) ? msg.TrackSource : "";
-        sourceIdent = WNP.getSourceIdent(playMedium, trackSource);
+        var playMedium = (msg.PlayMedium) ? msg.PlayMedium : "";
+        var trackSource = (msg.TrackSource) ? msg.TrackSource : "";
+        var sourceIdent = WNP.getSourceIdent(playMedium, trackSource);
         if (sourceIdent !== "") {
             var identImg = document.createElement("img");
             identImg.src = sourceIdent;
@@ -269,17 +269,17 @@ WNP.setSocketDefinitions = function () {
         mediaAlbum.innerText = (msg.trackMetaData && msg.trackMetaData["upnp:album"]) ? msg.trackMetaData["upnp:album"] : "";
 
         // Audio quality
-        songBitrate = (msg.trackMetaData && msg.trackMetaData["song:bitrate"]) ? msg.trackMetaData["song:bitrate"] : "";
-        songBitDepth = (msg.trackMetaData && msg.trackMetaData["song:format_s"]) ? msg.trackMetaData["song:format_s"] : "";
-        songSampleRate = (msg.trackMetaData && msg.trackMetaData["song:rate_hz"]) ? msg.trackMetaData["song:rate_hz"] : "";
+        var songBitrate = (msg.trackMetaData && msg.trackMetaData["song:bitrate"]) ? msg.trackMetaData["song:bitrate"] : "";
+        var songBitDepth = (msg.trackMetaData && msg.trackMetaData["song:format_s"]) ? msg.trackMetaData["song:format_s"] : "";
+        var songSampleRate = (msg.trackMetaData && msg.trackMetaData["song:rate_hz"]) ? msg.trackMetaData["song:rate_hz"] : "";
         mediaBitRate.innerText = (songBitrate > 0) ? ((songBitrate > 1000) ? (songBitrate / 1000).toFixed(2) + " mbps, " : songBitrate + " kbps, ") : "";
         mediaBitDepth.innerText = (songBitDepth > 0) ? ((songBitDepth > 24) ? "24 bits, " : songBitDepth + " bits, ") : ""; // TODO: 32 bits is suspect according to the WiiM app?
         mediaSampleRate.innerText = (songSampleRate > 0) ? (songSampleRate / 1000).toFixed(1) + " kHz" : "";
 
         // Audio quality ident badge (HD/Hi-res/CD/...)
-        songQuality = (msg.trackMetaData && msg.trackMetaData["song:quality"]) ? msg.trackMetaData["song:quality"] : "";
-        songActualQuality = (msg.trackMetaData && msg.trackMetaData["song:actualQuality"]) ? msg.trackMetaData["song:actualQuality"] : "";
-        qualiIdent = WNP.getQualityIdent(songQuality, songActualQuality, songBitrate, songBitDepth, songSampleRate);
+        var songQuality = (msg.trackMetaData && msg.trackMetaData["song:quality"]) ? msg.trackMetaData["song:quality"] : "";
+        var songActualQuality = (msg.trackMetaData && msg.trackMetaData["song:actualQuality"]) ? msg.trackMetaData["song:actualQuality"] : "";
+        var qualiIdent = WNP.getQualityIdent(songQuality, songActualQuality, songBitrate, songBitDepth, songSampleRate);
         if (qualiIdent !== "") {
             mediaQualityIdent.innerText = qualiIdent;
             mediaQualityIdent.title = "Quality: " + songQuality + ", " + songActualQuality;
@@ -408,8 +408,8 @@ WNP.convertToSeconds = function (sDuration) {
     const timeSections = sDuration.split(":");
     let totalSeconds = 0;
     for (let i = 0; i < timeSections.length; i++) {
-        nFactor = timeSections.length - 1 - i; // Count backwards
-        nMultiplier = Math.pow(60, nFactor); // 60^n
+        var nFactor = timeSections.length - 1 - i; // Count backwards
+        var nMultiplier = Math.pow(60, nFactor); // 60^n
         totalSeconds += nMultiplier * parseInt(timeSections[i]); // Calculate the seconds
     }
     return totalSeconds
