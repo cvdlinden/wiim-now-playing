@@ -6,8 +6,8 @@ window.WNP = window.WNP || {};
 
 // Default settings
 WNP.s = {
-    rndAlbumArtUri: "/img/fake-album-1.png",
-    rndRadioArtUri: "/img/webradio-1.png"
+    rndAlbumArtUri: "./img/fake-album-1.png",
+    rndRadioArtUri: "./img/webradio-1.png"
 };
 
 // Data placeholders.
@@ -24,6 +24,9 @@ WNP.d = {
 WNP.Init = function () {
     console.log("WNP", "Initialising...");
 
+    // Init Socket.IO, connect to port 80
+    window.socket = io.connect(':80');
+    
     // Set Socket.IO definitions
     this.setSocketDefinitions();
 
@@ -37,7 +40,7 @@ WNP.Init = function () {
     }, 500);
 
     // Create random album intervals, every 3 minutes
-    rndAlbumInterval = setInterval(function () {
+    var rndAlbumInterval = setInterval(function () {
         WNP.s.rndAlbumArtUri = WNP.rndAlbumArt("fake-album-");
         WNP.s.rndRadioArtUri = WNP.rndAlbumArt("webradio-");
     }, 3 * 60 * 1000);
@@ -50,6 +53,9 @@ WNP.Init = function () {
  */
 WNP.setUIListeners = function () {
     console.log("WNP", "Set UI Listeners...")
+
+    // ------------------------------------------------
+    // Player buttons
 
     btnPrev.addEventListener("click", function () {
         var wnpAction = this.getAttribute("wnp-action");
@@ -74,6 +80,9 @@ WNP.setUIListeners = function () {
             socket.emit("device-action", wnpAction);
         }
     });
+
+    // ------------------------------------------------
+    // Settings buttons
 
     btnRefresh.addEventListener("click", function () {
         socket.emit("devices-refresh");
@@ -136,7 +145,7 @@ WNP.setSocketDefinitions = function () {
         WNP.d.deviceList.sort((a, b) => { return (a.friendlyName < b.friendlyName) ? -1 : 1 });
 
         // Clear choices
-        deviceChoices.innerHTML = "";
+        deviceChoices.innerHTML = "<option value=\"\">Select a device...</em></li>";
 
         // Add WiiM devices
         var devicesWiiM = WNP.d.deviceList.filter((d) => { return d.manufacturer.startsWith("Linkplay") });
@@ -245,9 +254,9 @@ WNP.setSocketDefinitions = function () {
         if (!msg) { return false; }
 
         // Source detection
-        playMedium = (msg.PlayMedium) ? msg.PlayMedium : "";
-        trackSource = (msg.TrackSource) ? msg.TrackSource : "";
-        sourceIdent = WNP.getSourceIdent(playMedium, trackSource);
+        var playMedium = (msg.PlayMedium) ? msg.PlayMedium : "";
+        var trackSource = (msg.TrackSource) ? msg.TrackSource : "";
+        var sourceIdent = WNP.getSourceIdent(playMedium, trackSource);
         if (sourceIdent !== "") {
             var identImg = document.createElement("img");
             identImg.src = sourceIdent;
@@ -266,17 +275,17 @@ WNP.setSocketDefinitions = function () {
         mediaAlbum.innerText = (msg.trackMetaData && msg.trackMetaData["upnp:album"]) ? msg.trackMetaData["upnp:album"] : "";
 
         // Audio quality
-        songBitrate = (msg.trackMetaData && msg.trackMetaData["song:bitrate"]) ? msg.trackMetaData["song:bitrate"] : "";
-        songBitDepth = (msg.trackMetaData && msg.trackMetaData["song:format_s"]) ? msg.trackMetaData["song:format_s"] : "";
-        songSampleRate = (msg.trackMetaData && msg.trackMetaData["song:rate_hz"]) ? msg.trackMetaData["song:rate_hz"] : "";
+        var songBitrate = (msg.trackMetaData && msg.trackMetaData["song:bitrate"]) ? msg.trackMetaData["song:bitrate"] : "";
+        var songBitDepth = (msg.trackMetaData && msg.trackMetaData["song:format_s"]) ? msg.trackMetaData["song:format_s"] : "";
+        var songSampleRate = (msg.trackMetaData && msg.trackMetaData["song:rate_hz"]) ? msg.trackMetaData["song:rate_hz"] : "";
         mediaBitRate.innerText = (songBitrate > 0) ? ((songBitrate > 1000) ? (songBitrate / 1000).toFixed(2) + " mbps, " : songBitrate + " kbps, ") : "";
         mediaBitDepth.innerText = (songBitDepth > 0) ? ((songBitDepth > 24) ? "24 bits, " : songBitDepth + " bits, ") : ""; // TODO: 32 bits is suspect according to the WiiM app?
         mediaSampleRate.innerText = (songSampleRate > 0) ? (songSampleRate / 1000).toFixed(1) + " kHz" : "";
 
         // Audio quality ident badge (HD/Hi-res/CD/...)
-        songQuality = (msg.trackMetaData && msg.trackMetaData["song:quality"]) ? msg.trackMetaData["song:quality"] : "";
-        songActualQuality = (msg.trackMetaData && msg.trackMetaData["song:actualQuality"]) ? msg.trackMetaData["song:actualQuality"] : "";
-        qualiIdent = WNP.getQualityIdent(songQuality, songActualQuality, songBitrate, songBitDepth, songSampleRate);
+        var songQuality = (msg.trackMetaData && msg.trackMetaData["song:quality"]) ? msg.trackMetaData["song:quality"] : "";
+        var songActualQuality = (msg.trackMetaData && msg.trackMetaData["song:actualQuality"]) ? msg.trackMetaData["song:actualQuality"] : "";
+        var qualiIdent = WNP.getQualityIdent(songQuality, songActualQuality, songBitrate, songBitDepth, songSampleRate);
         if (qualiIdent !== "") {
             mediaQualityIdent.innerText = qualiIdent;
             mediaQualityIdent.title = "Quality: " + songQuality + ", " + songActualQuality;
@@ -405,8 +414,8 @@ WNP.convertToSeconds = function (sDuration) {
     const timeSections = sDuration.split(":");
     let totalSeconds = 0;
     for (let i = 0; i < timeSections.length; i++) {
-        nFactor = timeSections.length - 1 - i; // Count backwards
-        nMultiplier = Math.pow(60, nFactor); // 60^n
+        var nFactor = timeSections.length - 1 - i; // Count backwards
+        var nMultiplier = Math.pow(60, nFactor); // 60^n
         totalSeconds += nMultiplier * parseInt(timeSections[i]); // Calculate the seconds
     }
     return totalSeconds
@@ -441,7 +450,7 @@ WNP.setAlbumArt = function (imgUri) {
  * @returns {string} An URI for album art
  */
 WNP.rndAlbumArt = function (prefix) {
-    return "/img/" + prefix + this.rndNumber(1, 5) + ".png";
+    return "./img/" + prefix + this.rndNumber(1, 5) + ".png";
 };
 
 /**
@@ -467,44 +476,44 @@ WNP.getSourceIdent = function (playMedium, trackSource) {
 
     switch (playMedium.toLowerCase()) {
         case "airplay":
-            sIdentUri = "/img/sources/airplay.png";
+            sIdentUri = "./img/sources/airplay.png";
             break;
         case "cast":
-            sIdentUri = "/img/sources/chromecast.png";
+            sIdentUri = "./img/sources/chromecast.png";
             break;
         case "radio-network":
-            sIdentUri = "/img/sources/radio.png";
+            sIdentUri = "./img/sources/radio.png";
             break;
         case "spotify":
-            sIdentUri = "/img/sources/spotify.png";
+            sIdentUri = "./img/sources/spotify.png";
             break;
     };
 
     switch (trackSource.toLowerCase()) {
         case "deezer":
         case "deezer2":
-            sIdentUri = "/img/sources/deezer.png";
+            sIdentUri = "./img/sources/deezer.png";
             break;
         case "iheartradio":
-            sIdentUri = "/img/sources/iheart.png";
+            sIdentUri = "./img/sources/iheart.png";
             break;
         case "newtunein":
-            sIdentUri = "/img/sources/newtunein.png";
+            sIdentUri = "./img/sources/newtunein.png";
             break;
         case "prime":
-            sIdentUri = "/img/sources/amazon-music.png";
+            sIdentUri = "./img/sources/amazon-music.png";
             break;
         case "qobuz":
-            sIdentUri = "/img/sources/qobuz.png";
+            sIdentUri = "./img/sources/qobuz.png";
             break;
         case "tidal":
-            sIdentUri = "/img/sources/tidal.png";
+            sIdentUri = "./img/sources/tidal.png";
             break;
         case "upnpserver":
-            sIdentUri = "/img/sources/dlna.png";
+            sIdentUri = "./img/sources/dlna.png";
             break;
         case "vtuner":
-            sIdentUri = "/img/sources/vtuner.png";
+            sIdentUri = "./img/sources/vtuner.png";
             break;
     };
 
@@ -585,10 +594,5 @@ WNP.getQualityIdent = function (songQuality, songActualQuality, songBitrate, son
 };
 
 // =======================================================
-// Starting the app
-
-// Init Socket.IO
-var socket = io();
-
 // Start WiiM Now Playing app
 WNP.Init();

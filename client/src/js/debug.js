@@ -1,4 +1,4 @@
-var socket = io();
+var socket = io.connect(':80');
 
 // DEBUG
 // var state = document.getElementById("state");
@@ -93,7 +93,7 @@ socket.on("devices-get", function (msg) {
     deviceList.sort((a, b) => { return (a.friendlyName < b.friendlyName) ? -1 : 1 });
 
     // Clear choices
-    deviceChoices.innerHTML = "";
+    deviceChoices.innerHTML = "<option value=\"\">Select a device...</em></li>";
 
     // Add WiiM devices
     var devicesWiiM = deviceList.filter((d) => { return d.manufacturer.startsWith("Linkplay") });

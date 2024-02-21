@@ -1,0 +1,26 @@
+{
+  "name": "client",
+  "version": "1.0.0",
+  "description": "This folder contains all client related code.",
+  "source": "./src/index.html",
+  "scripts": {
+    "clean:parcel": "rimraf .parcel-cache && rimraf dist && mkdir dist",
+    "publish:public": "rimraf ../server/public && cp -R ./dist ../server/public",
+    "copy:img": "cp -R ./src/img ./dist",
+    "init": "npm run clean:parcel && npm run copy:img",
+    "start": "npm run init && parcel ./src/*.html",
+    "build": "npm run init && parcel build ./src/*.html && npm run publish:public",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@parcel/packager-raw-url": "^2.11.0",
+    "@parcel/transformer-sass": "^2.11.0",
+    "@parcel/transformer-webmanifest": "^2.11.0",
+    "cash-cp": "^0.2.0",
+    "parcel": "^2.11.0",
+    "rimraf": "^5.0.5"
+  }
+}

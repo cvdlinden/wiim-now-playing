@@ -424,8 +424,31 @@ For this we need to get the chromium-browser to also start automatically in kios
 
     ![Chrome Kiosk](../assets/IMG_3693.jpg)
 
-    _Note: If the screen looks garbled, wait a while for it to settle. Or try a power cycle by unplugging the RPi completely, wait and then plug it in again._  
-    _It may also help to have the RPi connected through an Ethernet cable._
+Troubleshooting:
+
+- If the screen looks garbled/unstyled, wait a little while for it to settle.  
+  Or try a power cycle by unplugging the RPi completely, wait and then plug it in again.
+- It may also help to have the RPi connected through an Ethernet cable.  
+  WiFi initalisation is much slower than an ethernet connection.
+- If the network is slow to initialise you can add a wait state to the autostart script through ``nano autostart.sh``:
+
+  ```bash
+  #!/bin/bash
+
+  # Wait for LAN to be enabled
+  while [ $(/usr/sbin/ifconfig | grep -cs 'broadcast') -lt 1 ]; do sleep 2; done
+  echo "WNP: hostname $(hostname -I)"
+  echo "WNP: broadcast $(/usr/sbin/ifconfig | grep -cs 'broadcast')"
+
+  # Start chromium-browser in Kiosk mode
+  sed -i 's/"exited_cleanly": false/"exited_cleanly": true/' ~/.config/chromium/Default/Preferences
+  chromium-browser --app=http://localhost --kiosk --noerrdialogs --incognito --hide-scrollbars --no-first-run
+
+  exit 0
+  ```
+
+- Try and add a ``sleep`` in front of the chromium browser line, like ``sleep 5 && chromium-browser ...``.  
+  This will delay the start of the browser in order to let the OS settle first.
 
 ### Screensaver
 

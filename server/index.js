@@ -5,6 +5,7 @@
 
 // Express modules
 const express = require("express");
+const cors = require('cors');
 const app = express();
 
 // Node.js modules
@@ -12,9 +13,14 @@ const http = require("http");
 const https = require("https");
 const server = http.createServer(app);
 
-// Socket.io modules
+// Socket.io modules, with CORS
 const { Server } = require("socket.io");
-const io = new Server(server);
+const io = new Server(server, {
+    cors: {
+        origin: "*",
+        methods: ["GET", "POST"]
+    }
+});
 
 // Other (custom) modules
 const ssdp = require("./lib/ssdp.js"); // SSDP functionality
@@ -80,7 +86,10 @@ setTimeout(() => {
 }, serverSettings.timeouts.rescan);
 
 // ===========================================================================
-// Set Express functionality, reroute all clients to the /public folder
+// Set Express functionality
+// Use CORS
+app.use(cors());
+// Reroute all clients to the /public folder
 app.use(express.static(__dirname + "/public"));
 app.get('/debug', function (req, res) {
     res.sendFile(__dirname + "/public/debug.html");
