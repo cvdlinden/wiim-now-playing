@@ -31,6 +31,8 @@
   - Autorun Chrome in kiosk mode
   - Autorun node.js
 
+- [ ] Change out rimraf and cash-cp to Shx? <https://www.npmjs.com/package/shx>
+
 (Possible) TODOs:
 
 - Contingencies for when devices become unavailable? Network dropoffs/resets?  
