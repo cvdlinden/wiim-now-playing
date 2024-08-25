@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  wnp:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: wnp
+    ports:
+      - "80:80"
+    environment:
+      - PORT=80
+    restart: unless-stopped
