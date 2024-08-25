@@ -41,6 +41,9 @@ Steps to run as fast as possible:
    This could be the case if you already have a webserver already running there.  
    Open up server/index.js in your favorite text editor and edit the value in ``const port = 80;``. Try ports 8000, 8080, 5000 or 3000 untill it no longer complains.
 
+## I want to use docker!
+`docker-compose up -d --build`
+
 ## Also see
 
 If you want to run the wiim-now-playing on a Raspberry Pi, with a touchscreen, please read the installation instructions in [Raspberry Pi Setup](docs/RPi-Setup.md)
