@@ -41,8 +41,14 @@ Steps to run as fast as possible:
    This could be the case if you already have a webserver already running there.  
    Open up server/index.js in your favorite text editor and edit the value in ``const port = 80;``. Try ports 8000, 8080, 5000 or 3000 untill it no longer complains.
 
-## I want to use docker!
+## "I want to use docker!"
+
+If you want to use [Docker](https://www.docker.com/) instead, please use:
+
 `docker-compose up -d --build`
+
+> Please note that this will **only** run well on a Linux machine. The Windows version of Docker does not support SSDP and will not scan the network for WiiM devices. You may need to spin up an entire Linux VM for this to work, which defeats the purpose of Docker.  
+See: <https://github.com/cvdlinden/wiim-now-playing/pull/4>
 
 ## Also see
 
