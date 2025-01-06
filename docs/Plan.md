@@ -32,6 +32,7 @@
   - Autorun node.js
 
 - [ ] Change out rimraf and cash-cp to Shx? <https://www.npmjs.com/package/shx>
+- [ ] Add a 4K/High-res UI so you can switch when browsing on a TV.
 
 (Possible) TODOs:
 
