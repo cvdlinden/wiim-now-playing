@@ -31,6 +31,9 @@
   - Autorun Chrome in kiosk mode
   - Autorun node.js
 
+- [x] Change out rimraf and cash-cp to Shx <https://www.npmjs.com/package/shx>
+- [ ] Add a 4K/High-res UI so you can switch when browsing on a TV.
+
 (Possible) TODOs:
 
 - Contingencies for when devices become unavailable? Network dropoffs/resets?  

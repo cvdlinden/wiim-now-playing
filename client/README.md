@@ -2,4 +2,4 @@
 
 This folder contains all client related code.
 
-{Currently empty}
+See the main README.md in the root for more details.
