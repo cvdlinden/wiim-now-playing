@@ -40,6 +40,8 @@ WNP.Init = function () {
     }, 500);
 
     // Create random album intervals, every 3 minutes
+    WNP.s.rndAlbumArtUri = WNP.rndAlbumArt("fake-album-");
+    WNP.s.rndRadioArtUri = WNP.rndAlbumArt("webradio-");
     var rndAlbumInterval = setInterval(function () {
         WNP.s.rndAlbumArtUri = WNP.rndAlbumArt("fake-album-");
         WNP.s.rndRadioArtUri = WNP.rndAlbumArt("webradio-");
@@ -473,7 +475,7 @@ WNP.rndAlbumArt = function (prefix) {
  * @returns {integer} The random number
  */
 WNP.rndNumber = function (min, max) {
-    return Math.floor(Math.random() * (max - min + 1) + min);
+    return Math.floor(Math.random() * (max - min + 1)) + min;
 };
 
 /**
