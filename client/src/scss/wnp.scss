@@ -149,27 +149,60 @@
             --bs-bg-opacity: .5;
         }
 
-        .btn-group {
+        .btn-group.primary {
             margin-top: 5px;
+
+            button {
+                border: none;
+            }
+
+            button:hover,
+            button:active {
+                background-color: transparent;
+                color: var(--bs-btn-color);
+            }
+
+            #btnPlay {
+                font-size: 2.25rem;
+            }
+
+            #btnPrev,
+            #btnNext {
+                font-size: 1.75rem;
+            }
         }
 
-        .btn-group button {
-            border: none;
-        }
+        .btn-group.secondary {
+            position: absolute;
+            top: 5px;
+            right: 15px;
 
-        .btn-group button:hover,
-        .btn-group button:active {
-            background-color: transparent;
-            color: var(--bs-btn-color);
-        }
+            button {
+                border: none;
+                padding: 6px;
+            }
 
-        #btnPlay {
-            font-size: 2.25rem;
-        }
+            button:hover,
+            button:active {
+                background-color: transparent;
+                color: var(--bs-btn-color);
+            }
 
-        #btnPrev,
-        #btnNext {
-            font-size: 1.75rem;
+            #wnpSettings {
+                // position: absolute;
+                // top: 5px;
+                // right: 15px;
+                // border: none;
+            }
+
+            #wnpFullscreen {
+                display: block;
+            }
+
+            #wnpFullscreenExit {
+                display: none;
+            }
+
         }
 
         #devNameHolder {
@@ -185,13 +218,23 @@
             text-align: right;
         }
 
-        #wnpSettings {
-            position: absolute;
-            top: 5px;
-            right: 15px;
-            border: none;
-        }
+    }
 
+    // In case of fullscreen/highres mode, toggle the fullscreen buttons
+    &.fullscreen {
+        .wnpFooter {
+            .btn-group.secondary {
+
+                #wnpFullscreen {
+                    display: none;
+                }
+
+                #wnpFullscreenExit {
+                    display: block;
+                }
+
+            }
+        }
     }
 
 }

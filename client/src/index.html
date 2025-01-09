@@ -54,7 +54,7 @@
                         <div class="progress-bar bg-white" style="width: 0"></div>
                     </div>
                     <div>
-                        <div class="btn-group">
+                        <div class="btn-group primary">
                             <!-- Shuffle -->
                             <button id="btnShuffle" type="button" class="btn btn-outline-light" disabled>
                                 <i class="bi bi-shuffle"></i>
@@ -84,11 +84,20 @@
                             <i class="bi bi-volume-down-fill"></i>
                             <span id="devVol"></span>
                         </div>
-                        <!-- Settings button -->
-                        <button id="wnpSettings" type="button" class="btn btn-outline-light" data-bs-toggle="modal"
-                            data-bs-target="#exampleModal">
-                            <i class="bi bi-gear"></i>
-                        </button>
+                        <div class="btn-group secondary">
+                            <!-- Settings button -->
+                            <button id="wnpSettings" type="button" class="btn btn-outline-light" data-bs-toggle="modal"
+                                data-bs-target="#exampleModal">
+                                <i class="bi bi-gear"></i>
+                            </button>
+                            <!-- Fullscreen toggle buttons -->
+                            <button id="wnpFullscreen" type="button" class="btn btn-outline-light">
+                                <i class="bi bi-fullscreen"></i>
+                            </button>
+                            <button id="wnpFullscreenExit" type="button" class="btn btn-outline-light">
+                                <i class="bi bi-fullscreen-exit"></i>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
