@@ -55,7 +55,7 @@
     }
 
     /* Layout - CSS Grid */
-    /* Portrait mode */
+    /* Portrait mode, low resolution */
     @media screen and (max-width:500px) {
 
         .wnpContainer {
@@ -146,6 +146,7 @@
     .wnpFooter {
 
         #progressPercent {
+            height: 2px;
             --bs-bg-opacity: .5;
         }
 
@@ -221,8 +222,66 @@
     }
 
     // In case of fullscreen/highres mode, toggle the fullscreen buttons
+    // TODO: rework to media query (1440p and up), remove fullscreen buttons...
     &.fullscreen {
+
+        font-size: 1.5rem;
+
+        h2 {
+            font-size: 3rem;
+        }
+
+        /* Layout - CSS Grid */
+        /* Landscape mode */
+        .wnpContainer {
+            grid-template-rows: 1fr 120px;
+        }
+
+        /* CSS Grid areas */
+        .wnpAlbumArt {
+            padding: 45px;
+        }
+
+        .wnpMediaInfo {
+            padding: 45px 45px 45px 0;
+        }
+
         .wnpFooter {
+            padding: 0 45px;
+        }
+
+        /* Album Art Fullscreen */
+        .wnpAlbumArt {
+
+            #albumArt {
+                object-fit: fill;
+                width: 100%;
+            }
+
+        }
+
+        /* Media info Fullscreen */
+        .wnpMediaInfo {
+
+            // Media Source Ident
+            #mediaSource {
+
+                img {
+                    max-height: 48px;
+                    margin-bottom: 30px;
+                }
+
+            }
+
+        }
+
+        /* Footer Fullscreen */
+        .wnpFooter {
+
+            #progressPercent {
+                height: 5px;
+            }
+
             .btn-group.secondary {
 
                 #wnpFullscreen {
@@ -234,6 +293,17 @@
                 }
 
             }
+
+            #devNameHolder {
+                left: 45px;
+                bottom: 20px;
+            }
+
+            #devVolumeHolder {
+                right: 45px;
+                bottom: 20px;
+            }
+
         }
     }
 

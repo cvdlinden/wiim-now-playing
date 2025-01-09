@@ -26,7 +26,7 @@ WNP.Init = function () {
 
     // Init Socket.IO, connect to port 80
     window.socket = io.connect(':80');
-    
+
     // Set Socket.IO definitions
     this.setSocketDefinitions();
 
@@ -107,6 +107,19 @@ WNP.setUIListeners = function () {
 
     btnReloadUI.addEventListener("click", function () {
         location.reload();
+    });
+
+    // ------------------------------------------------
+    // Fullscreen/Highres buttons
+
+    wnpFullscreen.addEventListener("click", function () {
+        console.log("FS!", wnpApp)
+        wnpApp.classList.add("fullscreen");
+    });
+
+    wnpFullscreenExit.addEventListener("click", function () {
+        console.log("FS EXIT!")
+        wnpApp.classList.remove("fullscreen");
     });
 
 };
@@ -271,7 +284,7 @@ WNP.setSocketDefinitions = function () {
         // Song Title, Subtitle, Artist, Album
         mediaTitle.innerText = (msg.trackMetaData && msg.trackMetaData["dc:title"]) ? msg.trackMetaData["dc:title"] : "";
         mediaSubTitle.innerText = (msg.trackMetaData && msg.trackMetaData["dc:subtitle"]) ? msg.trackMetaData["dc:subtitle"] : "";
-        mediaArtist.innerText = (msg.trackMetaData && msg.trackMetaData["upnp:artist"]) ? msg.trackMetaData["upnp:artist"] + ", " : "";
+        mediaArtist.innerText = (msg.trackMetaData && msg.trackMetaData["upnp:artist"]) ? msg.trackMetaData["upnp:artist"] : "";
         mediaAlbum.innerText = (msg.trackMetaData && msg.trackMetaData["upnp:album"]) ? msg.trackMetaData["upnp:album"] : "";
 
         // Audio quality
