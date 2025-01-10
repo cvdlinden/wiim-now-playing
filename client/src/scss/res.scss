@@ -107,7 +107,24 @@
 
     }
 
-    // Desktop and large tablets, and larger...
+    // Small desktops and large tablets, and larger...
+    @media (min-width: 992px) {
+
+        .wnpMediaInfo {
+            padding: 24px 24px 24px 0;
+        }
+
+        .wnpAlbumArt {
+            padding: 24px;
+        }
+
+        .wnpFooter {
+            padding: 0 24px 24px 24px;
+        }
+
+    }
+
+    // Desktop browsers and large tablets, and larger...
     @media (min-width: 1200px) {
 
         .wnpMediaInfo {
