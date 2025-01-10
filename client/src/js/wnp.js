@@ -6,8 +6,8 @@ window.WNP = window.WNP || {};
 
 // Default settings
 WNP.s = {
-    rndAlbumArtUri: "./img/fake-album-1.png",
-    rndRadioArtUri: "./img/webradio-1.png"
+    rndAlbumArtUri: "./img/fake-album-1.jpg",
+    // rndRadioArtUri: "./img/webradio-1.png"
 };
 
 // Data placeholders.
@@ -41,10 +41,10 @@ WNP.Init = function () {
 
     // Create random album intervals, every 3 minutes
     WNP.s.rndAlbumArtUri = WNP.rndAlbumArt("fake-album-");
-    WNP.s.rndRadioArtUri = WNP.rndAlbumArt("webradio-");
+    // WNP.s.rndRadioArtUri = WNP.rndAlbumArt("webradio-");
     var rndAlbumInterval = setInterval(function () {
         WNP.s.rndAlbumArtUri = WNP.rndAlbumArt("fake-album-");
-        WNP.s.rndRadioArtUri = WNP.rndAlbumArt("webradio-");
+        // WNP.s.rndRadioArtUri = WNP.rndAlbumArt("webradio-");
     }, 3 * 60 * 1000);
 
 };
@@ -465,7 +465,7 @@ WNP.setAlbumArt = function (imgUri) {
  * @returns {string} An URI for album art
  */
 WNP.rndAlbumArt = function (prefix) {
-    return "./img/" + prefix + this.rndNumber(1, 5) + ".png";
+    return "./img/" + prefix + this.rndNumber(1, 16) + ".jpg";
 };
 
 /**

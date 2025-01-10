@@ -88,7 +88,7 @@
         #bgAlbumArtBlur {
             height: 100%;
             /* Center and scale the image nicely */
-            background-image: url("../img/fake-album-1.png");
+            background-image: url("../img/fake-album-1.jpg");
             background-position: center;
             background-repeat: no-repeat;
             background-size: cover;
@@ -129,11 +129,12 @@
 
         }
 
-        // Media Quality Ident
+        // Media Album and Quality Ident
+        #mediaAlbumIdent,
         #mediaQualityIdent {
 
             &.badge-outlined {
-                border: 1px solid rgba(179, 189, 186, 1);
+                border: 1px solid rgba(118, 125, 123, 1);
                 font-weight: var(--bs-body-font-weight);
                 margin-right: 10px;
             }
@@ -234,6 +235,7 @@
         /* Layout - CSS Grid */
         /* Landscape mode */
         .wnpContainer {
+            grid-template-columns: 1.2fr 0.8fr;
             grid-template-rows: 1fr 120px;
         }
 
@@ -313,7 +315,7 @@
     position: absolute;
     left: 10px;
     top: 10px;
-    color: #666;
+    color: #ccc;
     background-color: #eee;
     padding: 5px;
 
