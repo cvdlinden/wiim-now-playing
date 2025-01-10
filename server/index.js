@@ -94,6 +94,9 @@ app.use(express.static(__dirname + "/public"));
 app.get('/debug', function (req, res) {
     res.sendFile(__dirname + "/public/debug.html");
 })
+app.get('/res', function (req, res) {
+    res.sendFile(__dirname + "/public/res.html");
+})
 
 // ===========================================================================
 // Socket.io definitions

@@ -1,0 +1,223 @@
+/* ------------------------
+ * Resolution testing
+
+/* WiiM Now Playing App */
+#wnpApp {
+
+    width: 100vw;
+    height: 100vh;
+    max-width: 100%;
+    overflow: hidden;
+
+    // ===============================
+    // Default styling - mobile first strategy
+    .wnpContainer {
+        display: grid;
+        grid-template-columns: 1fr;
+        grid-template-rows: 1.2fr .8fr 100px;
+        gap: 0px 0px;
+        grid-auto-flow: row;
+        grid-template-areas:
+            "wnpAlbumArt"
+            "wnpMediaInfo"
+            "wnpFooter";
+
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+
+        background-color: #ccc;
+
+    }
+
+    .wnpAlbumArt {
+        grid-area: wnpAlbumArt;
+
+        padding: 16px;
+        text-align: center;
+        overflow: hidden;
+
+        >div {
+            height: 100%;
+            background-color: #fff;
+        }
+
+        img {
+            // min-width: 100%;
+            // min-height: 100%;
+            max-width: 100%;
+            max-height: 100%;
+            // width: 100%;
+        }
+    }
+
+    .wnpMediaInfo {
+        grid-area: wnpMediaInfo;
+
+        padding: 0 16px 16px 16px;
+
+        >div {
+            height: 100%;
+            background-color: #fff;
+        }
+    }
+
+    .wnpFooter {
+        grid-area: wnpFooter;
+
+        padding: 0 16px 16px 16px;
+
+        >div {
+            height: 100%;
+            background-color: #fff;
+        }
+    }
+
+    // ===============================
+    // Responsive layout changes
+
+    // RPi landscape and small tablets, and larger...
+    @media (min-width: 768px) {
+
+        .wnpContainer {
+            // display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr 100px;
+            // gap: 0px 0px;
+            // grid-auto-flow: row;
+            grid-template-areas:
+                "wnpAlbumArt wnpMediaInfo"
+                "wnpFooter wnpFooter";
+        }
+
+        .wnpMediaInfo {
+            padding: 16px 16px 16px 0;
+        }
+
+        // .wnpAlbumArt {
+        //     padding: 16px;
+        // }
+
+        // .wnpFooter {
+        //     padding: 0 16px 16px 16px;
+        // }
+
+    }
+
+    // Desktop and large tablets, and larger...
+    @media (min-width: 1200px) {
+
+        .wnpMediaInfo {
+            padding: 32px 32px 32px 0;
+        }
+
+        .wnpAlbumArt {
+            padding: 32px;
+        }
+
+        .wnpFooter {
+            padding: 0 32px 32px 32px;
+        }
+
+    }
+
+    // 1440p devices (larger desktops, 1400px and up)
+    @media (min-width: 2560px) {
+
+        .wnpMediaInfo {
+            padding: 48px 48px 48px 0;
+        }
+
+        .wnpAlbumArt {
+            padding: 48px;
+        }
+
+        .wnpFooter {
+            padding: 0 48px 48px 48px;
+        }
+
+    }
+
+}
+
+#wnpMedia {
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    color: #ccc;
+    background-color: rgba(238, 238, 238, .75);
+    padding: 5px;
+
+    @media screen and (min-width: 576px) {
+        .bp-xs {
+            color: #0c0;
+        }
+    }
+
+    // Bootstrap responsive breakpoints: https://getbootstrap.com/docs/5.0/layout/breakpoints/
+    // X-Small devices (portrait phones, less than 576px)
+    // No media query for `xs` since this is the default in Bootstrap
+    .bp-xs {
+        color: #0c0;
+    }
+
+    // Small devices (landscape phones, 576px and up)
+    @media (min-width: 576px) {
+        .bp-sm {
+            color: #0c0;
+        }
+    }
+
+    // Medium devices (tablets, 768px and up)
+    @media (min-width: 768px) {
+        .bp-md {
+            color: #0c0;
+        }
+    }
+
+    // Large devices (desktops, 992px and up)
+    @media (min-width: 992px) {
+        .bp-lg {
+            color: #0c0;
+        }
+    }
+
+    // X-Large devices (large desktops, 1200px and up)
+    @media (min-width: 1200px) {
+        .bp-xl {
+            color: #0c0;
+        }
+    }
+
+    // XX-Large devices (larger desktops, 1400px and up)
+    @media (min-width: 1400px) {
+        .bp-xxl {
+            color: #0c0;
+        }
+    }
+
+    // 1080p devices (larger desktops, 1400px and up)
+    @media (min-width: 1920px) {
+        .bp-1080 {
+            color: #0c0;
+        }
+    }
+
+    // 1440p devices (larger desktops, 1400px and up)
+    @media (min-width: 2560px) {
+        .bp-1440 {
+            color: #0c0;
+        }
+    }
+
+    // 4K devices (larger desktops, 1400px and up)
+    @media (min-width: 3840px) {
+        .bp-4k {
+            color: #0c0;
+        }
+    }
+
+}
