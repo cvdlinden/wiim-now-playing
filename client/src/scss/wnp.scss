@@ -316,7 +316,7 @@
     left: 10px;
     top: 10px;
     color: #ccc;
-    background-color: #eee;
+    background-color: rgba(238, 238, 238, .5);
     padding: 5px;
 
     @media screen and (min-width: 576px) {
@@ -363,6 +363,27 @@
     // XX-Large devices (larger desktops, 1400px and up)
     @media (min-width: 1400px) {
         .bp-xxl {
+            color: #0c0;
+        }
+    }
+
+    // 1080p devices (larger desktops, 1400px and up)
+    @media (min-width: 1920px) {
+        .bp-1080 {
+            color: #0c0;
+        }
+    }
+
+    // 1440p devices (larger desktops, 1400px and up)
+    @media (min-width: 2560px) {
+        .bp-1440 {
+            color: #0c0;
+        }
+    }
+
+    // 4K devices (larger desktops, 1400px and up)
+    @media (min-width: 3840px) {
+        .bp-4k {
             color: #0c0;
         }
     }
