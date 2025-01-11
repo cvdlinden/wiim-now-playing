@@ -179,13 +179,16 @@
             top: 5px;
             right: 15px;
 
-            button {
+            button,
+            a {
                 border: none;
                 padding: 6px;
             }
 
             button:hover,
-            button:active {
+            button:active,
+            a:hover,
+            a:active {
                 background-color: transparent;
                 color: var(--bs-btn-color);
             }
@@ -196,14 +199,6 @@
             //     right: 15px;
             //     border: none;
             // }
-
-            #wnpFullscreen {
-                display: block;
-            }
-
-            #wnpFullscreenExit {
-                display: none;
-            }
 
         }
 
@@ -222,9 +217,9 @@
 
     }
 
-    // In case of fullscreen/highres mode, toggle the fullscreen buttons
-    // TODO: rework to media query (1440p and up), remove fullscreen buttons...
-    &.fullscreen {
+    // In case of TV mode activated
+    // TODO: rework to media queries
+    &.tv-mode {
 
         font-size: 1.5rem;
 
@@ -252,7 +247,7 @@
             padding: 0 45px;
         }
 
-        /* Album Art Fullscreen */
+        /* Album Art TV mode */
         .wnpAlbumArt {
 
             #albumArt {
@@ -262,7 +257,7 @@
 
         }
 
-        /* Media info Fullscreen */
+        /* Media info TV mode */
         .wnpMediaInfo {
 
             // Media Source Ident
@@ -277,23 +272,11 @@
 
         }
 
-        /* Footer Fullscreen */
+        /* Footer TV mode */
         .wnpFooter {
 
             #progressPercent {
                 height: 5px;
-            }
-
-            .btn-group.secondary {
-
-                #wnpFullscreen {
-                    display: none;
-                }
-
-                #wnpFullscreenExit {
-                    display: block;
-                }
-
             }
 
             #devNameHolder {

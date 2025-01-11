@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-    <title>WiiM Now Playing</title>
+    <title>WiiM Now Playing (TV Mode)</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 
     <link rel="apple-touch-icon" sizes="180x180" href="./favicon/apple-touch-icon.png">
@@ -19,7 +19,7 @@
 
 <body>
 
-    <div id="wnpApp">
+    <div id="wnpApp" class="tv-mode">
 
         <div id="wnpBgAlbumArt">
             <div id="bgAlbumArtBlur"></div>
@@ -91,8 +91,8 @@
                                 <i class="bi bi-gear"></i>
                             </button>
                             <!-- TV button -->
-                            <a id="wnpTVMode" type="button" class="btn btn-outline-light" href="/tv">
-                                <i class="bi bi-tv"></i>
+                            <a id="wnpTVMode" type="button" class="btn btn-outline-light" href="/">
+                                <i class="bi bi-arrow-return-left"></i>
                             </a>
                         </div>
                     </div>

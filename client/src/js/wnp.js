@@ -112,19 +112,6 @@ WNP.setUIListeners = function () {
         location.reload();
     });
 
-    // ------------------------------------------------
-    // Fullscreen/Highres buttons
-
-    wnpFullscreen.addEventListener("click", function () {
-        console.log("FS!", wnpApp)
-        wnpApp.classList.add("fullscreen");
-    });
-
-    wnpFullscreenExit.addEventListener("click", function () {
-        console.log("FS EXIT!")
-        wnpApp.classList.remove("fullscreen");
-    });
-
 };
 
 /**
