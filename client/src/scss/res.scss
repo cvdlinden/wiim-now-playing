@@ -43,14 +43,17 @@
         >div {
             height: 100%;
             background-color: #fff;
+            max-width: 100%;
+            max-height: 100%;
+            overflow: hidden;
         }
 
         img {
             // min-width: 100%;
             // min-height: 100%;
-            max-width: 100%;
-            max-height: 100%;
-            // width: 100%;
+            // max-width: 100%;
+            // max-height: 100%;
+            width: 100%;
         }
     }
 
@@ -84,7 +87,7 @@
 
         .wnpContainer {
             // display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: .9fr 1.1fr;
             grid-template-rows: 1fr 100px;
             // gap: 0px 0px;
             // grid-auto-flow: row;
@@ -110,6 +113,10 @@
     // Small desktops and large tablets, and larger...
     @media (min-width: 992px) {
 
+        .wnpContainer {
+            grid-template-columns: 1fr 1fr;
+        }
+
         .wnpMediaInfo {
             padding: 24px 24px 24px 0;
         }
@@ -126,6 +133,10 @@
 
     // Desktop browsers and large tablets, and larger...
     @media (min-width: 1200px) {
+
+        .wnpContainer {
+            grid-template-columns: 1.2fr .8fr;
+        }
 
         .wnpMediaInfo {
             padding: 32px 32px 32px 0;
@@ -239,9 +250,11 @@
 
     // Pixel ratio 1 (True one-on-one screens i.e. desktop monitors)
     @media screen and (-webkit-min-device-pixel-ratio: 1),
-    screen and (max-width: 639px) and (-moz-min-device-pixel-ratio: 1),
-    screen and (max-width: 639px) and (-o-min-device-pixel-ratio: 1),
-    screen and (max-width: 639px) and (min-device-pixel-ratio: 1) {
+    screen and (-moz-min-device-pixel-ratio: 1),
+    screen and (-o-min-device-pixel-ratio: 1),
+    screen and (min-device-pixel-ratio: 1) {
+        font-size: 1rem;
+
         .bp-p1 {
             color: #0c0;
         }
@@ -249,9 +262,11 @@
 
     // Pixel ratio 2 (Highres small screens i.e. iPad tablets)
     @media screen and (-webkit-min-device-pixel-ratio: 2),
-    screen and (max-width: 639px) and (-moz-min-device-pixel-ratio: 2),
-    screen and (max-width: 639px) and (-o-min-device-pixel-ratio: 2),
-    screen and (max-width: 639px) and (min-device-pixel-ratio: 2) {
+    screen and (-moz-min-device-pixel-ratio: 2),
+    screen and (-o-min-device-pixel-ratio: 2),
+    screen and (min-device-pixel-ratio: 2) {
+        font-size: 1.2rem;
+
         .bp-p2 {
             color: #0c0;
         }
@@ -259,9 +274,11 @@
 
     // Pixel ratio 3 (Highres screens i.e. iPhones)
     @media screen and (-webkit-min-device-pixel-ratio: 3),
-    screen and (max-width: 639px) and (-moz-min-device-pixel-ratio: 3),
-    screen and (max-width: 639px) and (-o-min-device-pixel-ratio: 3),
-    screen and (max-width: 639px) and (min-device-pixel-ratio: 3) {
+    screen and (-moz-min-device-pixel-ratio: 3),
+    screen and (-o-min-device-pixel-ratio: 3),
+    screen and (min-device-pixel-ratio: 3) {
+        font-size: 1.4rem;
+
         .bp-p3 {
             color: #0c0;
         }
@@ -269,9 +286,11 @@
 
     // Pixel ratio 4 (Very highres screens i.e. 4K tv)
     @media screen and (-webkit-min-device-pixel-ratio: 4),
-    screen and (max-width: 639px) and (-moz-min-device-pixel-ratio: 4),
-    screen and (max-width: 639px) and (-o-min-device-pixel-ratio: 4),
-    screen and (max-width: 639px) and (min-device-pixel-ratio: 4) {
+    screen and (-moz-min-device-pixel-ratio: 4),
+    screen and (-o-min-device-pixel-ratio: 4),
+    screen and (min-device-pixel-ratio: 4) {
+        font-size: 1.6rem;
+
         .bp-p4 {
             color: #0c0;
         }

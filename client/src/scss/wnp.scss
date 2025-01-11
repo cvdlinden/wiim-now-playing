@@ -313,8 +313,8 @@
 
 #wnpMedia {
     position: absolute;
-    left: 10px;
-    top: 10px;
+    right: 10px;
+    top: 40px;
     color: #ccc;
     background-color: rgba(238, 238, 238, .5);
     padding: 5px;
@@ -390,9 +390,9 @@
 
     // Pixel ratio 1 (True one-on-one screens i.e. desktop monitors)
     @media screen and (-webkit-min-device-pixel-ratio: 1),
-    screen and (max-width: 639px) and (-moz-min-device-pixel-ratio: 1),
-    screen and (max-width: 639px) and (-o-min-device-pixel-ratio: 1),
-    screen and (max-width: 639px) and (min-device-pixel-ratio: 1) {
+    screen and (-moz-min-device-pixel-ratio: 1),
+    screen and (-o-min-device-pixel-ratio: 1),
+    screen and (min-device-pixel-ratio: 1) {
         .bp-p1 {
             color: #0c0;
         }
@@ -400,9 +400,9 @@
 
     // Pixel ratio 2 (Highres small screens i.e. iPad tablets)
     @media screen and (-webkit-min-device-pixel-ratio: 2),
-    screen and (max-width: 639px) and (-moz-min-device-pixel-ratio: 2),
-    screen and (max-width: 639px) and (-o-min-device-pixel-ratio: 2),
-    screen and (max-width: 639px) and (min-device-pixel-ratio: 2) {
+    screen and (-moz-min-device-pixel-ratio: 2),
+    screen and (-o-min-device-pixel-ratio: 2),
+    screen and (min-device-pixel-ratio: 2) {
         .bp-p2 {
             color: #0c0;
         }
@@ -410,9 +410,9 @@
 
     // Pixel ratio 3 (Highres screens i.e. iPhones)
     @media screen and (-webkit-min-device-pixel-ratio: 3),
-    screen and (max-width: 639px) and (-moz-min-device-pixel-ratio: 3),
-    screen and (max-width: 639px) and (-o-min-device-pixel-ratio: 3),
-    screen and (max-width: 639px) and (min-device-pixel-ratio: 3) {
+    screen and (-moz-min-device-pixel-ratio: 3),
+    screen and (-o-min-device-pixel-ratio: 3),
+    screen and (min-device-pixel-ratio: 3) {
         .bp-p3 {
             color: #0c0;
         }
@@ -420,9 +420,9 @@
 
     // Pixel ratio 4 (Very highres screens i.e. 4K tv)
     @media screen and (-webkit-min-device-pixel-ratio: 4),
-    screen and (max-width: 639px) and (-moz-min-device-pixel-ratio: 4),
-    screen and (max-width: 639px) and (-o-min-device-pixel-ratio: 4),
-    screen and (max-width: 639px) and (min-device-pixel-ratio: 4) {
+    screen and (-moz-min-device-pixel-ratio: 4),
+    screen and (-o-min-device-pixel-ratio: 4),
+    screen and (min-device-pixel-ratio: 4) {
         .bp-p4 {
             color: #0c0;
         }
