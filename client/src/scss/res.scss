@@ -80,7 +80,7 @@
     // Responsive layout changes
 
     // RPi landscape and small tablets, and larger...
-    @media (min-width: 768px) {
+    @media (min-width: 576px) {
 
         .wnpContainer {
             // display: grid;
@@ -235,6 +235,38 @@
         .bp-4k {
             color: #0c0;
         }
+    }
+
+    // Pixel ratio 1 (True one-on-one screens i.e. desktop monitors)
+    @media screen and (-webkit-min-device-pixel-ratio: 1) {
+        .bp-p1 {
+            color: #0c0;
+        }
+        font-size: 1rem;
+    }
+
+    // Pixel ratio 2 (Highres small screens i.e. iPad tablets)
+    @media screen and (-webkit-min-device-pixel-ratio: 2) {
+        .bp-p2 {
+            color: #0c0;
+        }
+        font-size: 1.2rem;
+    }
+
+    // Pixel ratio 3 (Highres screens i.e. iPhones)
+    @media screen and (-webkit-min-device-pixel-ratio: 3) {
+        .bp-p3 {
+            color: #0c0;
+        }
+        font-size: 1.4rem;
+    }
+
+    // Pixel ratio 4 (Very highres screens i.e. 4K tv)
+    @media screen and (-webkit-min-device-pixel-ratio: 4) {
+        .bp-p4 {
+            color: #0c0;
+        }
+        font-size: 1.6rem;
     }
 
 }
