@@ -14,7 +14,8 @@ WNP.s = {
 WNP.d = {
     serverSettings: null,
     deviceList: null,
-    prevTransportState: null
+    prevTransportState: null,
+    prevPlayMedium: null
 }
 
 /**
@@ -219,14 +220,14 @@ WNP.setSocketDefinitions = function () {
         var trackDuration = (msg.TrackDuration) ? msg.TrackDuration : "00:00:00";
 
         // Get current player progress and set UI elements accordingly.
-        var playerProgress = WNP.getPlayerProgress(relTime, trackDuration, timeStampDiff);
+        var playerProgress = WNP.getPlayerProgress(relTime, trackDuration, timeStampDiff, msg.CurrentTransportState);
         progressPlayed.children[0].innerText = playerProgress.played;
         progressLeft.children[0].innerText = (playerProgress.left != "") ? "-" + playerProgress.left : "";
         progressPercent.setAttribute("aria-valuenow", playerProgress.percent)
         progressPercent.children[0].setAttribute("style", "width:" + playerProgress.percent + "%");
 
-        // Device transport state changed...?
-        if (WNP.d.prevTransportState !== msg.CurrentTransportState) {
+        // Device transport state or play medium changed...?
+        if (WNP.d.prevTransportState !== msg.CurrentTransportState || WNP.d.prevPlayMedium !== msg.PlayMedium) {
             if (msg.CurrentTransportState === "TRANSITIONING") {
                 btnPlay.children[0].className = "bi bi-circle-fill";
                 btnPlay.disabled = true;
@@ -236,20 +237,21 @@ WNP.setSocketDefinitions = function () {
                 // Stop > Play resets the stream to 'now'. Pause works like 'live tv time shift'.
                 if (msg.PlayMedium && msg.PlayMedium === "RADIO-NETWORK") {
                     btnPlay.children[0].className = "bi bi-stop-circle-fill";
-                    btnPlay.setAttribute("wnp-action", "Stop")
+                    btnPlay.setAttribute("wnp-action", "Stop");
                 }
                 else {
                     btnPlay.children[0].className = "bi bi-pause-circle-fill";
-                    btnPlay.setAttribute("wnp-action", "Pause")
+                    btnPlay.setAttribute("wnp-action", "Pause");
                 }
                 btnPlay.disabled = false;
             }
             else if (msg.CurrentTransportState === "PAUSED_PLAYBACK" || msg.CurrentTransportState === "STOPPED") {
                 btnPlay.children[0].className = "bi bi-play-circle-fill";
-                btnPlay.setAttribute("wnp-action", "Play")
+                btnPlay.setAttribute("wnp-action", "Play");
                 btnPlay.disabled = false;
             };
             WNP.d.prevTransportState = msg.CurrentTransportState; // Remember the last transport state
+            WNP.d.prevPlayMedium = msg.PlayMedium; // Remember the last PlayMedium
         }
 
         // If internet radio, there is no skipping... just start and stop!
@@ -395,9 +397,10 @@ WNP.setSocketDefinitions = function () {
  * @param {string} relTime - Time elapsed while playing, format 00:00:00
  * @param {string} trackDuration - Total play time, format 00:00:00
  * @param {integer} timeStampDiff - Possible play time offset in seconds
+ * @param {string} currentTransportState - The current transport state "PLAYING" or otherwise
  * @returns {object} An object with corrected played, left, total and percentage played
  */
-WNP.getPlayerProgress = function (relTime, trackDuration, timeStampDiff) {
+WNP.getPlayerProgress = function (relTime, trackDuration, timeStampDiff, currentTransportState) {
     var relTimeSec = this.convertToSeconds(relTime) + timeStampDiff;
     var trackDurationSec = this.convertToSeconds(trackDuration);
     if (trackDurationSec > 0 && relTimeSec < trackDurationSec) {
@@ -410,9 +413,17 @@ WNP.getPlayerProgress = function (relTime, trackDuration, timeStampDiff) {
             percent: percentPlayed
         };
     }
-    else {
+    else if (trackDurationSec == 0 && currentTransportState == "PLAYING") {
         return {
             played: "Live",
+            left: "",
+            total: "",
+            percent: 100
+        };
+    }
+    else {
+        return {
+            played: "Paused",
             left: "",
             total: "",
             percent: 0
