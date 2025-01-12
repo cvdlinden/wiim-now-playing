@@ -277,13 +277,16 @@ WNP.setSocketDefinitions = function () {
         mediaSubTitle.innerText = (msg.trackMetaData && msg.trackMetaData["dc:subtitle"]) ? msg.trackMetaData["dc:subtitle"] : "";
         mediaArtist.innerText = (msg.trackMetaData && msg.trackMetaData["upnp:artist"]) ? msg.trackMetaData["upnp:artist"] : "";
         mediaAlbum.innerHTML = (msg.trackMetaData && msg.trackMetaData["upnp:album"]) ? "<span id=\"mediaAlbumIdent\" class=\"badge badge-outlined\"><i class=\"bi bi-vinyl\"><\/i><\/span>" + msg.trackMetaData["upnp:album"] : "";
+        if (playMedium === "SONGLIST-NETWORK" && !trackSource && msg.CurrentTransportState === "STOPPED") {
+            mediaTitle.innerText = "No Music Selected";
+        }
 
         // Audio quality
         var songBitrate = (msg.trackMetaData && msg.trackMetaData["song:bitrate"]) ? msg.trackMetaData["song:bitrate"] : "";
         var songBitDepth = (msg.trackMetaData && msg.trackMetaData["song:format_s"]) ? msg.trackMetaData["song:format_s"] : "";
         var songSampleRate = (msg.trackMetaData && msg.trackMetaData["song:rate_hz"]) ? msg.trackMetaData["song:rate_hz"] : "";
         mediaBitRate.innerText = (songBitrate > 0) ? ((songBitrate > 1000) ? (songBitrate / 1000).toFixed(2) + " mbps, " : songBitrate + " kbps, ") : "";
-        mediaBitDepth.innerText = (songBitDepth > 0) ? ((songBitDepth > 24) ? "24 bits, " : songBitDepth + " bits, ") : ""; // TODO: 32 bits is suspect according to the WiiM app?
+        mediaBitDepth.innerText = (songBitDepth > 0) ? ((songBitDepth > 24) ? "24 bit/" : songBitDepth + " bit/") : ""; // TODO: 32 bits is suspect according to the WiiM app?
         mediaSampleRate.innerText = (songSampleRate > 0) ? (songSampleRate / 1000).toFixed(1) + " kHz" : "";
         if (!songBitrate && !songBitDepth && !songSampleRate) {
             mediaQualityIdent.style.display = "none";

@@ -122,7 +122,7 @@
             text-align: center;
 
             img {
-                max-height: 16px;
+                max-height: 24px;
                 margin-bottom: 15px;
                 filter: invert(1);
             }
@@ -262,10 +262,11 @@
 
             // Media Source Ident
             #mediaSource {
+                text-align: left;
 
                 img {
-                    max-height: 48px;
-                    margin-bottom: 30px;
+                    max-height: 32px;
+                    // margin-bottom: 30px;
                 }
 
             }
