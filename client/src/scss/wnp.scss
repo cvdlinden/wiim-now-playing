@@ -218,20 +218,20 @@
     }
 
     // In case of TV mode activated
+    // Hides player controls, more focus on song and artwork
     // TODO: rework to media queries
     &.tv-mode {
 
-        font-size: 1.5rem;
+        // font-size: 1.5rem;
 
-        h2 {
-            font-size: 3rem;
-        }
+        // h2 {
+        //     font-size: 3rem;
+        // }
 
         /* Layout - CSS Grid */
-        /* Landscape mode */
         .wnpContainer {
             grid-template-columns: 1.2fr 0.8fr;
-            grid-template-rows: 1fr 120px;
+            grid-template-rows: 1fr 70px;
         }
 
         /* CSS Grid areas */
@@ -279,14 +279,11 @@
                 height: 5px;
             }
 
-            #devNameHolder {
-                left: 45px;
-                bottom: 20px;
-            }
-
+            // Hide player controls
+            .btn-group.primary,
+            #devNameHolder,
             #devVolumeHolder {
-                right: 45px;
-                bottom: 20px;
+                display: none;
             }
 
         }
@@ -367,46 +364,6 @@
     // 4K devices (larger desktops, 1400px and up)
     @media (min-width: 3840px) {
         .bp-4k {
-            color: #0c0;
-        }
-    }
-
-    // Pixel ratio 1 (True one-on-one screens i.e. desktop monitors)
-    @media screen and (-webkit-min-device-pixel-ratio: 1),
-    screen and (-moz-min-device-pixel-ratio: 1),
-    screen and (-o-min-device-pixel-ratio: 1),
-    screen and (min-device-pixel-ratio: 1) {
-        .bp-p1 {
-            color: #0c0;
-        }
-    }
-
-    // Pixel ratio 2 (Highres small screens i.e. iPad tablets)
-    @media screen and (-webkit-min-device-pixel-ratio: 2),
-    screen and (-moz-min-device-pixel-ratio: 2),
-    screen and (-o-min-device-pixel-ratio: 2),
-    screen and (min-device-pixel-ratio: 2) {
-        .bp-p2 {
-            color: #0c0;
-        }
-    }
-
-    // Pixel ratio 3 (Highres screens i.e. iPhones)
-    @media screen and (-webkit-min-device-pixel-ratio: 3),
-    screen and (-moz-min-device-pixel-ratio: 3),
-    screen and (-o-min-device-pixel-ratio: 3),
-    screen and (min-device-pixel-ratio: 3) {
-        .bp-p3 {
-            color: #0c0;
-        }
-    }
-
-    // Pixel ratio 4 (Very highres screens i.e. 4K tv)
-    @media screen and (-webkit-min-device-pixel-ratio: 4),
-    screen and (-moz-min-device-pixel-ratio: 4),
-    screen and (-o-min-device-pixel-ratio: 4),
-    screen and (min-device-pixel-ratio: 4) {
-        .bp-p4 {
             color: #0c0;
         }
     }

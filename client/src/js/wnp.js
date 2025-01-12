@@ -276,7 +276,7 @@ WNP.setSocketDefinitions = function () {
         mediaTitle.innerText = (msg.trackMetaData && msg.trackMetaData["dc:title"]) ? msg.trackMetaData["dc:title"] : "";
         mediaSubTitle.innerText = (msg.trackMetaData && msg.trackMetaData["dc:subtitle"]) ? msg.trackMetaData["dc:subtitle"] : "";
         mediaArtist.innerText = (msg.trackMetaData && msg.trackMetaData["upnp:artist"]) ? msg.trackMetaData["upnp:artist"] : "";
-        mediaAlbum.innerHTML = (msg.trackMetaData && msg.trackMetaData["upnp:album"]) ? "<span id=\"mediaAlbumIdent\" class=\"badge badge-outlined\"><i class=\"bi bi-vinyl\"><\/i><\/span>"+ msg.trackMetaData["upnp:album"] : "";
+        mediaAlbum.innerHTML = (msg.trackMetaData && msg.trackMetaData["upnp:album"]) ? "<span id=\"mediaAlbumIdent\" class=\"badge badge-outlined\"><i class=\"bi bi-vinyl\"><\/i><\/span>" + msg.trackMetaData["upnp:album"] : "";
 
         // Audio quality
         var songBitrate = (msg.trackMetaData && msg.trackMetaData["song:bitrate"]) ? msg.trackMetaData["song:bitrate"] : "";
@@ -285,6 +285,12 @@ WNP.setSocketDefinitions = function () {
         mediaBitRate.innerText = (songBitrate > 0) ? ((songBitrate > 1000) ? (songBitrate / 1000).toFixed(2) + " mbps, " : songBitrate + " kbps, ") : "";
         mediaBitDepth.innerText = (songBitDepth > 0) ? ((songBitDepth > 24) ? "24 bits, " : songBitDepth + " bits, ") : ""; // TODO: 32 bits is suspect according to the WiiM app?
         mediaSampleRate.innerText = (songSampleRate > 0) ? (songSampleRate / 1000).toFixed(1) + " kHz" : "";
+        if (!songBitrate && !songBitDepth && !songSampleRate) {
+            mediaQualityIdent.style.display = "none";
+        }
+        else {
+            mediaQualityIdent.style.display = "inline-block";
+        }
 
         // Audio quality ident badge (HD/Hi-res/CD/...)
         var songQuality = (msg.trackMetaData && msg.trackMetaData["song:quality"]) ? msg.trackMetaData["song:quality"] : "";
@@ -497,8 +503,26 @@ WNP.getSourceIdent = function (playMedium, trackSource) {
         case "radio-network":
             sIdentUri = "./img/sources/radio.png";
             break;
+        case "songlist-network":
+            sIdentUri = "./img/sources/ethernet.png";
+            break;
         case "spotify":
             sIdentUri = "./img/sources/spotify.png";
+            break;
+        case "none":
+            sIdentUri = "./img/sources/none.png";
+            break;
+        case "bluetooth":
+            sIdentUri = "./img/sources/bluetooth.png";
+            break;
+        case "hdmi":
+            sIdentUri = "./img/sources/hdmi.png";
+            break;
+        case "line-in":
+            sIdentUri = "./img/sources/line-in.png";
+            break;
+        case "optical":
+            sIdentUri = "./img/sources/spdif.png";
             break;
     };
 
