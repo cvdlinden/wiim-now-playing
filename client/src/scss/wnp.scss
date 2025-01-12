@@ -39,7 +39,7 @@
     /* CSS Grid areas */
     .wnpAlbumArt {
         grid-area: wnpAlbumArt;
-        padding: 30px;
+        padding: 30px 30px 20px 30px;
         text-align: center;
         overflow: hidden;
     }
@@ -100,19 +100,30 @@
 
     }
 
-    /* Album Art */
+    /* Album Art contents */
     .wnpAlbumArt {
 
-        #albumArt {
-            object-fit: contain;
+        >div {
+            display: flex;
+            justify-content: center;
+            align-items: center;
             max-width: 100%;
             max-height: 100%;
+            overflow: hidden;
+            box-shadow: 3px 3px 16px rgba(0, 0, 0, .75);
+        }
+
+        #albumArt {
+            // object-fit: contain;
+            // max-width: 100%;
+            // max-height: 100%;
+            width: 100%;
             box-shadow: 3px 3px 16px rgba(0, 0, 0, .75);
         }
 
     }
 
-    /* Media info */
+    /* Media info contents */
     .wnpMediaInfo {
 
         text-shadow: 3px 3px 8px rgba(0, 0, 0, .75);
@@ -143,7 +154,7 @@
 
     }
 
-    /* Footer */
+    /* Footer contents */
     .wnpFooter {
 
         #progressPercent {
@@ -230,32 +241,32 @@
 
         /* Layout - CSS Grid */
         .wnpContainer {
-            grid-template-columns: 1.2fr 0.8fr;
-            grid-template-rows: 1fr 70px;
+            grid-template-columns: 1.1fr 0.9fr;
+            grid-template-rows: 1fr 60px;
         }
 
         /* CSS Grid areas */
-        .wnpAlbumArt {
-            padding: 45px;
-        }
+        // .wnpAlbumArt {
+        //     padding: 45px;
+        // }
 
-        .wnpMediaInfo {
-            padding: 45px 45px 45px 0;
-        }
+        // .wnpMediaInfo {
+        //     padding: 45px 45px 45px 0;
+        // }
 
-        .wnpFooter {
-            padding: 0 45px;
-        }
+        // .wnpFooter {
+        //     padding: 0 45px;
+        // }
 
         /* Album Art TV mode */
-        .wnpAlbumArt {
+        // .wnpAlbumArt {
 
-            #albumArt {
-                object-fit: fill;
-                width: 100%;
-            }
+        //     #albumArt {
+        //         object-fit: fill;
+        //         width: 100%;
+        //     }
 
-        }
+        // }
 
         /* Media info TV mode */
         .wnpMediaInfo {

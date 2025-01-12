@@ -26,6 +26,7 @@
         </div>
 
         <div class="wnpContainer">
+
             <div class="wnpMediaInfo">
                 <div id="mediaSource">{SOURCE}</div>
                 <h2 id="mediaTitle">{SONG}</h2>
@@ -37,10 +38,14 @@
                         id="mediaBitDepth">{yy
                         bits}/</span><span id="mediaSampleRate">{zz,z kHz}</span></div>
             </div>
+
             <div class="wnpAlbumArt">
-                <img id="albumArt" class="rounded" src="img/fake-album-1.jpg" onerror="this.src = WNP.s.rndAlbumArtUri"
-                    alt="Album art">
+                <div class="rounded">
+                    <img id="albumArt" class="rounded" src="img/fake-album-1.jpg"
+                        onerror="this.src = WNP.s.rndAlbumArtUri" alt="Album art">
+                </div>
             </div>
+
             <div class="wnpFooter">
                 <div class="text-center">
                     <div class="clearfix mb-1">
@@ -98,6 +103,7 @@
                     </div>
                 </div>
             </div>
+
         </div>
 
         <!-- Settings modal -->
