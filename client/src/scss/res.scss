@@ -1,5 +1,7 @@
 /* ------------------------
- * Resolution testing
+ * WiiM Now Playing styling (SCSS)
+ * Resolution test
+ */
 
 /* WiiM Now Playing App */
 #wnpApp {
@@ -10,7 +12,8 @@
     overflow: hidden;
 
     // ===============================
-    // Default styling - mobile first strategy
+    // Default CSS Grid - mobile first strategy
+    // Mobile portrait mode as default
     .wnpContainer {
         display: grid;
         grid-template-columns: 1fr;
@@ -33,6 +36,7 @@
 
     }
 
+    /* CSS Grid areas - mobile first */
     .wnpAlbumArt {
         grid-area: wnpAlbumArt;
 
@@ -50,10 +54,6 @@
         }
 
         img {
-            // min-width: 100%;
-            // min-height: 100%;
-            // max-width: 100%;
-            // max-height: 100%;
             width: 100%;
             box-shadow: 3px 3px 16px rgba(0, 0, 0, .75);
         }

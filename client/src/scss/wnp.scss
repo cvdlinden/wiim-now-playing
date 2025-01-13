@@ -12,67 +12,53 @@
     background: rgb(1, 12, 18);
     background: linear-gradient(0deg, rgba(1, 12, 18, 1) 0%, rgba(3, 53, 54, 1) 50%, rgba(40, 67, 74, 1) 100%);
 
-    .text-secondary {
-        color: rgba(179, 189, 186, 1) !important;
-    }
-
-    /* Layout - CSS Grid */
-    /* Landscape mode */
+    // ===============================
+    // Default CSS Grid - mobile first strategy
+    // Mobile portrait mode as default
     .wnpContainer {
         display: grid;
-        grid-template-columns: 1fr 1fr;
-        grid-template-rows: 1fr 110px;
+        grid-template-columns: 1fr;
+        grid-template-rows: 1.4fr .6fr 120px;
         gap: 0px 0px;
         grid-auto-flow: row;
         grid-template-areas:
-            "wnpAlbumArt wnpMediaInfo"
-            "wnpFooter wnpFooter";
+            "wnpAlbumArt"
+            "wnpMediaInfo"
+            "wnpFooter";
+
         position: absolute;
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
         overflow: hidden;
+
         color: #fff;
+
     }
 
-    /* CSS Grid areas */
+    /* CSS Grid areas - mobile first */
     .wnpAlbumArt {
         grid-area: wnpAlbumArt;
-        padding: 30px 30px 20px 30px;
+
+        padding: 40px 24px 16px 24px;
         text-align: center;
         overflow: hidden;
     }
 
     .wnpMediaInfo {
         grid-area: wnpMediaInfo;
-        padding: 30px 30px 30px 0;
+        padding: 0px 24px 0 24px;
     }
 
     .wnpFooter {
         grid-area: wnpFooter;
-        padding: 0 30px;
+        padding: 0 24px;
     }
 
-    /* Layout - CSS Grid */
-    /* Portrait mode, low resolution */
-    @media screen and (max-width:500px) {
-
-        .wnpContainer {
-            display: grid;
-            grid-template-columns: 1fr;
-            grid-template-rows: 2fr 1fr 140px;
-            gap: 0px 0px;
-            grid-template-areas:
-                "wnpAlbumArt"
-                "wnpMediaInfo"
-                "wnpFooter";
-        }
-
-        .wnpMediaInfo {
-            padding: 0 30px;
-        }
-
+    // Default overrides
+    .text-secondary {
+        color: rgba(179, 189, 186, 1) !important;
     }
 
     /* Background Album Art */
@@ -114,9 +100,6 @@
         }
 
         #albumArt {
-            // object-fit: contain;
-            // max-width: 100%;
-            // max-height: 100%;
             width: 100%;
             box-shadow: 3px 3px 16px rgba(0, 0, 0, .75);
         }
@@ -138,6 +121,16 @@
                 filter: invert(1);
             }
 
+        }
+
+        h3 {
+            font-size: 1.17em;
+        }
+
+        div:has(>#mediaAlbum),
+        #mediaQuality,
+        #mediaSubTitle {
+            font-size: .875em;
         }
 
         // Media Album and Quality Ident
@@ -163,7 +156,6 @@
         }
 
         .btn-group.primary {
-            margin-top: 5px;
 
             button {
                 border: none;
@@ -215,17 +207,84 @@
 
         #devNameHolder {
             position: absolute;
-            left: 30px;
+            left: 24px;
             bottom: 15px;
         }
 
         #devVolumeHolder {
             position: absolute;
-            right: 30px;
+            right: 24px;
             bottom: 15px;
             text-align: right;
         }
 
+    }
+
+    // ===============================
+    // Responsive layout changes
+
+    // Small devices (landscape phones, 576px and up)
+    @media (min-width: 576px) {
+
+        .wnpContainer {
+            grid-template-columns: .65fr 1.35fr;
+            grid-template-rows: 1fr 105px;
+            grid-template-areas:
+                "wnpAlbumArt wnpMediaInfo"
+                "wnpFooter wnpFooter";
+        }
+
+        /* CSS Grid areas - mobile first */
+        .wnpAlbumArt {
+            padding: 24px 24px 16px 24px;
+        }
+
+        .wnpMediaInfo {
+            padding: 24px 24px 24px 0;
+        }
+
+        .wnpFooter {
+            padding: 0 24px;
+
+            .btn-group.primary {
+                margin-top: 5px;
+            }
+
+        }
+
+    }
+
+    // Medium devices (tablets, 768px and up)
+    @media (min-width: 768px) {
+
+        .wnpContainer {
+            grid-template-columns: .95fr 1.05fr;
+            grid-template-rows: 1fr 105px;
+        }
+
+        /* Media info contents */
+        .wnpMediaInfo {
+
+            h3 {
+                font-size: calc(1.3rem + .6vw);
+            }
+
+            div:has(>#mediaAlbum),
+            #mediaQuality,
+            #mediaSubTitle {
+                font-size: 1rem;
+            }
+
+        }
+
+        /* Footer contents */
+        .wnpFooter {
+
+            .btn-group.primary {
+                margin-top: 2px;
+            }
+
+        }
     }
 
     // In case of TV mode activated
@@ -233,40 +292,34 @@
     // TODO: rework to media queries
     &.tv-mode {
 
-        // font-size: 1.5rem;
-
-        // h2 {
-        //     font-size: 3rem;
-        // }
-
         /* Layout - CSS Grid */
+        // Mobile portrait mode as default
         .wnpContainer {
-            grid-template-columns: 1.1fr 0.9fr;
-            grid-template-rows: 1fr 60px;
+            grid-template-rows: 1.4fr .6fr 56px;
         }
 
-        /* CSS Grid areas */
-        // .wnpAlbumArt {
-        //     padding: 45px;
-        // }
+        // Small devices (landscape phones, 576px and up)
+        @media (min-width: 576px) {
 
-        // .wnpMediaInfo {
-        //     padding: 45px 45px 45px 0;
-        // }
+            .wnpContainer {
+                grid-template-columns: .75fr 1.25fr;
+                grid-template-rows: 1fr 48px;
+                grid-template-areas:
+                    "wnpAlbumArt wnpMediaInfo"
+                    "wnpFooter wnpFooter";
+            }
 
-        // .wnpFooter {
-        //     padding: 0 45px;
-        // }
+        }
 
-        /* Album Art TV mode */
-        // .wnpAlbumArt {
+        // Medium devices (tablets, 768px and up)
+        @media (min-width: 768px) {
 
-        //     #albumArt {
-        //         object-fit: fill;
-        //         width: 100%;
-        //     }
+            .wnpContainer {
+                grid-template-columns: 1.05fr .95fr;
+                // grid-template-rows: 1fr 105px;
+            }
 
-        // }
+        }
 
         /* Media info TV mode */
         .wnpMediaInfo {
@@ -275,20 +328,19 @@
             #mediaSource {
                 text-align: left;
 
-                img {
-                    max-height: 32px;
-                    // margin-bottom: 30px;
-                }
+                // img {
+                //     max-height: 32px;
+                // }
 
             }
 
         }
-
         /* Footer TV mode */
         .wnpFooter {
 
+            // Emphasize progress bar
             #progressPercent {
-                height: 5px;
+                height: 4px;
             }
 
             // Hide player controls
@@ -303,6 +355,7 @@
 
 }
 
+// TEMP
 #wnpMedia {
     position: absolute;
     right: 10px;

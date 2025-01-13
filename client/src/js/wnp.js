@@ -15,7 +15,8 @@ WNP.d = {
     serverSettings: null,
     deviceList: null,
     prevTransportState: null,
-    prevPlayMedium: null
+    prevPlayMedium: null,
+    prevSourceIdent: null
 }
 
 /**
@@ -261,15 +262,19 @@ WNP.setSocketDefinitions = function () {
         var playMedium = (msg.PlayMedium) ? msg.PlayMedium : "";
         var trackSource = (msg.TrackSource) ? msg.TrackSource : "";
         var sourceIdent = WNP.getSourceIdent(playMedium, trackSource);
-        if (sourceIdent !== "") {
-            var identImg = document.createElement("img");
-            identImg.src = sourceIdent;
-            identImg.alt = playMedium + ": " + trackSource;
-            identImg.title = playMedium + ": " + trackSource;
-            mediaSource.innerHTML = identImg.outerHTML;
-        }
-        else {
-            mediaSource.innerText = playMedium + ": " + trackSource;
+        // Did the source ident change...?
+        if (sourceIdent !== WNP.d.prevSourceIdent) {
+            if (sourceIdent !== "") {
+                var identImg = document.createElement("img");
+                identImg.src = sourceIdent;
+                identImg.alt = playMedium + ": " + trackSource;
+                identImg.title = playMedium + ": " + trackSource;
+                mediaSource.innerHTML = identImg.outerHTML;
+            }
+            else {
+                mediaSource.innerText = playMedium + ": " + trackSource;
+            }
+            WNP.d.prevSourceIdent = sourceIdent; // Remember the last Source Ident
         }
 
         // Song Title, Subtitle, Artist, Album
