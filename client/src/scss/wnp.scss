@@ -303,7 +303,7 @@
 
             .wnpContainer {
                 grid-template-columns: .75fr 1.25fr;
-                grid-template-rows: 1fr 48px;
+                grid-template-rows: 1fr 46px;
                 grid-template-areas:
                     "wnpAlbumArt wnpMediaInfo"
                     "wnpFooter wnpFooter";
@@ -324,6 +324,16 @@
         /* Media info TV mode */
         .wnpMediaInfo {
 
+            h1, h2, h3, h4, h5, h6 {
+                margin-bottom: 0.75rem;
+            }
+
+            div:has(>#mediaAlbum),
+            #mediaQuality,
+            #mediaSubTitle {
+                font-size: 1.1rem;
+            }
+
             // Media Source Ident
             #mediaSource {
                 text-align: left;
@@ -335,12 +345,13 @@
             }
 
         }
+
         /* Footer TV mode */
         .wnpFooter {
 
             // Emphasize progress bar
             #progressPercent {
-                height: 4px;
+                height: 5px;
             }
 
             // Hide player controls
@@ -350,13 +361,29 @@
                 display: none;
             }
 
+            #progressPlayed,
+            #progressLeft {
+                padding-top: 2px;
+            }
+
+            #mediaQualityIdent {
+
+                &.badge-outlined {
+                    border: 1px solid rgba(118, 125, 123, 1);
+                    font-weight: var(--bs-body-font-weight);
+                    margin-right: 10px;
+                }
+
+            }
+
         }
     }
 
 }
 
-// TEMP
+// TEMP - Resolution debugging
 #wnpMedia {
+    display: none;
     position: absolute;
     right: 10px;
     top: 40px;
