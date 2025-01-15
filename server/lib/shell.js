@@ -52,7 +52,7 @@ const shutdown = (io) => {
  * @returns {undefined}
  */
 const update = (io) => {
-    log("Update requested...");
+    log("Update requested..."); 
     io.emit("server-update", __dirname);
     exec('cd ../../ && pwd', function (err, stdout, stderr) {
         io.emit("server-update", stdout);
