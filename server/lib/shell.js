@@ -54,22 +54,22 @@ const shutdown = (io) => {
 const update = (io) => {
     log("Update requested..."); 
     io.emit("server-update", __dirname);
-    exec('cd ../../ && pwd', function (err, stdout, stderr) {
-        io.emit("server-update", stdout);
-    });
+    // exec('cd ../../ && pwd', function (err, stdout, stderr) {
+    //     io.emit("server-update", stdout);
+    // });
     // git.stdout.on("data", data => {
     //     log(`Git replied: ${data}`);
     //     io.emit("server-update", data);
     //  });
-    // exec('cd ../../ && /usr/bin/git pull', function (err, stdout, stderr) {
-    //     if (err) {
-    //         log("Error", err);
-    //         io.emit("server-update", err);
-    //     }
-    //     else {
-    //         io.emit("server-update", "Server updated");
-    //     }
-    // });
+    exec('git -C ' + __dirname + ' pull', function (err, stdout, stderr) {
+        if (err) {
+            log("Error", err);
+            io.emit("server-update", err);
+        }
+        else {
+            io.emit("server-update", "Server updated");
+        }
+    });
 }
 
 module.exports = {
