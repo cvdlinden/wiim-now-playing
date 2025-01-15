@@ -61,7 +61,7 @@ const update = (io) => {
     //     log(`Git replied: ${data}`);
     //     io.emit("server-update", data);
     //  });
-    exec('git -C ' + __dirname + ' pull', function (err, stdout, stderr) {
+    exec('git -C ' + __dirname + ' pull && npm install', function (err, stdout, stderr) {
         if (err) {
             log("Error", err);
             io.emit("server-update", err);
