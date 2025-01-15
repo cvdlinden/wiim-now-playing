@@ -53,7 +53,8 @@ const shutdown = (io) => {
  */
 const update = (io) => {
     log("Update requested..."); 
-    io.emit("server-update", __dirname);
+    // io.emit("server-update", __dirname);
+    io.emit("server-update", "Updating...")
     // exec('cd ../../ && pwd', function (err, stdout, stderr) {
     //     io.emit("server-update", stdout);
     // });
@@ -67,7 +68,8 @@ const update = (io) => {
             io.emit("server-update", err);
         }
         else {
-            io.emit("server-update", "Server updated");
+            log("Update completed", stdout);
+            io.emit("server-update", { "Updated" : stdout });
         }
     });
 }
