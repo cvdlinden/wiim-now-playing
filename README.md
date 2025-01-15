@@ -2,8 +2,6 @@
 
 Show what the WiiM device is currently playing on a separate screen.
 
-> In test/dev phase!
-
 ![Tidal High](./assets/Screenshot%202024-02-12%20022212.png)  
 *Tidal High quality*
 
@@ -16,7 +14,7 @@ Show what the WiiM device is currently playing on a separate screen.
 ![Settings](./assets/Screenshot%202024-02-12%20021621.png)  
 *Settings*
 
-## "I just want it to run!"
+## "I just want it to run, here and now!"
 
 If you just want it to run and see what it does?
 
@@ -34,12 +32,21 @@ Steps to run as fast as possible:
 
 4. Use ``cd wiim-now-playing`` to move into the newly created folder.
 5. Use ``npm install`` to get all of the dependencies and prepare for launch.  
-   *Tend to any errors! If anything pops up you could try the next step, but it is probably best to fix any beforehand.*
+   *Tend to any errors! If anything pops up you could try the next step, but it is probably best to fix any beforehand.*  
+   *Please note that npm install may warn you about vulnerabilities and prompt you to run 'npm audit fix --force'. Please don't, as this will break functionality. The issue is related to a package that another package is using. If you don't run this app on a public machine, but on your home network, you will be fine...*
 6. Start the server with ``node server/index.js``. It should tell you where the server is running.  
   Copy-paste this url into your browser. Enjoy!  
 7. Note: If the previous command crashes out, your system most probably does not allow running the server on http port 80.  
    This could be the case if you already have a webserver already running there.  
    Open up server/index.js in your favorite text editor and edit the value in ``const port = 80;``. Try ports 8000, 8080, 5000 or 3000 untill it no longer complains.
+
+## 'I want to run it stand-alone on a Raspberry Pi (with touchscreen)'
+
+If you want to run the wiim-now-playing on a Raspberry Pi, with a touchscreen,  
+please read the installation instructions in [Raspberry Pi Setup - with touchscreen](docs/RPi-Setup.md)
+
+The application can also be run headless, i.e. without a monitor, on a Raspberry Pi, Intel NUC, whatever old hardware you have lying around... Then point a browser on another device, i.e. a TV, to the server and see what's playing.  
+For instructions see running a [Raspberry Pi - headless](docs/RPi-Headless.md)
 
 ## "I want to use docker!"
 
@@ -49,14 +56,6 @@ If you want to use [Docker](https://www.docker.com/) instead, please use:
 
 > Please note that this will **only** run well on a Linux machine. The Windows version of Docker does not support SSDP and will not scan the network for WiiM devices. You may need to spin up an entire Linux VM for this to work, which defeats the purpose of Docker.  
 See: <https://github.com/cvdlinden/wiim-now-playing/pull/4>
-
-## 'I want to run it on a Raspberry Pi (with touchscreen)'
-
-If you want to run the wiim-now-playing on a Raspberry Pi, with a touchscreen,  
-please read the installation instructions in [Raspberry Pi Setup - with touchscreen](docs/RPi-Setup.md)
-
-The application can also be run headless, i.e. without a monitor, on a Raspberry Pi, Intel NUC, whatever old hardware you have lying around... Then point a browser on another device, i.e. a TV, to the server and see what's playing.  
-For instructions see running a [Raspberry Pi - headless](docs/RPi-Headless.md)
 
 ## Also see
 
@@ -148,4 +147,4 @@ In order to incorporate your changes you can build the client.
 
 3. The newly built client will be placed in the server/public folder.  
    *Wiping any changes made there!*
-4. If you still have the node server running, refresh the browser to see your changes.
+4. If you still have the node server running, refresh the browser to see your changes in the default environment.
