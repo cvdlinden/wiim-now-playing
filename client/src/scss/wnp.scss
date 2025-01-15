@@ -324,7 +324,12 @@
         /* Media info TV mode */
         .wnpMediaInfo {
 
-            h1, h2, h3, h4, h5, h6 {
+            h1,
+            h2,
+            h3,
+            h4,
+            h5,
+            h6 {
                 margin-bottom: 0.75rem;
             }
 
@@ -363,7 +368,11 @@
 
             #progressPlayed,
             #progressLeft {
-                padding-top: 2px;
+                padding-top: 5px;
+            }
+
+            #mediaQuality {
+                padding-top: 3px;
             }
 
             #mediaQualityIdent {
