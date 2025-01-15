@@ -50,11 +50,15 @@ If you want to use [Docker](https://www.docker.com/) instead, please use:
 > Please note that this will **only** run well on a Linux machine. The Windows version of Docker does not support SSDP and will not scan the network for WiiM devices. You may need to spin up an entire Linux VM for this to work, which defeats the purpose of Docker.  
 See: <https://github.com/cvdlinden/wiim-now-playing/pull/4>
 
+## 'I want to run it on a Raspberry Pi (with touchscreen)'
+
+If you want to run the wiim-now-playing on a Raspberry Pi, with a touchscreen,  
+please read the installation instructions in [Raspberry Pi Setup - with touchscreen](docs/RPi-Setup.md)
+
+The application can also be run headless, i.e. without a monitor, on a Raspberry Pi, Intel NUC, whatever old hardware you have lying around... Then point a browser on another device, i.e. a TV, to the server and see what's playing.  
+For instructions see running a [Raspberry Pi - headless](docs/RPi-Headless.md)
+
 ## Also see
-
-If you want to run the wiim-now-playing on a Raspberry Pi, with a touchscreen, please read the installation instructions in [Raspberry Pi Setup](docs/RPi-Setup.md)
-
-Other:
 
 - [Plan](docs/Plan.md)
 - [Design](docs/Design.md)

@@ -5,10 +5,9 @@ The below 'manual' is by no means fool-proof as there are wildly different versi
 
 **Goal**: Start a somewhat recent Raspberry Pi device with browser in kiosk mode on the local (DSI) touchscreen display to show the wiim-now-playing app.
 
-> Although you could run the app on a headless Raspberry Device! That would defeat the purpose a bit.  
-  For example you can have a spare Raspberry Pi tucked away somewhere, running the wiim-now-playing server in order to keep tabs on what your WiiM device is playing. Possibly even a Pi Zero, haven't tested that yet  
-  And for the client to have a browser tab open all day. Possibly even using the cheapest Android tablet you can find.  
-  Then again you already should have the WiiM Home app on your device to control and see what it is playing.
+> For setting up a headless Raspberry Device see: [Setting up a Raspberry Pi in headless mode](RPi-Headless.md)
+
+## Usage scenarios
 
 **Scenario 1**: You want to have a passive screen on your desk or near your stereo, that when something catches your ears you want to know what it is that is playing now.
 
@@ -17,7 +16,7 @@ I.e. faster than reaching for your phone, opening the WiiM Home app and pause. O
 
 **Scenario 3**: You are going through some playlists while hanging back. Then you're not into one song and want to skip quickly. Or you want to play that song again.
 
-**The 'works-on-my-machine' short-hand-guide:**
+## **The 'works-on-my-machine' short-hand-guide:**
 
 1. Prepare a Raspberry Pi with an attached touchscreen.  
    Make sure you know how to activate the screen before anything else.  
