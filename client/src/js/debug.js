@@ -32,6 +32,10 @@ btnReboot.addEventListener("click", function () {
     socket.emit("server-reboot");
 });
 
+btnUpdate.addEventListener("click", function () {
+    socket.emit("server-update");
+});
+
 btnShutdown.addEventListener("click", function () {
     socket.emit("server-shutdown");
 });
@@ -75,6 +79,7 @@ socket.on("server-settings", function (msg) {
     sServerSettings.innerHTML = JSON.stringify(msg);
     if (msg.os.userInfo.shell === "/bin/bash") { // RPi has bash, so possibly able to reboot/shutdown.
         btnReboot.disabled = false;
+        btnUpdate.disabled = false;
         btnShutdown.disabled = false;
     };
 
