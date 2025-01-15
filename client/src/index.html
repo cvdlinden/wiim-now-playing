@@ -33,9 +33,9 @@
                 <h3 id="mediaArtist">{ARTIST}</h3>
                 <div class="mb-2"><span id="mediaAlbum">{ALBUM TITLE}</span></div>
                 <div class="mb-2"><span id="mediaSubTitle" class="text-secondary">{SUBTITLE}</span></div>
-                <div id="mediaQuality" class="text-secondary mb-1"><span id="mediaQualityIdent" class="badge badge-outlined"><i
-                            class="bi bi-soundwave"></i></span><span id="mediaBitRate">{xxx kbps}/</span><span
-                        id="mediaBitDepth">{yy
+                <div id="mediaQuality" class="text-secondary mb-1"><span id="mediaQualityIdent"
+                        class="badge badge-outlined"><i class="bi bi-soundwave"></i></span><span id="mediaBitRate">{xxx
+                        kbps}/</span><span id="mediaBitDepth">{yy
                         bits}/</span><span id="mediaSampleRate">{zz,z kHz}</span></div>
             </div>
 
@@ -140,11 +140,14 @@
                             <label class="form-label">Server actions:</label>
                             <div class="btn-group" role="group" aria-label="Server actions">
                                 <button id="btnReboot" class="btn btn-secondary" disabled>Reboot server</button>
+                                <button id="btnUpdate" class="btn btn-secondary" disabled>Update server</button>
                                 <button id="btnShutdown" class="btn btn-secondary" disabled>Shutdown server</button>
                                 <button id="btnReloadUI" class="btn btn-secondary">Reload UI</button>
                             </div>
                             <div class="form-text">
                                 <strong>Reboot server</strong>: Just wait for it to come back up. (Raspberry Pi
+                                only)<br />
+                                <strong>Update server</strong>: Will try and do an update with a Git Pull. (Raspberry Pi
                                 only)<br />
                                 <strong>Shutdown server</strong>: Wait for it to shut down completely before unplugging
                                 the power. (Raspberry Pi only)<br />

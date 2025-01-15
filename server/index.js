@@ -223,6 +223,15 @@ io.on("connection", (socket) => {
         shell.shutdown(io);
     });
 
+    /**
+     * Listener for server update (git pull).
+     * @returns {undefined}
+     */
+    socket.on("server-update", () => {
+        log("Socket event", "server-update");
+        shell.update(io);
+    });
+
 });
 
 // Start the webserver and listen for traffic

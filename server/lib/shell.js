@@ -46,7 +46,18 @@ const shutdown = (io) => {
     });
 }
 
+/**
+ * This function tells the (Raspberry Pi) server to do an update (Git Pull).
+ * @param {object} io - The Sockets.io object reference to emit to clients.
+ * @returns {undefined}
+ */
+const update = (io) => {
+    log("Update requested...");
+    // exec();
+}
+
 module.exports = {
     reboot,
-    shutdown
+    shutdown,
+    update
 }

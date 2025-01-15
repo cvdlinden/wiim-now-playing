@@ -140,11 +140,14 @@
                             <label class="form-label">Server actions:</label>
                             <div class="btn-group" role="group" aria-label="Server actions">
                                 <button id="btnReboot" class="btn btn-secondary" disabled>Reboot server</button>
+                                <button id="btnUpdate" class="btn btn-secondary" disabled>Update server</button>
                                 <button id="btnShutdown" class="btn btn-secondary" disabled>Shutdown server</button>
                                 <button id="btnReloadUI" class="btn btn-secondary">Reload UI</button>
                             </div>
                             <div class="form-text">
                                 <strong>Reboot server</strong>: Just wait for it to come back up. (Raspberry Pi
+                                only)<br />
+                                <strong>Update server</strong>: Will try and do an update with a Git Pull. (Raspberry Pi
                                 only)<br />
                                 <strong>Shutdown server</strong>: Wait for it to shut down completely before unplugging
                                 the power. (Raspberry Pi only)<br />

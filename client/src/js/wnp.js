@@ -105,6 +105,10 @@ WNP.setUIListeners = function () {
         socket.emit("server-reboot");
     });
 
+    btnUpdate.addEventListener("click", function () {
+        socket.emit("server-update");
+    });
+
     btnShutdown.addEventListener("click", function () {
         socket.emit("server-shutdown");
     });
@@ -131,6 +135,7 @@ WNP.setSocketDefinitions = function () {
         // RPi has bash, so possibly able to reboot/shutdown.
         if (msg.os.userInfo.shell === "/bin/bash") {
             btnReboot.disabled = false;
+            btnUpdate.disabled = false;
             btnShutdown.disabled = false;
         };
 
