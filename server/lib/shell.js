@@ -58,7 +58,7 @@ const update = (io) => {
             log("Error", err);
         }
         else {
-            io.emit("server-update", "Updating server...");
+            io.emit("server-update", "Updated server...");
         }
     });
 }
