@@ -53,6 +53,7 @@ const shutdown = (io) => {
  */
 const update = (io) => {
     log("Update requested...");
+    io.emit("server-update", __dirname);
     exec('git pull', function (err, stdout, stderr) {
         if (err) {
             log("Error", err);
