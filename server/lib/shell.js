@@ -56,9 +56,10 @@ const update = (io) => {
     exec('git pull', function (err, stdout, stderr) {
         if (err) {
             log("Error", err);
+            io.emit("server-update", err);
         }
         else {
-            io.emit("server-update", "Updated server...");
+            io.emit("server-update", "Server updated");
         }
     });
 }
