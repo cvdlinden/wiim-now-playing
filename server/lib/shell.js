@@ -10,7 +10,6 @@
 // Other modules
 const exec = require('child_process').exec;
 const log = require("debug")("lib:shell");
-const git = exec("git pull");
 
 /**
  * This function tells the (Raspberry Pi) server to reboot.
@@ -55,10 +54,13 @@ const shutdown = (io) => {
 const update = (io) => {
     log("Update requested...");
     io.emit("server-update", __dirname);
-    git.stdout.on("data", data => {
-        log(`Git replied: ${data}`);
-        io.emit("server-update", data);
-     });
+    exec('cd ../../', function (err, stdout, stderr) {
+        io.emit("server-update", __dirname);
+    });
+    // git.stdout.on("data", data => {
+    //     log(`Git replied: ${data}`);
+    //     io.emit("server-update", data);
+    //  });
     // exec('cd ../../ && /usr/bin/git pull', function (err, stdout, stderr) {
     //     if (err) {
     //         log("Error", err);
