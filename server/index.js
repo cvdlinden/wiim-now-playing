@@ -56,7 +56,8 @@ let serverSettings = { // Placeholder for current server settings
         "state": 1000, // Timeout for state updates in milliseconds.
         "metadata": 4 * 1000, // Timeout for metadata updates in milliseconds.
         "rescan": 10 * 1000 // Timeout for possible rescan of devices
-    }
+    },
+    "server": null
 };
 
 // Interval placeholders:
@@ -236,5 +237,6 @@ io.on("connection", (socket) => {
 
 // Start the webserver and listen for traffic
 server.listen(port, () => {
+    serverSettings.server = server.address();
     console.log("Web Server started at http://localhost:%s", server.address().port);
 });

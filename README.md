@@ -42,11 +42,13 @@ Steps to run as fast as possible:
 
 ## 'I want to run it stand-alone on a Raspberry Pi (with touchscreen)'
 
-If you want to run the wiim-now-playing on a Raspberry Pi, with a touchscreen,  
+If you want to run the wiim-now-playing app on a Raspberry Pi with a touchscreen, 
 please read the installation instructions in [Raspberry Pi Setup - with touchscreen](docs/RPi-Setup.md)
 
-The application can also be run headless, i.e. without a monitor, on a Raspberry Pi, Intel NUC, whatever old hardware you have lying around... Then point a browser on another device, i.e. a TV, to the server and see what's playing.  
-For instructions see running a [Raspberry Pi - headless](docs/RPi-Headless.md)
+Or if you would like to use a regular screen/monitor you can use the (micro) HDMI output of the Raspberry Pi, but you would need to add a mouse and keyboard as well in order to operate the device. Follow the instructions above to have it run in kiosk mode and skip the touchscreen particular section(s). The Raspberry Pi should automatically recognize the screen on the HDMI port.
+
+The application can also be run headless, i.e. without a monitor. Set the Raspberry Pi up and tuck it away somewhere. Then point a browser from another device, i.e. a TV, to the server and see what's playing.
+For instructions see running a [Raspberry Pi Setup - headless](docs/RPi-Headless.md)
 
 ## "I want to use docker!"
 

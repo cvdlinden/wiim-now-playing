@@ -45,7 +45,8 @@ const getOS = () => {
         "release": os.release(),
         "userInfo": os.userInfo(),
         "version": os.version(),
-        "machine": os.machine()
+        "machine": os.machine(),
+        "networkInterfaces": os.networkInterfaces()
     };
 }
 

@@ -87,6 +87,35 @@ socket.on("server-settings", function (msg) {
     sManufacturer.children[0].innerText = (msg && msg.selectedDevice && msg.selectedDevice.manufacturer) ? msg.selectedDevice.manufacturer : "-";
     sModelName.children[0].innerText = (msg && msg.selectedDevice && msg.selectedDevice.modelName) ? msg.selectedDevice.modelName : "-";
     sLocation.children[0].innerText = (msg && msg.selectedDevice && msg.selectedDevice.location) ? msg.selectedDevice.location : "-";
+    if (msg && msg.os && msg.os.hostname) {
+        var sUrl = "http://" + msg.os.hostname.toLowerCase() + ".local";
+        sUrl += (msg.server && msg.server.port && msg.server.port != 80) ? ":" + msg.server.port + "/" : "/";
+        sServerUrlHostname.children[0].innerText = sUrl;
+    }
+    else {
+        sServerUrlHostname.children[0].innerText = "-";
+    }
+    if (msg && msg.selectedDevice && msg.selectedDevice.location && msg.os && msg.os.networkInterfaces) {
+        // Grab the ip address pattern of the selected device
+        // We suspect that the wiim-now-playing server is on the same ip range..
+        var sLocationIp = msg.selectedDevice.location.split("/")[2];
+        var aIpAddress = sLocationIp.split(".");
+        aIpAddress.pop(); // Remove the last part
+        var sIpPattern = aIpAddress.join(".");
+        // Search for an ip address in range...
+        Object.keys(msg.os.networkInterfaces).forEach(function (key, index) {
+            var sIpFound = msg.os.networkInterfaces[key].find(addr => addr.address.startsWith(sIpPattern))
+            if (sIpFound) {
+                // Construct ip address and optional port
+                var sUrl = "http://" + sIpFound.address;
+                sUrl += (msg.server && msg.server.port && msg.server.port != 80) ? ":" + msg.server.port + "/" : "/";
+                sServerUrlIP.children[0].innerText = sUrl;
+            }
+        });
+    }
+    else {
+        sServerUrlIP.children[0].innerText = "-";
+    }
 
 });
 
