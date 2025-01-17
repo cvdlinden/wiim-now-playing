@@ -47,7 +47,7 @@ const getOS = () => {
             log("Error", err);
         }
         else {
-            // log("stdout", stdout);
+            log("stdout", stdout);
             ipAddresses = stdout.split("\n");
         }
     });
