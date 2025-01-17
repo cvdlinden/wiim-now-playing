@@ -85,7 +85,7 @@
     // Responsive layout changes
 
     // RPi landscape and small tablets, and larger...
-    @media (min-width: 576px) {
+    @media (min-width: 576px) and (orientation: landscape) {
 
         .wnpContainer {
             // display: grid;
@@ -113,7 +113,7 @@
     }
 
     // Small desktops and large tablets, and larger...
-    @media (min-width: 992px) {
+    @media (min-width: 992px) and (orientation: landscape) {
 
         .wnpContainer {
             grid-template-columns: 1fr 1fr;
@@ -134,7 +134,7 @@
     }
 
     // Desktop browsers and large tablets, and larger...
-    @media (min-width: 1200px) {
+    @media (min-width: 1200px) and (orientation: landscape) {
 
         .wnpContainer {
             grid-template-columns: 1.2fr .8fr;
@@ -155,7 +155,7 @@
     }
 
     // 1440p devices (larger desktops, 1400px and up)
-    @media (min-width: 2560px) {
+    @media (min-width: 2560px) and (orientation: landscape) {
 
         .wnpMediaInfo {
             padding: 48px 48px 48px 0;
@@ -246,6 +246,20 @@
     // 4K devices (larger desktops, 1400px and up)
     @media (min-width: 3840px) {
         .bp-4k {
+            color: #0c0;
+        }
+    }
+
+    // Orientation: Landscape
+    @media (orientation: landscape) {
+        .bp-ls {
+            color: #0c0;
+        }
+    }
+
+    // Orientation: Portrait
+    @media (orientation: portrait) {
+        .bp-pt {
             color: #0c0;
         }
     }

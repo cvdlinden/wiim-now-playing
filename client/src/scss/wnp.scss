@@ -224,7 +224,7 @@
     // Responsive layout changes
 
     // Small devices (landscape phones, 576px and up)
-    @media (min-width: 576px) {
+    @media (min-width: 576px) and (orientation: landscape) {
 
         .wnpContainer {
             grid-template-columns: .65fr 1.35fr;
@@ -255,7 +255,7 @@
     }
 
     // Medium devices (tablets, 768px and up)
-    @media (min-width: 768px) {
+    @media (min-width: 768px) and (orientation: landscape) {
 
         .wnpContainer {
             grid-template-columns: .95fr 1.05fr;
@@ -299,7 +299,7 @@
         }
 
         // Small devices (landscape phones, 576px and up)
-        @media (min-width: 576px) {
+        @media (min-width: 576px) and (orientation: landscape) {
 
             .wnpContainer {
                 grid-template-columns: .75fr 1.25fr;
@@ -312,7 +312,7 @@
         }
 
         // Medium devices (tablets, 768px and up)
-        @media (min-width: 768px) {
+        @media (min-width: 768px) and (orientation: landscape) {
 
             .wnpContainer {
                 grid-template-columns: 1.05fr .95fr;

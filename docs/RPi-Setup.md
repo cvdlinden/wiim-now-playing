@@ -163,9 +163,9 @@ Wait for the RPi to reboot. It may start upside-down first, but it will right it
 
 In order to host the wiim-now-playing solution we will need to install Node.js and NPM first! Do not use the default ``apt install`` method as it will install a very old version of Node.js, without NPM.
 
-### Installing Node.js LTS version
+### Update all packages
 
-Refer to the <https://deb.nodesource.com/> installation instructions instead as it will install the latest LTS version (20.x) of Node.js.
+Now that the Raspberry Pi is running it is a good idea to do an update of all the installed packages, and possibly any firmware.
 
 1. Make an SSH connection to the RPi.
 2. Run the following commands in sequence:
@@ -176,49 +176,31 @@ Refer to the <https://deb.nodesource.com/> installation instructions instead as 
    ```
 
    _If any new packages are found, install them! It may take a while at the first time._  
-   _You may run these commands again to make sure everything has been updated._
+   _You may run these commands again, directly after or at any moment later, to make sure everything has been updated._  
+   _Optionally, you also may do a restart of the Raspberry Pi with a ```sudo reboot``` after the upgrade of the packages is done_
 
-3. Now add the following packages:
+### Installing Node.js LTS version
 
-   ```bash
-   sudo apt install -y ca-certificates curl gnupg
-   ```
+Refer to the <https://deb.nodesource.com/> installation instructions instead as it will install the latest LTS version (20.x) of Node.js.
 
-   _It may tell you that the packages already have been installed._
-
-4. Run the following command to add the nodesource repo:  
+1. Make an SSH connection to the RPi.
+2. Run the following commands in sequence:
 
    ```bash
-   curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | sudo gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg
+   curl -fsSL https://deb.nodesource.com/setup_20.x | sudo bash -
+   sudo apt-get install -y nodejs
    ```
 
-5. Next run the following to add nodesource to the sources list:  
+   _This will configure and install Node.js automatically on the device_
 
-   ```bash
-   NODE_MAJOR=20
-   ```
-
-   and
-
-   ```bash
-   echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_$NODE_MAJOR.x nodistro main" | sudo tee /etc/apt/sources.list.d/nodesource.list
-   ```
-
-6. Now it is time to install Node.js with the following commands:  
-
-   ```bash
-   sudo apt update
-   sudo apt install nodejs -y
-   ```
-
-7. After the installation is done you can check whether the correct version of node and npm are installed. Running:  
+3. After the installation is done you can check whether the correct version of node and npm are installed. Running:  
    ``node -v`` should say version 20-something.  
    ``npm -v`` should say version 10-something.  
    _Higher is good, lower is bad._
 
 ### Installing Git
 
-Installing the wiim-now-playing app can be as simple as downloading the zip from Github (using curl). Then unzip to a folder, run ``npm install`` and ``node server/index.js``. If so, skip the following Git steps, you're good to go.
+Installing the wiim-now-playing app can be as simple as downloading the zip from Github (using curl). Then unzip to a folder, run ``npm install`` and ``node server/index.js``. If so, skip the following Git steps, you're good to go. although you may miss the option to ```git pull``` any updates released afterwards.
 
 In this case we'll be using Git to clone the wiim-now-playing repo in order to always be able to get the latest version easily.
 
@@ -329,7 +311,7 @@ Whenever the RPi reboots, i.e. due to the intentional or unintentional loss of p
    @reboot su username -c "/usr/bin/node /home/username/wiim-now-playing/server/index.js" &
    ```
 
-   _Replace the 'username' with **your** username! Right after su and in /home/username/..._  
+   _**NOTE!** Replace the 'username' with **your** username! Right after su **and** in /home/username/..._  
    _If you've placed the wiim-now-playing app in a different folder then ammend the last part to reflect the correct folder!_  
    _Note that the & at the end is required!_
 
