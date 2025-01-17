@@ -42,7 +42,7 @@ const getOS = () => {
 
     // Try and get the local ip adresses first, only successful on Linux
     let ipAddresses = null;
-    exec('ip -4 addr | grep -oP \'(?<=inet\s)\d+(\.\d+){3}\'', function (err, stdout, stderr) {
+    exec('ip -4 addr', function (err, stdout, stderr) {
         if (err) {
             log("Error", err);
         }
