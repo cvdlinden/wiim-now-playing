@@ -10,6 +10,7 @@
 // Other modules
 const os = require("os");
 const fs = require('fs');
+const exec = require('child_process').exec;
 const log = require("debug")("lib:lib");
 
 // Module constants
@@ -38,6 +39,19 @@ const getTimeStamp = () => {
  */
 const getOS = () => {
     log("os", "Get OS capabilities");
+
+    // Try and get the local ip adresses first, only successful on Linux
+    let ipAddresses = null;
+    exec("ip -4 addr | grep -oP '(?<=inet\s)\d+(\.\d+){3}'", function (err, stdout, stderr) {
+        if (err) {
+            log("Error", err);
+        }
+        else {
+            // log("stdout", stdout);
+            ipAddresses = stdout.split("\n");
+        }
+    });
+
     return {
         "arch": os.arch(),
         "hostname": os.hostname(),
@@ -46,7 +60,8 @@ const getOS = () => {
         "userInfo": os.userInfo(),
         "version": os.version(),
         "machine": os.machine(),
-        "networkInterfaces": os.networkInterfaces()
+        "networkInterfaces": os.networkInterfaces(),
+        "ipAddresses": ipAddresses
     };
 }
 
