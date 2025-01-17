@@ -102,9 +102,12 @@ socket.on("server-settings", function (msg) {
         var aIpAddress = sLocationIp.split(".");
         aIpAddress.pop(); // Remove the last part
         var sIpPattern = aIpAddress.join(".");
+        console.log("sIpPattern", sIpPattern)
         // Search for an ip address in range...
         Object.keys(msg.os.networkInterfaces).forEach(function (key, index) {
+            console.log("KEY", key, msg.os.networkInterfaces[key]);
             var sIpFound = msg.os.networkInterfaces[key].find(addr => addr.address.startsWith(sIpPattern))
+            console.log("sIpFound", sIpFound);
             if (sIpFound) {
                 // Construct ip address and optional port
                 var sUrl = "http://" + sIpFound.address;
