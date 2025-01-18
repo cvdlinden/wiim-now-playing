@@ -30,5 +30,6 @@ For a more step-by-step process read below.
 ===
 
 {TODO: basically follow the touchscreen setup, without the touchscreen stuff. Will try on a RPi Zero...}
+{TODO: 'Headless' with HDMI output...}
 
 ===
