@@ -328,6 +328,8 @@ Note: In the RPi commandline you can use ``top`` or ``htop`` to see if there is 
 
 ## Chromium-browser in Kiosk mode
 
+{TODO: Move this to a separate doc...}
+
 Now that we've configured the RPi and the wiim-now-playing app (server part) to run every time the RPi (re)boots, we would like to show the client on the touchscreen as well.
 
 ### Configuring Kiosk mode

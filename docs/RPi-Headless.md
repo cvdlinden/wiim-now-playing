@@ -33,3 +33,6 @@ For a more step-by-step process read below.
 {TODO: 'Headless' with HDMI output...}
 
 ===
+
+
+{Point to KIOSK instructions...}
