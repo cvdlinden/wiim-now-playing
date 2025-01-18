@@ -7,7 +7,6 @@ window.WNP = window.WNP || {};
 // Default settings
 WNP.s = {
     rndAlbumArtUri: "./img/fake-album-1.jpg",
-    // rndRadioArtUri: "./img/webradio-1.png"
 };
 
 // Data placeholders.
@@ -51,10 +50,8 @@ WNP.Init = function () {
 
     // Create random album intervals, every 3 minutes
     WNP.s.rndAlbumArtUri = WNP.rndAlbumArt("fake-album-");
-    // WNP.s.rndRadioArtUri = WNP.rndAlbumArt("webradio-");
     var rndAlbumInterval = setInterval(function () {
         WNP.s.rndAlbumArtUri = WNP.rndAlbumArt("fake-album-");
-        // WNP.s.rndRadioArtUri = WNP.rndAlbumArt("webradio-");
     }, 3 * 60 * 1000);
 
 };
@@ -518,7 +515,7 @@ WNP.setAlbumArt = function (imgUri) {
 
 /**
  * Come up with a random album art URI (locally from the img folder).
- * @param {string} prefix - The prefix for the album art URI, i.e. 'fake-album-' or 'webradio-'
+ * @param {string} prefix - The prefix for the album art URI, i.e. 'fake-album-'
  * @returns {string} An URI for album art
  */
 WNP.rndAlbumArt = function (prefix) {

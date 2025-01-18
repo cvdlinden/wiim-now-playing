@@ -33,7 +33,7 @@ Steps to run as fast as possible:
 4. Use ``cd wiim-now-playing`` to move into the newly created folder.
 5. Use ``npm install`` to get all of the dependencies and prepare for launch.  
    *Tend to any errors! If anything pops up you could try the next step, but it is probably best to fix any beforehand.*  
-   *Please note that npm install may warn you about vulnerabilities and prompt you to run 'npm audit fix --force'. Please don't, as this will break functionality. The issue is related to a package that another package is using. If you don't run this app on a public machine, but on your home network, you will be fine...*
+   *Please note that npm install may warn you about vulnerabilities and prompt you to run 'npm audit fix --force'. Please don't, as this will break functionality. The issue is related to a package that another package is using. If you don't run this app on a public machine, you should only run on your own home network, you will be fine...*
 6. Start the server with ``node server/index.js``. It should tell you where the server is running.  
   Copy-paste this url into your browser. Enjoy!  
 7. Note: If the previous command crashes out, your system most probably does not allow running the server on http port 80.  
@@ -45,7 +45,7 @@ Steps to run as fast as possible:
 If you want to run the wiim-now-playing app on a Raspberry Pi with a touchscreen,
 please read the installation instructions in [Raspberry Pi Setup - with touchscreen](docs/RPi-Setup.md)
 
-You can run the wiim-now-playing app with a regular screen/monitor attached over the (micro) HDMI output of the Raspberry Pi. But then you would also need to add a mouse and keyboard as well in order to operate the device. Follow the 'headless' instructions below and then configure it for kiosk mode.
+You can run the wiim-now-playing app with a regular screen/monitor attached over the (micro) HDMI output of the Raspberry Pi. But then you would also need to add a mouse and keyboard as well in order to operate the device. Follow the 'headless' instructions below and then after configure it for kiosk mode.
 
 The application can also be run headless i.e. without a monitor (or anything else) attached. Set the Raspberry Pi up this way and tuck it away somewhere out of sight. Point a browser from another device, i.e. a TV, to the server and see what's playing there.
 For instructions see running a [Raspberry Pi Setup - headless](docs/RPi-Headless.md)
