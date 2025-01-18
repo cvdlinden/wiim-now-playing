@@ -5,6 +5,8 @@ The below 'manual' is by no means fool-proof as there are wildly different versi
 
 **Goal**: Start a somewhat recent Raspberry Pi device with browser in kiosk mode on the local (DSI) touchscreen display to show the wiim-now-playing app.
 
+Which type of Raspberry Pi should I use? [See the Raspberry Pi requirements.](RPi-Requirements.md)
+
 > For setting up a headless Raspberry Device see: [Setting up a Raspberry Pi in headless mode](RPi-Headless.md)
 
 ## Usage scenarios
