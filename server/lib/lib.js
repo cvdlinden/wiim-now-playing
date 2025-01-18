@@ -61,7 +61,7 @@ const getOS = () => {
         "version": os.version(),
         "machine": os.machine(),
         "networkInterfaces": os.networkInterfaces(),
-        "ipAddresses": ipAddresses
+        // "ipAddresses": ipAddresses
     };
 }
 
