@@ -144,6 +144,37 @@ WNP.setSocketDefinitions = function () {
             devName.innerText = msg.selectedDevice.friendlyName;
         };
 
+        // Set the server url(s) under the settings modal
+        if (msg && msg.os && msg.os.hostname) {
+            var sUrl = "http://" + msg.os.hostname.toLowerCase() + ".local";
+            sUrl += (msg.server && msg.server.port && msg.server.port != 80) ? ":" + msg.server.port + "/" : "/";
+            sServerUrlHostname.children[0].innerText = sUrl;
+        }
+        else {
+            sServerUrlHostname.children[0].innerText = "-";
+        }
+        if (msg && msg.selectedDevice && msg.selectedDevice.location && msg.os && msg.os.networkInterfaces) {
+            // Grab the ip address pattern of the selected device
+            // Assumption is that the wiim-now-playing server is on the same ip range as the client..
+            var sLocationIp = msg.selectedDevice.location.split("/")[2]; // Extract ip address from location
+            var aIpAddress = sLocationIp.split("."); // Split ip address in parts
+            aIpAddress.pop(); // Remove the last part
+            var sIpPattern = aIpAddress.join("."); // Construct ip address pattern
+            // Search for server ip address(es) in this range...
+            Object.keys(msg.os.networkInterfaces).forEach(function (key, index) {
+                var sIpFound = msg.os.networkInterfaces[key].find(addr => addr.address.startsWith(sIpPattern))
+                if (sIpFound) {
+                    // Construct ip address and optional port
+                    var sUrl = "http://" + sIpFound.address;
+                    sUrl += (msg.server && msg.server.port && msg.server.port != 80) ? ":" + msg.server.port + "/" : "/";
+                    sServerUrlIP.children[0].innerText = sUrl;
+                }
+            });
+        }
+        else {
+            sServerUrlIP.children[0].innerText = "-";
+        }
+
     });
 
     // On devices get

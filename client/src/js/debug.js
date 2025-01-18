@@ -71,6 +71,7 @@ setTimeout(() => {
 }, 500);
 
 socket.on("server-settings", function (msg) {
+    console.log("IO: server-settings", msg);
     tickServerSettingsDown.classList.add("tickAnimate");
 
     // Store server settings
@@ -97,17 +98,14 @@ socket.on("server-settings", function (msg) {
     }
     if (msg && msg.selectedDevice && msg.selectedDevice.location && msg.os && msg.os.networkInterfaces) {
         // Grab the ip address pattern of the selected device
-        // We suspect that the wiim-now-playing server is on the same ip range..
-        var sLocationIp = msg.selectedDevice.location.split("/")[2];
-        var aIpAddress = sLocationIp.split(".");
+        // Assumption is that the wiim-now-playing server is on the same ip range as the client..
+        var sLocationIp = msg.selectedDevice.location.split("/")[2]; // Extract ip address from location
+        var aIpAddress = sLocationIp.split("."); // Split ip address in parts
         aIpAddress.pop(); // Remove the last part
-        var sIpPattern = aIpAddress.join(".");
-        console.log("sIpPattern", sIpPattern)
-        // Search for an ip address in range...
+        var sIpPattern = aIpAddress.join("."); // Construct ip address pattern
+        // Search for server ip address(es) in this range...
         Object.keys(msg.os.networkInterfaces).forEach(function (key, index) {
-            console.log("KEY", key, msg.os.networkInterfaces[key]);
             var sIpFound = msg.os.networkInterfaces[key].find(addr => addr.address.startsWith(sIpPattern))
-            console.log("sIpFound", sIpFound);
             if (sIpFound) {
                 // Construct ip address and optional port
                 var sUrl = "http://" + sIpFound.address;
@@ -123,6 +121,7 @@ socket.on("server-settings", function (msg) {
 });
 
 socket.on("devices-get", function (msg) {
+    console.log("IO: devices-get", msg);
     tickDevicesGetDown.classList.add("tickAnimate");
 
     // Store and sort device list
@@ -176,6 +175,7 @@ socket.on("devices-get", function (msg) {
 });
 
 socket.on("device-set", function (msg) {
+    console.log("IO: device-set", msg);
     tickDeviceSetDown.classList.add("tickAnimate");
     // Device wissel? Haal 'alles' opnieuw op
     tickServerSettingsUp.classList.add("tickAnimate");
@@ -185,11 +185,13 @@ socket.on("device-set", function (msg) {
 });
 
 socket.on("devices-refresh", function (msg) {
+    console.log("IO: devices-refresh", msg);
     tickDevicesRefreshDown.classList.add("tickAnimate");
     deviceChoices.innerHTML = "<option disabled=\"disabled\">Waiting for devices...</em></li>";
 });
 
 socket.on("state", function (msg) {
+    // console.log("IO: state", msg);
     tickStateDown.classList.add("tickAnimate");
     state.innerHTML = JSON.stringify(msg);
     if (msg && msg.stateTimeStamp && msg.metadataTimeStamp) {
@@ -202,6 +204,7 @@ socket.on("state", function (msg) {
 });
 
 socket.on("metadata", function (msg) {
+    // console.log("IO: metadata", msg);
     tickMetadataDown.classList.add("tickAnimate");
     metadata.innerHTML = JSON.stringify(msg);
     sTitle.children[0].innerText = (msg && msg.trackMetaData && msg.trackMetaData["dc:title"]) ? msg.trackMetaData["dc:title"] : "-";

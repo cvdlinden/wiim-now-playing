@@ -118,7 +118,7 @@
 
                         <!-- Device selection -->
                         <div class="mb-3">
-                            <label for="deviceChoices" class="form-label">Select a device:</label>
+                            <label for="deviceChoices" class="form-label">Select a (WiiM) device:</label>
                             <div class="input-group">
                                 <select id="deviceChoices" class="form-select">
                                     <option disabled="disabled">Waiting for devices...</option>
@@ -129,9 +129,9 @@
                                 </div>
                             </div>
                             <div class="form-text">
-                                If you can't find your WiiM device, make sure that it is turned on, on the same network
-                                and
-                                press 'Refresh devices'. Please wait for the devices to be discovered.
+                                If you can't find your WiiM device, make sure that it is turned on and on the same
+                                network.<br /> Then press 'Refresh devices' to start a scan for devices. Please wait a
+                                while for the devices to be discovered.
                             </div>
                         </div>
 
@@ -147,7 +147,9 @@
                             <div class="form-text">
                                 <strong>Reboot server</strong>: Just wait for it to come back up. (Raspberry Pi
                                 only)<br />
-                                <strong>Update server</strong>: EXPERIMENTAL! Do an update with a Git Pull. Will only work if you've used Git for the setup. Please reload the ui afterwards and/or do a reboot. (Raspberry Pi
+                                <strong>Update server</strong>: EXPERIMENTAL! Do an update with a Git Pull. Will only
+                                work if you've used Git for the setup. Please reload the ui afterwards and/or do a
+                                reboot. (Raspberry Pi
                                 only)<br />
                                 <strong>Shutdown server</strong>: Wait for it to shut down completely before unplugging
                                 the power. (Raspberry Pi only)<br />
@@ -155,9 +157,17 @@
                             </div>
                         </div>
 
-                        <!-- Debug information -->
+                        <!-- Server information -->
                         <div class="mb-3">
-                            <a href="/debug">Show debug information</a>
+                            <label class="form-label">Server information:</label>
+                            <div class="form-text">
+                                This server can be reached at the following URLs:
+                                <ul>
+                                    <li id="sServerUrlHostname">By hostname: <span></span></li>
+                                    <li id="sServerUrlIP">By IP address: <span></span></li>
+                                </ul>
+                                <a href="/debug">Show more debug information</a>
+                            </div>
                         </div>
 
                     </div>
