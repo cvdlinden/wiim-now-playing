@@ -40,17 +40,17 @@ const getTimeStamp = () => {
 const getOS = () => {
     log("os", "Get OS capabilities");
 
-    // Try and get the local ip adresses first, only successful on Linux
-    let ipAddresses = null;
-    exec('ip -4 addr', function (err, stdout, stderr) {
-        if (err) {
-            log("Error", err);
-        }
-        else {
-            log("stdout", stdout);
-            ipAddresses = stdout.toString()
-        }
-    });
+    // // Try and get the local ip adresses first, only successful on Linux
+    // let ipAddresses = null;
+    // exec('ip -4 addr', function (err, stdout, stderr) {
+    //     if (err) {
+    //         log("Error", err);
+    //     }
+    //     else {
+    //         log("stdout", stdout);
+    //         ipAddresses = stdout.toString();
+    //     }
+    // });
 
     return {
         "arch": os.arch(),
