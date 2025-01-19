@@ -32,14 +32,16 @@
   - Autorun node.js
 
 - [x] Change out rimraf and cash-cp to Shx <https://www.npmjs.com/package/shx>
-- [ ] Add a 4K/High-res UI so you can switch when browsing on a TV.
+- [X] Add a ~~4K/High-res UI~~ tv-mode option so you can switch when browsing on a TV.
+- [X] Add a description for a RPi headless setup, for external screens (with browser)
 
 (Possible) TODOs:
 
 - Contingencies for when devices become unavailable? Network dropoffs/resets?  
   _Socket.IO already does a fine job with network interuptions_
 - What kind of data is available when using other inputs on the WiiM Amp? Line In, Optical, HDMI, Bluetooth
+  _Icons added for different inputs, not sure what metadata is sent. Def not on Line In._
 - Subscription to WiiM devices apparently doesn't work?  
   _Ask WiiM/LinkPlay to implement?_
 - Also make use of OpenHome devices? Discovery possible, not yet implemented. See: <http://wiki.openhome.org/wiki/OhMediaDevelopers>  
-  _Implementation is totally different from WiiMs UPnP. Further research into long term storage._
+  _Implementation is totally different from WiiMs UPnP. Further research onto the back-backlog._

@@ -9,7 +9,7 @@ const Client = require('upnp-device-client');
 
 // Instantiate a client with a device LOCATION URL (discovered by SSDP)
 // Replace the URI below with the found URI from discovery (use: node test-ssdp.js)
-let client = new Client("http://192.168.1.243:49152/description.xml");
+let client = new Client("http://192.168.1.196:49152/description.xml");
 
 // Get the device description
 client.getDeviceDescription(function (err, deviceDesc) {

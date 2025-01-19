@@ -12,67 +12,53 @@
     background: rgb(1, 12, 18);
     background: linear-gradient(0deg, rgba(1, 12, 18, 1) 0%, rgba(3, 53, 54, 1) 50%, rgba(40, 67, 74, 1) 100%);
 
-    .text-secondary {
-        color: rgba(179, 189, 186, 1) !important;
-    }
-
-    /* Layout - CSS Grid */
-    /* Landscape mode */
+    // ===============================
+    // Default CSS Grid - mobile first strategy
+    // Mobile portrait mode as default
     .wnpContainer {
         display: grid;
-        grid-template-columns: 1fr 1fr;
-        grid-template-rows: 1fr 110px;
+        grid-template-columns: 1fr;
+        grid-template-rows: 1.4fr .6fr 120px;
         gap: 0px 0px;
         grid-auto-flow: row;
         grid-template-areas:
-            "wnpAlbumArt wnpMediaInfo"
-            "wnpFooter wnpFooter";
+            "wnpAlbumArt"
+            "wnpMediaInfo"
+            "wnpFooter";
+
         position: absolute;
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
         overflow: hidden;
+
         color: #fff;
+
     }
 
-    /* CSS Grid areas */
+    /* CSS Grid areas - mobile first */
     .wnpAlbumArt {
         grid-area: wnpAlbumArt;
-        padding: 30px;
+
+        padding: 40px 24px 16px 24px;
         text-align: center;
         overflow: hidden;
     }
 
     .wnpMediaInfo {
         grid-area: wnpMediaInfo;
-        padding: 30px 30px 30px 0;
+        padding: 0px 24px 0 24px;
     }
 
     .wnpFooter {
         grid-area: wnpFooter;
-        padding: 0 30px;
+        padding: 0 24px;
     }
 
-    /* Layout - CSS Grid */
-    /* Portrait mode */
-    @media screen and (max-width:500px) {
-
-        .wnpContainer {
-            display: grid;
-            grid-template-columns: 1fr;
-            grid-template-rows: 2fr 1fr 140px;
-            gap: 0px 0px;
-            grid-template-areas:
-                "wnpAlbumArt"
-                "wnpMediaInfo"
-                "wnpFooter";
-        }
-
-        .wnpMediaInfo {
-            padding: 0 30px;
-        }
-
+    // Default overrides
+    .text-secondary {
+        color: rgba(179, 189, 186, 1) !important;
     }
 
     /* Background Album Art */
@@ -88,7 +74,7 @@
         #bgAlbumArtBlur {
             height: 100%;
             /* Center and scale the image nicely */
-            background-image: url("../img/fake-album-1.png");
+            background-image: url("../img/fake-album-1.jpg");
             background-position: center;
             background-repeat: no-repeat;
             background-size: cover;
@@ -100,19 +86,27 @@
 
     }
 
-    /* Album Art */
+    /* Album Art contents */
     .wnpAlbumArt {
 
-        #albumArt {
-            object-fit: contain;
+        >div {
+            display: flex;
+            justify-content: center;
+            align-items: center;
             max-width: 100%;
             max-height: 100%;
+            overflow: hidden;
+            box-shadow: 3px 3px 16px rgba(0, 0, 0, .75);
+        }
+
+        #albumArt {
+            width: 100%;
             box-shadow: 3px 3px 16px rgba(0, 0, 0, .75);
         }
 
     }
 
-    /* Media info */
+    /* Media info contents */
     .wnpMediaInfo {
 
         text-shadow: 3px 3px 8px rgba(0, 0, 0, .75);
@@ -122,18 +116,29 @@
             text-align: center;
 
             img {
-                max-height: 16px;
+                max-height: 24px;
                 margin-bottom: 15px;
                 filter: invert(1);
             }
 
         }
 
-        // Media Quality Ident
+        h3 {
+            font-size: 1.17em;
+        }
+
+        div:has(>#mediaAlbum),
+        #mediaQuality,
+        #mediaSubTitle {
+            font-size: .875em;
+        }
+
+        // Media Album and Quality Ident
+        #mediaAlbumIdent,
         #mediaQualityIdent {
 
             &.badge-outlined {
-                border: 1px solid rgba(179, 189, 186, 1);
+                border: 1px solid rgba(118, 125, 123, 1);
                 font-weight: var(--bs-body-font-weight);
                 margin-right: 10px;
             }
@@ -142,56 +147,326 @@
 
     }
 
-    /* Footer */
+    /* Footer contents */
     .wnpFooter {
 
         #progressPercent {
+            height: 2px;
             --bs-bg-opacity: .5;
         }
 
-        .btn-group {
-            margin-top: 5px;
+        .btn-group.primary {
+
+            button {
+                border: none;
+            }
+
+            button:hover,
+            button:active {
+                background-color: transparent;
+                color: var(--bs-btn-color);
+            }
+
+            #btnPlay {
+                font-size: 2.25rem;
+            }
+
+            #btnPrev,
+            #btnNext {
+                font-size: 1.75rem;
+            }
         }
 
-        .btn-group button {
-            border: none;
-        }
+        .btn-group.secondary {
+            position: absolute;
+            top: 5px;
+            right: 15px;
 
-        .btn-group button:hover,
-        .btn-group button:active {
-            background-color: transparent;
-            color: var(--bs-btn-color);
-        }
+            button,
+            a {
+                border: none;
+                padding: 6px;
+            }
 
-        #btnPlay {
-            font-size: 2.25rem;
-        }
+            button:hover,
+            button:active,
+            a:hover,
+            a:active {
+                background-color: transparent;
+                color: var(--bs-btn-color);
+            }
 
-        #btnPrev,
-        #btnNext {
-            font-size: 1.75rem;
+            // #wnpSettings {
+            //     position: absolute;
+            //     top: 5px;
+            //     right: 15px;
+            //     border: none;
+            // }
+
         }
 
         #devNameHolder {
             position: absolute;
-            left: 30px;
+            left: 24px;
             bottom: 15px;
         }
 
         #devVolumeHolder {
             position: absolute;
-            right: 30px;
+            right: 24px;
             bottom: 15px;
             text-align: right;
         }
 
-        #wnpSettings {
-            position: absolute;
-            top: 5px;
-            right: 15px;
-            border: none;
+    }
+
+    // ===============================
+    // Responsive layout changes
+
+    // Small devices (landscape phones, 576px and up)
+    @media (min-width: 576px) and (orientation: landscape) {
+
+        .wnpContainer {
+            grid-template-columns: .65fr 1.35fr;
+            grid-template-rows: 1fr 105px;
+            grid-template-areas:
+                "wnpAlbumArt wnpMediaInfo"
+                "wnpFooter wnpFooter";
         }
 
+        /* CSS Grid areas - mobile first */
+        .wnpAlbumArt {
+            padding: 24px 24px 16px 24px;
+        }
+
+        .wnpMediaInfo {
+            padding: 24px 24px 24px 0;
+        }
+
+        .wnpFooter {
+            padding: 0 24px;
+
+            .btn-group.primary {
+                margin-top: 5px;
+            }
+
+        }
+
+    }
+
+    // Medium devices (tablets, 768px and up)
+    @media (min-width: 768px) and (orientation: landscape) {
+
+        .wnpContainer {
+            grid-template-columns: .95fr 1.05fr;
+            grid-template-rows: 1fr 105px;
+        }
+
+        /* Media info contents */
+        .wnpMediaInfo {
+
+            h3 {
+                font-size: calc(1.3rem + .6vw);
+            }
+
+            div:has(>#mediaAlbum),
+            #mediaQuality,
+            #mediaSubTitle {
+                font-size: 1rem;
+            }
+
+        }
+
+        /* Footer contents */
+        .wnpFooter {
+
+            .btn-group.primary {
+                margin-top: 2px;
+            }
+
+        }
+    }
+
+    // In case of TV mode activated
+    // Hides player controls, more focus on song and artwork
+    // TODO: rework to media queries
+    &.tv-mode {
+
+        /* Layout - CSS Grid */
+        // Mobile portrait mode as default
+        .wnpContainer {
+            grid-template-rows: 1.4fr .6fr 56px;
+        }
+
+        // Small devices (landscape phones, 576px and up)
+        @media (min-width: 576px) and (orientation: landscape) {
+
+            .wnpContainer {
+                grid-template-columns: .75fr 1.25fr;
+                grid-template-rows: 1fr 46px;
+                grid-template-areas:
+                    "wnpAlbumArt wnpMediaInfo"
+                    "wnpFooter wnpFooter";
+            }
+
+        }
+
+        // Medium devices (tablets, 768px and up)
+        @media (min-width: 768px) and (orientation: landscape) {
+
+            .wnpContainer {
+                grid-template-columns: 1.05fr .95fr;
+                // grid-template-rows: 1fr 105px;
+            }
+
+        }
+
+        /* Media info TV mode */
+        .wnpMediaInfo {
+
+            h1,
+            h2,
+            h3,
+            h4,
+            h5,
+            h6 {
+                margin-bottom: 0.75rem;
+            }
+
+            div:has(>#mediaAlbum),
+            #mediaQuality,
+            #mediaSubTitle {
+                font-size: 1.1rem;
+            }
+
+            // Media Source Ident
+            #mediaSource {
+                text-align: left;
+
+                img {
+                    max-height: 28px;
+                }
+
+            }
+
+        }
+
+        /* Footer TV mode */
+        .wnpFooter {
+
+            // Emphasize progress bar
+            #progressPercent {
+                height: 5px;
+            }
+
+            // Hide player controls
+            .btn-group.primary,
+            #devNameHolder,
+            #devVolumeHolder {
+                display: none;
+            }
+
+            #progressPlayed,
+            #progressLeft {
+                padding-top: 5px;
+            }
+
+            #mediaQuality {
+                padding-top: 3px;
+            }
+
+            #mediaQualityIdent {
+
+                &.badge-outlined {
+                    border: 1px solid rgba(118, 125, 123, 1);
+                    font-weight: var(--bs-body-font-weight);
+                    margin-right: 10px;
+                }
+
+            }
+
+        }
+    }
+
+}
+
+// TEMP - Resolution debugging
+#wnpMedia {
+    display: none;
+    position: absolute;
+    right: 10px;
+    top: 40px;
+    color: #ccc;
+    background-color: rgba(238, 238, 238, .5);
+    padding: 5px;
+
+    @media screen and (min-width: 576px) {
+        .bp-xs {
+            color: #0c0;
+        }
+    }
+
+    // Bootstrap responsive breakpoints: https://getbootstrap.com/docs/5.0/layout/breakpoints/
+    // X-Small devices (portrait phones, less than 576px)
+    // No media query for `xs` since this is the default in Bootstrap
+    .bp-xs {
+        color: #0c0;
+    }
+
+    // Small devices (landscape phones, 576px and up)
+    @media (min-width: 576px) {
+        .bp-sm {
+            color: #0c0;
+        }
+    }
+
+    // Medium devices (tablets, 768px and up)
+    @media (min-width: 768px) {
+        .bp-md {
+            color: #0c0;
+        }
+    }
+
+    // Large devices (desktops, 992px and up)
+    @media (min-width: 992px) {
+        .bp-lg {
+            color: #0c0;
+        }
+    }
+
+    // X-Large devices (large desktops, 1200px and up)
+    @media (min-width: 1200px) {
+        .bp-xl {
+            color: #0c0;
+        }
+    }
+
+    // XX-Large devices (larger desktops, 1400px and up)
+    @media (min-width: 1400px) {
+        .bp-xxl {
+            color: #0c0;
+        }
+    }
+
+    // 1080p devices (larger desktops, 1400px and up)
+    @media (min-width: 1920px) {
+        .bp-1080 {
+            color: #0c0;
+        }
+    }
+
+    // 1440p devices (larger desktops, 1400px and up)
+    @media (min-width: 2560px) {
+        .bp-1440 {
+            color: #0c0;
+        }
+    }
+
+    // 4K devices (larger desktops, 1400px and up)
+    @media (min-width: 3840px) {
+        .bp-4k {
+            color: #0c0;
+        }
     }
 
 }

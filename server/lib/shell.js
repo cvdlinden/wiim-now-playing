@@ -46,7 +46,36 @@ const shutdown = (io) => {
     });
 }
 
+/**
+ * This function tells the (Raspberry Pi) server to do an update (Git Pull).
+ * @param {object} io - The Sockets.io object reference to emit to clients.
+ * @returns {undefined}
+ */
+const update = (io) => {
+    log("Update requested..."); 
+    // io.emit("server-update", __dirname);
+    io.emit("server-update", "Updating...")
+    // exec('cd ../../ && pwd', function (err, stdout, stderr) {
+    //     io.emit("server-update", stdout);
+    // });
+    // git.stdout.on("data", data => {
+    //     log(`Git replied: ${data}`);
+    //     io.emit("server-update", data);
+    //  });
+    exec('git -C ' + __dirname + ' pull && npm install', function (err, stdout, stderr) {
+        if (err) {
+            log("Error", err);
+            io.emit("server-update", err);
+        }
+        else {
+            log("Update completed", stdout);
+            io.emit("server-update", { "Updated" : stdout });
+        }
+    });
+}
+
 module.exports = {
     reboot,
-    shutdown
+    shutdown,
+    update
 }

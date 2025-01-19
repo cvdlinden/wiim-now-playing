@@ -50,13 +50,14 @@ let serverSettings = { // Placeholder for current server settings
         "location": null,
         "actions": null
     },
-    "os": lib.getOS(), // Grab the environment we are running in.
+    "os": lib.getOS(), // Initially grab the environment we are running in. Things may not have settled yet, so we update this later.
     "timeouts": {
-        "immediate": 250, // Timeout for 'immediate' updates in milliseconds.
-        "state": 1000, // Timeout for state updates in milliseconds.
-        "metadata": 4 * 1000, // Timeout for metadata updates in milliseconds.
-        "rescan": 10 * 1000 // Timeout for possible rescan of devices
-    }
+        "immediate": 250, // Timeout for 'immediate' updates in milliseconds. Quarter of a second.
+        "state": 1000, // Timeout for state updates in milliseconds. Every second.
+        "metadata": 4 * 1000, // Timeout for metadata updates in milliseconds. Every 4 seconds.
+        "rescan": 10 * 1000 // Timeout for possible rescan of devices in milliseconds. Every 10 seconds.
+    },
+    "server": null // Placeholder for the express server (port) information
 };
 
 // Interval placeholders:
@@ -75,7 +76,8 @@ ssdp.scan(deviceList, serverSettings);
 // Due to wifi initialisation delay the scan may have failed.
 // Not aware of a method of knowing whether wifi connection has been established fully.
 setTimeout(() => {
-    // Start new scan, if first scan failed...
+    log("Rescanning devices...");
+    // Start new device scan, if first scan failed...
     if (deviceList.length === 0) {
         ssdp.scan(deviceList, serverSettings);
         // The client may not be aware of any devices and have an empty list, waiting for rescan results and send the device list again
@@ -83,6 +85,9 @@ setTimeout(() => {
             sockets.getDevices(io, deviceList);
         }, serverSettings.timeouts.metadata)
     }
+    // Node.js may have started before the wifi connection was established, so we rescan after a while
+    serverSettings.os = lib.getOS(); // Update the OS information
+    io.emit("server-settings", serverSettings); // And resend to clients
 }, serverSettings.timeouts.rescan);
 
 // ===========================================================================
@@ -91,8 +96,14 @@ setTimeout(() => {
 app.use(cors());
 // Reroute all clients to the /public folder
 app.use(express.static(__dirname + "/public"));
+app.get('/tv', function (req, res) {
+    res.sendFile(__dirname + "/public/tv.html");
+})
 app.get('/debug', function (req, res) {
     res.sendFile(__dirname + "/public/debug.html");
+})
+app.get('/res', function (req, res) {
+    res.sendFile(__dirname + "/public/res.html");
 })
 
 // ===========================================================================
@@ -217,9 +228,19 @@ io.on("connection", (socket) => {
         shell.shutdown(io);
     });
 
+    /**
+     * Listener for server update (git pull).
+     * @returns {undefined}
+     */
+    socket.on("server-update", () => {
+        log("Socket event", "server-update");
+        shell.update(io);
+    });
+
 });
 
 // Start the webserver and listen for traffic
 server.listen(port, () => {
+    serverSettings.server = server.address();
     console.log("Web Server started at http://localhost:%s", server.address().port);
 });

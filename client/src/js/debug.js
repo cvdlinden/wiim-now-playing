@@ -32,6 +32,10 @@ btnReboot.addEventListener("click", function () {
     socket.emit("server-reboot");
 });
 
+btnUpdate.addEventListener("click", function () {
+    socket.emit("server-update");
+});
+
 btnShutdown.addEventListener("click", function () {
     socket.emit("server-shutdown");
 });
@@ -67,6 +71,7 @@ setTimeout(() => {
 }, 500);
 
 socket.on("server-settings", function (msg) {
+    console.log("IO: server-settings", msg);
     tickServerSettingsDown.classList.add("tickAnimate");
 
     // Store server settings
@@ -75,6 +80,7 @@ socket.on("server-settings", function (msg) {
     sServerSettings.innerHTML = JSON.stringify(msg);
     if (msg.os.userInfo.shell === "/bin/bash") { // RPi has bash, so possibly able to reboot/shutdown.
         btnReboot.disabled = false;
+        btnUpdate.disabled = false;
         btnShutdown.disabled = false;
     };
 
@@ -82,10 +88,40 @@ socket.on("server-settings", function (msg) {
     sManufacturer.children[0].innerText = (msg && msg.selectedDevice && msg.selectedDevice.manufacturer) ? msg.selectedDevice.manufacturer : "-";
     sModelName.children[0].innerText = (msg && msg.selectedDevice && msg.selectedDevice.modelName) ? msg.selectedDevice.modelName : "-";
     sLocation.children[0].innerText = (msg && msg.selectedDevice && msg.selectedDevice.location) ? msg.selectedDevice.location : "-";
+    if (msg && msg.os && msg.os.hostname) {
+        var sUrl = "http://" + msg.os.hostname.toLowerCase() + ".local";
+        sUrl += (msg.server && msg.server.port && msg.server.port != 80) ? ":" + msg.server.port + "/" : "/";
+        sServerUrlHostname.children[0].innerText = sUrl;
+    }
+    else {
+        sServerUrlHostname.children[0].innerText = "-";
+    }
+    if (msg && msg.selectedDevice && msg.selectedDevice.location && msg.os && msg.os.networkInterfaces) {
+        // Grab the ip address pattern of the selected device
+        // Assumption is that the wiim-now-playing server is on the same ip range as the client..
+        var sLocationIp = msg.selectedDevice.location.split("/")[2]; // Extract ip address from location
+        var aIpAddress = sLocationIp.split("."); // Split ip address in parts
+        aIpAddress.pop(); // Remove the last part
+        var sIpPattern = aIpAddress.join("."); // Construct ip address pattern
+        // Search for server ip address(es) in this range...
+        Object.keys(msg.os.networkInterfaces).forEach(function (key, index) {
+            var sIpFound = msg.os.networkInterfaces[key].find(addr => addr.address.startsWith(sIpPattern))
+            if (sIpFound) {
+                // Construct ip address and optional port
+                var sUrl = "http://" + sIpFound.address;
+                sUrl += (msg.server && msg.server.port && msg.server.port != 80) ? ":" + msg.server.port + "/" : "/";
+                sServerUrlIP.children[0].innerText = sUrl;
+            }
+        });
+    }
+    else {
+        sServerUrlIP.children[0].innerText = "-";
+    }
 
 });
 
 socket.on("devices-get", function (msg) {
+    console.log("IO: devices-get", msg);
     tickDevicesGetDown.classList.add("tickAnimate");
 
     // Store and sort device list
@@ -139,6 +175,7 @@ socket.on("devices-get", function (msg) {
 });
 
 socket.on("device-set", function (msg) {
+    console.log("IO: device-set", msg);
     tickDeviceSetDown.classList.add("tickAnimate");
     // Device wissel? Haal 'alles' opnieuw op
     tickServerSettingsUp.classList.add("tickAnimate");
@@ -148,11 +185,13 @@ socket.on("device-set", function (msg) {
 });
 
 socket.on("devices-refresh", function (msg) {
+    console.log("IO: devices-refresh", msg);
     tickDevicesRefreshDown.classList.add("tickAnimate");
     deviceChoices.innerHTML = "<option disabled=\"disabled\">Waiting for devices...</em></li>";
 });
 
 socket.on("state", function (msg) {
+    // console.log("IO: state", msg);
     tickStateDown.classList.add("tickAnimate");
     state.innerHTML = JSON.stringify(msg);
     if (msg && msg.stateTimeStamp && msg.metadataTimeStamp) {
@@ -165,6 +204,7 @@ socket.on("state", function (msg) {
 });
 
 socket.on("metadata", function (msg) {
+    // console.log("IO: metadata", msg);
     tickMetadataDown.classList.add("tickAnimate");
     metadata.innerHTML = JSON.stringify(msg);
     sTitle.children[0].innerText = (msg && msg.trackMetaData && msg.trackMetaData["dc:title"]) ? msg.trackMetaData["dc:title"] : "-";

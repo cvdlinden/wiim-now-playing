@@ -6,15 +6,16 @@ window.WNP = window.WNP || {};
 
 // Default settings
 WNP.s = {
-    rndAlbumArtUri: "./img/fake-album-1.png",
-    rndRadioArtUri: "./img/webradio-1.png"
+    rndAlbumArtUri: "./img/fake-album-1.jpg",
 };
 
 // Data placeholders.
 WNP.d = {
     serverSettings: null,
     deviceList: null,
-    prevTransportState: null
+    prevTransportState: null,
+    prevPlayMedium: null,
+    prevSourceIdent: null
 }
 
 /**
@@ -24,9 +25,17 @@ WNP.d = {
 WNP.Init = function () {
     console.log("WNP", "Initialising...");
 
-    // Init Socket.IO, connect to port 80
-    window.socket = io.connect(':80');
-    
+    // Init Socket.IO, connect to port where server resides
+    // Normally on port 80, but in cases where another port is chosen adapt
+    if (location.port != "80" && location.port != "1234") {
+        console.log("WNP", "Listening on " + location.href)
+        window.socket = io.connect(':' + location.port);
+    }
+    else {
+        console.log("WNP", "Listening on " + location.hostname + ":80")
+        window.socket = io.connect(':80');
+    }
+
     // Set Socket.IO definitions
     this.setSocketDefinitions();
 
@@ -40,9 +49,9 @@ WNP.Init = function () {
     }, 500);
 
     // Create random album intervals, every 3 minutes
+    WNP.s.rndAlbumArtUri = WNP.rndAlbumArt("fake-album-");
     var rndAlbumInterval = setInterval(function () {
         WNP.s.rndAlbumArtUri = WNP.rndAlbumArt("fake-album-");
-        WNP.s.rndRadioArtUri = WNP.rndAlbumArt("webradio-");
     }, 3 * 60 * 1000);
 
 };
@@ -101,6 +110,10 @@ WNP.setUIListeners = function () {
         socket.emit("server-reboot");
     });
 
+    btnUpdate.addEventListener("click", function () {
+        socket.emit("server-update");
+    });
+
     btnShutdown.addEventListener("click", function () {
         socket.emit("server-shutdown");
     });
@@ -127,6 +140,7 @@ WNP.setSocketDefinitions = function () {
         // RPi has bash, so possibly able to reboot/shutdown.
         if (msg.os.userInfo.shell === "/bin/bash") {
             btnReboot.disabled = false;
+            btnUpdate.disabled = false;
             btnShutdown.disabled = false;
         };
 
@@ -134,6 +148,37 @@ WNP.setSocketDefinitions = function () {
         if (msg.selectedDevice && msg.selectedDevice.friendlyName) {
             devName.innerText = msg.selectedDevice.friendlyName;
         };
+
+        // Set the server url(s) under the settings modal
+        if (msg && msg.os && msg.os.hostname) {
+            var sUrl = "http://" + msg.os.hostname.toLowerCase() + ".local";
+            sUrl += (msg.server && msg.server.port && msg.server.port != 80) ? ":" + msg.server.port + "/" : "/";
+            sServerUrlHostname.children[0].innerText = sUrl;
+        }
+        else {
+            sServerUrlHostname.children[0].innerText = "-";
+        }
+        if (msg && msg.selectedDevice && msg.selectedDevice.location && msg.os && msg.os.networkInterfaces) {
+            // Grab the ip address pattern of the selected device
+            // Assumption is that the wiim-now-playing server is on the same ip range as the client..
+            var sLocationIp = msg.selectedDevice.location.split("/")[2]; // Extract ip address from location
+            var aIpAddress = sLocationIp.split("."); // Split ip address in parts
+            aIpAddress.pop(); // Remove the last part
+            var sIpPattern = aIpAddress.join("."); // Construct ip address pattern
+            // Search for server ip address(es) in this range...
+            Object.keys(msg.os.networkInterfaces).forEach(function (key, index) {
+                var sIpFound = msg.os.networkInterfaces[key].find(addr => addr.address.startsWith(sIpPattern))
+                if (sIpFound) {
+                    // Construct ip address and optional port
+                    var sUrl = "http://" + sIpFound.address;
+                    sUrl += (msg.server && msg.server.port && msg.server.port != 80) ? ":" + msg.server.port + "/" : "/";
+                    sServerUrlIP.children[0].innerText = sUrl;
+                }
+            });
+        }
+        else {
+            sServerUrlIP.children[0].innerText = "-";
+        }
 
     });
 
@@ -204,14 +249,14 @@ WNP.setSocketDefinitions = function () {
         var trackDuration = (msg.TrackDuration) ? msg.TrackDuration : "00:00:00";
 
         // Get current player progress and set UI elements accordingly.
-        var playerProgress = WNP.getPlayerProgress(relTime, trackDuration, timeStampDiff);
+        var playerProgress = WNP.getPlayerProgress(relTime, trackDuration, timeStampDiff, msg.CurrentTransportState);
         progressPlayed.children[0].innerText = playerProgress.played;
         progressLeft.children[0].innerText = (playerProgress.left != "") ? "-" + playerProgress.left : "";
         progressPercent.setAttribute("aria-valuenow", playerProgress.percent)
         progressPercent.children[0].setAttribute("style", "width:" + playerProgress.percent + "%");
 
-        // Device transport state changed...?
-        if (WNP.d.prevTransportState !== msg.CurrentTransportState) {
+        // Device transport state or play medium changed...?
+        if (WNP.d.prevTransportState !== msg.CurrentTransportState || WNP.d.prevPlayMedium !== msg.PlayMedium) {
             if (msg.CurrentTransportState === "TRANSITIONING") {
                 btnPlay.children[0].className = "bi bi-circle-fill";
                 btnPlay.disabled = true;
@@ -221,20 +266,21 @@ WNP.setSocketDefinitions = function () {
                 // Stop > Play resets the stream to 'now'. Pause works like 'live tv time shift'.
                 if (msg.PlayMedium && msg.PlayMedium === "RADIO-NETWORK") {
                     btnPlay.children[0].className = "bi bi-stop-circle-fill";
-                    btnPlay.setAttribute("wnp-action", "Stop")
+                    btnPlay.setAttribute("wnp-action", "Stop");
                 }
                 else {
                     btnPlay.children[0].className = "bi bi-pause-circle-fill";
-                    btnPlay.setAttribute("wnp-action", "Pause")
+                    btnPlay.setAttribute("wnp-action", "Pause");
                 }
                 btnPlay.disabled = false;
             }
             else if (msg.CurrentTransportState === "PAUSED_PLAYBACK" || msg.CurrentTransportState === "STOPPED") {
                 btnPlay.children[0].className = "bi bi-play-circle-fill";
-                btnPlay.setAttribute("wnp-action", "Play")
+                btnPlay.setAttribute("wnp-action", "Play");
                 btnPlay.disabled = false;
             };
             WNP.d.prevTransportState = msg.CurrentTransportState; // Remember the last transport state
+            WNP.d.prevPlayMedium = msg.PlayMedium; // Remember the last PlayMedium
         }
 
         // If internet radio, there is no skipping... just start and stop!
@@ -257,30 +303,44 @@ WNP.setSocketDefinitions = function () {
         var playMedium = (msg.PlayMedium) ? msg.PlayMedium : "";
         var trackSource = (msg.TrackSource) ? msg.TrackSource : "";
         var sourceIdent = WNP.getSourceIdent(playMedium, trackSource);
-        if (sourceIdent !== "") {
-            var identImg = document.createElement("img");
-            identImg.src = sourceIdent;
-            identImg.alt = playMedium + ": " + trackSource;
-            identImg.title = playMedium + ": " + trackSource;
-            mediaSource.innerHTML = identImg.outerHTML;
-        }
-        else {
-            mediaSource.innerText = playMedium + ": " + trackSource;
+        // Did the source ident change...?
+        if (sourceIdent !== WNP.d.prevSourceIdent) {
+            if (sourceIdent !== "") {
+                var identImg = document.createElement("img");
+                identImg.src = sourceIdent;
+                identImg.alt = playMedium + ": " + trackSource;
+                identImg.title = playMedium + ": " + trackSource;
+                mediaSource.innerHTML = identImg.outerHTML;
+            }
+            else {
+                mediaSource.innerText = playMedium + ": " + trackSource;
+            }
+            WNP.d.prevSourceIdent = sourceIdent; // Remember the last Source Ident
         }
 
         // Song Title, Subtitle, Artist, Album
         mediaTitle.innerText = (msg.trackMetaData && msg.trackMetaData["dc:title"]) ? msg.trackMetaData["dc:title"] : "";
         mediaSubTitle.innerText = (msg.trackMetaData && msg.trackMetaData["dc:subtitle"]) ? msg.trackMetaData["dc:subtitle"] : "";
-        mediaArtist.innerText = (msg.trackMetaData && msg.trackMetaData["upnp:artist"]) ? msg.trackMetaData["upnp:artist"] + ", " : "";
+        mediaArtist.innerText = (msg.trackMetaData && msg.trackMetaData["upnp:artist"]) ? msg.trackMetaData["upnp:artist"] : "";
         mediaAlbum.innerText = (msg.trackMetaData && msg.trackMetaData["upnp:album"]) ? msg.trackMetaData["upnp:album"] : "";
+        // mediaAlbum.innerHTML = (msg.trackMetaData && msg.trackMetaData["upnp:album"]) ? "<span id=\"mediaAlbumIdent\" class=\"badge badge-outlined\"><i class=\"bi bi-vinyl\"><\/i><\/span>" + msg.trackMetaData["upnp:album"] : "";
+        if (playMedium === "SONGLIST-NETWORK" && !trackSource && msg.CurrentTransportState === "STOPPED") {
+            mediaTitle.innerText = "No Music Selected";
+        }
 
         // Audio quality
         var songBitrate = (msg.trackMetaData && msg.trackMetaData["song:bitrate"]) ? msg.trackMetaData["song:bitrate"] : "";
         var songBitDepth = (msg.trackMetaData && msg.trackMetaData["song:format_s"]) ? msg.trackMetaData["song:format_s"] : "";
         var songSampleRate = (msg.trackMetaData && msg.trackMetaData["song:rate_hz"]) ? msg.trackMetaData["song:rate_hz"] : "";
         mediaBitRate.innerText = (songBitrate > 0) ? ((songBitrate > 1000) ? (songBitrate / 1000).toFixed(2) + " mbps, " : songBitrate + " kbps, ") : "";
-        mediaBitDepth.innerText = (songBitDepth > 0) ? ((songBitDepth > 24) ? "24 bits, " : songBitDepth + " bits, ") : ""; // TODO: 32 bits is suspect according to the WiiM app?
+        mediaBitDepth.innerText = (songBitDepth > 0) ? ((songBitDepth > 24) ? "24 bit/" : songBitDepth + " bit/") : ""; // TODO: 32 bits is suspect according to the WiiM app?
         mediaSampleRate.innerText = (songSampleRate > 0) ? (songSampleRate / 1000).toFixed(1) + " kHz" : "";
+        if (!songBitrate && !songBitDepth && !songSampleRate) {
+            mediaQualityIdent.style.display = "none";
+        }
+        else {
+            mediaQualityIdent.style.display = "inline-block";
+        }
 
         // Audio quality ident badge (HD/Hi-res/CD/...)
         var songQuality = (msg.trackMetaData && msg.trackMetaData["song:quality"]) ? msg.trackMetaData["song:quality"] : "";
@@ -380,9 +440,10 @@ WNP.setSocketDefinitions = function () {
  * @param {string} relTime - Time elapsed while playing, format 00:00:00
  * @param {string} trackDuration - Total play time, format 00:00:00
  * @param {integer} timeStampDiff - Possible play time offset in seconds
+ * @param {string} currentTransportState - The current transport state "PLAYING" or otherwise
  * @returns {object} An object with corrected played, left, total and percentage played
  */
-WNP.getPlayerProgress = function (relTime, trackDuration, timeStampDiff) {
+WNP.getPlayerProgress = function (relTime, trackDuration, timeStampDiff, currentTransportState) {
     var relTimeSec = this.convertToSeconds(relTime) + timeStampDiff;
     var trackDurationSec = this.convertToSeconds(trackDuration);
     if (trackDurationSec > 0 && relTimeSec < trackDurationSec) {
@@ -395,9 +456,17 @@ WNP.getPlayerProgress = function (relTime, trackDuration, timeStampDiff) {
             percent: percentPlayed
         };
     }
-    else {
+    else if (trackDurationSec == 0 && currentTransportState == "PLAYING") {
         return {
             played: "Live",
+            left: "",
+            total: "",
+            percent: 100
+        };
+    }
+    else {
+        return {
+            played: "Paused",
             left: "",
             total: "",
             percent: 0
@@ -446,11 +515,11 @@ WNP.setAlbumArt = function (imgUri) {
 
 /**
  * Come up with a random album art URI (locally from the img folder).
- * @param {string} prefix - The prefix for the album art URI, i.e. 'fake-album-' or 'webradio-'
+ * @param {string} prefix - The prefix for the album art URI, i.e. 'fake-album-'
  * @returns {string} An URI for album art
  */
 WNP.rndAlbumArt = function (prefix) {
-    return "./img/" + prefix + this.rndNumber(1, 5) + ".png";
+    return "./img/" + prefix + this.rndNumber(1, 16) + ".jpg";
 };
 
 /**
@@ -460,7 +529,7 @@ WNP.rndAlbumArt = function (prefix) {
  * @returns {integer} The random number
  */
 WNP.rndNumber = function (min, max) {
-    return Math.floor(Math.random() * (max - min + 1) + min);
+    return Math.floor(Math.random() * (max - min + 1)) + min;
 };
 
 /**
@@ -484,8 +553,26 @@ WNP.getSourceIdent = function (playMedium, trackSource) {
         case "radio-network":
             sIdentUri = "./img/sources/radio.png";
             break;
+        case "songlist-network":
+            sIdentUri = "./img/sources/ethernet.png";
+            break;
         case "spotify":
             sIdentUri = "./img/sources/spotify.png";
+            break;
+        case "none":
+            sIdentUri = "./img/sources/none.png";
+            break;
+        case "bluetooth":
+            sIdentUri = "./img/sources/bluetooth.png";
+            break;
+        case "hdmi":
+            sIdentUri = "./img/sources/hdmi.png";
+            break;
+        case "line-in":
+            sIdentUri = "./img/sources/line-in.png";
+            break;
+        case "optical":
+            sIdentUri = "./img/sources/spdif.png";
             break;
     };
 
