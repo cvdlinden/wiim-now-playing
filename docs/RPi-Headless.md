@@ -33,6 +33,10 @@ Then again you already should have the WiiM Home app on your mobile device (phon
 
 For a more step-by-step process read below.
 
+![Raspberry Pi Zero 2 W](../assets/IMG_4006.jpg)  
+*An example of a Raspberry Pi Zero 2 W in headless configuration.  
+With the now playing information shown in a browser in the background.*
+
 ## 1. Prepare an SD card with Raspberry Pi OS Lite
 
 1. Use the [Raspberry Pi Imager](https://www.raspberrypi.com/software/) to download a version of Raspberry Pi OS **Lite**. As we won't be needing a full desktop environment.  
