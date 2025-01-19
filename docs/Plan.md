@@ -33,7 +33,7 @@
 
 - [x] Change out rimraf and cash-cp to Shx <https://www.npmjs.com/package/shx>
 - [X] Add a ~~4K/High-res UI~~ tv-mode option so you can switch when browsing on a TV.
-- [ ] Add a description for a RPi headless setup, for external screens (with browser)
+- [X] Add a description for a RPi headless setup, for external screens (with browser)
 
 (Possible) TODOs:
 

@@ -57,13 +57,13 @@ Note: you can also connect a keyboard/mouse/computerscreen to the Raspbery Pi in
 
 1. Start a command prompt. In these examples I am using PowerShell 7 on Windows 11. On a Mac you can use the Terminal.
 2. You can make sure that the Raspberry Pi is up and running by using ```ping servername.local```, where servername is the name that you gave your Pi. If you get timeouts, it is still working on it or you did not insert the correct Wifi name or password. In the latter case you can remake the SD card with the Imager tool. Or if you're able connect the Pi with a network cable (and later on fix the Wifi).
-2. At the command prompt type ``ssh username@servername.local``. Where ``username`` is **your username** that you've defined in the previous steps. And ``servername`` is the name you've set as your **hostname**.  
+3. At the command prompt type ``ssh username@servername.local``. Where ``username`` is **your username** that you've defined in the previous steps. And ``servername`` is the name you've set as your **hostname**.  
    In the example below I've used _caspar@wnp.local_.
    ![Settings](../assets/Screenshot%202024-02-14%20002224.png)  
-3. At the first time connecting it will ask if you want to continue. Type ``yes`` and press Enter.
-4. Every time we will connect to the RPi this question will no longer be asked. You can then use your password directly to connect:  
+4. At the first time connecting it will ask if you want to continue. Type ``yes`` and press Enter.
+5. Every time we will connect to the RPi this question will no longer be asked. You can then use your password directly to connect:  
    ![Settings](../assets/Screenshot%202024-02-14%20002718.png)  
-5. After connecting to your RPi over SSH you'll be greeted with a command prompt from the RPi server, like:  
+6. After connecting to your RPi over SSH you'll be greeted with a command prompt from the RPi server, like:  
 
    ```bash
    username@server:~ $

@@ -11,6 +11,9 @@ Show what the WiiM device is currently playing on a separate screen.
 ![Spotify](./assets/Screenshot%202024-02-12%20021656.png)  
 *Spotify*
 
+![TV Mode](./assets/Screenshot%202025-01-19%20011418.png)  
+*TV Mode*
+
 ![Settings](./assets/Screenshot%202024-02-12%20021621.png)  
 *Settings*
 
