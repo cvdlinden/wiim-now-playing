@@ -59,12 +59,14 @@ There are some hardware requirements, not a whole lot, see: [Raspberry Pi requir
 
 ## "I want to use docker!"
 
-If you want to use [Docker](https://www.docker.com/) instead, please use:
+If you want to use [Docker](https://www.docker.com/) instead of a Raspberry Pi, please use:
 
 `docker-compose up -d --build`
 
 > Please note that this will **only** run well on a Linux machine. The Windows version of Docker does not support SSDP and will not scan the network for WiiM devices. You may need to spin up an entire Linux VM for this to work, which defeats the purpose of Docker.  
 See: <https://github.com/cvdlinden/wiim-now-playing/pull/4>
+
+If you already have a docker container running this app and want to do an update to the latest version, please use ```docker-update.sh```.
 
 ## Also see
 
