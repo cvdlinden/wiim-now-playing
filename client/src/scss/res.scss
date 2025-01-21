@@ -181,12 +181,6 @@
     background-color: rgba(238, 238, 238, .75);
     padding: 5px;
 
-    @media screen and (min-width: 576px) {
-        .bp-xs {
-            color: #0c0;
-        }
-    }
-
     // Bootstrap responsive breakpoints: https://getbootstrap.com/docs/5.0/layout/breakpoints/
     // X-Small devices (portrait phones, less than 576px)
     // No media query for `xs` since this is the default in Bootstrap

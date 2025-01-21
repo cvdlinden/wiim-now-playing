@@ -1,7 +1,5 @@
 # Design
 
-{Work in progress}
-
 ## Device - Server - Client model
 
 **Server**:  
@@ -62,10 +60,11 @@ Confirmed:
 - fs: To add persistent storage to the server settings
 - [xml2js](https://www.npmjs.com/package/xml2js): In order to parse any XML metadata, read: DIDL-Lite metadata
 - [Bootstrap](https://getbootstrap.com/): Good ol' bootstrap for yer css needs. Note: This is just an include, not an npm package!
+- [Parcel.js](https://parceljs.org/): Used for client side development of the UI
 
 Possibly:
 
-- Gulp/Webpack?: Build tools to pack css and js.
+- ...
 
 Not doing any time soon:
 
@@ -78,7 +77,8 @@ Not doing any time soon:
 - Add a virtual keyboard? <https://github.com/Mottie/Keyboard>
   - No need for touchscreen input yet. Use a browser to point to the server if required.
 - Use JSDoc for generation of documentation <https://github.com/jsdoc/jsdoc>
-  - Not sure if there are any benefits at this stage.
+  - Not sure if there are any benefits at this stage.  
+  *Quit using this as there's no benefit at this moment.*
 
 ## Other works/examples/inspiration/mentions
 

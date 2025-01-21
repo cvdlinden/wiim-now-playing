@@ -1,6 +1,6 @@
 # WiiM Now Playing
 
-Show what the WiiM device is currently playing on a separate screen.
+Show what the WiiM device is currently playing on a touchscreen, separate screen or browser.
 
 Examples:
 
