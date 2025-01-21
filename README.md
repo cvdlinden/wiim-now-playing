@@ -45,7 +45,7 @@ Steps to run as fast as possible:
    This could be the case if you already have a webserver running there.  
    Open up server/index.js in your favorite text editor and edit the value in ``const port = 80;``. Try ports 8000, 8080, 5000 or 3000 untill it no longer complains.
 
-## 'I want to run it stand-alone on a Raspberry Pi (with touchscreen)'
+## "I want to run it stand-alone on a Raspberry Pi (with a touchscreen)!"
 
 If you want to run the wiim-now-playing app on a Raspberry Pi with a touchscreen,
 please read the installation instructions in [Raspberry Pi Setup - with touchscreen](docs/RPi-Setup.md)
@@ -57,13 +57,13 @@ For instructions see running a [Raspberry Pi Setup - headless](docs/RPi-Headless
 
 There are some hardware requirements, not a whole lot, see: [Raspberry Pi requirements for a wiim-now-playing setup](docs/RPi-Requirements.md)
 
-## "I want to use docker!"
+## "I want to use Docker and run it virtual!"
 
-If you want to use [Docker](https://www.docker.com/) instead of a Raspberry Pi, please use:
+If you want to use [Docker](https://www.docker.com/) instead of 'bare metal' on a Raspberry Pi, please use:
 
 `docker-compose up -d --build`
 
-> Please note that this will **only** run well on a Linux machine. The Windows version of Docker does not support SSDP and will not scan the network for WiiM devices. You may need to spin up an entire Linux VM for this to work, which defeats the purpose of Docker.  
+> Please note that this will **only** run well on a Linux machine. The Windows version of Docker does not support device discovery over SSDP and thus will not scan the network for WiiM devices. You may need to spin up an entire Linux VM for this to work, which defeats the purpose of Docker.  
 See: <https://github.com/cvdlinden/wiim-now-playing/pull/4>
 
 If you already have a docker container running this app and want to do an update to the latest version, please use ```docker-update.sh```.
