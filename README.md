@@ -2,19 +2,21 @@
 
 Show what the WiiM device is currently playing on a separate screen.
 
-![Tidal High](./assets/Screenshot%202024-02-12%20022212.png)  
+Examples:
+
+![Tidal High](./assets/Screenshot%202025-01-20%20012258.png)  
 *Tidal High quality*
 
-![Tidal Flac](./assets/Screenshot%202024-02-12%20023330.png)  
+![Tidal Flac](./assets/Screenshot%202025-01-20%20012543.png)  
 *Tidal Flac*
 
-![Spotify](./assets/Screenshot%202024-02-12%20021656.png)  
+![Spotify](./assets/Screenshot%202025-01-20%20012847.png)  
 *Spotify*
 
-![TV Mode](./assets/Screenshot%202025-01-19%20011418.png)  
+![TV Mode](./assets/Screenshot%202025-01-20%20015116.png)  
 *TV Mode*
 
-![Settings](./assets/Screenshot%202024-02-12%20021621.png)  
+![Settings](./assets/Screenshot%202025-01-20%20013342.png)  
 *Settings*
 
 ## "I just want it to run, here and now!"
@@ -40,7 +42,7 @@ Steps to run as fast as possible:
 6. Start the server with ``node server/index.js``. It should tell you where the server is running.  
   Copy-paste this url into your browser. Enjoy!  
 7. Note: If the previous command crashes out, your system most probably does not allow running the server on http port 80.  
-   This could be the case if you already have a webserver already running there.  
+   This could be the case if you already have a webserver running there.  
    Open up server/index.js in your favorite text editor and edit the value in ``const port = 80;``. Try ports 8000, 8080, 5000 or 3000 untill it no longer complains.
 
 ## 'I want to run it stand-alone on a Raspberry Pi (with touchscreen)'
