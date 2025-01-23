@@ -42,7 +42,7 @@
             <div class="wnpAlbumArt">
                 <div class="rounded">
                     <img id="albumArt" class="rounded" src="img/fake-album-1.jpg"
-                        onerror="this.src = WNP.s.rndAlbumArtUri" alt="Album art">
+                        onerror="WNP.setAlbumArt(WNP.s.rndAlbumArtUri)" alt="Album art">
                 </div>
             </div>
 
@@ -155,7 +155,8 @@
                                 Please reload the ui after a short while and/or do a reboot. <br />
                                 <strong>Shutdown server</strong>: Wait for it to shut down completely before unplugging
                                 the power. (Raspberry Pi only)<br />
-                                <strong>Reload UI</strong>: In case it is no longer responsive or acting up, you can try and reload the browser with this option.
+                                <strong>Reload UI</strong>: In case it is no longer responsive or acting up, you can try
+                                and reload the browser with this option.
                             </div>
                         </div>
 

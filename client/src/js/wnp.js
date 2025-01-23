@@ -357,19 +357,16 @@ WNP.setSocketDefinitions = function () {
             mediaQualityIdent.innerHTML = identId.outerHTML;
         }
 
-        // Album Art
-        if (msg && msg.trackMetaData &&
-            msg.trackMetaData["upnp:albumArtURI"] &&
-            albumArt.src != msg.trackMetaData["upnp:albumArtURI"]) {
-            if (msg.trackMetaData["upnp:albumArtURI"].startsWith("http")) {
-                WNP.setAlbumArt(msg.trackMetaData["upnp:albumArtURI"]);
-            }
-            else {
-                WNP.setAlbumArt(WNP.s.rndAlbumArtUri);
-            }
+        // Pre-process Album Art uri
+        var albumArtUri = (msg && msg.trackMetaData && msg.trackMetaData["upnp:albumArtURI"]) ? msg.trackMetaData["upnp:albumArtURI"] : WNP.s.rndAlbumArtUri;
+        // Case: Plex sends album art as https:// and the device can't handle it, so we use a 'local' http:// image instead.
+        if (albumArtUri.startsWith("https://") && trackSource && trackSource.toLowerCase() === "plex") {
+            albumArtUri = albumArtUri.replace("https://", "http://");
         }
-        else if (!msg || !msg.trackMetaData || !msg.trackMetaData["upnp:albumArtURI"]) {
-            WNP.setAlbumArt(WNP.s.rndAlbumArtUri);
+
+        // Set Album Art, only if it changed
+        if (albumArt.src != albumArtUri) {
+            WNP.setAlbumArt(albumArtUri);
         }
 
         // Device volume
@@ -509,6 +506,7 @@ WNP.convertToMinutes = function (seconds) {
  * @returns {undefined}
  */
 WNP.setAlbumArt = function (imgUri) {
+    console.log("WNP Set Album Art", imgUri);
     albumArt.src = imgUri;
     bgAlbumArtBlur.style.backgroundImage = "url('" + imgUri + "')";
 };
@@ -586,6 +584,9 @@ WNP.getSourceIdent = function (playMedium, trackSource) {
             break;
         case "newtunein":
             sIdentUri = "./img/sources/newtunein.png";
+            break;
+        case "plex":
+            sIdentUri = "./img/sources/plex.png";
             break;
         case "prime":
             sIdentUri = "./img/sources/amazon-music.png";

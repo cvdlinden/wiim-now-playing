@@ -392,81 +392,174 @@
 
 // TEMP - Resolution debugging
 #wnpMedia {
+    // Disabled by default
     display: none;
-    position: absolute;
-    right: 10px;
-    top: 40px;
-    color: #ccc;
-    background-color: rgba(238, 238, 238, .5);
-    padding: 5px;
+}
 
-    @media screen and (min-width: 576px) {
+.rez {
+    // Resolution debugging
+
+    .wnpAlbumArt {
+        background-color: #f00;
+
+        > div {
+            background-color: #f0f;
+        }
+
+    }
+
+    .wnpMediaInfo {
+        background-color: #0f0;
+
+        > div {
+            background-color: #ff0;
+        }
+
+    }
+
+    .wnpFooter {
+        background-color: #00f;
+
+        > div {
+            background-color: #0ff;
+        }
+        
+    }
+
+    #wnpMedia {
+        display: block;
+        position: absolute;
+        right: 10px;
+        top: 40px;
+        color: #ccc;
+        background-color: rgba(238, 238, 238, .5);
+        padding: 5px;
+
+        // Bootstrap responsive breakpoints: https://getbootstrap.com/docs/5.0/layout/breakpoints/
+        // X-Small devices (portrait phones, less than 576px)
+        // No media query for `xs` since this is the default in Bootstrap
         .bp-xs {
             color: #0c0;
         }
-    }
 
-    // Bootstrap responsive breakpoints: https://getbootstrap.com/docs/5.0/layout/breakpoints/
-    // X-Small devices (portrait phones, less than 576px)
-    // No media query for `xs` since this is the default in Bootstrap
-    .bp-xs {
-        color: #0c0;
-    }
-
-    // Small devices (landscape phones, 576px and up)
-    @media (min-width: 576px) {
-        .bp-sm {
-            color: #0c0;
+        // Small devices (landscape phones, 576px and up)
+        @media (min-width: 576px) {
+            .bp-sm {
+                color: #0c0;
+            }
         }
-    }
 
-    // Medium devices (tablets, 768px and up)
-    @media (min-width: 768px) {
-        .bp-md {
-            color: #0c0;
+        // Medium devices (tablets, 768px and up)
+        @media (min-width: 768px) {
+            .bp-md {
+                color: #0c0;
+            }
         }
-    }
 
-    // Large devices (desktops, 992px and up)
-    @media (min-width: 992px) {
-        .bp-lg {
-            color: #0c0;
+        // Large devices (desktops, 992px and up)
+        @media (min-width: 992px) {
+            .bp-lg {
+                color: #0c0;
+            }
         }
-    }
 
-    // X-Large devices (large desktops, 1200px and up)
-    @media (min-width: 1200px) {
-        .bp-xl {
-            color: #0c0;
+        // X-Large devices (large desktops, 1200px and up)
+        @media (min-width: 1200px) {
+            .bp-xl {
+                color: #0c0;
+            }
         }
-    }
 
-    // XX-Large devices (larger desktops, 1400px and up)
-    @media (min-width: 1400px) {
-        .bp-xxl {
-            color: #0c0;
+        // XX-Large devices (larger desktops, 1400px and up)
+        @media (min-width: 1400px) {
+            .bp-xxl {
+                color: #0c0;
+            }
         }
-    }
 
-    // 1080p devices (larger desktops, 1400px and up)
-    @media (min-width: 1920px) {
-        .bp-1080 {
-            color: #0c0;
+        // 1080p devices (larger desktops, 1400px and up)
+        @media (min-width: 1920px) {
+            .bp-1080 {
+                color: #0c0;
+            }
         }
-    }
 
-    // 1440p devices (larger desktops, 1400px and up)
-    @media (min-width: 2560px) {
-        .bp-1440 {
-            color: #0c0;
+        // 1440p devices (larger desktops, 1400px and up)
+        @media (min-width: 2560px) {
+            .bp-1440 {
+                color: #0c0;
+            }
         }
-    }
 
-    // 4K devices (larger desktops, 1400px and up)
-    @media (min-width: 3840px) {
-        .bp-4k {
-            color: #0c0;
+        // 4K devices (larger desktops, 1400px and up)
+        @media (min-width: 3840px) {
+            .bp-4k {
+                color: #0c0;
+            }
         }
+
+        // Orientation: Landscape
+        @media (orientation: landscape) {
+            .bp-ls {
+                color: #0c0;
+            }
+        }
+
+        // Orientation: Portrait
+        @media (orientation: portrait) {
+            .bp-pt {
+                color: #0c0;
+            }
+        }
+
+        // Pixel ratio 1 (True one-on-one screens i.e. desktop monitors)
+        @media screen and (-webkit-min-device-pixel-ratio: 1),
+        screen and (-moz-min-device-pixel-ratio: 1),
+        screen and (-o-min-device-pixel-ratio: 1),
+        screen and (min-device-pixel-ratio: 1) {
+            font-size: 1rem;
+
+            .bp-p1 {
+                color: #0c0;
+            }
+        }
+
+        // Pixel ratio 2 (Highres small screens i.e. iPad tablets)
+        @media screen and (-webkit-min-device-pixel-ratio: 2),
+        screen and (-moz-min-device-pixel-ratio: 2),
+        screen and (-o-min-device-pixel-ratio: 2),
+        screen and (min-device-pixel-ratio: 2) {
+            font-size: 1.2rem;
+
+            .bp-p2 {
+                color: #0c0;
+            }
+        }
+
+        // Pixel ratio 3 (Highres screens i.e. iPhones)
+        @media screen and (-webkit-min-device-pixel-ratio: 3),
+        screen and (-moz-min-device-pixel-ratio: 3),
+        screen and (-o-min-device-pixel-ratio: 3),
+        screen and (min-device-pixel-ratio: 3) {
+            font-size: 1.3rem;
+
+            .bp-p3 {
+                color: #0c0;
+            }
+        }
+
+        // Pixel ratio 4 (Very highres screens i.e. 4K tv)
+        @media screen and (-webkit-min-device-pixel-ratio: 4),
+        screen and (-moz-min-device-pixel-ratio: 4),
+        screen and (-o-min-device-pixel-ratio: 4),
+        screen and (min-device-pixel-ratio: 4) {
+            font-size: 1.4rem;
+
+            .bp-p4 {
+                color: #0c0;
+            }
+        }
+
     }
 
 }
