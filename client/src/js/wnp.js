@@ -153,7 +153,7 @@ WNP.setSocketDefinitions = function () {
         if (msg && msg.os && msg.os.hostname) {
             var sUrl = "http://" + msg.os.hostname.toLowerCase() + ".local";
             sUrl += (msg.server && msg.server.port && msg.server.port != 80) ? ":" + msg.server.port + "/" : "/";
-            sServerUrlHostname.children[0].innerText = sUrl;
+            sServerUrlHostname.children[0].innerHTML = "<a href=\"" + sUrl + "\">" + sUrl + "</a>";
         }
         else {
             sServerUrlHostname.children[0].innerText = "-";
@@ -172,7 +172,7 @@ WNP.setSocketDefinitions = function () {
                     // Construct ip address and optional port
                     var sUrl = "http://" + sIpFound.address;
                     sUrl += (msg.server && msg.server.port && msg.server.port != 80) ? ":" + msg.server.port + "/" : "/";
-                    sServerUrlIP.children[0].innerText = sUrl;
+                    sServerUrlIP.children[0].innerHTML = "<a href=\"" + sUrl + "\">" + sUrl + "</a>";
                 }
             });
         }
