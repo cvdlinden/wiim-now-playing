@@ -152,8 +152,8 @@ WNP.setSocketDefinitions = function () {
         // Set the server url(s) under the settings modal
         if (msg && msg.os && msg.os.hostname) {
             var sUrl = "http://" + msg.os.hostname.toLowerCase() + ".local";
-            sUrl += (msg.server && msg.server.port && msg.server.port != 80) ? ":" + msg.server.port + "/" : "/";
-            sServerUrlHostname.children[0].innerText = sUrl;
+            sUrl += (location && location.port && location.port != 80) ? ":" + location.port + "/" : "/";
+            sServerUrlHostname.children[0].innerHTML = "<a href=\"" + sUrl + "\">" + sUrl + "</a>";
         }
         else {
             sServerUrlHostname.children[0].innerText = "-";
@@ -171,8 +171,8 @@ WNP.setSocketDefinitions = function () {
                 if (sIpFound) {
                     // Construct ip address and optional port
                     var sUrl = "http://" + sIpFound.address;
-                    sUrl += (msg.server && msg.server.port && msg.server.port != 80) ? ":" + msg.server.port + "/" : "/";
-                    sServerUrlIP.children[0].innerText = sUrl;
+                    sUrl += (location && location.port && location.port != 80) ? ":" + location.port + "/" : "/";
+                    sServerUrlIP.children[0].innerHTML = "<a href=\"" + sUrl + "\">" + sUrl + "</a>";
                 }
             });
         }
