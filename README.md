@@ -65,33 +65,34 @@ This depends on how you've installed WiiM Now Playing the first time.
 
 If there's a new version of the app you can easily update it through Git.
 
-1. Go to the machine where you've installed the app and open a command prompt.  
+1. Open a (bash) command prompt, PowerShell or terminal window.
 2. Go into the wiim-now-playing folder, like: ``cd wiim-now-playing/``
-3. Use the ``git pull`` command to get the latest version of the app.  
-   It will tell you whether you already are up-to-date or automatically download the latest version/additions.
+3. Use the ``git pull`` command to get the latest version of the app. This will automatically download the latest version.
 4. Then do an ``npm install`` to update any of the required packages.  
    *Please note that npm install may warn you about vulnerabilities and prompt you to run 'npm audit fix --force'. Please don't, as this will break functionality.*
 5. For a proper update do a manual restart of node or just reboot the machine.
 
-You can also check your status first:
-
-1. Do a ``git fetch``, instead of the ``git pull``.
-2. Then do a ``git status``  
-   This will tell you how far behind your local version is. And if any files have been changed locally.
-
 If ``git pull`` doesn't work as expected you probably have some locally changed files.  
-Use ``git status`` to check what files have changes. If you want to retain those changes then copy these files over to another folder, so you can redo your changes later on.  
+Use ``git fetch`` then ``git status`` to check what files have changed locally.  
+If you want to retain those changes then copy these files over to another folder, so you can redo your changes later on.  
 Use e.g. ``git restore the-offending-file.js`` to undo the changes made for each file ``git status`` reports. Now you can do another ``git pull``.
 
 ### "I downloaded the ZIP package"
 
-Just download the latest release...
+If you've installed by downloading the ZIP package before. You should be good by downloading the latest release from the [Releases page](https://github.com/cvdlinden/wiim-now-playing/releases) in this repo. Then unzip the downloaded ZIP package into the existing installation folder.
+
+Please note that this will obviously overwrite anything already in the folder.  
+So if you have made any changes of your own that you'd want to retain, please safeguard them beforehand!  
+A good strategy would be to rename the existing folder and unzip the download into a new folder with the previous foldername. Then redo any of your desired changes.
+
+After unzipping the download to your folder, go into the folder with ``cd`` and do an ``npm install`` to update any required packages.  
+Afterwards restart node manually or do a reboot of the machine.
 
 ### "I forked your repo"
 
-If you've forked this repo here on Github...
+If you've forked this repo here on Github then please read the Github documentation on [Syncing a fork](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/syncing-a-fork).
 
-## "I want to use Docker and run it virtual!"
+## "I want to use Docker and run it as virtual machine!"
 
 If you want to use [Docker](https://www.docker.com/) instead of 'bare metal' on a Raspberry Pi, please use:
 
@@ -100,7 +101,7 @@ If you want to use [Docker](https://www.docker.com/) instead of 'bare metal' on 
 > Please note that this will **only** run well on a Linux machine. The Windows version of Docker does not support device discovery over SSDP and thus will not scan the network for WiiM devices. You may need to spin up an entire Linux VM for this to work, which defeats the purpose of Docker.  
 See: <https://github.com/cvdlinden/wiim-now-playing/pull/4>
 
-If you already have a docker container running this app and want to do an update to the latest version, please use ```docker-update.sh```.
+If you already have a docker container running this app and want to do an update to the latest version, please use the ```docker-update.sh``` script.
 
 ## Also see
 
