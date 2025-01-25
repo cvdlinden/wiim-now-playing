@@ -57,6 +57,40 @@ For instructions see running a [Raspberry Pi Setup - headless](docs/RPi-Headless
 
 There are some hardware requirements, not a whole lot, see: [Raspberry Pi requirements for a wiim-now-playing setup](docs/RPi-Requirements.md)
 
+## "How do I update to the latest version?"
+
+This depends on how you've installed WiiM Now Playing the first time.
+
+### "I installed via Git"
+
+If there's a new version of the app you can easily update it through Git.
+
+1. Go to the machine where you've installed the app and open a command prompt.  
+2. Go into the wiim-now-playing folder, like: ``cd wiim-now-playing/``
+3. Use the ``git pull`` command to get the latest version of the app.  
+   It will tell you whether you already are up-to-date or automatically download the latest version/additions.
+4. Then do an ``npm install`` to update any of the required packages.  
+   *Please note that npm install may warn you about vulnerabilities and prompt you to run 'npm audit fix --force'. Please don't, as this will break functionality.*
+5. For a proper update do a manual restart of node or just reboot the machine.
+
+You can also check your status first:
+
+1. Do a ``git fetch``, instead of the ``git pull``.
+2. Then do a ``git status``  
+   This will tell you how far behind your local version is. And if any files have been changed locally.
+
+If ``git pull`` doesn't work as expected you probably have some locally changed files.  
+Use ``git status`` to check what files have changes. If you want to retain those changes then copy these files over to another folder, so you can redo your changes later on.  
+Use e.g. ``git restore the-offending-file.js`` to undo the changes made for each file ``git status`` reports. Now you can do another ``git pull``.
+
+### "I downloaded the ZIP package"
+
+Just download the latest release...
+
+### "I forked your repo"
+
+If you've forked this repo here on Github...
+
 ## "I want to use Docker and run it virtual!"
 
 If you want to use [Docker](https://www.docker.com/) instead of 'bare metal' on a Raspberry Pi, please use:
