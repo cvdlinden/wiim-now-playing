@@ -390,50 +390,48 @@
 
 }
 
-// TEMP - Resolution debugging
-#wnpMedia {
-    // Disabled by default
-    display: none;
-}
-
+// Resolution debugging
 .rez {
-    // Resolution debugging
 
+    // Color coding to see margins and paddings
     .wnpAlbumArt {
-        background-color: #f00;
+        background-color: #900;
 
-        > div {
-            background-color: #f0f;
+        >div {
+            background-color: #c00;
         }
 
     }
 
     .wnpMediaInfo {
-        background-color: #0f0;
+        background-color: #090;
 
-        > div {
-            background-color: #ff0;
+        >div {
+            background-color: #0c0;
         }
 
     }
 
     .wnpFooter {
-        background-color: #00f;
+        background-color: #009;
 
-        > div {
-            background-color: #0ff;
+        >div {
+            background-color: #00c;
         }
-        
+
     }
 
-    #wnpMedia {
+    // Media queries tests
+    #wnpResTest {
         display: block;
         position: absolute;
-        right: 10px;
-        top: 40px;
+        right: 32px;
+        top: 36px;
         color: #ccc;
-        background-color: rgba(238, 238, 238, .5);
+        background-color: #fff;
+        border: 2px solid #ccc;
         padding: 5px;
+        max-width: 200px;
 
         // Bootstrap responsive breakpoints: https://getbootstrap.com/docs/5.0/layout/breakpoints/
         // X-Small devices (portrait phones, less than 576px)

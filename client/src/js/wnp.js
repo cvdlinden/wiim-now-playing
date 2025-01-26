@@ -359,7 +359,12 @@ WNP.setSocketDefinitions = function () {
 
         // Pre-process Album Art uri
         var albumArtUri = (msg && msg.trackMetaData && msg.trackMetaData["upnp:albumArtURI"]) ? msg.trackMetaData["upnp:albumArtURI"] : WNP.s.rndAlbumArtUri;
-        // Case: Plex sends album art as https:// and the device can't handle it, so we use a 'local' http:// image instead.
+        // Case: The WiiM device is not doing anything and sends an 'un_known' album art uri.
+        if (albumArtUri === "un_known") {
+            albumArtUri = WNP.s.rndAlbumArtUri;
+        }
+        // Case: Plex Media Server sends album art as https:// and the certificate isn't valid, so we use a 'local' http:// image instead.
+        // Note that this is a bit of a hack, but it works for now. Plex Media Server has options to add a certificate, but it's a bit of a hassle.
         if (albumArtUri.startsWith("https://") && trackSource && trackSource.toLowerCase() === "plex") {
             albumArtUri = albumArtUri.replace("https://", "http://");
         }
