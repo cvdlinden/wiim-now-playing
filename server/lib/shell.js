@@ -8,7 +8,7 @@
  */
 
 // Other modules
-const exec = require('child_process').exec;
+const exec = require("child_process").exec;
 const log = require("debug")("lib:shell");
 
 /**

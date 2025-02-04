@@ -8,7 +8,7 @@
  * Then it will output all found devices to a devices.csv file.
  */
 
-const SSDP = require('node-ssdp').Client;
+const SSDP = require("node-ssdp").Client;
 const ssdpClient = new SSDP({ explicitSocketBind: true }); // explicitSocketBind enabled to make it work on Windows 11
 
 const fs = require("fs");
