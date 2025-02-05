@@ -18,7 +18,7 @@ const log = require("debug")("lib:sockets");
  * @returns {undefined}
  */
 const getDevices = (io, deviceList) => {
-    log("Device list requested.");
+    log("Device list requested. " + deviceList.length + " devices found.");
     let devicesMap = deviceList.map(d => ({
         "friendlyName": d.friendlyName,
         "manufacturer": d.manufacturer,
@@ -39,9 +39,9 @@ const getDevices = (io, deviceList) => {
  * @returns {undefined}
  */
 const setDevice = (io, deviceList, deviceInfo, serverSettings, location) => {
-    log("Change selected device...");
-    const selDevice = deviceList.filter((d) => { return d.location === location })
-    if (selDevice.length > 0) {
+    log("Change selected device... (" + location + ")");
+    const selDevice = deviceList.find(d => d.location === location);
+    if (selDevice) {
 
         // Reset device info
         deviceInfo.state = null;
@@ -50,11 +50,11 @@ const setDevice = (io, deviceList, deviceInfo, serverSettings, location) => {
 
         // Set currently selected device
         serverSettings.selectedDevice = {
-            "friendlyName": selDevice[0].friendlyName,
-            "manufacturer": selDevice[0].manufacturer,
-            "modelName": selDevice[0].modelName,
-            "location": selDevice[0].location,
-            "actions": Object.keys(selDevice[0].actions)
+            "friendlyName": selDevice.friendlyName,
+            "manufacturer": selDevice.manufacturer,
+            "modelName": selDevice.modelName,
+            "location": selDevice.location,
+            "actions": Object.keys(selDevice.actions)
         };
 
         io.emit("device-set", serverSettings.selectedDevice); // Send selected device props
@@ -63,7 +63,7 @@ const setDevice = (io, deviceList, deviceInfo, serverSettings, location) => {
     }
     else {
         log("Selected device not in found list!");
-        // TODO: Should there be feedback to the clients?
+        io.emit("device-not-found", { location });
     }
 }
 
@@ -72,6 +72,7 @@ const setDevice = (io, deviceList, deviceInfo, serverSettings, location) => {
  * @param {object} io - The Socket.IO object to emit to clients.
  * @param {object} ssdp - The SSDP module reference.
  * @param {array} deviceList - The array of found device objects.
+ * @param {object} serverSettings - The server settings object.
  * @returns {undefined}
  */
 const scanDevices = (io, ssdp, deviceList, serverSettings) => {
@@ -87,7 +88,7 @@ const scanDevices = (io, ssdp, deviceList, serverSettings) => {
  * @returns {undefined}
  */
 const getServerSettings = (io, serverSettings) => {
-    log("Get server settings...");
+    log("Get server settings...", "Device: " + serverSettings.selectedDevice.friendlyName);
     io.emit("server-settings", serverSettings);
 }
 
