@@ -11,24 +11,22 @@
 const os = require("os");
 const fs = require("fs");
 const log = require("debug")("lib:lib");
+const path = require("path");
 
 // Module constants
-const settingsFile = __dirname + "/../settings.json"; // Make absolute path to server folder
+const settingsFile = path.join(__dirname, "..", "settings.json"); // Make absolute path to server folder
 
 /**
  * This function provides the current date and time in UTC format.
  * @returns {string} The date in UTC format.
  */
-const getDate = () => {
-    const date = new Date();
-    return date.toUTCString();
-}
+const getDate = () => new Date().toUTCString();
 
 /**
  * This function provides the current date and time in Unix epoch format.
  * @returns {number} The date in Unix epoch format.
  */
-const getTimeStamp = () => {
+const getTimestamp = () => {
     return Date.now();
 }
 
@@ -57,14 +55,14 @@ const getOS = () => {
  * @param {object} serverSettings - The reference to the server settings.
  * @returns {undefined}
  */
-const getSettings = (serverSettings) => {
+const getSettings = async (serverSettings) => {
     log("fs", "Get settings from:", settingsFile);
 
-    try { // Try and read the settings file
-        let settings = fs.readFileSync(settingsFile);
+    // Try and read the settings file
+    try {
+        let settings = await fs.promises.readFile(settingsFile, "utf8");
         log("fs", "Settings file found! Processing...");
         settings = JSON.parse(settings);
-        // log("fs", "settings:", settings);
         if (!settings.selectedDevice || !settings.selectedDevice.location) { // Short sanity check
             log("fs", "Previous selected device not stored correctly or invalid.");
             log("fs", "The file exists though. Silently ignoring, will be overwritten eventually...");
@@ -75,7 +73,7 @@ const getSettings = (serverSettings) => {
             serverSettings.selectedDevice = settings.selectedDevice;
         }
     }
-    catch { // Not found, create a settings file
+    catch (err) { // Not found, create a settings file
         log("fs", "No settings file found! Trying to create one...");
         module.exports.saveSettings(serverSettings);
     }
@@ -88,7 +86,7 @@ const getSettings = (serverSettings) => {
  * @param {object} serverSettings - The reference to the server settings.
  * @returns {undefined}
  */
-const saveSettings = (serverSettings) => {
+const saveSettings = async (serverSettings) => {
     log("fs", "Saving settings to:", settingsFile);
 
     const settingsToStore = {
@@ -96,20 +94,19 @@ const saveSettings = (serverSettings) => {
     };
     log("fs", "Settings to store", settingsToStore);
 
-    // Async
-    fs.writeFile(settingsFile, JSON.stringify(settingsToStore), "utf8", (err) => {
-        if (err) {
-            log("fs", "Error:", err);
-        } else {
-            log("fs", "Server settings saved to:", settingsFile);
-        }
-    });
+    // Try and write the settings file
+    try {
+        await fs.promises.writeFile(settingsFile, JSON.stringify(settingsToStore), "utf8");
+        log("fs", "Server settings saved to:", settingsFile);
+    } catch (err) { // Unable to create settings file
+        log("fs", "Error:", err);
+    }
 
 }
 
 module.exports = {
     getDate,
-    getTimeStamp,
+    getTimestamp,
     getOS,
     getSettings,
     saveSettings

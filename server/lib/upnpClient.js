@@ -130,7 +130,7 @@ const updateDeviceState = (io, deviceInfo, serverSettings) => {
                             TrackDuration: (deviceInfo.metadata && deviceInfo.metadata.TrackDuration) ? deviceInfo.metadata.TrackDuration : null,
                             PlayMedium: (deviceInfo.metadata && deviceInfo.metadata.PlayMedium) ? deviceInfo.metadata.PlayMedium : null,
                             metadataTimeStamp: (deviceInfo.metadata && deviceInfo.metadata.metadataTimeStamp) ? deviceInfo.metadata.metadataTimeStamp : null,
-                            stateTimeStamp: lib.getTimeStamp(),
+                            stateTimeStamp: lib.getTimestamp(),
                         };
                         io.emit("state", deviceInfo.state);
                     }
@@ -192,7 +192,7 @@ const updateDeviceMetadata = (io, deviceInfo, serverSettings) => {
                                         deviceInfo.metadata = {
                                             trackMetaData: (metadataJson["DIDL-Lite"] && metadataJson["DIDL-Lite"]["item"]) ? metadataJson["DIDL-Lite"]["item"] : null,
                                             ...result,
-                                            metadataTimeStamp: lib.getTimeStamp()
+                                            metadataTimeStamp: lib.getTimestamp()
                                         };;
                                         io.emit("metadata", deviceInfo.metadata);
                                     }
@@ -202,7 +202,7 @@ const updateDeviceMetadata = (io, deviceInfo, serverSettings) => {
                         else {
                             deviceInfo.metadata = {
                                 ...result,
-                                metadataTimeStamp: lib.getTimeStamp()
+                                metadataTimeStamp: lib.getTimestamp()
                             };
                             io.emit("metadata", deviceInfo.metadata);
                         }
@@ -235,7 +235,7 @@ const updateDeviceMetadata = (io, deviceInfo, serverSettings) => {
                                         deviceInfo.metadata = {
                                             trackMetaData: metadataJson["DIDL-Lite"]["item"],
                                             ...result,
-                                            metadataTimeStamp: lib.getTimeStamp()
+                                            metadataTimeStamp: lib.getTimestamp()
                                         };
                                         io.emit("metadata", deviceInfo.metadata);
                                     }
@@ -245,7 +245,7 @@ const updateDeviceMetadata = (io, deviceInfo, serverSettings) => {
                         else {
                             deviceInfo.metadata = {
                                 ...result,
-                                metadataTimeStamp: lib.getTimeStamp()
+                                metadataTimeStamp: lib.getTimestamp()
                             };
                             io.emit("metadata", deviceInfo.metadata);
                         }
