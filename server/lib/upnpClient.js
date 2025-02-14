@@ -35,7 +35,7 @@ const createClient = (rendererUri) => {
  * If not, it will create one. Note: Switching devices clears existing client (see sockets.js -> setDevice)
  * @param {object} deviceInfo - The device info object.
  * @param {object} serverSettings - The server settings object.
- * @returns {object} The restulting object of the action (or null).
+ * @returns {object} The resulting object of the action (or null).
  */
 const ensureClient = (deviceInfo, serverSettings) => {
     // log("ensureClient()");
@@ -50,7 +50,7 @@ const ensureClient = (deviceInfo, serverSettings) => {
  * @param {object} io - The Socket.IO object to emit to clients.
  * @param {object} deviceInfo - The device info object.
  * @param {object} serverSettings - The server settings object.
- * @returns {interval} Interval reference.
+ * @returns {Interval} Interval reference.
  */
 const startState = (io, deviceInfo, serverSettings) => {
     log("Start polling for device state...");
@@ -69,7 +69,7 @@ const startState = (io, deviceInfo, serverSettings) => {
  * @param {object} io - The Socket.IO object to emit to clients.
  * @param {object} deviceInfo - The device info object.
  * @param {object} serverSettings - The server settings object.
- * @returns {interval} Interval reference.
+ * @returns {Interval} Interval reference.
  */
 const startMetadata = (io, deviceInfo, serverSettings) => {
     log("Start polling for device metadata...");
@@ -85,9 +85,9 @@ const startMetadata = (io, deviceInfo, serverSettings) => {
 
 /**
  * This function stops the polling of the selected device, given the interval.
- * @param {interval} interval - The set interval reference.
+ * @param {Interval} interval - The set interval reference.
  * @param {string} name - The set interval name, for logging purposes only.
- * @returns {undefined}
+ * @returns {void}
  */
 const stopPolling = (interval, name) => {
     log("Stop polling:", name);
@@ -99,7 +99,7 @@ const stopPolling = (interval, name) => {
  * @param {object} io - The Socket.IO object to emit to clients.
  * @param {object} deviceInfo - The device info object.
  * @param {object} serverSettings - The server settings object.
- * @returns {interval} Interval reference.
+ * @returns {Interval} Interval reference.
  */
 const updateDeviceState = (io, deviceInfo, serverSettings) => {
     // log("updateDeviceState()");
@@ -131,19 +131,18 @@ const updateDeviceState = (io, deviceInfo, serverSettings) => {
                             PlayMedium: (deviceInfo.metadata && deviceInfo.metadata.PlayMedium) ? deviceInfo.metadata.PlayMedium : null,
                             metadataTimeStamp: (deviceInfo.metadata && deviceInfo.metadata.metadataTimeStamp) ? deviceInfo.metadata.metadataTimeStamp : null,
                             stateTimeStamp: lib.getTimestamp(),
-                        };
+                        }
                         io.emit("state", deviceInfo.state);
                     }
                 }
             );
         }
-        // client = null;
     }
     else {
         log("updateDeviceState()", "Not able to get transport info for this device");
         deviceInfo.state = null;
         io.emit("state", deviceInfo.state);
-    };
+    }
 
 }
 
@@ -152,7 +151,7 @@ const updateDeviceState = (io, deviceInfo, serverSettings) => {
  * @param {object} io - The Socket.IO object to emit to clients.
  * @param {object} deviceInfo - The device info object.
  * @param {object} serverSettings - The server settings object.
- * @returns {interval} Interval reference.
+ * @returns {Interval} Interval reference.
  */
 const updateDeviceMetadata = (io, deviceInfo, serverSettings) => {
     // log("updateDeviceMetadata()")
@@ -193,7 +192,7 @@ const updateDeviceMetadata = (io, deviceInfo, serverSettings) => {
                                             trackMetaData: (metadataJson["DIDL-Lite"] && metadataJson["DIDL-Lite"]["item"]) ? metadataJson["DIDL-Lite"]["item"] : null,
                                             ...result,
                                             metadataTimeStamp: lib.getTimestamp()
-                                        };;
+                                        };
                                         io.emit("metadata", deviceInfo.metadata);
                                     }
                                 }
@@ -257,7 +256,6 @@ const updateDeviceMetadata = (io, deviceInfo, serverSettings) => {
             // Not able to fetch metadata either through GetInfoEx nor GetPositionInfo.
             deviceInfo.metadata = null;
         }
-        // client = null;
     }
     else {
         log("updateDeviceMetadata()", "No default device selected yet");
@@ -272,7 +270,7 @@ const updateDeviceMetadata = (io, deviceInfo, serverSettings) => {
  * See the selected device actions to see what the renderer is capable of.
  * @param {string} action - The AVTransport action to perform.
  * @param {object} serverSettings - The server settings object.
- * @returns {object} The restulting object of the action (or null).
+ * @returns {object} The resulting object of the action (or null).
  */
 const callDeviceAction = (io, action, deviceInfo, serverSettings) => {
     log("callDeviceAction()", action);
@@ -314,7 +312,7 @@ const callDeviceAction = (io, action, deviceInfo, serverSettings) => {
  * @param {array} deviceList - The array of found device objects.
  * @param {object} serverSettings - The server settings object.
  * @param {object} respSSDP - The SSDP search response object.
- * @returns {object} The restulting object of the action (or null).
+ * @returns {object} The resulting object of the action (or null).
  */
 const getDeviceDescription = (deviceList, serverSettings, respSSDP) => {
     // log("getDeviceDescription()");
@@ -325,11 +323,13 @@ const getDeviceDescription = (deviceList, serverSettings, respSSDP) => {
         else {
             log("getDeviceDescription()", deviceDesc.friendlyName, deviceDesc.deviceType);
 
-            if (deviceDesc.services["urn:upnp-org:serviceId:AVTransport"]) { // Does it support AVTransport?
+            if (deviceDesc.manufacturer.includes("Linkplay") || deviceDesc.modelName.includes("WiiM")) { // Is it a WiiM device?
                 getServiceDescription(deviceList, serverSettings, deviceClient, respSSDP, deviceDesc);
             }
+            else if (deviceDesc.services["urn:upnp-org:serviceId:AVTransport"]) { // It supports AVTransport, but isn't a WiiM device
+                log("getDeviceDescription()", "Not a WiiM device, skipping!")
+            }
             else { // OpenHome device?
-                // Get OpenHome service description...
                 log("getDeviceDescription()", "OpenHome devices not implemented yet!")
             };
 
@@ -366,8 +366,9 @@ const getServiceDescription = (deviceList, serverSettings, deviceClient, respSSD
 
             // Do we need to set the default selected device?
             // If it is a WiiM device and no other has been selected, then yes.
-            if (!serverSettings.selectedDevice.location &&
-                (device.manufacturer.includes("Linkplay") || device.modelName.includes("WiiM"))) {
+            // if (!serverSettings.selectedDevice.location &&
+            //     (device.manufacturer.includes("Linkplay") || device.modelName.includes("WiiM"))) {
+            if (!serverSettings.selectedDevice.location) {
                 serverSettings.selectedDevice = {
                     "friendlyName": device.friendlyName,
                     "manufacturer": device.manufacturer,
