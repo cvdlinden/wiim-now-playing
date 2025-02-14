@@ -15,6 +15,7 @@ const path = require("path");
 
 // Module constants
 const settingsFile = path.join(__dirname, "..", "settings.json"); // Make absolute path to server folder
+const devicesFile = path.join(__dirname, "..", "devices.json"); // Make absolute path to server folder
 
 /**
  * This function provides the current date and time in UTC format.
@@ -55,7 +56,7 @@ const getOS = () => {
  * @param {object} serverSettings - The reference to the server settings.
  * @returns {undefined}
  */
-const getSettings = async (serverSettings) => {
+const readSettings = async (serverSettings) => {
     log("fs", "Get settings from:", settingsFile);
 
     // Try and read the settings file
@@ -104,10 +105,61 @@ const saveSettings = async (serverSettings) => {
 
 }
 
+/**
+ * This function fetches the stored devices if any.
+ * If no devices file was found, it will create one.
+ * If found, it will amend the manually added devices.
+ * @param {array} deviceListManual - The reference to the manually added devices.
+ * @returns {undefined}
+ */
+const readDevices = async (deviceListManual) => {
+    log("fs", "Get devices from:", devicesFile);
+
+    // Try and read the devices file
+    try {
+        let devices = await fs.promises.readFile(devicesFile, "utf8");
+        log("fs", "Devices file found! Processing...");
+        devices = JSON.parse(devices);
+        if (!devices || devices.length === 0) { // Short sanity check
+            log("fs", "No devices found in file.");
+        }
+        else {
+            log("fs", "Devices found:", devices.length);
+            log("fs", "Amend the current device list with the stored values.");
+            deviceListManual.push(...devices);
+        }
+    }
+    catch (err) { // Not found, create a devices file
+        log("fs", "No devices file found! Trying to create one...");
+        module.exports.saveDevices(deviceListManual);
+    }
+}
+
+/**
+ * This function saves the manually added devices to filesystem.
+ * It will overwrite the previous stored values.
+ * @param {array} deviceListManual - The reference to the manually added devices.
+ * @returns {undefined}
+ */
+const saveDevices = async (deviceListManual) => {
+    log("fs", "Saving devices to:", devicesFile);
+    log("fs", "Devices to store", deviceListManual);
+
+    // Try and write the devices file
+    try {
+        await fs.promises.writeFile(devicesFile, JSON.stringify(deviceListManual), "utf8");
+        log("fs", "Devices saved to:", devicesFile);
+    } catch (err) { // Unable to create devices file
+        log("fs", "Error:", err);
+    }
+}
+
 module.exports = {
     getDate,
     getTimestamp,
     getOS,
-    getSettings,
-    saveSettings
+    readSettings,
+    saveSettings,
+    readDevices,
+    saveDevices
 };

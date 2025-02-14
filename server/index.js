@@ -39,7 +39,8 @@ log("process.env.PORT:", process.env.PORT);
 const port = process.env.PORT || 80;
 
 // Server side placeholders for data:
-let deviceList = []; // Placeholder for found devices through SSDP
+let deviceListSsdp = []; // Placeholder for found devices through SSDP
+let deviceListManual = []; // Placeholder for manually added devices
 let deviceInfo = { // Placeholder for the currently selected device info
     state: null, // Keeps the device state updates
     metadata: null, // Keeps the device metadata updates
@@ -68,12 +69,13 @@ let pollState = null; // For the renderer state
 let pollMetadata = null; // For the renderer metadata
 
 // ===========================================================================
-// Get the server settings from local file storage, if any.
-lib.getSettings(serverSettings);
+// Read the server settings and devices from local file storage, if present.
+lib.readSettings(serverSettings);
+lib.readDevices(deviceListManual);
 
 // ===========================================================================
 // Initial SSDP scan for devices.
-ssdp.scan(deviceList, serverSettings);
+ssdp.scan(deviceListSsdp, serverSettings);
 
 // Check after a while whether any device has been found.
 // Due to wifi initialisation delay the scan may have failed.
@@ -81,11 +83,11 @@ ssdp.scan(deviceList, serverSettings);
 setTimeout(() => {
     log("Rescanning devices...");
     // Start new device scan, if first scan failed...
-    if (deviceList.length === 0) {
-        ssdp.scan(deviceList, serverSettings);
+    if (deviceListSsdp.length === 0) {
+        ssdp.scan(deviceListSsdp, serverSettings);
         // The client may not be aware of any devices and have an empty list, waiting for rescan results and send the device list again
         setTimeout(() => {
-            sockets.getDevices(io, deviceList);
+            sockets.getDevices(io, deviceListSsdp);
         }, serverSettings.timeouts.metadata)
     }
     // Node.js may have started before the wifi connection was established, so we rescan after a while
@@ -166,7 +168,7 @@ io.on("connection", (socket) => {
      */
     socket.on("devices-get", () => {
         log("Socket event", "devices-get");
-        sockets.getDevices(io, deviceList);
+        sockets.getDevices(io, deviceListSsdp);
     });
 
     /**
@@ -175,7 +177,7 @@ io.on("connection", (socket) => {
      */
     socket.on("devices-refresh", () => {
         log("Socket event", "devices-refresh");
-        sockets.scanDevices(io, ssdp, deviceList, serverSettings);
+        sockets.scanDevices(io, ssdp, deviceListSsdp, serverSettings);
     });
 
     /**
@@ -185,7 +187,7 @@ io.on("connection", (socket) => {
      */
     socket.on("device-set", (msg) => {
         log("Socket event", "device-set", msg);
-        sockets.setDevice(io, deviceList, deviceInfo, serverSettings, msg);
+        sockets.setDevice(io, deviceListSsdp, deviceInfo, serverSettings, msg);
         // Immediately get new metadata and state from new device
         upnp.updateDeviceMetadata(io, deviceInfo, serverSettings);
         upnp.updateDeviceState(io, deviceInfo, serverSettings);
