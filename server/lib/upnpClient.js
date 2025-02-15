@@ -104,17 +104,18 @@ const stopPolling = (interval, name) => {
 const updateDeviceState = (io, deviceInfo, serverSettings) => {
     // log("updateDeviceState()");
 
-    if (serverSettings.selectedDevice.location &&
-        serverSettings.selectedDevice.actions.includes("GetTransportInfo")) {
+    if (serverSettings.selectedDevice.location) {
         ensureClient(deviceInfo, serverSettings);
-        if (serverSettings.selectedDevice.actions.includes("GetTransportInfo")) {
+        if (serverSettings.selectedDevice.actions && 
+            ( serverSettings.selectedDevice.actions.includes("Manual") || serverSettings.selectedDevice.actions.includes("GetTransportInfo") )) {
             deviceInfo.client.callAction(
                 "AVTransport",
                 "GetTransportInfo",
                 { InstanceID: 0 },
                 (err, result) => { // Callback
                     if (err) {
-                        log("updateDeviceState()", "GetTransportInfo error", err);
+                        log("updateDeviceState()", "Unable to update device state for this device, GetTransportInfo not available");
+                        // log("updateDeviceState()", "GetTransportInfo error", err);
                         // TODO: If errors are persistent, what do we do? Change to any other available device?
                         // Device could be rebooting. Or turned off. Or disposed off, ...
                         // After x amount of polling should we give up? Stop polling and streaming?
@@ -139,7 +140,7 @@ const updateDeviceState = (io, deviceInfo, serverSettings) => {
         }
     }
     else {
-        log("updateDeviceState()", "Not able to get transport info for this device");
+        log("updateDeviceState()", "Unable to update device state for this device, location not set");
         deviceInfo.state = null;
         io.emit("state", deviceInfo.state);
     }
@@ -158,14 +159,16 @@ const updateDeviceMetadata = (io, deviceInfo, serverSettings) => {
 
     if (serverSettings.selectedDevice.location) {
         ensureClient(deviceInfo, serverSettings);
-        if (serverSettings.selectedDevice.actions.includes("GetInfoEx")) {
+        if (serverSettings.selectedDevice.actions 
+            && ( serverSettings.selectedDevice.actions.includes("Manual") || serverSettings.selectedDevice.actions.includes("GetInfoEx") )) {
             deviceInfo.client.callAction(
                 "AVTransport",
                 "GetInfoEx",
                 { InstanceID: 0 },
                 (err, result) => { // Callback
                     if (err) {
-                        log("updateDeviceMetadata()", "GetInfoEx error", err);
+                        log("updateDeviceMetadata()", "Unable to get metadata info for this device, GetInfoEx not available");
+                        // log("updateDeviceMetadata()", "GetInfoEx error", err);
                         // May be a transient error, just wait a bit and carry on...
                     }
                     else {
@@ -209,14 +212,16 @@ const updateDeviceMetadata = (io, deviceInfo, serverSettings) => {
                 }
             );
         }
-        else if (serverSettings.selectedDevice.actions.includes("GetPositionInfo")) {
+        else if (serverSettings.selectedDevice.actions && 
+            ( serverSettings.selectedDevice.actions.includes("Manual") || serverSettings.selectedDevice.actions.includes("GetPositionInfo") )) {
             deviceInfo.client.callAction(
                 "AVTransport",
                 "GetPositionInfo",
                 { InstanceID: 0 },
                 (err, result) => { // Callback
                     if (err) {
-                        log("updateDeviceMetadata()", "GetPositionInfo error", err);
+                        log("updateDeviceMetadata()", "Unable to get metadata info for this device, GetPositionInfo not available");
+                        // log("updateDeviceMetadata()", "GetPositionInfo error", err);
                         // May be a transient error, just wait a bit and carry on...
                     }
                     else {
@@ -253,12 +258,13 @@ const updateDeviceMetadata = (io, deviceInfo, serverSettings) => {
             );
         }
         else {
-            // Not able to fetch metadata either through GetInfoEx nor GetPositionInfo.
+            // Unable to fetch metadata either through GetInfoEx nor GetPositionInfo.
+            log("updateDeviceMetadata()", "Unable to get metadata info for this device, GetInfoEx or GetPositionInfo are not available");
             deviceInfo.metadata = null;
         }
     }
     else {
-        log("updateDeviceMetadata()", "No default device selected yet");
+        log("updateDeviceMetadata()", "Unable to update device state for this device, location not set");
         deviceInfo.metadata = null;
     };
 
@@ -276,7 +282,8 @@ const callDeviceAction = (io, action, deviceInfo, serverSettings) => {
     log("callDeviceAction()", action);
 
     if (serverSettings.selectedDevice.location &&
-        serverSettings.selectedDevice.actions.includes(action)) {
+        serverSettings.selectedDevice.actions && 
+        ( serverSettings.selectedDevice.actions.includes("Manual") || serverSettings.selectedDevice.actions.includes(action) )) {
 
         let options = { InstanceID: 0 }; // Always required
         if (action === "Play") { options.Speed = 1 }; // Required for the Play action
@@ -288,7 +295,8 @@ const callDeviceAction = (io, action, deviceInfo, serverSettings) => {
             options,
             (err, result) => { // Callback
                 if (err) {
-                    log("callDeviceAction()", "UPnP Error", err);
+                    log("callDeviceAction()", "Unable to call device action for this device, " + action + " not available");
+                    // log("callDeviceAction()", "UPnP Error", err);
                 }
                 else {
                     log("callDeviceAction()", "Result", action, result);

@@ -87,7 +87,7 @@ setTimeout(() => {
         ssdp.scan(deviceListSsdp, serverSettings);
         // The client may not be aware of any devices and have an empty list, waiting for rescan results and send the device list again
         setTimeout(() => {
-            sockets.getDevices(io, deviceListSsdp);
+            sockets.getDevices(io, deviceListSsdp, deviceListManual);
         }, serverSettings.timeouts.metadata)
     }
     // Node.js may have started before the wifi connection was established, so we rescan after a while
@@ -168,7 +168,7 @@ io.on("connection", (socket) => {
      */
     socket.on("devices-get", () => {
         log("Socket event", "devices-get");
-        sockets.getDevices(io, deviceListSsdp);
+        sockets.getDevices(io, deviceListSsdp, deviceListManual);
     });
 
     /**
@@ -187,7 +187,7 @@ io.on("connection", (socket) => {
      */
     socket.on("device-set", (msg) => {
         log("Socket event", "device-set", msg);
-        sockets.setDevice(io, deviceListSsdp, deviceInfo, serverSettings, msg);
+        sockets.setDevice(io, deviceListSsdp, deviceListManual, deviceInfo, serverSettings, msg);
         // Immediately get new metadata and state from new device
         upnp.updateDeviceMetadata(io, deviceInfo, serverSettings);
         upnp.updateDeviceState(io, deviceInfo, serverSettings);
