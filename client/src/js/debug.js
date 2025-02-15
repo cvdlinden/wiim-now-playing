@@ -1,9 +1,55 @@
-var socket = io.connect(':80');
+// ===================================================================
+// Debugging script for the WiiM Now Playing server
 
-// DEBUG
-// var state = document.getElementById("state");
-// var btn = document.getElementById("btn");
+// Initialize socket.io
+var socket = io.connect('http://localhost:80');
 
+// Initialize buttons
+var btnDevices = document.getElementById("btnDevices");
+var btnRefresh = document.getElementById("btnRefresh");
+var btnAddDevices = document.getElementById("btnAddDevices");
+var btnSaveDevices = document.getElementById("btnSaveDevices");
+var btnAddDevice = document.getElementById("btnAddDevice");
+var deviceName = document.getElementById("deviceName");
+var deviceIpAddress = document.getElementById("deviceIpAddress");
+var deviceChoices = document.getElementById("deviceChoices");
+var btnReboot = document.getElementById("btnReboot");
+var btnUpdate = document.getElementById("btnUpdate");
+var btnShutdown = document.getElementById("btnShutdown");
+var btnReloadUI = document.getElementById("btnReloadUI");
+var tickDevicesGetUp = document.getElementById("tickDevicesGetUp");
+var tickDevicesRefreshUp = document.getElementById("tickDevicesRefreshUp");
+var tickServerSettingsUp = document.getElementById("tickServerSettingsUp");
+var tickStateUp = document.getElementById("tickStateUp");
+var tickStateDown = document.getElementById("tickStateDown");
+var tickMetadataUp = document.getElementById("tickMetadataUp");
+var tickMetadataDown = document.getElementById("tickMetadataDown");
+var tickDeviceSetUp = document.getElementById("tickDeviceSetUp");
+var tickDeviceSetDown = document.getElementById("tickDeviceSetDown");
+var tickServerSettingsDown = document.getElementById("tickServerSettingsDown");
+var tickDevicesGetDown = document.getElementById("tickDevicesGetDown");
+var tickDevicesRefreshDown = document.getElementById("tickDevicesRefreshDown");
+var tickSaveDevicesUp = document.getElementById("tickSaveDevicesUp");
+var tickSaveDevicesDown = document.getElementById("tickSaveDevicesDown");
+var sServerSettings = document.getElementById("sServerSettings");
+var sFriendlyname = document.getElementById("sFriendlyname");
+var sManufacturer = document.getElementById("sManufacturer");
+var sModelName = document.getElementById("sModelName");
+var sLocation = document.getElementById("sLocation");
+var sServerUrlHostname = document.getElementById("sServerUrlHostname");
+var sServerUrlIP = document.getElementById("sServerUrlIP");
+var sTimeStampDiff = document.getElementById("sTimeStampDiff");
+var state = document.getElementById("state");
+var metadata = document.getElementById("metadata");
+var sTitle = document.getElementById("sTitle");
+var sArtist = document.getElementById("sArtist");
+var sAlbum = document.getElementById("sAlbum");
+var sAlbumArtUri = document.getElementById("sAlbumArtUri");
+var sSubtitle = document.getElementById("sSubtitle");
+
+var addDeviceModal = document.getElementById("addDeviceModal");
+
+// ===================================================================
 // UI event listeners
 
 btnDevices.addEventListener("click", function () {
@@ -21,6 +67,29 @@ btnRefresh.addEventListener("click", function () {
         tickServerSettingsUp.classList.add("tickAnimate");
         socket.emit("server-settings");
     }, 5000);
+});
+
+btnSaveDevices.addEventListener("click", function () {
+    // TODO: Grab the list of devices to json format and send it to the back-end
+    var msg = [ {"foo":"bar"} ];
+    tickSaveDevicesUp.classList.add("tickAnimate");
+    socket.emit("devices-update-manual", msg)
+});
+
+btnAddDevice.addEventListener("click", function() {
+    console.log(deviceName.value, deviceIpAddress.value)
+    if (!deviceName.value && !deviceIpAddress.value) {
+        return;
+    }
+    var device = {
+        "friendlyName": deviceName.value,
+        "location": "http://" + deviceIpAddress.value + ":49152/description.xml",
+        "manufacturer": "",
+        "modelName": "",
+        "actions": {"Manual":null}
+    
+    };
+    console.log("ADD DEVICE!", device)
 });
 
 deviceChoices.addEventListener("change", function () {
@@ -44,21 +113,37 @@ btnReloadUI.addEventListener("click", function () {
     location.reload();
 })
 
-// Remove tickAnimate from animated ticks
-tickStateUp.addEventListener("animationend", (e) => { e.srcElement.classList.remove("tickAnimate"); });
-tickStateDown.addEventListener("animationend", (e) => { e.srcElement.classList.remove("tickAnimate"); });
-tickMetadataUp.addEventListener("animationend", (e) => { e.srcElement.classList.remove("tickAnimate"); });
-tickMetadataDown.addEventListener("animationend", (e) => { e.srcElement.classList.remove("tickAnimate"); });
-tickDevicesGetUp.addEventListener("animationend", (e) => { e.srcElement.classList.remove("tickAnimate"); });
-tickDevicesGetDown.addEventListener("animationend", (e) => { e.srcElement.classList.remove("tickAnimate"); });
-tickDevicesRefreshUp.addEventListener("animationend", (e) => { e.srcElement.classList.remove("tickAnimate"); });
-tickDevicesRefreshDown.addEventListener("animationend", (e) => { e.srcElement.classList.remove("tickAnimate"); });
-tickDeviceSetUp.addEventListener("animationend", (e) => { e.srcElement.classList.remove("tickAnimate"); });
-tickDeviceSetDown.addEventListener("animationend", (e) => { e.srcElement.classList.remove("tickAnimate"); });
-tickServerSettingsUp.addEventListener("animationend", (e) => { e.srcElement.classList.remove("tickAnimate"); });
-tickServerSettingsDown.addEventListener("animationend", (e) => { e.srcElement.classList.remove("tickAnimate"); });
+// ===================================================================
+// Ticks handling
 
-// Sockets
+function removeTickAnimate(e) {
+    e.srcElement.classList.remove("tickAnimate");
+}
+
+tickStateUp.addEventListener("animationend", removeTickAnimate);
+tickStateDown.addEventListener("animationend", removeTickAnimate);
+tickMetadataUp.addEventListener("animationend", removeTickAnimate);
+tickMetadataDown.addEventListener("animationend", removeTickAnimate);
+tickDevicesGetUp.addEventListener("animationend", removeTickAnimate);
+tickDevicesGetDown.addEventListener("animationend", removeTickAnimate);
+tickDevicesRefreshUp.addEventListener("animationend", removeTickAnimate);
+tickDevicesRefreshDown.addEventListener("animationend", removeTickAnimate);
+tickDeviceSetUp.addEventListener("animationend", removeTickAnimate);
+tickDeviceSetDown.addEventListener("animationend", removeTickAnimate);
+tickServerSettingsUp.addEventListener("animationend", removeTickAnimate);
+tickServerSettingsDown.addEventListener("animationend", removeTickAnimate);
+tickSaveDevicesUp.addEventListener("animationend", removeTickAnimate);
+tickSaveDevicesDown.addEventListener("animationend", removeTickAnimate);
+
+// ===================================================================
+// Generic functions
+
+window.removeDevice = function(n) {
+    console.log("REMOVE", n)
+};
+
+// ===================================================================
+// Socket definitions
 
 // Initial calls, wait a bit for socket to start
 var serverSettings = null;
@@ -68,6 +153,8 @@ setTimeout(() => {
     socket.emit("server-settings");
     tickDevicesGetUp.classList.add("tickAnimate");
     socket.emit("devices-get");
+    // tick...
+    // socket.emit("devices-get-manual"); // Manually added devices are behad by devices-get...
 }, 500);
 
 socket.on("server-settings", function (msg) {
@@ -123,7 +210,6 @@ socket.on("server-settings", function (msg) {
 socket.on("devices-get", function (msg) {
     console.log("IO: devices-get", msg);
     tickDevicesGetDown.classList.add("tickAnimate");
-
     // Store and sort device list
     deviceList = msg;
     deviceList.sort((a, b) => { return (a.friendlyName < b.friendlyName) ? -1 : 1 });
@@ -212,4 +298,12 @@ socket.on("metadata", function (msg) {
     sAlbum.children[0].innerText = (msg && msg.trackMetaData && msg.trackMetaData["upnp:album"]) ? msg.trackMetaData["upnp:album"] : "-";
     sAlbumArtUri.children[0].innerText = (msg && msg.trackMetaData && msg.trackMetaData["upnp:albumArtURI"]) ? msg.trackMetaData["upnp:albumArtURI"] : "-";
     sSubtitle.children[0].innerText = (msg && msg.trackMetaData && msg.trackMetaData["dc:subtitle"]) ? msg.trackMetaData["dc:subtitle"] : "-";
+});
+
+socket.on("devices-update-manual", function (msg) {
+    console.log("IO: devices-update-manual", msg)
+    tickSaveDevicesDown.classList.add("tickAnimate");
+    socket.emit("devices-get");
+    let modal = bootstrap.Modal.getInstance(addDeviceModal);
+    modal.hide();
 });

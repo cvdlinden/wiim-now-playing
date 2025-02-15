@@ -81,6 +81,8 @@
                 <div class="btn-group" role="group" aria-label="Device actions">
                     <button type="button" class="btn btn-secondary" id="btnDevices">Get devices</button>
                     <button type="button" class="btn btn-secondary" id="btnRefresh">Refresh devices</button>
+                    <button type="button" class="btn btn-secondary" id="btnAddDevices" data-bs-toggle="modal"
+                        data-bs-target="#addDeviceModal">Add device</button>
                 </div>
             </div>
         </div>
@@ -109,6 +111,7 @@
             <label class="form-label">Server Actions:</label>
             <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
                 <div class="btn-group" role="group" aria-label="Server actions">
+                    <!-- The following buttons are disabled by default. They will be enabled when shell/bash is available, i.e., on a Raspberry Pi. -->
                     <button id="btnReboot" class="btn btn-secondary" disabled>Reboot server</button>
                     <button id="btnUpdate" class="btn btn-secondary" disabled>Update server</button>
                     <button id="btnShutdown" class="btn btn-secondary" disabled>Shutdown server</button>
@@ -120,6 +123,56 @@
             </div>
         </div>
 
+    </div>
+
+    <!-- Add Device modal -->
+    <div class="modal fade" id="addDeviceModal" tabindex="-1" aria-labelledby="addDeviceModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addDeviceModalLabel">Add device(s)</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+
+                    <div class="input-group mb-3">
+                        <label class="form-label">Manually add devices:</label>
+                        <span id="tickSaveDevicesUp" class="tick tickUp"><i
+                                class="bi bi-arrow-up-circle-fill"></i></span>
+                        <span id="tickSaveDevicesDown" class="tick tickDown"><i
+                                class="bi bi-arrow-down-circle-fill"></i></span>
+                    </div>
+
+                    <div>
+                        <div class="input-group mb-3">
+                            <input type="text" class="form-control" aria-label="DeviceName" disabled>
+                            <input type="text" class="form-control" aria-label="IpAddress" disabled>
+                            <button id="btnRemoveDevice1" class="btn btn-outline-secondary" type="button" onclick="removeDevice(1)"><i
+                                    class="bi bi-trash3"></i></button>
+                        </div>
+                    </div>
+
+                    <!-- Device add -->
+                    <div class="input-group mb-3">
+                        <input type="text" class="form-control" placeholder="Device Name" aria-label="DeviceName" id="deviceName">
+                        <input type="text" class="form-control" placeholder="IP Address" aria-label="IpAddress" id="deviceIpAddress">
+                        <button id="btnAddDevice" class="btn btn-outline-secondary" type="button"><i
+                                class="bi bi-plus-lg"></i></button>
+                    </div>
+
+                    <div class="form-text">
+                        Add a new device by entering a name and the IP address then press +.<br />
+                        Remove a device by clicking the trash can icon.<br />
+                        When done press the 'Save changes' button.
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" id="btnSaveDevices">Save changes</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"

@@ -203,6 +203,27 @@ io.on("connection", (socket) => {
         upnp.callDeviceAction(io, msg, deviceInfo, serverSettings);
     });
 
+    // /**
+    //  * Listener for manual device list get.
+    //  * @returns {undefined}
+    //  * @todo Implement manual device get functionality.
+    //  */
+    // socket.on("devices-get-manual", () => {
+    //     console.log("Socket event", "devices-get-manual");
+    //     socket.emit("devices-get-manual", deviceListManual);
+    // });
+
+    /**
+     * Listener for manual device update.
+     * @param {string} msg - The device names and locations to save.
+     * @returns {undefined}
+     * @todo Implement device add functionality.
+     */
+    socket.on("devices-update-manual", (msg) => {
+        console.log("Socket event", "devices-update-manual", msg);
+        socket.emit("devices-update-manual", msg);
+    });
+
     // ======================================
     // Server related
 

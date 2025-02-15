@@ -1,3 +1,7 @@
+/* ------------------------
+ * WiiM Now Playing Debug styling (SCSS)
+ */
+
 html {
     min-height: 100%;
 }
@@ -5,12 +9,9 @@ html {
 body {
     background-color: #333;
     background-image: linear-gradient(#033536, #010c12);
-    color: #fff;
+    // color: #fff;
     min-height: 100%;
     font-family: arial, sans-serif;
-}
-
-#debugApp {
 
     .tick {
 
@@ -44,5 +45,11 @@ body {
             opacity: 0.2;
         }
     }
+
+}
+
+#debugApp {
+
+    color: #fff;
 
 }
