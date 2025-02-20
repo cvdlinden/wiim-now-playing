@@ -177,6 +177,7 @@ io.on("connection", (socket) => {
      */
     socket.on("devices-refresh", () => {
         log("Socket event", "devices-refresh");
+        lib.readDevices(deviceListManual);
         sockets.scanDevices(io, ssdp, deviceListSsdp, serverSettings);
     });
 
@@ -202,16 +203,6 @@ io.on("connection", (socket) => {
         log("Socket event", "device-action", msg);
         upnp.callDeviceAction(io, msg, deviceInfo, serverSettings);
     });
-
-    // /**
-    //  * Listener for manual device list get.
-    //  * @returns {undefined}
-    //  * @todo Implement manual device get functionality.
-    //  */
-    // socket.on("devices-get-manual", () => {
-    //     console.log("Socket event", "devices-get-manual");
-    //     socket.emit("devices-get-manual", deviceListManual);
-    // });
 
     /**
      * Listener for manual device update.

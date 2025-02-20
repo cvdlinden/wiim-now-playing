@@ -73,16 +73,13 @@
                         class="bi bi-arrow-down-circle-fill"></i></span>)
             </label>
             <div class="btn-toolbar justify-content-between">
-                <div class="input-group">
+                <div class="input-group" aria-label="Device actions">
                     <select id="deviceChoices" class="form-select">
                         <option disabled="disabled">Waiting for devices...</option>
                     </select>
-                </div>
-                <div class="btn-group" role="group" aria-label="Device actions">
                     <button type="button" class="btn btn-secondary" id="btnDevices">Get devices</button>
                     <button type="button" class="btn btn-secondary" id="btnRefresh">Refresh devices</button>
-                    <button type="button" class="btn btn-secondary" id="btnAddDevices" data-bs-toggle="modal"
-                        data-bs-target="#addDeviceModal">Add device</button>
+                    <button type="button" class="btn btn-secondary" id="btnAddDevices">Add device</button>
                 </div>
             </div>
         </div>
@@ -143,19 +140,17 @@
                                 class="bi bi-arrow-down-circle-fill"></i></span>
                     </div>
 
-                    <div>
-                        <div class="input-group mb-3">
-                            <input type="text" class="form-control" aria-label="DeviceName" disabled>
-                            <input type="text" class="form-control" aria-label="IpAddress" disabled>
-                            <button id="btnRemoveDevice1" class="btn btn-outline-secondary" type="button" onclick="removeDevice(1)"><i
-                                    class="bi bi-trash3"></i></button>
-                        </div>
+                    <!-- Manual device list -->
+                    <div id="manualDeviceList">
+                        <!-- Placeholder for manually added devices -->
                     </div>
 
                     <!-- Device add -->
                     <div class="input-group mb-3">
-                        <input type="text" class="form-control" placeholder="Device Name" aria-label="DeviceName" id="deviceName">
-                        <input type="text" class="form-control" placeholder="IP Address" aria-label="IpAddress" id="deviceIpAddress">
+                        <input type="text" class="form-control" placeholder="Device Name" aria-label="DeviceName"
+                            id="deviceName">
+                        <input type="text" class="form-control" placeholder="IP Address" aria-label="IpAddress"
+                            id="deviceIpAddress">
                         <button id="btnAddDevice" class="btn btn-outline-secondary" type="button"><i
                                 class="bi bi-plus-lg"></i></button>
                     </div>
@@ -169,7 +164,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-primary" id="btnSaveDevices">Save changes</button>
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                 </div>
             </div>
         </div>

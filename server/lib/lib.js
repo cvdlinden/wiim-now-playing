@@ -126,6 +126,7 @@ const readDevices = async (deviceListManual) => {
         else {
             log("fs", "Devices found:", devices.length);
             log("fs", "Amend the current device list with the stored values.");
+            deviceListManual.length = 0; // Clear the current list
             deviceListManual.push(...devices);
         }
     }

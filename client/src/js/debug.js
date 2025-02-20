@@ -48,6 +48,11 @@ var sAlbumArtUri = document.getElementById("sAlbumArtUri");
 var sSubtitle = document.getElementById("sSubtitle");
 
 var addDeviceModal = document.getElementById("addDeviceModal");
+var manualDeviceList = document.getElementById("manualDeviceList");
+
+// Initialize variables
+var serverSettings = null;
+var deviceList = null;
 
 // ===================================================================
 // UI event listeners
@@ -69,15 +74,63 @@ btnRefresh.addEventListener("click", function () {
     }, 5000);
 });
 
+btnAddDevices.addEventListener("click", function () {
+
+    // Show add device modal
+    let modal = new bootstrap.Modal(addDeviceModal);
+    modal.show();
+
+    // Clear choices
+    manualDeviceList.innerHTML = "";
+
+    // Filter manually added devices
+    var devicesOther = deviceList.filter((d) => { return !d.manufacturer.startsWith("Linkplay") });
+    if (devicesOther.length > 0) {
+        for (let i = 0; i < devicesOther.length; i++) {
+            var div = document.createElement("div");
+            div.classList.add("input-group", "mb-3");
+            div.id = "manualDevice" + i;
+
+            var deviceName = document.createElement("input");
+            deviceName.type = "text";
+            deviceName.classList.add("form-control");
+            deviceName.setAttribute("aria-label", "DeviceName");
+            deviceName.disabled = true;
+            deviceName.value = devicesOther[i].friendlyName;
+            div.appendChild(deviceName);
+
+            var deviceIpAddress = document.createElement("input");
+            deviceIpAddress.type = "text";
+            deviceIpAddress.classList.add("form-control");
+            deviceIpAddress.setAttribute("aria-label", "IpAddress");
+            deviceIpAddress.disabled = true;
+            deviceIpAddress.value = devicesOther[i].location;
+            div.appendChild(deviceIpAddress);
+
+            var btnRemoveDevice = document.createElement("button");
+            btnRemoveDevice.id = "btnRemoveDevice" + i;
+            btnRemoveDevice.classList.add("btn", "btn-outline-secondary");
+            btnRemoveDevice.type = "button";
+            btnRemoveDevice.setAttribute("onclick", "removeDevice(" + i + ")");
+            var iRemoveDevice = document.createElement("i");
+            iRemoveDevice.classList.add("bi", "bi-trash3");
+            btnRemoveDevice.appendChild(iRemoveDevice);
+            div.appendChild(btnRemoveDevice);
+
+            manualDeviceList.appendChild(div);
+        }
+    };
+
+});
+
 btnSaveDevices.addEventListener("click", function () {
     // TODO: Grab the list of devices to json format and send it to the back-end
-    var msg = [ {"foo":"bar"} ];
+    var msg = [{ "foo": "bar" }];
     tickSaveDevicesUp.classList.add("tickAnimate");
     socket.emit("devices-update-manual", msg)
 });
 
-btnAddDevice.addEventListener("click", function() {
-    console.log(deviceName.value, deviceIpAddress.value)
+btnAddDevice.addEventListener("click", function () {
     if (!deviceName.value && !deviceIpAddress.value) {
         return;
     }
@@ -86,10 +139,12 @@ btnAddDevice.addEventListener("click", function() {
         "location": "http://" + deviceIpAddress.value + ":49152/description.xml",
         "manufacturer": "",
         "modelName": "",
-        "actions": {"Manual":null}
-    
+        "actions": { "Manual": null }
     };
     console.log("ADD DEVICE!", device)
+    // Reset fields
+    deviceName.value = "";
+    deviceIpAddress.value = "";
 });
 
 deviceChoices.addEventListener("change", function () {
@@ -138,7 +193,7 @@ tickSaveDevicesDown.addEventListener("animationend", removeTickAnimate);
 // ===================================================================
 // Generic functions
 
-window.removeDevice = function(n) {
+window.removeDevice = function (n) {
     console.log("REMOVE", n)
 };
 
@@ -146,15 +201,11 @@ window.removeDevice = function(n) {
 // Socket definitions
 
 // Initial calls, wait a bit for socket to start
-var serverSettings = null;
-var deviceList = null;
 setTimeout(() => {
     tickServerSettingsUp.classList.add("tickAnimate");
     socket.emit("server-settings");
     tickDevicesGetUp.classList.add("tickAnimate");
     socket.emit("devices-get");
-    // tick...
-    // socket.emit("devices-get-manual"); // Manually added devices are behad by devices-get...
 }, 500);
 
 socket.on("server-settings", function (msg) {
@@ -304,6 +355,7 @@ socket.on("devices-update-manual", function (msg) {
     console.log("IO: devices-update-manual", msg)
     tickSaveDevicesDown.classList.add("tickAnimate");
     socket.emit("devices-get");
+    // Hide add device modal
     let modal = bootstrap.Modal.getInstance(addDeviceModal);
     modal.hide();
 });
