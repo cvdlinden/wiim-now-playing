@@ -8,7 +8,7 @@
  */
 
 // Other modules
-const exec = require('child_process').exec;
+const exec = require("child_process").exec;
 const log = require("debug")("lib:shell");
 
 /**
@@ -18,7 +18,7 @@ const log = require("debug")("lib:shell");
  */
 const reboot = (io) => {
     log("Reboot requested...");
-    exec('/usr/bin/sudo systemctl reboot', function (err, stdout, stderr) {
+    exec("/usr/bin/sudo systemctl reboot", function (err, stdout, stderr) {
         if (err) {
             log("Error", err);
         }
@@ -36,7 +36,7 @@ const reboot = (io) => {
  */
 const shutdown = (io) => {
     log("Shutdown requested...");
-    exec('/usr/bin/sudo systemctl poweroff', function (err, stdout, stderr) {
+    exec("/usr/bin/sudo systemctl poweroff", function (err, stdout, stderr) {
         if (err) {
             log("Error", err);
         }
@@ -55,14 +55,14 @@ const update = (io) => {
     log("Update requested..."); 
     // io.emit("server-update", __dirname);
     io.emit("server-update", "Updating...")
-    // exec('cd ../../ && pwd', function (err, stdout, stderr) {
+    // exec("cd ../../ && pwd", function (err, stdout, stderr) {
     //     io.emit("server-update", stdout);
     // });
     // git.stdout.on("data", data => {
     //     log(`Git replied: ${data}`);
     //     io.emit("server-update", data);
     //  });
-    exec('git -C ' + __dirname + ' pull && npm install', function (err, stdout, stderr) {
+    exec("git -C " + __dirname + " pull && npm install", function (err, stdout, stderr) {
         if (err) {
             log("Error", err);
             io.emit("server-update", err);

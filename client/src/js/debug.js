@@ -1,4 +1,4 @@
-var socket = io.connect(':80');
+var socket = io.connect(":80");
 
 // DEBUG
 // var state = document.getElementById("state");

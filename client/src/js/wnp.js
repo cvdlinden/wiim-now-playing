@@ -29,11 +29,11 @@ WNP.Init = function () {
     // Normally on port 80, but in cases where another port is chosen adapt
     if (location.port != "80" && location.port != "1234") {
         console.log("WNP", "Listening on " + location.href)
-        window.socket = io.connect(':' + location.port);
+        window.socket = io.connect(":" + location.port);
     }
     else {
         console.log("WNP", "Listening on " + location.hostname + ":80")
-        window.socket = io.connect(':80');
+        window.socket = io.connect(":80");
     }
 
     // Set Socket.IO definitions

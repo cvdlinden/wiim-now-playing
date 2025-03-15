@@ -8,7 +8,7 @@
  * Then it will output all found devices to a devices.csv file.
  */
 
-const SSDP = require('node-ssdp').Client;
+const SSDP = require("node-ssdp").Client;
 const ssdpClient = new SSDP({ explicitSocketBind: true }); // explicitSocketBind enabled to make it work on Windows 11
 
 const fs = require("fs");
@@ -26,7 +26,7 @@ ssdpClient.on("response", (respSSDP, code, rinfo) => {
 });
 
 // Start a search
-ssdpClient.search('ssdp:all'); // Search all devices
+ssdpClient.search("ssdp:all"); // Search all devices
 
 // Wait a minute for results to come in...
 setTimeout(function () {
@@ -36,11 +36,11 @@ setTimeout(function () {
         delimiter: ";" // Use ; as delimiter
     }); 
 
-    console.log('Writing to devices.csv...');
+    console.log("Writing to devices.csv...");
     stringifier.pipe(fs.createWriteStream("devices.csv"));
     devices.forEach((row) => stringifier.write(row));
     stringifier.end();
 
-    console.log('Done!');
+    console.log("Done!");
 
 }, 5 * 1000);

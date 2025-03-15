@@ -5,7 +5,7 @@
 
 // Express modules
 const express = require("express");
-const cors = require('cors');
+const cors = require("cors");
 const app = express();
 
 // Node.js modules
@@ -99,13 +99,13 @@ setTimeout(() => {
 app.use(cors());
 // Reroute all clients to the /public folder
 app.use(express.static(__dirname + "/public"));
-app.get('/tv', function (req, res) {
+app.get("/tv", function (req, res) {
     res.sendFile(__dirname + "/public/tv.html");
 })
-app.get('/debug', function (req, res) {
+app.get("/debug", function (req, res) {
     res.sendFile(__dirname + "/public/debug.html");
 })
-app.get('/res', function (req, res) {
+app.get("/res", function (req, res) {
     res.sendFile(__dirname + "/public/res.html");
 })
 
@@ -143,7 +143,7 @@ io.on("connection", (socket) => {
      * @returns {undefined}
      */
     socket.on("disconnect", () => {
-        log('Client disconnected');
+        log("Client disconnected");
 
         // On disconnection we check the amount of connected clients.
         // If there is none, the streaming and polling are stopped.
