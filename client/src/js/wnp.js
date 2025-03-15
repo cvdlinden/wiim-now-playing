@@ -302,6 +302,9 @@ WNP.setSocketDefinitions = function () {
         // Source detection
         var playMedium = (msg.PlayMedium) ? msg.PlayMedium : "";
         var trackSource = (msg.TrackSource) ? msg.TrackSource : "";
+        // // Temp override for testing
+        // playMedium = "SQUEEZELITE";
+        // trackSource = "squeezelite";
         var sourceIdent = WNP.getSourceIdent(playMedium, trackSource);
         // Did the source ident change...?
         if (sourceIdent !== WNP.d.prevSourceIdent) {
@@ -550,6 +553,9 @@ WNP.getSourceIdent = function (playMedium, trackSource) {
         case "airplay":
             sIdentUri = "./img/sources/airplay.png";
             break;
+        case "third-dlna":
+            sIdentUri = "./img/sources/dlna2.png";
+            break;
         case "cast":
             sIdentUri = "./img/sources/chromecast.png";
             break;
@@ -563,7 +569,7 @@ WNP.getSourceIdent = function (playMedium, trackSource) {
             sIdentUri = "./img/sources/spotify.png";
             break;
         case "none":
-            sIdentUri = "./img/sources/none.png";
+            sIdentUri = "./img/sources/none2.png";
             break;
         case "bluetooth":
             sIdentUri = "./img/sources/bluetooth.png";
@@ -603,7 +609,7 @@ WNP.getSourceIdent = function (playMedium, trackSource) {
             sIdentUri = "./img/sources/tidal.png";
             break;
         case "upnpserver":
-            sIdentUri = "./img/sources/dlna.png";
+            sIdentUri = "./img/sources/dlna2.png";
             break;
         case "vtuner":
             sIdentUri = "./img/sources/vtuner.png";

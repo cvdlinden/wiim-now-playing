@@ -108,6 +108,9 @@ app.get("/debug", function (req, res) {
 app.get("/res", function (req, res) {
     res.sendFile(__dirname + "/public/res.html");
 })
+app.get("/assets", function (req, res) {
+    res.sendFile(__dirname + "/public/assets.html");
+})
 
 // ===========================================================================
 // Socket.io definitions
