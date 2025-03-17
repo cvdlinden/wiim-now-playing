@@ -551,7 +551,7 @@ WNP.getSourceIdent = function (playMedium, trackSource) {
 
     switch (playMedium.toLowerCase()) {
         case "airplay":
-            sIdentUri = "./img/sources/airplay.png";
+            sIdentUri = "./img/sources/airplay2.png";
             break;
         case "third-dlna":
             sIdentUri = "./img/sources/dlna2.png";
@@ -572,7 +572,7 @@ WNP.getSourceIdent = function (playMedium, trackSource) {
             sIdentUri = "./img/sources/none2.png";
             break;
         case "bluetooth":
-            sIdentUri = "./img/sources/bluetooth.png";
+            sIdentUri = "./img/sources/bluetooth2.png";
             break;
         case "hdmi":
             sIdentUri = "./img/sources/hdmi.png";
@@ -600,7 +600,7 @@ WNP.getSourceIdent = function (playMedium, trackSource) {
             sIdentUri = "./img/sources/plex.png";
             break;
         case "prime":
-            sIdentUri = "./img/sources/amazon-music.png";
+            sIdentUri = "./img/sources/amazon-music2.png";
             break;
         case "qobuz":
             sIdentUri = "./img/sources/qobuz.png";
