@@ -557,7 +557,7 @@ WNP.getSourceIdent = function (playMedium, trackSource) {
             sIdentUri = "./img/sources/dlna2.png";
             break;
         case "cast":
-            sIdentUri = "./img/sources/chromecast.png";
+            sIdentUri = "./img/sources/chromecast2.png";
             break;
         case "radio-network":
             sIdentUri = "./img/sources/radio.png";
@@ -603,16 +603,16 @@ WNP.getSourceIdent = function (playMedium, trackSource) {
             sIdentUri = "./img/sources/amazon-music2.png";
             break;
         case "qobuz":
-            sIdentUri = "./img/sources/qobuz.png";
+            sIdentUri = "./img/sources/qobuz2.png";
             break;
         case "tidal":
-            sIdentUri = "./img/sources/tidal.png";
+            sIdentUri = "./img/sources/tidal2.png";
             break;
         case "upnpserver":
             sIdentUri = "./img/sources/dlna2.png";
             break;
         case "vtuner":
-            sIdentUri = "./img/sources/vtuner.png";
+            sIdentUri = "./img/sources/vtuner2.png";
             break;
     };
 
