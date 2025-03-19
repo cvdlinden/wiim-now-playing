@@ -575,13 +575,13 @@ WNP.getSourceIdent = function (playMedium, trackSource) {
             sIdentUri = "./img/sources/bluetooth2.png";
             break;
         case "hdmi":
-            sIdentUri = "./img/sources/hdmi.png";
+            sIdentUri = "./img/sources/hdmi2.png";
             break;
         case "line-in":
-            sIdentUri = "./img/sources/line-in.png";
+            sIdentUri = "./img/sources/line-in2.png";
             break;
         case "optical":
-            sIdentUri = "./img/sources/spdif.png";
+            sIdentUri = "./img/sources/spdif2.png";
             break;
     };
 
