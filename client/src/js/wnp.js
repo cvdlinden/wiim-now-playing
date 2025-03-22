@@ -302,9 +302,6 @@ WNP.setSocketDefinitions = function () {
         // Source detection
         var playMedium = (msg.PlayMedium) ? msg.PlayMedium : "";
         var trackSource = (msg.TrackSource) ? msg.TrackSource : "";
-        // // Temp override for testing
-        // playMedium = "SQUEEZELITE";
-        // trackSource = "squeezelite";
         var sourceIdent = WNP.getSourceIdent(playMedium, trackSource);
         // Did the source ident change...?
         if (sourceIdent !== WNP.d.prevSourceIdent) {
@@ -563,10 +560,13 @@ WNP.getSourceIdent = function (playMedium, trackSource) {
             sIdentUri = "./img/sources/radio.png";
             break;
         case "songlist-network":
-            sIdentUri = "./img/sources/ethernet.png";
+            sIdentUri = "./img/sources/ethernet2.png";
             break;
         case "spotify":
             sIdentUri = "./img/sources/spotify.png";
+            break;
+        case "squeezelite":
+            sIdentUri = "./img/sources/music-assistant2.png";
             break;
         case "none":
             sIdentUri = "./img/sources/none2.png";
