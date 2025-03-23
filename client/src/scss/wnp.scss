@@ -123,14 +123,30 @@
 
         }
 
+        h1 {
+            font-size: calc(1.375rem + 1.5vw);
+        }
+
+        h2 {
+            font-size: calc(1.325rem + .9vw);
+        }
+
         h3 {
-            font-size: 1.17em;
+            font-size: calc(1.3rem + .6vw);
+        }
+
+        h4 {
+            font-size: calc(1.275rem + .3vw);
+        }
+
+        div, p {
+            font-size: calc(.875rem + .3vw);
         }
 
         div:has(>#mediaAlbum),
         #mediaQuality,
         #mediaSubTitle {
-            font-size: .875em;
+            font-size: calc(.875rem + .3vw);
         }
 
         // Media Album and Quality Ident
@@ -195,20 +211,13 @@
                 background-color: transparent;
                 color: var(--bs-btn-color);
             }
-
-            // #wnpSettings {
-            //     position: absolute;
-            //     top: 5px;
-            //     right: 15px;
-            //     border: none;
-            // }
-
         }
 
         #devNameHolder {
             position: absolute;
             left: 24px;
             bottom: 15px;
+            font-size: calc(.875rem + .3vw);
         }
 
         #devVolumeHolder {
@@ -216,6 +225,7 @@
             right: 24px;
             bottom: 15px;
             text-align: right;
+            font-size: calc(.875rem + .3vw);
         }
 
     }
@@ -265,16 +275,14 @@
         /* Media info contents */
         .wnpMediaInfo {
 
-            h3 {
-                font-size: calc(1.3rem + .6vw);
+            #mediaSource {
+    
+                img {
+                    max-height: 28px;
+                }
+    
             }
-
-            div:has(>#mediaAlbum),
-            #mediaQuality,
-            #mediaSubTitle {
-                font-size: 1rem;
-            }
-
+    
         }
 
         /* Footer contents */
@@ -285,6 +293,42 @@
             }
 
         }
+    }
+
+    // Large devices (desktops/tablets, 992px and up)
+    @media (min-width: 992px) and (orientation: landscape) {
+
+        /* Media info contents */
+        .wnpMediaInfo {
+
+            #mediaSource {
+    
+                img {
+                    max-height: 30px;
+                }
+    
+            }
+    
+        }
+        
+    }
+
+    // X-Large devices (large desktops, 1200px and up)
+    @media (min-width: 1200px) and (orientation: landscape) {
+
+        /* Media info contents */
+        .wnpMediaInfo {
+
+            #mediaSource {
+    
+                img {
+                    max-height: 32px;
+                }
+    
+            }
+    
+        }
+
     }
 
     // In case of TV mode activated
@@ -333,20 +377,9 @@
                 margin-bottom: 0.75rem;
             }
 
-            div:has(>#mediaAlbum),
-            #mediaQuality,
-            #mediaSubTitle {
-                font-size: 1.1rem;
-            }
-
             // Media Source Ident
             #mediaSource {
                 text-align: left;
-
-                img {
-                    max-height: 28px;
-                }
-
             }
 
         }
@@ -390,7 +423,7 @@
 
 }
 
-// Resolution debugging
+// Resolution debugging, only used in res.html
 .rez {
 
     // Color coding to see margins and paddings

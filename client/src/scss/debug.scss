@@ -45,4 +45,13 @@ body {
         }
     }
 
+    .sourceIdents {
+        img {
+            display: block;
+            max-height: 60px;
+            margin-bottom: 15px;
+            filter: invert(1);
+        }
+    }
+
 }

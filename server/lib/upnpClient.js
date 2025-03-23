@@ -350,7 +350,7 @@ const getDeviceDescription = (deviceList, serverSettings, respSSDP) => {
 const getServiceDescription = (deviceList, serverSettings, deviceClient, respSSDP, deviceDesc) => {
     // log("getServiceDescription()");
 
-    deviceClient.getServiceDescription('AVTransport', function (err, serviceDesc) {
+    deviceClient.getServiceDescription("AVTransport", function (err, serviceDesc) {
         if (err) { log("getServiceDescription()", "Error", err); }
         else {
 

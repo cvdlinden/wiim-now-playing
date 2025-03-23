@@ -1,2 +1,6 @@
 # Things not to move to Git
+
+# Local settings, will be created upon first run
 settings.json
+devices.json
+_devices.json

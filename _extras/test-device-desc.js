@@ -5,7 +5,7 @@
  * This script will try and find all services and their description of the device.
  */
 
-const Client = require('upnp-device-client');
+const Client = require("upnp-device-client");
 
 // Instantiate a client with a device LOCATION URL (discovered by SSDP)
 // Replace the URI below with the found URI from discovery (use: node test-ssdp.js)
@@ -66,5 +66,5 @@ client.getDeviceDescription(function (err, deviceDesc) {
 
 // Wait a minute for results to come in...
 setTimeout(function () {
-    console.log('Done!');
+    console.log("Done!");
 }, 10 * 1000);

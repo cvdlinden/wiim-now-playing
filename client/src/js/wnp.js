@@ -29,11 +29,11 @@ WNP.Init = function () {
     // Normally on port 80, but in cases where another port is chosen adapt
     if (location.port != "80" && location.port != "1234") {
         console.log("WNP", "Listening on " + location.href)
-        window.socket = io.connect(':' + location.port);
+        window.socket = io.connect(":" + location.port);
     }
     else {
         console.log("WNP", "Listening on " + location.hostname + ":80")
-        window.socket = io.connect(':80');
+        window.socket = io.connect(":80");
     }
 
     // Set Socket.IO definitions
@@ -548,34 +548,40 @@ WNP.getSourceIdent = function (playMedium, trackSource) {
 
     switch (playMedium.toLowerCase()) {
         case "airplay":
-            sIdentUri = "./img/sources/airplay.png";
+            sIdentUri = "./img/sources/airplay2.png";
+            break;
+        case "third-dlna":
+            sIdentUri = "./img/sources/dlna2.png";
             break;
         case "cast":
-            sIdentUri = "./img/sources/chromecast.png";
+            sIdentUri = "./img/sources/chromecast2.png";
             break;
         case "radio-network":
             sIdentUri = "./img/sources/radio.png";
             break;
         case "songlist-network":
-            sIdentUri = "./img/sources/ethernet.png";
+            sIdentUri = "./img/sources/ethernet2.png";
             break;
         case "spotify":
             sIdentUri = "./img/sources/spotify.png";
             break;
+        case "squeezelite":
+            sIdentUri = "./img/sources/music-assistant2.png";
+            break;
         case "none":
-            sIdentUri = "./img/sources/none.png";
+            sIdentUri = "./img/sources/none2.png";
             break;
         case "bluetooth":
-            sIdentUri = "./img/sources/bluetooth.png";
+            sIdentUri = "./img/sources/bluetooth2.png";
             break;
         case "hdmi":
-            sIdentUri = "./img/sources/hdmi.png";
+            sIdentUri = "./img/sources/hdmi2.png";
             break;
         case "line-in":
-            sIdentUri = "./img/sources/line-in.png";
+            sIdentUri = "./img/sources/line-in2.png";
             break;
         case "optical":
-            sIdentUri = "./img/sources/spdif.png";
+            sIdentUri = "./img/sources/spdif2.png";
             break;
     };
 
@@ -594,19 +600,19 @@ WNP.getSourceIdent = function (playMedium, trackSource) {
             sIdentUri = "./img/sources/plex.png";
             break;
         case "prime":
-            sIdentUri = "./img/sources/amazon-music.png";
+            sIdentUri = "./img/sources/amazon-music2.png";
             break;
         case "qobuz":
-            sIdentUri = "./img/sources/qobuz.png";
+            sIdentUri = "./img/sources/qobuz2.png";
             break;
         case "tidal":
-            sIdentUri = "./img/sources/tidal.png";
+            sIdentUri = "./img/sources/tidal2.png";
             break;
         case "upnpserver":
-            sIdentUri = "./img/sources/dlna.png";
+            sIdentUri = "./img/sources/dlna2.png";
             break;
         case "vtuner":
-            sIdentUri = "./img/sources/vtuner.png";
+            sIdentUri = "./img/sources/vtuner2.png";
             break;
     };
 
