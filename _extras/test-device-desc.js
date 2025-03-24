@@ -66,5 +66,5 @@ client.getDeviceDescription(function (err, deviceDesc) {
 
 // Wait a minute for results to come in...
 setTimeout(function () {
-    console.log('Done!');
+    console.log("Done!");
 }, 10 * 1000);

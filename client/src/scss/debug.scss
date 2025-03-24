@@ -12,6 +12,9 @@ body {
     // color: #fff;
     min-height: 100%;
     font-family: arial, sans-serif;
+}
+
+#debugApp {
 
     .tick {
 
@@ -46,10 +49,13 @@ body {
         }
     }
 
-}
-
-#debugApp {
-
-    color: #fff;
+    .sourceIdents {
+        img {
+            display: block;
+            max-height: 60px;
+            margin-bottom: 15px;
+            filter: invert(1);
+        }
+    }
 
 }

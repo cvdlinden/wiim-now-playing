@@ -9,7 +9,7 @@
  */
 
 // Use SSDP module
-const SSDP = require("node-ssdp").Client;
+const SSDP = require("node-ssdp").Client
 
 // Other modules
 const upnp = require("./upnpClient.js"); // UPnP Client functionality
