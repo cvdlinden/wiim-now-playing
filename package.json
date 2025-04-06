@@ -1,6 +1,6 @@
 {
   "name": "wiim-now-playing",
-  "version": "1.6",
+  "version": "1.6.1",
   "description": "Show what the Wiim device is currently playing on a separate screen.",
   "main": "server/index.js",
   "scripts": {
