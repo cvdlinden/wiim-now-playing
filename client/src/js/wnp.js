@@ -7,6 +7,10 @@ window.WNP = window.WNP || {};
 // Default settings
 WNP.s = {
     rndAlbumArtUri: "./img/fake-album-1.jpg",
+    // Device selection
+    aDeviceUI: ["btnPrev","btnPlay","btnNext","btnRefresh", "selDeviceChoices"],
+    // Server actions to be used in the app
+    aServerUI: ["btnReboot", "btnUpdate", "btnShutdown", "btnReloadUI"]
 };
 
 // Data placeholders.
@@ -68,11 +72,21 @@ WNP.Init = function () {
  * Reference to the UI elements of the app.
  * @returns {undefined}
  */
-WNPd.setUIReferences = function () {
+WNP.setUIReferences = function () {
     console.log("WNP", "Set UI references...")
 
+    function addElementToRef(id) {
+        const element = document.getElementById(id);
+        if (element) {
+            WNP.r[id] = element;
+        } else {
+            console.warn("WNP", `Element with ID '${id}' not found.`);
+        }
+    }
+
     // Set references to the UI elements
-    // TODO
+    this.s.aDeviceUI.forEach((id) => { addElementToRef(id); });
+    this.s.aServerUI.forEach((id) => { addElementToRef(id); });
 
 };
 
@@ -86,7 +100,7 @@ WNP.setUIListeners = function () {
     // ------------------------------------------------
     // Player buttons
 
-    btnPrev.addEventListener("click", function () {
+    this.r.btnPrev.addEventListener("click", function () {
         var wnpAction = this.getAttribute("wnp-action");
         if (wnpAction) {
             this.disabled = true;
@@ -94,7 +108,7 @@ WNP.setUIListeners = function () {
         }
     });
 
-    btnPlay.addEventListener("click", function () {
+    this.r.btnPlay.addEventListener("click", function () {
         var wnpAction = this.getAttribute("wnp-action");
         if (wnpAction) {
             this.disabled = true;
@@ -102,7 +116,7 @@ WNP.setUIListeners = function () {
         }
     });
 
-    btnNext.addEventListener("click", function () {
+    this.r.btnNext.addEventListener("click", function () {
         var wnpAction = this.getAttribute("wnp-action");
         if (wnpAction) {
             this.disabled = true;
@@ -113,7 +127,7 @@ WNP.setUIListeners = function () {
     // ------------------------------------------------
     // Settings buttons
 
-    btnRefresh.addEventListener("click", function () {
+    this.r.btnRefresh.addEventListener("click", function () {
         socket.emit("devices-refresh");
         // Wait for discovery to finish
         setTimeout(() => {
@@ -122,23 +136,23 @@ WNP.setUIListeners = function () {
         }, 5000);
     });
 
-    deviceChoices.addEventListener("change", function () {
+    this.r.selDeviceChoices.addEventListener("change", function () {
         socket.emit("device-set", this.value);
-    })
+    });
 
-    btnReboot.addEventListener("click", function () {
+    this.r.btnReboot.addEventListener("click", function () {
         socket.emit("server-reboot");
     });
 
-    btnUpdate.addEventListener("click", function () {
+    this.r.btnUpdate.addEventListener("click", function () {
         socket.emit("server-update");
     });
 
-    btnShutdown.addEventListener("click", function () {
+    this.r.btnShutdown.addEventListener("click", function () {
         socket.emit("server-shutdown");
     });
 
-    btnReloadUI.addEventListener("click", function () {
+    this.r.btnReloadUI.addEventListener("click", function () {
         location.reload();
     });
 
@@ -158,10 +172,10 @@ WNP.setSocketDefinitions = function () {
         WNP.d.serverSettings = msg;
 
         // RPi has bash, so possibly able to reboot/shutdown.
-        if (msg.os.userInfo.shell === "/bin/bash") {
-            btnReboot.disabled = false;
-            btnUpdate.disabled = false;
-            btnShutdown.disabled = false;
+        if (msg && msg.os && msg.os.userInfo && msg.os.userInfo.shell === "/bin/bash") {
+            WNPd.r.btnReboot.disabled = false;
+            WNPd.r.btnUpdate.disabled = false;
+            WNPd.r.btnShutdown.disabled = false;
         };
 
         // Set device name
@@ -210,7 +224,7 @@ WNP.setSocketDefinitions = function () {
         WNP.d.deviceList.sort((a, b) => { return (a.friendlyName < b.friendlyName) ? -1 : 1 });
 
         // Clear choices
-        deviceChoices.innerHTML = "<option value=\"\">Select a device...</em></li>";
+        WNP.r.selDeviceChoices.innerHTML = "<option value=\"\">Select a device...</em></li>";
 
         // Add WiiM devices
         var devicesWiiM = WNP.d.deviceList.filter((d) => { return d.manufacturer.startsWith("Linkplay") });
@@ -227,7 +241,7 @@ WNP.setSocketDefinitions = function () {
                 };
                 optGroup.appendChild(opt);
             })
-            deviceChoices.appendChild(optGroup);
+            WNP.r.selDeviceChoices.appendChild(optGroup);
         };
 
         // Other devices
@@ -245,12 +259,12 @@ WNP.setSocketDefinitions = function () {
                 };
                 optGroup.appendChild(opt);
             })
-            deviceChoices.appendChild(optGroup);
+            WNP.r.selDeviceChoices.appendChild(optGroup);
 
         };
 
         if (devicesWiiM.length == 0 && devicesOther.length == 0) {
-            deviceChoices.innerHTML = "<option disabled=\"disabled\">No devices found!</em></li>";
+            WNP.r.selDeviceChoices.innerHTML = "<option disabled=\"disabled\">No devices found!</em></li>";
         };
 
     });
@@ -278,26 +292,26 @@ WNP.setSocketDefinitions = function () {
         // Device transport state or play medium changed...?
         if (WNP.d.prevTransportState !== msg.CurrentTransportState || WNP.d.prevPlayMedium !== msg.PlayMedium) {
             if (msg.CurrentTransportState === "TRANSITIONING") {
-                btnPlay.children[0].className = "bi bi-circle-fill";
-                btnPlay.disabled = true;
+                WNP.r.btnPlay.children[0].className = "bi bi-circle-fill";
+                WNP.r.btnPlay.disabled = true;
             };
             if (msg.CurrentTransportState === "PLAYING") {
                 // Radio live streams are preferrentialy stopped as pausing keeps cache for minutes/hours(?).
                 // Stop > Play resets the stream to 'now'. Pause works like 'live tv time shift'.
                 if (msg.PlayMedium && msg.PlayMedium === "RADIO-NETWORK") {
-                    btnPlay.children[0].className = "bi bi-stop-circle-fill";
-                    btnPlay.setAttribute("wnp-action", "Stop");
+                    WNP.r.btnPlay.children[0].className = "bi bi-stop-circle-fill";
+                    WNP.r.btnPlay.setAttribute("wnp-action", "Stop");
                 }
                 else {
-                    btnPlay.children[0].className = "bi bi-pause-circle-fill";
-                    btnPlay.setAttribute("wnp-action", "Pause");
+                    WNP.r.btnPlay.children[0].className = "bi bi-pause-circle-fill";
+                    WNP.r.btnPlay.setAttribute("wnp-action", "Pause");
                 }
-                btnPlay.disabled = false;
+                WNP.r.btnPlay.disabled = false;
             }
             else if (msg.CurrentTransportState === "PAUSED_PLAYBACK" || msg.CurrentTransportState === "STOPPED") {
-                btnPlay.children[0].className = "bi bi-play-circle-fill";
-                btnPlay.setAttribute("wnp-action", "Play");
-                btnPlay.disabled = false;
+                WNP.r.btnPlay.children[0].className = "bi bi-play-circle-fill";
+                WNP.r.btnPlay.setAttribute("wnp-action", "Play");
+                WNP.r.btnPlay.disabled = false;
             };
             WNP.d.prevTransportState = msg.CurrentTransportState; // Remember the last transport state
             WNP.d.prevPlayMedium = msg.PlayMedium; // Remember the last PlayMedium
@@ -305,12 +319,12 @@ WNP.setSocketDefinitions = function () {
 
         // If internet radio, there is no skipping... just start and stop!
         if (msg.PlayMedium && msg.PlayMedium === "RADIO-NETWORK") {
-            btnPrev.disabled = true;
-            btnNext.disabled = true;
+            WNP.r.btnPrev.disabled = true;
+            WNP.r.btnNext.disabled = true;
         }
         else {
-            btnPrev.disabled = false;
-            btnNext.disabled = false;
+            WNP.r.btnPrev.disabled = false;
+            WNP.r.btnNext.disabled = false;
         }
 
     });
@@ -449,7 +463,7 @@ WNP.setSocketDefinitions = function () {
 
     // On device refresh
     socket.on("devices-refresh", function (msg) {
-        deviceChoices.innerHTML = "<option disabled=\"disabled\">Waiting for devices...</em></li>";
+        WNP.r.selDeviceChoices.innerHTML = "<option disabled=\"disabled\">Waiting for devices...</em></li>";
     });
 
 };
