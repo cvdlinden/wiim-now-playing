@@ -8,7 +8,7 @@ window.WNPd = window.WNPd || {};
 // Default settings
 WNPd.s = {
     // Device selection
-    aDeviceUI: ["btnDevices", "btnRefresh", "btnAddDevices", "btnSaveDevices", "btnAddDevice", "deviceChoices", "deviceName", "deviceIpAddress"],
+    aDeviceUI: ["btnDevices", "btnRefresh", "btnAddDevices", "btnSaveDevices", "btnAddDevice", "selDeviceChoices", "txtDeviceName", "txtDeviceIpAddress"],
     // Server actions to be used in the app
     aServerUI: ["btnReboot", "btnUpdate", "btnShutdown", "btnReloadUI"],
     // Ticks to be used in the app (debug)
@@ -76,17 +76,37 @@ WNPd.setUIReferences = function () {
     console.log("WNPd", "Set UI references...")
 
     // Set references to the UI elements
-    this.s.aDeviceUI.forEach((btn) => {
-        this.r[btn] = document.getElementById(btn);
+    this.s.aDeviceUI.forEach((id) => {
+        const element = document.getElementById(id);
+        if (element) {
+            this.r[id] = element;
+        } else {
+            console.warn("WNPd", `Element with ID '${id}' not found.`);
+        }
     });
-    this.s.aServerUI.forEach((btn) => {
-        this.r[btn] = document.getElementById(btn);
+    this.s.aServerUI.forEach((id) => {
+        const element = document.getElementById(id);
+        if (element) {
+            this.r[id] = element;
+        } else {
+            console.warn("WNPd", `Element with ID '${id}' not found.`);
+        }
     });
-    this.s.aTicksUI.forEach((tick) => {
-        this.r[tick] = document.getElementById(tick);
+    this.s.aTicksUI.forEach((id) => {
+        const element = document.getElementById(id);
+        if (element) {
+            this.r[id] = element;
+        } else {
+            console.warn("WNPd", `Element with ID '${id}' not found.`);
+        }
     });
-    this.s.aDebugUI.forEach((debug) => {
-        this.r[debug] = document.getElementById(debug);
+    this.s.aDebugUI.forEach((id) => {
+        const element = document.getElementById(id);
+        if (element) {
+            this.r[id] = element;
+        } else {
+            console.warn("WNPd", `Element with ID '${id}' not found.`);
+        }
     });
 
 };
@@ -98,12 +118,16 @@ WNPd.setUIReferences = function () {
 WNPd.setTickHandlers = function () {
 
     function removeTickAnimate(e) {
-        e.srcElement.classList.remove("tickAnimate");
+        e.target.classList.remove("tickAnimate");
     }
 
     // Set the tick handlers for the app
     this.s.aTicksUI.forEach((tick) => {
-        this.r[tick].addEventListener("animationend", removeTickAnimate);
+        if (this.r[tick]) {
+            this.r[tick].addEventListener("animationend", removeTickAnimate);
+        } else {
+            console.warn("WNPd", `Element with ID '${tick}' not found.`);
+        }
     });
 
 };
@@ -155,7 +179,7 @@ WNPd.setUIListeners = function () {
                 var deviceName = document.createElement("input");
                 deviceName.type = "text";
                 deviceName.classList.add("form-control");
-                deviceName.setAttribute("aria-label", "DeviceName");
+                deviceName.setAttribute("aria-label", "Device Name");
                 deviceName.disabled = true;
                 deviceName.value = devicesOther[i].friendlyName;
                 div.appendChild(deviceName);
@@ -163,7 +187,7 @@ WNPd.setUIListeners = function () {
                 var deviceIpAddress = document.createElement("input");
                 deviceIpAddress.type = "text";
                 deviceIpAddress.classList.add("form-control");
-                deviceIpAddress.setAttribute("aria-label", "IpAddress");
+                deviceIpAddress.setAttribute("aria-label", "Ip Address");
                 deviceIpAddress.disabled = true;
                 deviceIpAddress.value = devicesOther[i].location;
                 div.appendChild(deviceIpAddress);
@@ -172,7 +196,9 @@ WNPd.setUIListeners = function () {
                 btnRemoveDevice.id = "btnRemoveDevice" + i;
                 btnRemoveDevice.classList.add("btn", "btn-outline-secondary");
                 btnRemoveDevice.type = "button";
-                btnRemoveDevice.setAttribute("onclick", "WNPd.RemoveDevice(" + i + ")");
+                btnRemoveDevice.addEventListener("click", function () {
+                    WNPd.RemoveDevice(i);
+                });
                 var iRemoveDevice = document.createElement("i");
                 iRemoveDevice.classList.add("bi", "bi-trash3");
                 btnRemoveDevice.appendChild(iRemoveDevice);
@@ -192,23 +218,23 @@ WNPd.setUIListeners = function () {
     });
 
     this.r.btnAddDevice.addEventListener("click", function () {
-        if (!deviceName.value && !deviceIpAddress.value) {
+        if (!WNPd.r.txtDeviceName.value && !WNPd.r.txtDeviceIpAddress.value) {
             return;
         }
         var device = {
-            "friendlyName": deviceName.value,
-            "location": "http://" + deviceIpAddress.value + ":49152/description.xml",
+            "friendlyName": WNPd.r.txtDeviceName.value,
+            "location": "http://" + WNPd.r.txtDeviceIpAddress.value + ":49152/description.xml",
             "manufacturer": "",
             "modelName": "",
             "actions": { "Manual": null }
         };
         console.log("ADD DEVICE!", device)
         // Reset fields
-        deviceName.value = "";
-        deviceIpAddress.value = "";
+        WNPd.r.txtDeviceName.value = "";
+        WNPd.r.txtDeviceIpAddress.value = "";
     });
 
-    this.r.deviceChoices.addEventListener("change", function () {
+    this.r.selDeviceChoices.addEventListener("change", function () {
         WNPd.r.tickDeviceSetUp.classList.add("tickAnimate");
         socket.emit("device-set", this.value);
     })
@@ -248,10 +274,10 @@ WNPd.setSocketDefinitions = function () {
         WNPd.r.sServerSettings.innerHTML = JSON.stringify(msg);
 
         // RPi has bash, so possibly able to reboot/shutdown.
-        if (msg.os.userInfo.shell === "/bin/bash") {
-            btnReboot.disabled = false;
-            btnUpdate.disabled = false;
-            btnShutdown.disabled = false;
+        if (msg && msg.os && msg.os.userInfo && msg.os.userInfo.shell === "/bin/bash") {
+            WNPd.r.btnReboot.disabled = false;
+            WNPd.r.btnUpdate.disabled = false;
+            WNPd.r.btnShutdown.disabled = false;
         };
 
         // Set device name
@@ -303,7 +329,7 @@ WNPd.setSocketDefinitions = function () {
         WNPd.d.deviceList.sort((a, b) => { return (a.friendlyName < b.friendlyName) ? -1 : 1 });
 
         // Clear choices
-        WNPd.r.deviceChoices.innerHTML = "<option value=\"\">Select a device...</em></li>";
+        WNPd.r.selDeviceChoices.innerHTML = "<option value=\"\">Select a device...</em></li>";
 
         // Add WiiM devices
         var devicesWiiM = WNPd.d.deviceList.filter((d) => { return d.manufacturer.startsWith("Linkplay") });
@@ -320,7 +346,7 @@ WNPd.setSocketDefinitions = function () {
                 };
                 optGroup.appendChild(opt);
             })
-            WNPd.r.deviceChoices.appendChild(optGroup);
+            WNPd.r.selDeviceChoices.appendChild(optGroup);
         };
 
         // Other devices
@@ -338,12 +364,12 @@ WNPd.setSocketDefinitions = function () {
                 };
                 optGroup.appendChild(opt);
             })
-            WNPd.r.deviceChoices.appendChild(optGroup);
+            WNPd.r.selDeviceChoices.appendChild(optGroup);
 
         };
 
         if (devicesWiiM.length == 0 && devicesOther.length == 0) {
-            WNPd.r.deviceChoices.innerHTML = "<option disabled=\"disabled\">No devices found!</em></li>";
+            WNPd.r.selDeviceChoices.innerHTML = "<option disabled=\"disabled\">No devices found!</em></li>";
         };
 
     });
@@ -352,7 +378,7 @@ WNPd.setSocketDefinitions = function () {
     socket.on("state", function (msg) {
         if (!msg) { return false; }
         // console.log("IO: state", msg);
-        
+
         WNPd.r.tickStateDown.classList.add("tickAnimate");
         WNPd.r.state.innerHTML = JSON.stringify(msg);
         if (msg && msg.stateTimeStamp && msg.metadataTimeStamp) {
@@ -391,7 +417,7 @@ WNPd.setSocketDefinitions = function () {
     socket.on("devices-refresh", function (msg) {
         console.log("IO: devices-refresh", msg);
         WNPd.r.tickDevicesRefreshDown.classList.add("tickAnimate");
-        WNPd.r.deviceChoices.innerHTML = "<option disabled=\"disabled\">Waiting for devices...</em></li>";
+        WNPd.r.selDeviceChoices.innerHTML = "<option disabled=\"disabled\">Waiting for devices...</em></li>";
     });
 
     // On devices update manual
@@ -412,7 +438,7 @@ WNPd.setSocketDefinitions = function () {
  * @returns {undefined}
  */
 WNPd.RemoveDevice = function (n) {
-    console.log("REMOVE", n)
+    console.log("REMOVE DEVICE", n)
 };
 
 // =======================================================

@@ -60,7 +60,7 @@
         </div>
 
         <div class="row mb-3">
-            <label class="form-label" for="deviceChoices">Devices:
+            <label class="form-label" for="selDeviceChoices">Devices:
                 <span id="tickDevicesGetUp" class="tick tickUp"><i class="bi bi-arrow-up-circle-fill"></i>
                 </span>
                 <span id="tickDevicesGetDown" class="tick tickDown"><i class="bi bi-arrow-down-circle-fill"></i></span>
@@ -74,7 +74,7 @@
             </label>
             <div class="btn-toolbar justify-content-between">
                 <div class="input-group" aria-label="Device actions">
-                    <select id="deviceChoices" class="form-select">
+                    <select id="selDeviceChoices" class="form-select">
                         <option disabled="disabled">Waiting for devices...</option>
                     </select>
                     <button type="button" class="btn btn-secondary" id="btnDevices">Get devices</button>
@@ -148,9 +148,9 @@
                     <!-- Device add -->
                     <div class="input-group mb-3">
                         <input type="text" class="form-control" placeholder="Device Name" aria-label="DeviceName"
-                            id="deviceName">
+                            id="txtDeviceName">
                         <input type="text" class="form-control" placeholder="IP Address" aria-label="IpAddress"
-                            id="deviceIpAddress">
+                            id="txtDeviceIpAddress">
                         <button id="btnAddDevice" class="btn btn-outline-secondary" type="button"><i
                                 class="bi bi-plus-lg"></i></button>
                     </div>
