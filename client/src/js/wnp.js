@@ -18,6 +18,11 @@ WNP.d = {
     prevSourceIdent: null
 }
 
+// Reference placeholders.
+// These are set in the init function
+// and are used to reference the UI elements in the app.
+WNP.r = {};
+
 /**
  * Initialisation of app.
  * @returns {undefined}
@@ -36,6 +41,9 @@ WNP.Init = function () {
         window.socket = io.connect(":80");
     }
 
+    // Set references to the UI elements
+    this.setUIReferences();
+
     // Set Socket.IO definitions
     this.setSocketDefinitions();
 
@@ -53,6 +61,18 @@ WNP.Init = function () {
     var rndAlbumInterval = setInterval(function () {
         WNP.s.rndAlbumArtUri = WNP.rndAlbumArt("fake-album-");
     }, 3 * 60 * 1000);
+
+};
+
+/**
+ * Reference to the UI elements of the app.
+ * @returns {undefined}
+ */
+WNPd.setUIReferences = function () {
+    console.log("WNP", "Set UI references...")
+
+    // Set references to the UI elements
+    // TODO
 
 };
 
@@ -135,7 +155,7 @@ WNP.setSocketDefinitions = function () {
     socket.on("server-settings", function (msg) {
 
         // Store server settings
-        WNP.d.serverSettings = msg
+        WNP.d.serverSettings = msg;
 
         // RPi has bash, so possibly able to reboot/shutdown.
         if (msg.os.userInfo.shell === "/bin/bash") {
