@@ -5,12 +5,20 @@ html {
 body {
     background-color: #333;
     background-image: linear-gradient(#033536, #010c12);
-    color: #fff;
+    // color: #fff;
     min-height: 100%;
     font-family: arial, sans-serif;
 }
 
 #debugApp {
+
+    h2 {
+        color: #fff;
+    }
+
+    .form-label {
+        color: #ccc;
+    }
 
     .tick {
 
