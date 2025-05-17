@@ -60,7 +60,7 @@
         </div>
 
         <div class="row mb-3">
-            <label class="form-label" for="deviceChoices">Devices:
+            <label class="form-label" for="selDeviceChoices">Devices:
                 <span id="tickDevicesGetUp" class="tick tickUp"><i class="bi bi-arrow-up-circle-fill"></i>
                 </span>
                 <span id="tickDevicesGetDown" class="tick tickDown"><i class="bi bi-arrow-down-circle-fill"></i></span>
@@ -73,12 +73,10 @@
                         class="bi bi-arrow-down-circle-fill"></i></span>)
             </label>
             <div class="btn-toolbar justify-content-between">
-                <div class="input-group">
-                    <select id="deviceChoices" class="form-select">
+                <div class="input-group" aria-label="Device actions">
+                    <select id="selDeviceChoices" class="form-select">
                         <option disabled="disabled">Waiting for devices...</option>
                     </select>
-                </div>
-                <div class="btn-group" role="group" aria-label="Device actions">
                     <button type="button" class="btn btn-secondary" id="btnDevices">Get devices</button>
                     <button type="button" class="btn btn-secondary" id="btnRefresh">Refresh devices</button>
                 </div>
@@ -109,6 +107,7 @@
             <label class="form-label">Server Actions:</label>
             <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
                 <div class="btn-group" role="group" aria-label="Server actions">
+                    <!-- The following buttons are disabled by default. They will be enabled when shell/bash is available, i.e., on a Raspberry Pi. -->
                     <button id="btnReboot" class="btn btn-secondary" disabled>Reboot server</button>
                     <button id="btnUpdate" class="btn btn-secondary" disabled>Update server</button>
                     <button id="btnShutdown" class="btn btn-secondary" disabled>Shutdown server</button>
