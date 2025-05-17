@@ -96,7 +96,7 @@
                             </a>
                             <!-- Settings button -->
                             <button id="wnpSettings" type="button" class="btn btn-outline-light" data-bs-toggle="modal"
-                                data-bs-target="#exampleModal">
+                                data-bs-target="#settingsModal">
                                 <i class="bi bi-gear"></i>
                             </button>
                         </div>
@@ -107,20 +107,20 @@
         </div>
 
         <!-- Settings modal -->
-        <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal fade" id="settingsModal" tabindex="-1" aria-labelledby="settingsModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLabel">Settings</h5>
+                        <h5 class="modal-title" id="settingsModalLabel">Settings</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
 
                         <!-- Device selection -->
                         <div class="mb-3">
-                            <label for="deviceChoices" class="form-label">Select a (WiiM) device:</label>
+                            <label for="selDeviceChoices" class="form-label">Select a (WiiM) device:</label>
                             <div class="input-group">
-                                <select id="deviceChoices" class="form-select">
+                                <select id="selDeviceChoices" class="form-select">
                                     <option disabled="disabled">Waiting for devices...</option>
                                 </select>
                                 <div class="input-group-append">
