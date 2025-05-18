@@ -7,6 +7,9 @@ window.WNP = window.WNP || {};
 
 // Default settings
 WNP.s = {
+    // Host runs on default port 80, but in cases where another port is chosen adapt
+    locHostname: location.hostname,
+    locPort: (location.port != "80" && location.port != "1234") ? location.port : "80",
     // Device selection
     aDeviceUI: ["btnRefresh", "selDeviceChoices", "btnDevices"],
     // Server actions to be used in the app
@@ -36,15 +39,8 @@ WNP.Init = function () {
     console.log("WNP DEBUG", "Initialising...");
 
     // Init Socket.IO, connect to port where server resides
-    // Normally on port 80, but in cases where another port is chosen adapt
-    if (location.port != "80" && location.port != "1234") {
-        console.log("WNP DEBUG", "Listening on " + location.href)
-        window.socket = io.connect(":" + location.port);
-    }
-    else {
-        console.log("WNP DEBUG", "Listening on " + location.hostname + ":80")
-        window.socket = io.connect(":80");
-    }
+    console.log("WNP DEBUG", "Listening on " + this.s.locHostname + ":" + this.s.locPort)
+    window.socket = io.connect(":" + this.s.locPort);
 
     // Set references to the UI elements
     this.setUIReferences();
@@ -306,6 +302,12 @@ WNP.setSocketDefinitions = function () {
         WNP.r.sAlbum.children[0].innerText = (msg && msg.trackMetaData && msg.trackMetaData["upnp:album"]) ? msg.trackMetaData["upnp:album"] : "-";
         WNP.r.sAlbumArtUri.children[0].innerText = (msg && msg.trackMetaData && msg.trackMetaData["upnp:albumArtURI"]) ? msg.trackMetaData["upnp:albumArtURI"] : "-";
         WNP.r.sSubtitle.children[0].innerText = (msg && msg.trackMetaData && msg.trackMetaData["dc:subtitle"]) ? msg.trackMetaData["dc:subtitle"] : "-";
+
+        // Check the current album art properties
+        if (msg && msg.trackMetaData && msg.trackMetaData["upnp:albumArtURI"]) {
+            WNP.checkAlbumArt(msg.trackMetaData["upnp:albumArtURI"]);
+        };
+
     });
 
     // On device set
@@ -339,12 +341,38 @@ WNP.setSocketDefinitions = function () {
 };
 
 /**
- * Remove device from the list of manually added devices.
- * @param {number} n - The index of the device to remove.
+ * Check if the album art is a valid URL and load it.
+ * @param {string} sAlbumArtUri - The album art URI to check.
  * @returns {undefined}
  */
-WNP.RemoveDevice = function (n) {
-    console.log("REMOVE DEVICE", n)
+WNP.checkAlbumArt = function (sAlbumArtUri) {
+    // Create a virtual image element to check the URL
+    var img = new Image();
+
+    // If the URI starts with https, the self signed certificate is not trusted by the browser.
+    // Try and load the image through a reverse proxy.
+    if (sAlbumArtUri && sAlbumArtUri.startsWith("https")) {
+        // Try to get the album art through a reverse proxy
+        img.src = "http://" + WNP.s.locHostname + ":" + WNP.s.locPort + "/proxy?url=" + encodeURIComponent(sAlbumArtUri);
+        img.onload = function () {
+            console.log("WNP DEBUG", "Album art loaded successfully.", "Size: " + this.width + "x" + this.height + "px");
+        };
+        img.onerror = function () {
+            console.error("WNP DEBUG", "Failed to load album art:", sAlbumArtUri);
+        };
+    } else if (sAlbumArtUri && sAlbumArtUri.startsWith("http")) {
+        // If the URI is a valid HTTP URL, set it directly
+        img.src = sAlbumArtUri;
+        img.onload = function () {
+            console.log("WNP DEBUG", "Album art loaded successfully.", "Size: " + this.width + "x" + this.height + "px");
+        };
+        img.onerror = function () {
+            console.error("WNP DEBUG", "Failed to load album art:", sAlbumArtUri);
+        };
+    } else {
+        // If the URL is invalid, log a warning
+        console.warn("WNP DEBUG", "Invalid URL for album art:", sAlbumArtUri);
+    }
 };
 
 // =======================================================
