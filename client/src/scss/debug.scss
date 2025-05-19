@@ -62,4 +62,18 @@ body {
         }
     }
 
+    #sAlbumArtUri {
+        .bi {
+            &.bi-exclamation-circle-fill {
+                color: yellow;
+            }
+            &.bi-check-circle-fill {
+                color: green;
+            }
+            &.bi-x-circle-fill {
+                color: red;
+            }
+        }
+    }
+
 }

@@ -306,6 +306,9 @@ WNP.setSocketDefinitions = function () {
         // Check the current album art properties
         if (msg && msg.trackMetaData && msg.trackMetaData["upnp:albumArtURI"]) {
             WNP.checkAlbumArt(msg.trackMetaData["upnp:albumArtURI"]);
+        } else {
+            WNP.r.sAlbumArtUri.children[1].classList = "bi bi-info-circle";
+            WNP.r.sAlbumArtUri.children[1].title = "No album art URI found";
         };
 
     });
@@ -344,34 +347,35 @@ WNP.setSocketDefinitions = function () {
  * Check if the album art is a valid URL and load it.
  * @param {string} sAlbumArtUri - The album art URI to check.
  * @returns {undefined}
+ * @description This function creates a virtual image element to check if the album art URI is valid.
  */
 WNP.checkAlbumArt = function (sAlbumArtUri) {
-    // Create a virtual image element to check the URL
+    // Create a virtual image element to check the album art URI
     var img = new Image();
+    // On successful load
+    img.onload = function () {
+        console.log("WNP DEBUG", "Album art loaded successfully.", "Size: " + this.width + "x" + this.height + "px");
+        WNP.r.sAlbumArtUri.children[1].classList = "bi bi-check-circle-fill";
+        WNP.r.sAlbumArtUri.children[1].title = "Able to load album art";
+    };
+    // On error loading the image
+    img.onerror = function () {
+        console.error("WNP DEBUG", "Failed to load album art:", sAlbumArtUri);
+        WNP.r.sAlbumArtUri.children[1].classList = "bi bi-x-circle-fill";
+        WNP.r.sAlbumArtUri.children[1].title = "Unable to load album art";
+    };
 
-    // If the URI starts with https, the self signed certificate is not trusted by the browser.
-    // Try and load the image through a reverse proxy.
+    // If the URI starts with https, the self signed certificate may not trusted by the browser.
+    // Hence we always try and load the image through a reverse proxy, ignoring the certificate.
     if (sAlbumArtUri && sAlbumArtUri.startsWith("https")) {
-        // Try to get the album art through a reverse proxy
         img.src = "http://" + WNP.s.locHostname + ":" + WNP.s.locPort + "/proxy?url=" + encodeURIComponent(sAlbumArtUri);
-        img.onload = function () {
-            console.log("WNP DEBUG", "Album art loaded successfully.", "Size: " + this.width + "x" + this.height + "px");
-        };
-        img.onerror = function () {
-            console.error("WNP DEBUG", "Failed to load album art:", sAlbumArtUri);
-        };
     } else if (sAlbumArtUri && sAlbumArtUri.startsWith("http")) {
-        // If the URI is a valid HTTP URL, set it directly
         img.src = sAlbumArtUri;
-        img.onload = function () {
-            console.log("WNP DEBUG", "Album art loaded successfully.", "Size: " + this.width + "x" + this.height + "px");
-        };
-        img.onerror = function () {
-            console.error("WNP DEBUG", "Failed to load album art:", sAlbumArtUri);
-        };
     } else {
         // If the URL is invalid, log a warning
         console.warn("WNP DEBUG", "Invalid URL for album art:", sAlbumArtUri);
+        WNP.r.sAlbumArtUri.children[1].classList = "bi bi-exclamation-circle-fill";
+        WNP.r.sAlbumArtUri.children[1].title = "Invalid album art URI";
     }
 };
 
