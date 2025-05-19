@@ -9,7 +9,7 @@ window.WNP = window.WNP || {};
 WNP.s = {
     // Host runs on default port 80, but in cases where another port is chosen adapt
     locHostname: location.hostname,
-    locPort: (location.port != "80" && location.port != "1234") ? location.port : "80",
+    locPort: (location.port && location.port != "80" && location.port != "1234") ? location.port : "80",
     // Device selection
     aDeviceUI: ["btnRefresh", "selDeviceChoices", "btnDevices"],
     // Server actions to be used in the app
@@ -186,13 +186,13 @@ WNP.setSocketDefinitions = function () {
         WNP.r.sFriendlyname.children[0].innerText = (msg && msg.selectedDevice && msg.selectedDevice.friendlyName) ? msg.selectedDevice.friendlyName : "-";
         WNP.r.sManufacturer.children[0].innerText = (msg && msg.selectedDevice && msg.selectedDevice.manufacturer) ? msg.selectedDevice.manufacturer : "-";
         WNP.r.sModelName.children[0].innerText = (msg && msg.selectedDevice && msg.selectedDevice.modelName) ? msg.selectedDevice.modelName : "-";
-        WNP.r.sLocation.children[0].innerText = (msg && msg.selectedDevice && msg.selectedDevice.location) ? msg.selectedDevice.location : "-";
+        WNP.r.sLocation.children[0].innerHTML = (msg && msg.selectedDevice && msg.selectedDevice.location) ? "<a href=\"" + msg.selectedDevice.location + "\">" + msg.selectedDevice.location + "</a>" : "-";
 
         // Set the server url(s)
         if (msg && msg.os && msg.os.hostname) {
             var sUrl = "http://" + msg.os.hostname.toLowerCase() + ".local";
-            sUrl += (msg.server && msg.server.port && msg.server.port != 80) ? ":" + msg.server.port + "/" : "/";
-            WNP.r.sServerUrlHostname.children[0].innerText = sUrl;
+            sUrl += (location && location.port && location.port != 80) ? ":" + location.port + "/" : "/";
+            WNP.r.sServerUrlHostname.children[0].innerHTML = "<a href=\"" + sUrl + "\">" + sUrl + "</a>";
         }
         else {
             WNP.r.sServerUrlHostname.children[0].innerText = "-";
@@ -210,8 +210,8 @@ WNP.setSocketDefinitions = function () {
                 if (sIpFound) {
                     // Construct ip address and optional port
                     var sUrl = "http://" + sIpFound.address;
-                    sUrl += (msg.server && msg.server.port && msg.server.port != 80) ? ":" + msg.server.port + "/" : "/";
-                    WNP.r.sServerUrlIP.children[0].innerText = sUrl;
+                    sUrl += (location && location.port && location.port != 80) ? ":" + location.port + "/" : "/";
+                    WNP.r.sServerUrlIP.children[0].innerHTML = "<a href=\"" + sUrl + "\">" + sUrl + "</a>";
                 }
             });
         }
@@ -305,7 +305,7 @@ WNP.setSocketDefinitions = function () {
 
         // Check the current album art properties
         if (msg && msg.trackMetaData && msg.trackMetaData["upnp:albumArtURI"]) {
-            WNP.checkAlbumArt(msg.trackMetaData["upnp:albumArtURI"]);
+            WNP.checkAlbumArtURI(msg.trackMetaData["upnp:albumArtURI"]);
         } else {
             WNP.r.sAlbumArtUri.children[1].classList = "bi bi-info-circle";
             WNP.r.sAlbumArtUri.children[1].title = "No album art URI found";
@@ -343,13 +343,16 @@ WNP.setSocketDefinitions = function () {
 
 };
 
+// =======================================================
+// Helper functions
+
 /**
  * Check if the album art is a valid URL and load it.
  * @param {string} sAlbumArtUri - The album art URI to check.
  * @returns {undefined}
  * @description This function creates a virtual image element to check if the album art URI is valid.
  */
-WNP.checkAlbumArt = function (sAlbumArtUri) {
+WNP.checkAlbumArtURI = function (sAlbumArtUri) {
     // Create a virtual image element to check the album art URI
     var img = new Image();
     // On successful load
