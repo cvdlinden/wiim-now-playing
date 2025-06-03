@@ -18,12 +18,13 @@ WNP.s = {
 
 // Data placeholders.
 WNP.d = {
-    serverSettings: null,
-    deviceList: null,
-    prevTransportState: null,
-    prevPlayMedium: null,
-    prevSourceIdent: null
-}
+    serverSettings: null, // Server settings, used to store the server settings
+    deviceList: null, // Device list, used to store the devices found through SSDP
+    prevTransportState: null, // Previous transport state, used to detect changes in the transport state
+    prevPlayMedium: null, // Previous play medium, used to detect changes in the play medium
+    prevSourceIdent: null, // Previous source ident, used to detect changes in the source
+    prevTrackInfo: null, // Previous track info, used to detect changes in the metadata
+};
 
 // Reference placeholders.
 // These are set in the init function
@@ -353,9 +354,15 @@ WNP.setSocketDefinitions = function () {
         WNP.r.mediaSubTitle.innerText = (msg.trackMetaData && msg.trackMetaData["dc:subtitle"]) ? msg.trackMetaData["dc:subtitle"] : "";
         WNP.r.mediaArtist.innerText = (msg.trackMetaData && msg.trackMetaData["upnp:artist"]) ? msg.trackMetaData["upnp:artist"] : "";
         WNP.r.mediaAlbum.innerText = (msg.trackMetaData && msg.trackMetaData["upnp:album"]) ? msg.trackMetaData["upnp:album"] : "";
-        // mediaAlbum.innerHTML = (msg.trackMetaData && msg.trackMetaData["upnp:album"]) ? "<span id=\"mediaAlbumIdent\" class=\"badge badge-outlined\"><i class=\"bi bi-vinyl\"><\/i><\/span>" + msg.trackMetaData["upnp:album"] : "";
         if (playMedium === "SONGLIST-NETWORK" && !trackSource && msg.CurrentTransportState === "STOPPED") {
             WNP.r.mediaTitle.innerText = "No Music Selected";
+        }
+        var trackChanged = false;
+        var currentTrackInfo = WNP.r.mediaTitle.innerText + "|" + WNP.r.mediaSubTitle.innerText + "|" + WNP.r.mediaArtist.innerText + "|" + WNP.r.mediaAlbum.innerText;
+        if (WNP.d.prevTrackInfo !== currentTrackInfo) {
+            trackChanged = true;
+            WNP.d.prevTrackInfo = currentTrackInfo; // Remember the last track info
+            console.log("WNP", "Track changed:", currentTrackInfo);
         }
 
         // Audio quality
@@ -387,11 +394,11 @@ WNP.setSocketDefinitions = function () {
             WNP.r.mediaQualityIdent.innerHTML = identId.outerHTML;
         }
 
-        // Pre-process Album Art uri
-        var albumArtUri = WNP.checkAlbumArtURI(msg.trackMetaData["upnp:albumArtURI"]);
+        // Pre-process Album Art uri, if any is available from the metadata.
+        var albumArtUri = WNP.checkAlbumArtURI((msg.trackMetaData && msg.trackMetaData["upnp:albumArtURI"]) ? msg.trackMetaData["upnp:albumArtURI"] : "", msg.metadataTimeStamp);
 
-        // Set Album Art, only if the URI changed
-        if (WNP.r.albumArt.src != albumArtUri) {
+        // Set Album Art, only if the track changed and the URI changed
+        if (trackChanged && WNP.r.albumArt.src != albumArtUri) {
             WNP.setAlbumArt(albumArtUri);
         }
 
@@ -530,16 +537,17 @@ WNP.convertToMinutes = function (seconds) {
  * Check if the album art is a valid URI. Returns the URI if valid, otherwise a random URI.
  * Error handling is handled by the onerror event on the image itself.
  * @param {string} sAlbumArtUri - The URI of the album art.
+ * @param {integer} nTimestamp - The time in milliseconds, used as cache buster.
  * @returns {string} The URI of the album art.
  */
-WNP.checkAlbumArtURI = function (sAlbumArtUri) {
+WNP.checkAlbumArtURI = function (sAlbumArtUri, nTimestamp) {
     // If the URI starts with https, the self signed certificate may not trusted by the browser.
     // Hence we always try and load the image through a reverse proxy, ignoring the certificate.
     if (sAlbumArtUri && sAlbumArtUri.startsWith("https")) {
         if (WNP.s.locPort != "80") { // If the server is not running on port 80, we need to add the port to the URI
-            return "http://" + WNP.s.locHostname + ":" + WNP.s.locPort + "/proxy?url=" + encodeURIComponent(sAlbumArtUri);
+            return "http://" + WNP.s.locHostname + ":" + WNP.s.locPort + "/proxy?url=" + encodeURIComponent(sAlbumArtUri) + "&ts=" + nTimestamp; // Use the current timestamp as cache buster
         } else {
-            return "http://" + WNP.s.locHostname + "/proxy?url=" + encodeURIComponent(sAlbumArtUri);
+            return "http://" + WNP.s.locHostname + "/proxy?url=" + encodeURIComponent(sAlbumArtUri) + "&ts=" + nTimestamp; // Use the current timestamp as cache buster
         }
     } else if (sAlbumArtUri && sAlbumArtUri.startsWith("http")) {
         return sAlbumArtUri;
@@ -555,7 +563,7 @@ WNP.checkAlbumArtURI = function (sAlbumArtUri) {
  * @returns {undefined}
  */
 WNP.setAlbumArt = function (imgUri) {
-    console.log("WNP Set Album Art", imgUri);
+    console.log("WNP", "Set Album Art", imgUri);
     this.r.albumArt.src = imgUri;
     this.r.bgAlbumArtBlur.style.backgroundImage = "url('" + imgUri + "')";
 };
