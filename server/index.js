@@ -111,9 +111,11 @@ app.get("/res", function (req, res) {
 app.get("/assets", function (req, res) {
     res.sendFile(__dirname + "/public/assets.html");
 });
-// Proxy album art requests to WiiM/Linkplay device
+// Proxy https album art requests through this app, because this could be a https request with a self signed certificate.
+// If the device does not have a valid (self-signed) certificate the browser cannot load the album art, hence we ignore the self signed certificate.
+// TODO: Limit usage to only the devices we are connected to? Use CORS to limit access?
 app.get("/proxy", function (req, res) {
-    log("Album Art Proxy request:", req.query.url);
+    log("Album Art Proxy request:", req.query.url, req.query.ts);
 
     const options = {
         rejectUnauthorized: false, // Ignore self-signed certificate
