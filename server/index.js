@@ -101,16 +101,31 @@ app.use(cors());
 app.use(express.static(__dirname + "/public"));
 app.get("/tv", function (req, res) {
     res.sendFile(__dirname + "/public/tv.html");
-})
+});
 app.get("/debug", function (req, res) {
     res.sendFile(__dirname + "/public/debug.html");
-})
+});
 app.get("/res", function (req, res) {
     res.sendFile(__dirname + "/public/res.html");
-})
+});
 app.get("/assets", function (req, res) {
     res.sendFile(__dirname + "/public/assets.html");
-})
+});
+// Proxy https album art requests through this app, because this could be a https request with a self signed certificate.
+// If the device does not have a valid (self-signed) certificate the browser cannot load the album art, hence we ignore the self signed certificate.
+// TODO: Limit usage to only the devices we are connected to? Use CORS to limit access?
+app.get("/proxy", function (req, res) {
+    log("Album Art Proxy request:", req.query.url, req.query.ts);
+
+    const options = {
+        rejectUnauthorized: false, // Ignore self-signed certificate
+    };
+
+    https.get(req.query.url, options, (resp) => {
+        resp.pipe(res);
+    });
+
+});
 
 // ===========================================================================
 // Socket.io definitions

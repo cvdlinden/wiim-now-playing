@@ -1,6 +1,6 @@
 {
   "name": "client",
-  "version": "1.6.1",
+  "version": "1.6.2",
   "description": "This folder contains all client related code.",
   "source": "./src/index.html",
   "scripts": {
@@ -16,6 +16,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@parcel/optimizer-htmlnano": "^2.15.2",
     "@parcel/packager-raw-url": "^2.11.0",
     "@parcel/transformer-sass": "^2.11.0",
     "@parcel/transformer-webmanifest": "^2.11.0",
