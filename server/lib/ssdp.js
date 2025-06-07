@@ -4,7 +4,7 @@
 
 /**
  * SSDP functionality module.
- * The processes are asynchronous and take a wile, so wait for results to come in.
+ * The processes are asynchronous and take a while, so wait for results to come in.
  * @module
  */
 
