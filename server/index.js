@@ -29,6 +29,10 @@ const sockets = require("./lib/sockets.js"); // Sockets.io functionality
 const shell = require("./lib/shell.js"); // Shell command functionality
 const lib = require("./lib/lib.js"); // Generic functionality
 const log = require("debug")("index"); // See README.md on debugging
+// for version
+const path = require('path'); 
+const packageJson = require(path.join(__dirname, '../package.json'));
+
 
 // ===========================================================================
 // Server constants & variables
@@ -104,6 +108,9 @@ app.get("/tv", function (req, res) {
 });
 app.get("/debug", function (req, res) {
     res.sendFile(__dirname + "/public/debug.html");
+});
+app.get('/api/version', (req, res) => {
+  res.json({ version: packageJson.version });
 });
 app.get("/res", function (req, res) {
     res.sendFile(__dirname + "/public/res.html");
