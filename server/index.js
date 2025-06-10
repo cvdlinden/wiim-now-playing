@@ -30,6 +30,11 @@ const shell = require("./lib/shell.js"); // Shell command functionality
 const lib = require("./lib/lib.js"); // Generic functionality
 const log = require("debug")("index"); // See README.md on debugging
 
+// For versionioning purposes
+// Load the package.json files to get the version numbers
+const packageJsonServer = require('../package.json'); // Server package.json
+const packageJsonClient = require('../client/package.json'); // Client package.json
+
 // ===========================================================================
 // Server constants & variables
 
@@ -60,7 +65,11 @@ let serverSettings = { // Placeholder for current server settings
         "metadata": 4 * 1000, // Timeout for metadata updates in milliseconds. Every 4 seconds.
         "rescan": 10 * 1000 // Timeout for possible rescan of devices in milliseconds. Every 10 seconds.
     },
-    "server": null // Placeholder for the express server (port) information
+    "server": null, // Placeholder for the express server (port) information
+    "version": { // Version information for the server and client
+        "server": packageJsonServer.version,
+        "client": packageJsonClient.version
+    }
 };
 
 // Interval placeholders:

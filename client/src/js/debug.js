@@ -17,7 +17,7 @@ WNP.s = {
     // Ticks to be used in the app (debug)
     aTicksUI: ["tickDevicesGetUp", "tickDevicesRefreshUp", "tickServerSettingsUp", "tickStateUp", "tickStateDown", "tickMetadataUp", "tickMetadataDown", "tickDeviceSetUp", "tickDeviceSetDown", "tickServerSettingsDown", "tickDevicesGetDown", "tickDevicesRefreshDown"],
     // Debug UI elements
-    aDebugUI: ["state", "metadata", "sServerSettings", "sFriendlyname", "sManufacturer", "sModelName", "sLocation", "sServerUrlHostname", "sServerUrlIP", "sTimeStampDiff", "sTitle", "sArtist", "sAlbum", "sAlbumArtUri", "sSubtitle"]
+    aDebugUI: ["state", "metadata", "sServerSettings", "sFriendlyname", "sManufacturer", "sModelName", "sLocation", "sServerUrlHostname", "sServerUrlIP", "sServerVersion", "sClientVersion", "sTimeStampDiff", "sTitle", "sArtist", "sAlbum", "sAlbumArtUri", "sSubtitle"]
 };
 
 // Data placeholders.
@@ -188,7 +188,7 @@ WNP.setSocketDefinitions = function () {
         WNP.r.sModelName.children[0].innerText = (msg && msg.selectedDevice && msg.selectedDevice.modelName) ? msg.selectedDevice.modelName : "-";
         WNP.r.sLocation.children[0].innerHTML = (msg && msg.selectedDevice && msg.selectedDevice.location) ? "<a href=\"" + msg.selectedDevice.location + "\">" + msg.selectedDevice.location + "</a>" : "-";
 
-        // Set the server url(s)
+        // Set the server url
         if (msg && msg.os && msg.os.hostname) {
             var sUrl = "http://" + msg.os.hostname.toLowerCase() + ".local";
             sUrl += (location && location.port && location.port != 80) ? ":" + location.port + "/" : "/";
@@ -197,6 +197,7 @@ WNP.setSocketDefinitions = function () {
         else {
             WNP.r.sServerUrlHostname.children[0].innerText = "-";
         }
+        // Set the server ip address
         if (msg && msg.selectedDevice && msg.selectedDevice.location && msg.os && msg.os.networkInterfaces) {
             // Grab the ip address pattern of the selected device
             // Assumption is that the wiim-now-playing server is on the same ip range as the client..
@@ -218,6 +219,11 @@ WNP.setSocketDefinitions = function () {
         else {
             WNP.r.sServerUrlIP.children[0].innerText = "-";
         }
+
+        // Set the server version
+        WNP.r.sServerVersion.children[0].innerText = (msg && msg.version && msg.version.server) ? msg.version.server : "-";
+        // Set the client version
+        WNP.r.sClientVersion.children[0].innerText = (msg && msg.version && msg.version.client) ? msg.version.client : "-";
 
     });
 
