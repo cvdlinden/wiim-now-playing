@@ -29,10 +29,11 @@ const sockets = require("./lib/sockets.js"); // Sockets.io functionality
 const shell = require("./lib/shell.js"); // Shell command functionality
 const lib = require("./lib/lib.js"); // Generic functionality
 const log = require("debug")("index"); // See README.md on debugging
-// for version
-const path = require('path'); 
-const packageJson = require(path.join(__dirname, '../package.json'));
 
+// For versionioning purposes
+// Load the package.json files to get the version numbers
+const packageJsonServer = require('../package.json'); // Server package.json
+const packageJsonClient = require('../client/package.json'); // Client package.json
 
 // ===========================================================================
 // Server constants & variables
@@ -64,7 +65,11 @@ let serverSettings = { // Placeholder for current server settings
         "metadata": 4 * 1000, // Timeout for metadata updates in milliseconds. Every 4 seconds.
         "rescan": 10 * 1000 // Timeout for possible rescan of devices in milliseconds. Every 10 seconds.
     },
-    "server": null // Placeholder for the express server (port) information
+    "server": null, // Placeholder for the express server (port) information
+    "version": { // Version information for the server and client
+        "server": packageJsonServer.version,
+        "client": packageJsonClient.version
+    }
 };
 
 // Interval placeholders:
@@ -108,9 +113,6 @@ app.get("/tv", function (req, res) {
 });
 app.get("/debug", function (req, res) {
     res.sendFile(__dirname + "/public/debug.html");
-});
-app.get('/api/version', (req, res) => {
-  res.json({ version: packageJson.version });
 });
 app.get("/res", function (req, res) {
     res.sendFile(__dirname + "/public/res.html");
