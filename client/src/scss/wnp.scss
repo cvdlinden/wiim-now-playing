@@ -139,7 +139,8 @@
             font-size: calc(1.275rem + .3vw);
         }
 
-        div, p {
+        div,
+        p {
             font-size: calc(.875rem + .3vw);
         }
 
@@ -218,6 +219,11 @@
             left: 24px;
             bottom: 15px;
             font-size: calc(.875rem + .3vw);
+
+            button {
+                border-color: #777;
+                color: #b3bdba;
+            }
         }
 
         #devVolumeHolder {
@@ -226,6 +232,11 @@
             bottom: 15px;
             text-align: right;
             font-size: calc(.875rem + .3vw);
+
+            button {
+                border-color: #777;
+                color: #b3bdba;
+            }
         }
 
     }
@@ -276,13 +287,13 @@
         .wnpMediaInfo {
 
             #mediaSource {
-    
+
                 img {
                     max-height: 28px;
                 }
-    
+
             }
-    
+
         }
 
         /* Footer contents */
@@ -302,15 +313,15 @@
         .wnpMediaInfo {
 
             #mediaSource {
-    
+
                 img {
                     max-height: 30px;
                 }
-    
+
             }
-    
+
         }
-        
+
     }
 
     // X-Large devices (large desktops, 1200px and up)
@@ -320,13 +331,13 @@
         .wnpMediaInfo {
 
             #mediaSource {
-    
+
                 img {
                     max-height: 32px;
                 }
-    
+
             }
-    
+
         }
 
     }
