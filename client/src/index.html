@@ -10,9 +10,9 @@
     <link rel="icon" type="image/png" sizes="16x16" href="./favicon/favicon-16x16.png">
     <link rel="manifest" href="./favicon/site.webmanifest">
 
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
-        integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+        integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="scss/wnp.scss">
 
 </head>
@@ -83,11 +83,13 @@
                             </button>
                         </div>
                         <!-- Device info -->
-                        <div id="devNameHolder" class="text-secondary"><i class="bi bi-speaker"></i> <span
-                                id="devName">...</span></div>
+                        <div id="devNameHolder" class="text-secondary">
+                            <button id="btnDevSelect" type="button" class="btn btn-outline-light"><i
+                                    class="bi bi-speaker"></i> <span id="devName">...</span></button>
+                        </div>
                         <div id="devVolumeHolder" class="text-secondary">
-                            <i class="bi bi-volume-down-fill"></i>
-                            <span id="devVol"></span>
+                            <button id="btnDevVolume" type="button" class="btn btn-outline-light"><i
+                                    class="bi bi-volume-down-fill"></i> <span id="devVol"></span></button>
                         </div>
                         <div class="btn-group secondary">
                             <!-- TV button -->
@@ -185,10 +187,12 @@
 
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
         crossorigin="anonymous"></script>
-    <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
+    <script src="https://cdn.socket.io/4.8.1/socket.io.min.js"
+        integrity="sha384-mkQ3/7FUtcGyoppY6bz/PORYoGqOl7/aSUMn2ymDOJcapfS6PHqxhRTMh1RR0Q6+"
+        crossorigin="anonymous"></script>
     <script type="module" src="js/wnp.js"></script>
 
 </body>

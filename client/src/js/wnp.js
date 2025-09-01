@@ -11,7 +11,7 @@ WNP.s = {
     locPort: (location.port && location.port != "80" && location.port != "1234") ? location.port : "80",
     rndAlbumArtUri: "./img/fake-album-1.jpg",
     // Device selection
-    aDeviceUI: ["btnPrev", "btnPlay", "btnNext", "btnRefresh", "selDeviceChoices", "devName", "mediaTitle", "mediaSubTitle", "mediaArtist", "mediaAlbum", "mediaBitRate", "mediaBitDepth", "mediaSampleRate", "mediaQualityIdent", "devVol", "btnRepeat", "btnShuffle", "progressPlayed", "progressLeft", "progressPercent", "mediaSource", "albumArt", "bgAlbumArtBlur"],
+    aDeviceUI: ["btnPrev", "btnPlay", "btnNext", "btnRefresh", "selDeviceChoices", "devName", "mediaTitle", "mediaSubTitle", "mediaArtist", "mediaAlbum", "mediaBitRate", "mediaBitDepth", "mediaSampleRate", "mediaQualityIdent", "devVol", "btnRepeat", "btnShuffle", "progressPlayed", "progressLeft", "progressPercent", "mediaSource", "albumArt", "bgAlbumArtBlur", "btnDevSelect", "btnDevVolume"],
     // Server actions to be used in the app
     aServerUI: ["btnReboot", "btnUpdate", "btnShutdown", "btnReloadUI", "sServerUrlHostname", "sServerUrlIP", "sServerVersion", "sClientVersion"],
 };
@@ -77,7 +77,7 @@ WNP.setUIReferences = function () {
         if (element) {
             WNP.r[id] = element;
         } else {
-            console.warn("WNP", `Element with ID '${id}' not found.`);
+            console.warn("WNP", `Element with ID '${id}' not found in HTML.`);
         }
     }
 
@@ -120,6 +120,31 @@ WNP.setUIListeners = function () {
             socket.emit("device-action", wnpAction);
         }
     });
+
+    // ------------------------------------------------
+    // Device control buttons (only for default GUI)
+
+    if (this.r.btnDevSelect) {
+        this.r.btnDevSelect.addEventListener("click", function () {
+            console.log("WNP", "Open device selection control");
+            // TODO:
+            // Opens a selector for devices in a dialog/modal connected to the button.
+            // Should also be possible to click the device name itself.
+            // Should do the same as per selDeviceChoices change event.
+        });
+    }
+
+    if (this.r.btnDevVolume) {
+        this.r.btnDevVolume.addEventListener("click", function () {
+            console.log("WNP", "Open device volume control");
+            // TODO:
+            // Opens a volume control in a dialog/modal connected to the button.
+            // The 'Range' input type should be used for this, but rotated vertically.
+            // Changing volume should be done on input change, not on mouse up.
+            // Selecting volume should be done in steps of 5 (0, 5, 10, ..., 100).
+            // Should also make muting possible.
+        });
+    }
 
     // ------------------------------------------------
     // Settings buttons
