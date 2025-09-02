@@ -11,7 +11,7 @@ WNP.s = {
     locPort: (location.port && location.port != "80" && location.port != "1234") ? location.port : "80",
     rndAlbumArtUri: "./img/fake-album-1.jpg",
     // Device selection
-    aDeviceUI: ["btnPrev", "btnPlay", "btnNext", "btnRefresh", "selDeviceChoices", "devName", "mediaTitle", "mediaSubTitle", "mediaArtist", "mediaAlbum", "mediaBitRate", "mediaBitDepth", "mediaSampleRate", "mediaQualityIdent", "devVol", "btnRepeat", "btnShuffle", "progressPlayed", "progressLeft", "progressPercent", "mediaSource", "albumArt", "bgAlbumArtBlur", "btnDevSelect", "btnDevVolume"],
+    aDeviceUI: ["btnPrev", "btnPlay", "btnNext", "btnRefresh", "selDeviceChoices", "devName", "devNameHolder", "mediaTitle", "mediaSubTitle", "mediaArtist", "mediaAlbum", "mediaBitRate", "mediaBitDepth", "mediaSampleRate", "mediaQualityIdent", "devVol", "btnRepeat", "btnShuffle", "progressPlayed", "progressLeft", "progressPercent", "mediaSource", "albumArt", "bgAlbumArtBlur", "btnDevSelect", "btnDevVolume"],
     // Server actions to be used in the app
     aServerUI: ["btnReboot", "btnUpdate", "btnShutdown", "btnReloadUI", "sServerUrlHostname", "sServerUrlIP", "sServerVersion", "sClientVersion"],
 };
@@ -124,27 +124,29 @@ WNP.setUIListeners = function () {
     // ------------------------------------------------
     // Device control buttons (only for default GUI)
 
-    if (this.r.btnDevSelect) {
-        this.r.btnDevSelect.addEventListener("click", function () {
-            console.log("WNP", "Open device selection control");
-            // TODO:
-            // Opens a selector for devices in a dialog/modal connected to the button.
-            // Should also be possible to click the device name itself.
-            // Should do the same as per selDeviceChoices change event.
-        });
-    }
+    // if (this.r.btnDevSelect) {
+    //     this.r.btnDevSelect.addEventListener("click", function () {
+    //         console.log("WNP", "Open device selection control");
+    //         // TODO:
+    //         // Opens a selector for devices in a dialog/modal connected to the button.
+    //         // Should also be possible to click the device name itself.
+    //         // Should do the same as per selDeviceChoices change event.
+    //     });
+    // }
 
-    if (this.r.btnDevVolume) {
-        this.r.btnDevVolume.addEventListener("click", function () {
-            console.log("WNP", "Open device volume control");
-            // TODO:
-            // Opens a volume control in a dialog/modal connected to the button.
-            // The 'Range' input type should be used for this, but rotated vertically.
-            // Changing volume should be done on input change, not on mouse up.
-            // Selecting volume should be done in steps of 5 (0, 5, 10, ..., 100).
-            // Should also make muting possible.
-        });
-    }
+    // if (this.r.btnDevVolume) {
+    //     this.r.btnDevVolume.addEventListener("click", function () {
+    //         console.log("WNP", "Open device volume control");
+    //         // TODO:
+    //         // Opens a volume control in a dialog/modal connected to the button.
+    //         // The 'Range' input type should be used for this, but rotated vertically.
+    //         // Changing volume should be done on input change, not on mouse up.
+    //         // Selecting volume should be done in steps of 5 (0, 5, 10, ..., 100).
+    //         // Should also make muting possible.
+
+    //         // Checkout Bootstrap dropdowns or popovers for this!
+    //     });
+    // }
 
     // ------------------------------------------------
     // Settings buttons
@@ -252,11 +254,14 @@ WNP.setSocketDefinitions = function () {
         WNP.d.deviceList.sort((a, b) => { return (a.friendlyName < b.friendlyName) ? -1 : 1 });
 
         // Clear choices
-        WNP.r.selDeviceChoices.innerHTML = "<option value=\"\">Select a device...</em></li>";
+        WNP.r.selDeviceChoices.innerHTML = "<option value=\"\">Select a device...</em></li>"; // Settings modal
+        WNP.r.devNameHolder.children[1].innerHTML = ""; // Device dropup
 
         // Add WiiM devices
         var devicesWiiM = WNP.d.deviceList.filter((d) => { return d.manufacturer.startsWith("Linkplay") });
         if (devicesWiiM.length > 0) {
+
+            // Settings modal
             var optGroup = document.createElement("optgroup");
             optGroup.label = "WiiM devices";
             devicesWiiM.forEach((device) => {
@@ -270,11 +275,35 @@ WNP.setSocketDefinitions = function () {
                 optGroup.appendChild(opt);
             })
             WNP.r.selDeviceChoices.appendChild(optGroup);
+
+            // Device dropup
+            // var ddHeader = document.createElement("li");
+            // var ddHeaderSpan = document.createElement("span");
+            // ddHeaderSpan.className = "dropdown-header";
+            // ddHeaderSpan.innerText = "WiiM Devices";
+            // ddHeader.appendChild(ddHeaderSpan);
+            // WNP.r.devNameHolder.children[1].appendChild(ddHeader);
+            devicesWiiM.forEach((device) => {
+                var ddItem = document.createElement("li");
+                var ddItemA = document.createElement("a");
+                ddItemA.className = "dropdown-item";
+                ddItemA.href = "javascript:WNP.setDeviceByLocation('" + device.location + "');";
+                ddItemA.innerText = device.friendlyName;
+                if (WNP.d.serverSettings && WNP.d.serverSettings.selectedDevice && WNP.d.serverSettings.selectedDevice.location === device.location) {
+                    ddItemA.classList.add("active");
+                    ddItemA.setAttribute("aria-current", "true");
+                }
+                ddItem.appendChild(ddItemA);
+                WNP.r.devNameHolder.children[1].appendChild(ddItem);
+            })
+
         };
 
         // Other devices
         var devicesOther = WNP.d.deviceList.filter((d) => { return !d.manufacturer.startsWith("Linkplay") });
         if (devicesOther.length > 0) {
+
+            // Settings modal
             var optGroup = document.createElement("optgroup");
             optGroup.label = "Other devices";
             devicesOther.forEach((device) => {
@@ -289,10 +318,15 @@ WNP.setSocketDefinitions = function () {
             })
             WNP.r.selDeviceChoices.appendChild(optGroup);
 
+            // Device dropup
+            // We won't show non-WiiM devices in the dropup for now.
+
         };
 
+        // No devices found
         if (devicesWiiM.length == 0 && devicesOther.length == 0) {
             WNP.r.selDeviceChoices.innerHTML = "<option disabled=\"disabled\">No devices found!</em></li>";
+            WNP.r.devNameHolder.children[1].innerHTML = "<li><span class=\"dropdown-header\">No devices found!</span></li>";
         };
 
     });
@@ -489,12 +523,25 @@ WNP.setSocketDefinitions = function () {
     // On device refresh
     socket.on("devices-refresh", function (msg) {
         WNP.r.selDeviceChoices.innerHTML = "<option disabled=\"disabled\">Waiting for devices...</em></li>";
+        WNP.r.devNameHolder.children[1].innerHTML = "<li><span class=\"dropdown-header\">Waiting for devices...</span></li>";
     });
 
 };
 
 // =======================================================
 // Helper functions
+
+/**
+ * Set device according to the chosen one through the Devce dropup.
+ * @param {string} deviceLocation - The location of the device to set.
+ * @return {undefined}
+  */
+WNP.setDeviceByLocation = function (deviceLocation) {
+    if (deviceLocation) {
+        socket.emit("device-set", deviceLocation);
+    }
+    return false;
+};
 
 /**
  * Get player progress helper.

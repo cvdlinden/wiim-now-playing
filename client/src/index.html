@@ -59,6 +59,7 @@
                         <div class="progress-bar bg-white" style="width: 0"></div>
                     </div>
                     <div>
+                        <!-- Playback controls -->
                         <div class="btn-group primary">
                             <!-- Shuffle -->
                             <button id="btnShuffle" type="button" class="btn btn-outline-light" disabled>
@@ -82,15 +83,24 @@
                                 <i class="bi bi-repeat"></i>
                             </button>
                         </div>
-                        <!-- Device info -->
-                        <div id="devNameHolder" class="text-secondary">
-                            <button id="btnDevSelect" type="button" class="btn btn-outline-light"><i
-                                    class="bi bi-speaker"></i> <span id="devName">...</span></button>
+                        <!-- Device name & volume -->
+                        <div id="devNameHolder" class="text-secondary dropup">
+                            <button id="btnDevSelect" type="button" class="btn btn-outline-secondary dropdown-toggle"
+                                data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-speaker"></i> <span
+                                    id="devName">...</span></button>
+                            <ul class="dropdown-menu" data-bs-theme="dark">
+                                <li><span class="dropdown-header">Waiting for devices...</span></li>
+                            </ul>
                         </div>
-                        <div id="devVolumeHolder" class="text-secondary">
-                            <button id="btnDevVolume" type="button" class="btn btn-outline-light"><i
-                                    class="bi bi-volume-down-fill"></i> <span id="devVol"></span></button>
+                        <div id="devVolumeHolder" class="text-secondary dropup">
+                            <button id="btnDevVolume" type="button" class="btn btn-outline-secondary dropdown-toggle"
+                                data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-volume-down-fill"></i>
+                                <span id="devVol"></span></button>
+                            <ul class="dropdown-menu" data-bs-theme="dark">
+                                <li><span class="dropdown-header">Volume controls...</span></li>
+                            </ul>
                         </div>
+                        <!-- Top right menu options -->
                         <div class="btn-group secondary">
                             <!-- TV button -->
                             <a id="wnpTVMode" type="button" class="btn btn-outline-light" href="/tv">
@@ -109,8 +119,8 @@
         </div>
 
         <!-- Settings modal -->
-        <div class="modal fade" id="settingsModal" tabindex="-1" aria-labelledby="settingsModalLabel"
-            aria-hidden="true">
+        <div class="modal fade" id="settingsModal" tabindex="-1" aria-labelledby="settingsModalLabel" aria-hidden="true"
+            data-bs-theme="dark">
             <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
                 <div class="modal-content">
                     <div class="modal-header">
