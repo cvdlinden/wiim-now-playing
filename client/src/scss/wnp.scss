@@ -216,26 +216,34 @@
 
         #devNameHolder {
             position: absolute;
-            left: 24px;
-            bottom: 15px;
+            left: 12px;
+            bottom: 10px;
             font-size: calc(.875rem + .3vw);
 
             button {
-                border-color: #777;
+                border: none;
                 color: #b3bdba;
+
+                span {
+                    padding-right: 5px;
+                }
             }
         }
 
         #devVolumeHolder {
             position: absolute;
-            right: 24px;
-            bottom: 15px;
+            right: 12px;
+            bottom: 10px;
             text-align: right;
             font-size: calc(.875rem + .3vw);
 
             button {
-                border-color: #777;
+                border: none;
                 color: #b3bdba;
+
+                span {
+                    padding-right: 5px;
+                }
             }
         }
 

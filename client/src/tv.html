@@ -59,6 +59,7 @@
                             id="mediaBitRate">{xxx kbps}/</span><span id="mediaBitDepth">{yy
                             bits}/</span><span id="mediaSampleRate">{zz,z kHz}</span></div>
                     <div>
+                        <!-- Playback controls -->
                         <div class="btn-group primary">
                             <!-- Shuffle -->
                             <button id="btnShuffle" type="button" class="btn btn-outline-light" disabled>
@@ -82,13 +83,14 @@
                                 <i class="bi bi-repeat"></i>
                             </button>
                         </div>
-                        <!-- Device info -->
+                        <!-- Device name & volume -->
                         <div id="devNameHolder" class="text-secondary"><i class="bi bi-speaker"></i> <span
                                 id="devName">...</span></div>
                         <div id="devVolumeHolder" class="text-secondary">
                             <i class="bi bi-volume-down-fill"></i>
                             <span id="devVol"></span>
                         </div>
+                        <!-- Top right menu options -->
                         <div class="btn-group secondary">
                             <!-- TV button -->
                             <a id="wnpTVMode" type="button" class="btn btn-outline-light" href="/">
