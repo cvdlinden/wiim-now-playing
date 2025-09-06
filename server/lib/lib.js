@@ -65,7 +65,7 @@ const getSettings = (serverSettings) => {
         log("fs", "Settings file found! Processing...");
         settings = JSON.parse(settings);
         // log("fs", "settings:", settings);
-        if (!settings.selectedDevice || !settings.selectedDevice.location) { // Short sanity check
+        if (!settings.selectedDevice || !settings.selectedDevice.location || !settings.selectedDevice.actions || !settings.selectedDevice.controls) { // Short sanity check
             log("fs", "Previous selected device not stored correctly or invalid.");
             log("fs", "The file exists though. Silently ignoring, will be overwritten eventually...");
         }

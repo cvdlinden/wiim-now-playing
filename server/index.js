@@ -56,7 +56,8 @@ let serverSettings = { // Placeholder for current server settings
         "manufacturer": null,
         "modelName": null,
         "location": null,
-        "actions": null
+        "actions": {},
+        "controls": {}
     },
     "os": lib.getOS(), // Initially grab the environment we are running in. Things may not have settled yet, so we update this later.
     "timeouts": {
@@ -219,13 +220,23 @@ io.on("connection", (socket) => {
     });
 
     /**
-     * Listener for device interaction. I.e. Play, Stop, Pause, ...
+     * Listener for device actions. I.e. Play, Stop, Pause, ...
      * @param {string} msg - The action to perform on the device.
      * @returns {undefined}
      */
     socket.on("device-action", (msg) => {
         log("Socket event", "device-action", msg);
         upnp.callDeviceAction(io, msg, deviceInfo, serverSettings);
+    });
+
+    /**
+     * Listener for device controls. I.e. GetVolume, SetVolume, ...
+     * @param {string} msg - The control action to perform on the device.
+     * @returns {undefined}
+     */
+    socket.on("device-control", (msg) => {
+        log("Socket event", "volume-get");
+        upnp.callDeviceControl(io, msg, deviceInfo, serverSettings);
     });
 
     // ======================================
