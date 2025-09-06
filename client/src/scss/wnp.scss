@@ -245,6 +245,13 @@
                     padding-right: 5px;
                 }
             }
+
+            #rVolume {
+                width: 250px;
+                _writing-mode: horizontal-tb;
+                _height: 24px;
+                _transform: rotate(270deg);
+            }
         }
 
     }
