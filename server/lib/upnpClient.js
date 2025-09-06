@@ -270,9 +270,11 @@ const updateDeviceMetadata = (io, deviceInfo, serverSettings) => {
  * This function calls an action to perform on the device renderer.
  * E.g. "Next","Pause","Play","Previous","Seek".
  * See the selected device actions to see what the renderer is capable of.
+ * @param {object} io - The Socket.IO object to emit to clients.
  * @param {string} action - The AVTransport action to perform.
+ * @param {object} deviceInfo - The device info object.
  * @param {object} serverSettings - The server settings object.
- * @returns {object} The restulting object of the action (or null).
+ * @returns {object} The resulting object of the action (or null).
  */
 const callDeviceAction = (io, action, deviceInfo, serverSettings) => {
     log("callDeviceAction()", action);
@@ -306,6 +308,55 @@ const callDeviceAction = (io, action, deviceInfo, serverSettings) => {
     else {
         log("callDeviceAction()", "Device action cannot be executed!");
     };
+
+}
+
+/** This function calls a control action to perform on the device renderer.
+ * E.g. "GetVolume","SetVolume".
+ * See the selected device controls to see what the renderer is capable of.
+ * @param {object} io - The Socket.IO object to emit to clients.
+ * @param {string} action - The RenderingControl action to perform.
+ * @param {object} deviceInfo - The device info object.
+ * @param {object} serverSettings - The server settings object.
+ * @returns {object} The resulting object of the action (or null).
+ */
+const callDeviceControl = (io, action, deviceInfo, serverSettings) => {
+    log("callDeviceControl()", action);
+
+    if (serverSettings.selectedDevice.location &&
+        action.Control && serverSettings.selectedDevice.controls.includes(action.Control)) {
+
+        let options = { InstanceID: 0, Channel: "Master" }; // Always required
+        if (action.Params !== undefined) {
+            Object.keys(action.Params).forEach(param => {
+                options[param] = action.Params[param];
+            });
+        }
+        log("callDeviceControl()", "Options", options);
+
+        ensureClient(deviceInfo, serverSettings);
+        deviceInfo.client.callAction(
+            "RenderingControl",
+            action.Control,
+            options,
+            (err, result) => { // Callback
+                if (err) {
+                    log("callDeviceControl()", "UPnP Error", err);
+                }
+                else {
+                    log("callDeviceControl()", "Result", action.Control, result);
+                    io.emit("device-control", action.Control, result);
+                    // Update metadata info immediately
+                    module.exports.updateDeviceMetadata(io, deviceInfo, serverSettings);
+                    module.exports.updateDeviceState(io, deviceInfo, serverSettings);
+                }
+            }
+        );
+
+    }
+    else {
+        log("callDeviceControl()", "Device control cannot be executed!");
+    }
 
 }
 
@@ -350,37 +401,88 @@ const getDeviceDescription = (deviceList, serverSettings, respSSDP) => {
 const getServiceDescription = (deviceList, serverSettings, deviceClient, respSSDP, deviceDesc) => {
     // log("getServiceDescription()");
 
-    deviceClient.getServiceDescription("AVTransport", function (err, serviceDesc) {
-        if (err) { log("getServiceDescription()", "Error", err); }
-        else {
+    // Define device object
+    let device = {
+        location: respSSDP.LOCATION,
+        ...deviceDesc,
+        actions: {},
+        controls: {},
+        ssdp: respSSDP
+    };
 
-            const device = {
-                location: respSSDP.LOCATION,
-                ...deviceDesc,
-                actions: serviceDesc.actions,
-                ssdp: respSSDP
-            };
+    // Get AVTransport service description
+    // Call is async, so we add the device in the callback
+    deviceClient.getServiceDescription("AVTransport", function (err, serviceDesc) {
+        if (err) {
+            log("getServiceDescription('AVTransport')", "Error", err);
+
+            // Just add the device without actions and controls
             deviceList.push(device);
-            log("getServiceDescription()", "New device added:", device.friendlyName);
+            log("getServiceDescription()", "Adding device without actions and controls:", device.friendlyName);
             log("getServiceDescription()", "Total devices found:", deviceList.length);
 
-            // Do we need to set the default selected device?
-            // If it is a WiiM device and no other has been selected, then yes.
-            if (!serverSettings.selectedDevice.location &&
-                (device.manufacturer.includes("Linkplay") || device.modelName.includes("WiiM"))) {
-                serverSettings.selectedDevice = {
-                    "friendlyName": device.friendlyName,
-                    "manufacturer": device.manufacturer,
-                    "modelName": device.modelName,
-                    "location": device.location,
-                    "actions": Object.keys(device.actions)
-                };
-                lib.saveSettings(serverSettings); // Make sure the settings are stored
-            };
+            setDefaultSelectedDevice(serverSettings, device);
 
-        };
+        }
+        else {
+
+            // Add actions to device object
+            device.actions = serviceDesc.actions;
+
+            deviceClient.getServiceDescription("RenderingControl", function (err, serviceDesc) {
+                if (err) {
+                    log("getServiceDescription('RenderingControl')", "Error", err);
+
+                    // Just add the device without controls
+                    deviceList.push(device);
+                    log("getServiceDescription()", "Adding device without controls:", device.friendlyName);
+                    log("getServiceDescription()", "Total devices found:", deviceList.length);
+
+                    setDefaultSelectedDevice(serverSettings, device);
+
+                }
+                else {
+
+                    // Add controls to device object
+                    device.controls = serviceDesc.actions;
+
+                    deviceList.push(device);
+                    log("getServiceDescription()", "New device added:", device.friendlyName);
+                    log("getServiceDescription()", "Total devices found:", deviceList.length);
+
+                    setDefaultSelectedDevice(serverSettings, device);
+
+                }
+
+            });
+
+        }
     });
 
+}
+
+/**
+ * This function sets the default selected device, given the location uri.
+ * Do we need to set the default selected device?
+ * @param {array} serverSettings - The array of found device objects.
+ * @param {object} device - The device info object.
+ * @returns {undefined}
+ */
+const setDefaultSelectedDevice = (serverSettings, device) => {
+    // If it is a WiiM device and no other has been selected yet, then make this the default selected device.
+    // Or if the stored selected device corresponds to this device location, then just update with the latest info.
+    if (((device.manufacturer.includes("Linkplay") || device.modelName.includes("WiiM")) && !serverSettings.selectedDevice.location)
+        || (serverSettings.selectedDevice.location === device.location)) {
+        serverSettings.selectedDevice = {
+            "friendlyName": device.friendlyName,
+            "manufacturer": device.manufacturer,
+            "modelName": device.modelName,
+            "location": device.location,
+            "actions": Object.keys(device.actions),
+            "controls": Object.keys(device.controls)
+        };
+        lib.saveSettings(serverSettings); // Make sure the settings are stored
+    };
 }
 
 module.exports = {
@@ -391,6 +493,7 @@ module.exports = {
     updateDeviceState,
     updateDeviceMetadata,
     callDeviceAction,
+    callDeviceControl,
     getDeviceDescription,
     getServiceDescription
 };

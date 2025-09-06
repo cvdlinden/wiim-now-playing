@@ -24,7 +24,6 @@ const getDevices = (io, deviceList) => {
         "manufacturer": d.manufacturer,
         "modelName": d.modelName,
         "location": d.location,
-        // "actions": Object.keys(d.actions)
     }));
     io.emit("devices-get", devicesMap);
 }
@@ -54,7 +53,8 @@ const setDevice = (io, deviceList, deviceInfo, serverSettings, location) => {
             "manufacturer": selDevice[0].manufacturer,
             "modelName": selDevice[0].modelName,
             "location": selDevice[0].location,
-            "actions": Object.keys(selDevice[0].actions)
+            "actions": Object.keys(selDevice[0].actions),
+            "controls": Object.keys(selDevice[0].controls)
         };
 
         io.emit("device-set", serverSettings.selectedDevice); // Send selected device props

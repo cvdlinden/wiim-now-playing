@@ -11,11 +11,11 @@ WNP.s = {
     locHostname: location.hostname,
     locPort: (location.port && location.port != "80" && location.port != "1234") ? location.port : "80",
     // Device selection
-    aDeviceUI: ["btnRefresh", "selDeviceChoices", "btnDevices"],
+    aDeviceUI: ["btnRefresh", "selDeviceChoices", "btnDevices", "btnGetVolume", "btnSetVolume", "sVolume"],
     // Server actions to be used in the app
     aServerUI: ["btnReboot", "btnUpdate", "btnShutdown", "btnReloadUI"],
     // Ticks to be used in the app (debug)
-    aTicksUI: ["tickDevicesGetUp", "tickDevicesRefreshUp", "tickServerSettingsUp", "tickStateUp", "tickStateDown", "tickMetadataUp", "tickMetadataDown", "tickDeviceSetUp", "tickDeviceSetDown", "tickServerSettingsDown", "tickDevicesGetDown", "tickDevicesRefreshDown"],
+    aTicksUI: ["tickDevicesGetUp", "tickDevicesRefreshUp", "tickServerSettingsUp", "tickStateUp", "tickStateDown", "tickMetadataUp", "tickMetadataDown", "tickDeviceSetUp", "tickDeviceSetDown", "tickServerSettingsDown", "tickDevicesGetDown", "tickDevicesRefreshDown", "tickVolumeGetUp", "tickVolumeGetDown", "tickVolumeSetUp", "tickVolumeSetDown"],
     // Debug UI elements
     aDebugUI: ["state", "metadata", "sServerSettings", "sFriendlyname", "sManufacturer", "sModelName", "sLocation", "sServerUrlHostname", "sServerUrlIP", "sServerVersion", "sClientVersion", "sTimeStampDiff", "sTitle", "sArtist", "sAlbum", "sAlbumArtUri", "sSubtitle"]
 };
@@ -60,6 +60,8 @@ WNP.Init = function () {
         socket.emit("server-settings");
         this.r.tickDevicesGetUp.classList.add("tickAnimate");
         socket.emit("devices-get");
+        this.r.tickVolumeGetUp.classList.add("tickAnimate");
+        socket.emit("device-control", { "Control": "GetVolume" });
     }, 500);
 
 };
@@ -146,6 +148,21 @@ WNP.setUIListeners = function () {
 
     this.r.btnShutdown.addEventListener("click", function () {
         socket.emit("server-shutdown");
+    });
+
+    this.r.btnGetVolume.addEventListener("click", function () {
+        WNP.r.tickVolumeGetUp.classList.add("tickAnimate");
+        socket.emit("device-control", { "Control": "GetVolume" });
+    });
+
+    this.r.btnSetVolume.addEventListener("click", function () {
+        var volume = parseInt(WNP.r.sVolume.value);
+        if (isNaN(volume) || volume < 0 || volume > 100) {
+            alert("Please enter a valid volume between 0 and 100.");
+            return;
+        }
+        WNP.r.tickVolumeSetUp.classList.add("tickAnimate");
+        socket.emit("device-control", { "Control": "SetVolume", "Params": { "DesiredVolume": volume } });
     });
 
     this.r.btnReloadUI.addEventListener("click", function () {
@@ -328,6 +345,8 @@ WNP.setSocketDefinitions = function () {
         socket.emit("server-settings");
         WNP.r.tickDevicesGetUp.classList.add("tickAnimate");
         socket.emit("devices-get");
+        WNP.r.tickVolumeGetUp.classList.add("tickAnimate");
+        socket.emit("device-control", { "Control": "GetVolume" });
     });
 
     // On device refresh
@@ -337,14 +356,14 @@ WNP.setSocketDefinitions = function () {
         WNP.r.selDeviceChoices.innerHTML = "<option disabled=\"disabled\">Waiting for devices...</em></li>";
     });
 
-    // On devices update manual
-    socket.on("devices-update-manual", function (msg) {
-        console.log("IO: devices-update-manual", msg)
-        WNP.r.tickSaveDevicesDown.classList.add("tickAnimate");
-        socket.emit("devices-get");
-        // Hide add device modal
-        let modal = bootstrap.Modal.getInstance(addDeviceModal);
-        modal.hide();
+    // On volume get
+    socket.on("device-control", function (msg, param) {
+        console.log("IO: device-control", msg, param);
+        if (msg && msg === "GetVolume") WNP.r.tickVolumeGetDown.classList.add("tickAnimate");
+        if (msg && msg === "SetVolume") WNP.r.tickVolumeSetDown.classList.add("tickAnimate");
+        if (param && param.CurrentVolume !== undefined) {
+            WNP.r.sVolume.value = param.CurrentVolume;
+        }
     });
 
 };
