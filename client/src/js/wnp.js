@@ -11,7 +11,7 @@ WNP.s = {
     locPort: (location.port && location.port != "80" && location.port != "1234") ? location.port : "80",
     rndAlbumArtUri: "./img/fake-album-1.jpg",
     // Device selection
-    aDeviceUI: ["btnPrev", "btnPlay", "btnNext", "btnRefresh", "selDeviceChoices", "devName", "devNameHolder", "mediaTitle", "mediaSubTitle", "mediaArtist", "mediaAlbum", "mediaBitRate", "mediaBitDepth", "mediaSampleRate", "mediaQualityIdent", "devVol", "btnRepeat", "btnShuffle", "progressPlayed", "progressLeft", "progressPercent", "mediaSource", "albumArt", "bgAlbumArtBlur", "btnDevSelect", "btnDevVolume"],
+    aDeviceUI: ["btnPrev", "btnPlay", "btnNext", "btnRefresh", "selDeviceChoices", "devName", "devNameHolder", "mediaTitle", "mediaSubTitle", "mediaArtist", "mediaAlbum", "mediaBitRate", "mediaBitDepth", "mediaSampleRate", "mediaQualityIdent", "devVol", "btnRepeat", "btnShuffle", "progressPlayed", "progressLeft", "progressPercent", "mediaSource", "albumArt", "bgAlbumArtBlur", "btnDevSelect", "btnDevVolume", "rVolume"],
     // Server actions to be used in the app
     aServerUI: ["btnReboot", "btnUpdate", "btnShutdown", "btnReloadUI", "sServerUrlHostname", "sServerUrlIP", "sServerVersion", "sClientVersion"],
 };
@@ -77,7 +77,7 @@ WNP.setUIReferences = function () {
         if (element) {
             WNP.r[id] = element;
         } else {
-            console.warn("WNP", `Element with ID '${id}' not found in HTML.`);
+            console.log("WNP", `Element with ID '${id}' not found in current HTML.`);
         }
     }
 
@@ -122,31 +122,15 @@ WNP.setUIListeners = function () {
     });
 
     // ------------------------------------------------
-    // Device control buttons (only for default GUI)
+    // Device control inputs (only for default GUI)
 
-    // if (this.r.btnDevSelect) {
-    //     this.r.btnDevSelect.addEventListener("click", function () {
-    //         console.log("WNP", "Open device selection control");
-    //         // TODO:
-    //         // Opens a selector for devices in a dialog/modal connected to the button.
-    //         // Should also be possible to click the device name itself.
-    //         // Should do the same as per selDeviceChoices change event.
-    //     });
-    // }
-
-    // if (this.r.btnDevVolume) {
-    //     this.r.btnDevVolume.addEventListener("click", function () {
-    //         console.log("WNP", "Open device volume control");
-    //         // TODO:
-    //         // Opens a volume control in a dialog/modal connected to the button.
-    //         // The 'Range' input type should be used for this, but rotated vertically.
-    //         // Changing volume should be done on input change, not on mouse up.
-    //         // Selecting volume should be done in steps of 5 (0, 5, 10, ..., 100).
-    //         // Should also make muting possible.
-
-    //         // Checkout Bootstrap dropdowns or popovers for this!
-    //     });
-    // }
+    if (this.r.rVolume) {
+        this.r.rVolume.addEventListener('input', function () {
+            if (!isNaN(this.value) && this.value >= 0 && this.value <= 100) {
+                socket.emit("device-control", { "Control": "SetVolume", "Params": { "DesiredVolume": this.value } });
+            }
+        });
+    }
 
     // ------------------------------------------------
     // Settings buttons
@@ -216,6 +200,7 @@ WNP.setSocketDefinitions = function () {
         else {
             WNP.r.sServerUrlHostname.children[0].innerText = "-";
         }
+        // Set the server ip address
         if (msg && msg.selectedDevice && msg.selectedDevice.location && msg.os && msg.os.networkInterfaces) {
             // Grab the ip address pattern of the selected device
             // Assumption is that the wiim-now-playing server is on the same ip range as the client..
@@ -468,7 +453,10 @@ WNP.setSocketDefinitions = function () {
         }
 
         // Device volume
-        WNP.r.devVol.innerText = (msg.CurrentVolume) ? msg.CurrentVolume : "-";
+        WNP.r.devVol.innerText = (msg.CurrentVolume) ? msg.CurrentVolume : "-"; // Set the volume on the UI
+        if (WNP.r.rVolume && (WNP.r.rVolume.value !== WNP.r.devVol.innerText)) { // If volume on the range slider is different then update the range input value
+            WNP.r.rVolume.value = WNP.r.devVol.innerText;
+        }
 
         // Loop mode status
         if (msg.LoopMode) {
@@ -524,6 +512,28 @@ WNP.setSocketDefinitions = function () {
     socket.on("devices-refresh", function (msg) {
         WNP.r.selDeviceChoices.innerHTML = "<option disabled=\"disabled\">Waiting for devices...</em></li>";
         WNP.r.devNameHolder.children[1].innerHTML = "<li><span class=\"dropdown-header\">Waiting for devices...</span></li>";
+    });
+
+    // On device action (i.e. for play, pause, next, previous)
+    socket.on("device-action", function (msg, param) {
+        // Actions do not return a message.
+        // so we don't need to do anything here.
+        // Maybe later we can use this to show a notification or similar.
+        console.log("WNP", "Action:", msg);
+    });
+
+    // On device control (i.e. for volume changes)
+    socket.on("device-control", function (msg, param) {
+        if (msg && msg === "GetVolume") {
+            if (param && param.CurrentVolume !== undefined) {
+                // console.log("WNP", "Volume changed:", param.CurrentVolume);
+                WNP.r.devVol.innerText = param.CurrentVolume;
+            }
+        }
+        if (msg && msg === "SetVolume") {
+            // Get the volume again, because SetVolume does not return the new volume
+            socket.emit("device-control", { "Control": "GetVolume" });
+        }
     });
 
 };

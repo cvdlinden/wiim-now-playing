@@ -97,31 +97,8 @@
                                 data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-volume-down-fill"></i>
                                 <span id="devVol"></span></button>
                             <div class="dropdown-menu" data-bs-theme="dark">
-                                <!-- <label for="range4" class="form-label">Example range</label> -->
-                                <input type="range" class="form-range" min="0" max="100" step="3" value="17" id="range4"
-                                    style="writing-mode: lr-tb; width: 200px; height: 24px; transform: rotate(270deg);"
-                                    onChange="setValue(this.value)">
-                                <output for="range4" id="rangeValue" aria-hidden="true"></output>
-                                <script>
-                                    // This is an example script, please modify as needed
-                                    const rangeInput = document.getElementById('range4');
-                                    const rangeOutput = document.getElementById('rangeValue');
-
-                                    console.log('rangeInput:', rangeInput);
-                                    console.log('rangeOutput:', rangeOutput);
-
-                                    // Set initial value
-                                    rangeOutput.textContent = rangeInput.value;
-
-                                    rangeInput.addEventListener('input', function () {
-                                        rangeOutput.textContent = this.value;
-                                    });
-
-                                    function setValue(value) {
-                                        console.log('Selected volume:', value);
-                                        // Here you can add code to handle the volume change, e.g., send it to the server
-                                    }
-                                </script>
+                                <input type="range" class="form-range" min="0" max="100" value="" id="rVolume"
+                                    aria-label="Volume control">
                             </div>
                         </div>
                         <!-- Top right menu options -->
