@@ -235,7 +235,7 @@ io.on("connection", (socket) => {
      * @returns {undefined}
      */
     socket.on("device-control", (msg) => {
-        log("Socket event", "volume-get");
+        log("Socket event", "device-control", msg);
         upnp.callDeviceControl(io, msg, deviceInfo, serverSettings);
     });
 

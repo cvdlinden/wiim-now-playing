@@ -347,8 +347,8 @@ const callDeviceControl = (io, action, deviceInfo, serverSettings) => {
                     log("callDeviceControl()", "Result", action.Control, result);
                     io.emit("device-control", action.Control, result);
                     // Update metadata info immediately
-                    module.exports.updateDeviceMetadata(io, deviceInfo, serverSettings);
-                    module.exports.updateDeviceState(io, deviceInfo, serverSettings);
+                    // module.exports.updateDeviceMetadata(io, deviceInfo, serverSettings);
+                    // module.exports.updateDeviceState(io, deviceInfo, serverSettings);
                 }
             }
         );
