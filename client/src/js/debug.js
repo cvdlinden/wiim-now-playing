@@ -359,15 +359,17 @@ WNP.setSocketDefinitions = function () {
     // On device control (i.e. for volume changes)
     socket.on("device-control", function (msg, param) {
         console.log("IO: device-control", msg, param);
-        if (msg && msg === "GetVolume") WNP.r.tickVolumeGetDown.classList.add("tickAnimate");
+        if (msg && msg === "GetVolume") {
+            WNP.r.tickVolumeGetDown.classList.add("tickAnimate");
+            if (param && param.CurrentVolume !== undefined) {
+                WNP.r.sVolume.value = param.CurrentVolume;
+            }
+        }
         if (msg && msg === "SetVolume") {
             WNP.r.tickVolumeSetDown.classList.add("tickAnimate");
             // Get the volume again, because SetVolume does not return the new volume
             WNP.r.tickVolumeGetUp.classList.add("tickAnimate");
             socket.emit("device-control", { "Control": "GetVolume" });
-        }
-        if (param && param.CurrentVolume !== undefined) {
-            WNP.r.sVolume.value = param.CurrentVolume;
         }
     });
 
