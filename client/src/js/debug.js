@@ -62,6 +62,7 @@ WNP.Init = function () {
         socket.emit("devices-get");
         this.r.tickVolumeGetUp.classList.add("tickAnimate");
         socket.emit("device-control", { "Control": "GetVolume" });
+        socket.emit("api-stub", "getPresetInfo"); // Call stub function
     }, 500);
 
 };

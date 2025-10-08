@@ -25,6 +25,7 @@ const io = new Server(server, {
 // Other (custom) modules
 const ssdp = require("./lib/ssdp.js"); // SSDP functionality
 const upnp = require("./lib/upnpClient.js"); // UPnP Client functionality
+const httpApi = require("./lib/httpApi.js"); // HTTP API functionality
 const sockets = require("./lib/sockets.js"); // Sockets.io functionality
 const shell = require("./lib/shell.js"); // Shell command functionality
 const lib = require("./lib/lib.js"); // Generic functionality
@@ -144,32 +145,6 @@ app.get("/proxy-art", function (req, res) {
 
 });
 
-// // Proxy requests to WiiM/Linkplay device
-// app.use("/proxy-wiim", (req, res) => {
-//   // Translate the /proxy uri to the corresponding /httpapi.asp?command=
-//   let reqUrl = req.url;
-//   reqUrl = reqUrl.replace("/", "/httpapi.asp?command=");
-//   console.log("Call:", "https://" + config.deviceHost + reqUrl);
-
-//   // Create a new HTTP client to forward the request to the WiiM/Linkplay device
-//   const http_client = https.request({
-//     host: config.deviceHost,
-//     path: reqUrl,
-//     method: req.method,
-//     rejectUnauthorized: false, // Ignore self-signed certificate
-//     headers: req.headers,
-//     body: req.body
-//   }, (resp) => {
-//     // Forward the header response from the WiiM/Linkplay device
-//     res.writeHead(resp.statusCode, resp.headers);
-//     resp.pipe(res);
-//   });
-
-//   // Forward the body of the request to the WiiM/Linkplay device
-//   req.pipe(http_client);
-
-// });
-
 // ===========================================================================
 // Socket.io definitions
 
@@ -270,6 +245,17 @@ io.on("connection", (socket) => {
     socket.on("device-control", (msg) => {
         log("Socket event", "device-control", msg);
         upnp.callDeviceControl(io, msg, deviceInfo, serverSettings);
+    });
+
+    /**
+     * Listener for HTTP API actions. I.e. stub function for now.
+     * @param {string} msg - The action to perform on the device.
+     * @returns {undefined}
+     */
+    socket.on("api-stub", (msg) => {
+        log("Socket event", "api-stub", msg);
+        // Call the HTTP API function here
+        httpApi.stub(io, msg, serverSettings);
     });
 
     // ======================================
