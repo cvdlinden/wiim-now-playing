@@ -107,24 +107,27 @@ setTimeout(() => {
 // Set Express functionality
 // Use CORS
 app.use(cors());
-// Reroute all clients to the /public folder
+// By default reroute all clients to the /public server folder
 app.use(express.static(__dirname + "/public"));
-app.get("/tv", function (req, res) {
+
+// Exceptions:
+app.get("/tv", function (req, res) { // TV Mode
     res.sendFile(__dirname + "/public/tv.html");
 });
-app.get("/debug", function (req, res) {
+app.get("/debug", function (req, res) { // Debug page
     res.sendFile(__dirname + "/public/debug.html");
 });
-app.get("/res", function (req, res) {
+app.get("/res", function (req, res) { // Resolution test page
     res.sendFile(__dirname + "/public/res.html");
 });
-app.get("/assets", function (req, res) {
+app.get("/assets", function (req, res) { // Assets test page
     res.sendFile(__dirname + "/public/assets.html");
 });
+
 // Proxy https album art requests through this app, because this could be a https request with a self signed certificate.
 // If the device does not have a valid (self-signed) certificate the browser cannot load the album art, hence we ignore the self signed certificate.
 // TODO: Limit usage to only the devices we are connected to? Use CORS to limit access?
-app.get("/proxy", function (req, res) {
+app.get("/proxy-art", function (req, res) {
     log("Album Art Proxy request:", req.query.url, req.query.ts);
 
     const options = {
@@ -132,10 +135,40 @@ app.get("/proxy", function (req, res) {
     };
 
     https.get(req.query.url, options, (resp) => {
+        res.writeHead(resp.statusCode, resp.headers);
         resp.pipe(res);
+    })
+    .on('error', function (e) {
+        res.status(404).send("<div>404 Not Found</div>");
     });
 
 });
+
+// // Proxy requests to WiiM/Linkplay device
+// app.use("/proxy-wiim", (req, res) => {
+//   // Translate the /proxy uri to the corresponding /httpapi.asp?command=
+//   let reqUrl = req.url;
+//   reqUrl = reqUrl.replace("/", "/httpapi.asp?command=");
+//   console.log("Call:", "https://" + config.deviceHost + reqUrl);
+
+//   // Create a new HTTP client to forward the request to the WiiM/Linkplay device
+//   const http_client = https.request({
+//     host: config.deviceHost,
+//     path: reqUrl,
+//     method: req.method,
+//     rejectUnauthorized: false, // Ignore self-signed certificate
+//     headers: req.headers,
+//     body: req.body
+//   }, (resp) => {
+//     // Forward the header response from the WiiM/Linkplay device
+//     res.writeHead(resp.statusCode, resp.headers);
+//     resp.pipe(res);
+//   });
+
+//   // Forward the body of the request to the WiiM/Linkplay device
+//   req.pipe(http_client);
+
+// });
 
 // ===========================================================================
 // Socket.io definitions

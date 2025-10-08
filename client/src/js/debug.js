@@ -403,7 +403,7 @@ WNP.checkAlbumArtURI = function (sAlbumArtUri) {
     // If the URI starts with https, the self signed certificate may not trusted by the browser.
     // Hence we always try and load the image through a reverse proxy, ignoring the certificate.
     if (sAlbumArtUri && sAlbumArtUri.startsWith("https")) {
-        img.src = "http://" + WNP.s.locHostname + ":" + WNP.s.locPort + "/proxy?url=" + encodeURIComponent(sAlbumArtUri);
+        img.src = "http://" + WNP.s.locHostname + ":" + WNP.s.locPort + "/proxy-art?url=" + encodeURIComponent(sAlbumArtUri);
     } else if (sAlbumArtUri && sAlbumArtUri.startsWith("http")) {
         img.src = sAlbumArtUri;
     } else {
