@@ -51,6 +51,20 @@ const getOS = () => {
 }
 
 /**
+ * This function extracts the IP address from the selected device location URL.
+ * @param {object} serverSettings - The server settings object.
+ * @returns {string|null} The IP address or null if not found.
+ */
+const getIpAddressFromLocation = (serverSettings) => {
+    if (serverSettings.selectedDevice && serverSettings.selectedDevice.location) {
+        const location = serverSettings.selectedDevice.location;
+        const ip = location.split("/")[2].split(":")[0];
+        return ip;
+    }
+    return null;
+}
+
+/**
  * This function fetches the stored settings if any.
  * If no settings file was found, it will create one.
  * If found, it will amend the current server settings.
@@ -111,6 +125,7 @@ module.exports = {
     getDate,
     getTimeStamp,
     getOS,
+    getIpAddressFromLocation,
     getSettings,
     saveSettings
 };
