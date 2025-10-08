@@ -328,7 +328,7 @@ WNP.setSocketDefinitions = function () {
 
         // Check the current album art properties
         if (msg && msg.trackMetaData && msg.trackMetaData["upnp:albumArtURI"]) {
-            WNP.checkAlbumArtURI(msg.trackMetaData["upnp:albumArtURI"]);
+            WNP.checkAlbumArtURI(msg.trackMetaData["upnp:albumArtURI"], msg.metadataTimeStamp);
         } else {
             WNP.r.sAlbumArtUri.children[1].classList = "bi bi-info-circle";
             WNP.r.sAlbumArtUri.children[1].title = "No album art URI found";
@@ -384,7 +384,7 @@ WNP.setSocketDefinitions = function () {
  * @returns {undefined}
  * @description This function creates a virtual image element to check if the album art URI is valid.
  */
-WNP.checkAlbumArtURI = function (sAlbumArtUri) {
+WNP.checkAlbumArtURI = function (sAlbumArtUri, nTimestamp) {
     // Create a virtual image element to check the album art URI
     var img = new Image();
     // On successful load
@@ -403,7 +403,7 @@ WNP.checkAlbumArtURI = function (sAlbumArtUri) {
     // If the URI starts with https, the self signed certificate may not trusted by the browser.
     // Hence we always try and load the image through a reverse proxy, ignoring the certificate.
     if (sAlbumArtUri && sAlbumArtUri.startsWith("https")) {
-        img.src = "http://" + WNP.s.locHostname + ":" + WNP.s.locPort + "/proxy-art?url=" + encodeURIComponent(sAlbumArtUri);
+        img.src = "http://" + WNP.s.locHostname + ":" + WNP.s.locPort + "/proxy-art?url=" + encodeURIComponent(sAlbumArtUri) + "&ts=" + nTimestamp;
     } else if (sAlbumArtUri && sAlbumArtUri.startsWith("http")) {
         img.src = sAlbumArtUri;
     } else {
