@@ -62,7 +62,8 @@ WNP.Init = function () {
         socket.emit("devices-get");
         this.r.tickVolumeGetUp.classList.add("tickAnimate");
         socket.emit("device-control", { "Control": "GetVolume" });
-        socket.emit("api-stub", "getPresetInfo"); // Call stub function
+        socket.emit("device-api", "getPresetInfo"); // Get the preset list
+        socket.emit("device-api", "getStatusEx"); // Get the device status
     }, 500);
 
 };
@@ -372,6 +373,12 @@ WNP.setSocketDefinitions = function () {
             WNP.r.tickVolumeGetUp.classList.add("tickAnimate");
             socket.emit("device-control", { "Control": "GetVolume" });
         }
+    });
+
+    // On device API response
+    socket.on("device-api", function (msg, param) {
+        console.log("IO: device-api", msg, param);
+        // Just log for now
     });
 
 };

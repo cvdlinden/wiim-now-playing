@@ -248,14 +248,13 @@ io.on("connection", (socket) => {
     });
 
     /**
-     * Listener for HTTP API actions. I.e. stub function for now.
-     * @param {string} msg - The action to perform on the device.
+     * Listener for HTTP API commands.
+     * @param {string} msg - The API command to perform on the device.
      * @returns {undefined}
      */
-    socket.on("api-stub", (msg) => {
-        log("Socket event", "api-stub", msg);
-        // Call the HTTP API function here
-        httpApi.stub(io, msg, serverSettings);
+    socket.on("device-api", (msg) => {
+        log("Socket event", "device-api", msg);
+        httpApi.callApi(io, msg, serverSettings);
     });
 
     // ======================================
