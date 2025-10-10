@@ -15,9 +15,9 @@ WNP.s = {
     // Server actions to be used in the app
     aServerUI: ["btnReboot", "btnUpdate", "btnShutdown", "btnReloadUI"],
     // Ticks to be used in the app (debug)
-    aTicksUI: ["tickDevicesGetUp", "tickDevicesRefreshUp", "tickServerSettingsUp", "tickStateUp", "tickStateDown", "tickMetadataUp", "tickMetadataDown", "tickDeviceSetUp", "tickDeviceSetDown", "tickServerSettingsDown", "tickDevicesGetDown", "tickDevicesRefreshDown", "tickVolumeGetUp", "tickVolumeGetDown", "tickVolumeSetUp", "tickVolumeSetDown"],
+    aTicksUI: ["tickDevicesGetUp", "tickDevicesRefreshUp", "tickServerSettingsUp", "tickStateUp", "tickStateDown", "tickMetadataUp", "tickMetadataDown", "tickDeviceSetUp", "tickDeviceSetDown", "tickServerSettingsDown", "tickDevicesGetDown", "tickDevicesRefreshDown", "tickVolumeGetUp", "tickVolumeGetDown", "tickVolumeSetUp", "tickVolumeSetDown", "tickPresetsListUp", "tickPresetsListDown"],
     // Debug UI elements
-    aDebugUI: ["state", "metadata", "sServerSettings", "sFriendlyname", "sManufacturer", "sModelName", "sLocation", "sServerUrlHostname", "sServerUrlIP", "sServerVersion", "sClientVersion", "sTimeStampDiff", "sTitle", "sArtist", "sAlbum", "sAlbumArtUri", "sSubtitle"]
+    aDebugUI: ["state", "metadata", "sPresetsList", "sServerSettings", "sFriendlyname", "sManufacturer", "sModelName", "sLocation", "sServerUrlHostname", "sServerUrlIP", "sServerVersion", "sClientVersion", "sTimeStampDiff", "sTitle", "sArtist", "sAlbum", "sAlbumArtUri", "sSubtitle", "oPresetsGroup"]
 };
 
 // Data placeholders.
@@ -56,14 +56,18 @@ WNP.Init = function () {
 
     // Initial calls, wait a bit for socket to start
     setTimeout(() => {
+        // Get server settings
         this.r.tickServerSettingsUp.classList.add("tickAnimate");
         socket.emit("server-settings");
+        // Get devices
         this.r.tickDevicesGetUp.classList.add("tickAnimate");
         socket.emit("devices-get");
+        // Get volume
         this.r.tickVolumeGetUp.classList.add("tickAnimate");
         socket.emit("device-control", { "Control": "GetVolume" });
-        socket.emit("device-api", "getPresetInfo"); // Get the preset list
-        socket.emit("device-api", "getStatusEx"); // Get the device status
+        // Get presets
+        this.r.tickPresetsListUp.classList.add("tickAnimate");
+        socket.emit("device-api", "getPresetInfo");
     }, 500);
 
 };
@@ -132,6 +136,8 @@ WNP.setUIListeners = function () {
             socket.emit("devices-get");
             WNP.r.tickServerSettingsUp.classList.add("tickAnimate");
             socket.emit("server-settings");
+            WNP.r.tickPresetsListUp.classList.add("tickAnimate");
+            socket.emit("device-api", "getPresetInfo");
         }, 5000);
     });
 
@@ -349,6 +355,8 @@ WNP.setSocketDefinitions = function () {
         socket.emit("devices-get");
         WNP.r.tickVolumeGetUp.classList.add("tickAnimate");
         socket.emit("device-control", { "Control": "GetVolume" });
+        WNP.r.tickPresetsListUp.classList.add("tickAnimate");
+        socket.emit("device-api", "getPresetInfo");
     });
 
     // On device refresh
@@ -378,7 +386,40 @@ WNP.setSocketDefinitions = function () {
     // On device API response
     socket.on("device-api", function (msg, param) {
         console.log("IO: device-api", msg, param);
-        // Just log for now
+        switch (msg) {
+            case "getPresetInfo":
+                WNP.r.tickPresetsListDown.classList.add("tickAnimate");
+                WNP.r.sPresetsList.innerHTML = param ? JSON.stringify(param) : "";
+                // Update preset buttons
+                if (WNP.r.oPresetsGroup) {
+                    WNP.r.oPresetsGroup.innerHTML = "";
+                    if (param && param.preset_list && param.preset_list.length > 0) {
+                        param.preset_list.forEach((preset) => {
+                            var btn = document.createElement("button");
+                            btn.type = "button";
+                            btn.classList = "btn btn-secondary";
+                            btn.innerText = preset.number;
+                            btn.title = preset.name;
+                            btn.addEventListener("click", function () {
+                                // Load preset
+                                socket.emit("device-api", "MCUKeyShortClick:" + preset.number);
+                                // Highlight button
+                                Array.from(WNP.r.oPresetsGroup.children).forEach((b) => { b.classList.remove("active"); });
+                                btn.classList.add("active");
+                            });
+                            WNP.r.oPresetsGroup.appendChild(btn);
+                        });
+                    } else {
+                        var span = document.createElement("p");
+                        span.innerText = "No presets found";
+                        WNP.r.oPresetsGroup.appendChild(span);
+                    }
+                }
+                break;
+            default:
+                // No action
+                break;
+        }
     });
 
 };

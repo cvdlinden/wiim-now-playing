@@ -65,7 +65,10 @@ const callHttpApi = (cmd, serverSettings, callback) => {
 const callApi = (io, msg, serverSettings) => {
     log("API function called:", msg);
     callHttpApi(msg, serverSettings, (err, result) => {
-        if (err) log("API function error:", msg, err.code);
+        if (err) {
+            log("API function error:", msg, err.code);
+            io.emit("device-api", msg, null);
+        }
         if (result) {
             log("API function result:", msg, result);
             try {
