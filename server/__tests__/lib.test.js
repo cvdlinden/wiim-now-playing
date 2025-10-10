@@ -1,3 +1,10 @@
+// ===========================================================================
+// lib.test.js 
+//
+// Unit tests for the lib.js module.
+// Uses Jest as the testing framework.
+// ===========================================================================
+
 const lib = require('../lib/lib.js');
 const fs = require('fs');
 const path = require('path');
