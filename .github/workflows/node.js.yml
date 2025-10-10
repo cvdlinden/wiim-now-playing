@@ -30,6 +30,6 @@ jobs:
         cache: 'npm'
 
     - run: npm install
-    - run: ./client/npm install
+    - run: cd client && npm install
     # - run: npm run client-build --if-present
     - run: npm test
