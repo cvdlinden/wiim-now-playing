@@ -410,9 +410,10 @@ WNP.setSocketDefinitions = function () {
                             WNP.r.oPresetsGroup.appendChild(btn);
                         });
                     } else {
-                        var span = document.createElement("p");
-                        span.innerText = "No presets found";
-                        WNP.r.oPresetsGroup.appendChild(span);
+                        var p = document.createElement("p");
+                        p.classList = "form-text text-white";
+                        p.innerText = "No presets found";
+                        WNP.r.oPresetsGroup.appendChild(p);
                     }
                 }
                 break;
@@ -436,6 +437,7 @@ WNP.setSocketDefinitions = function () {
 WNP.checkAlbumArtURI = function (sAlbumArtUri, nTimestamp) {
     // Create a virtual image element to check the album art URI
     var img = new Image();
+
     // On successful load
     img.onload = function () {
         console.log("WNP DEBUG", "Album art loaded successfully.", "Size: " + this.width + "x" + this.height + "px");
