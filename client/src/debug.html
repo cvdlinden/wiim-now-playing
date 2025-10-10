@@ -90,12 +90,25 @@
                 <span id="tickVolumeSetDown" class="tick tickDown"><i class="bi bi-arrow-down-circle-fill"></i></span>)
                 <div class="btn-toolbar justify-content-between">
                     <div class="input-group" aria-label="Device actions">
-                        <input type="text" id="sVolume" class="form-control"
-                            style="width: 60px;" value="" />
+                        <input type="text" id="sVolume" class="form-control" style="width: 60px;" value="" />
                         <button type="button" class="btn btn-secondary" id="btnGetVolume">Get volume</button>
                         <button type="button" class="btn btn-secondary" id="btnSetVolume">Set volume</button>
                     </div>
                 </div>
+        </div>
+
+        <div class="row mb-3">
+            <label class="form-label">Presets List:
+                <span id="tickPresetsListUp" class="tick tickUp"><i class="bi bi-arrow-up-circle-fill"></i></span>
+                <span id="tickPresetsListDown" class="tick tickDown"><i class="bi bi-arrow-down-circle-fill"></i></span>
+            </label>
+            <textarea id="sPresetsList" class="form-control" style="height: 120px"></textarea>
+            <label class="form-label mt-2">Load preset:</label>
+            <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with presets">
+                <div class="btn-group" role="group" aria-label="Presets" id="oPresetsGroup">
+                    <!-- Preset buttons will be added here dynamically -->
+                </div>
+            </div>
         </div>
 
         <div class="row mb-3">
@@ -121,7 +134,7 @@
 
         <div class="row mb-3">
             <label class="form-label">Server Actions:</label>
-            <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
+            <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with server actions">
                 <div class="btn-group" role="group" aria-label="Server actions">
                     <!-- The following buttons are disabled by default. They will be enabled when shell/bash is available, i.e., on a Raspberry Pi. -->
                     <button id="btnReboot" class="btn btn-secondary" disabled>Reboot server</button>
