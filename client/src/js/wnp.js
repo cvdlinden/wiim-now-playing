@@ -11,7 +11,7 @@ WNP.s = {
     locPort: (location.port && location.port != "80" && location.port != "1234") ? location.port : "80",
     rndAlbumArtUri: "./img/fake-album-1.jpg",
     // Device selection
-    aDeviceUI: ["btnPrev", "btnPlay", "btnNext", "btnRefresh", "selDeviceChoices", "devName", "devNameHolder", "mediaTitle", "mediaSubTitle", "mediaArtist", "mediaAlbum", "mediaBitRate", "mediaBitDepth", "mediaSampleRate", "mediaQualityIdent", "devVol", "btnRepeat", "btnShuffle", "progressPlayed", "progressLeft", "progressPercent", "mediaSource", "albumArt", "bgAlbumArtBlur", "btnDevSelect", "btnDevVolume", "rVolume"],
+    aDeviceUI: ["btnPrev", "btnPlay", "btnNext", "btnRefresh", "selDeviceChoices", "devName", "devNameHolder", "mediaTitle", "mediaSubTitle", "mediaArtist", "mediaAlbum", "mediaBitRate", "mediaBitDepth", "mediaSampleRate", "mediaQualityIdent", "devVol", "btnRepeat", "btnShuffle", "progressPlayed", "progressLeft", "progressPercent", "mediaSource", "albumArt", "bgAlbumArtBlur", "btnDevSelect", "oDeviceList", "btnDevPreset", "oPresetList", "btnDevVolume", "rVolume"],
     // Server actions to be used in the app
     aServerUI: ["btnReboot", "btnUpdate", "btnShutdown", "btnReloadUI", "sServerUrlHostname", "sServerUrlIP", "sServerVersion", "sClientVersion"],
 };
@@ -53,7 +53,9 @@ WNP.Init = function () {
 
     // Initial calls, wait a bit for socket to start
     setTimeout(() => {
+        // Get server settings
         socket.emit("server-settings");
+        // Get devices
         socket.emit("devices-get");
     }, 500);
 
@@ -123,6 +125,12 @@ WNP.setUIListeners = function () {
 
     // ------------------------------------------------
     // Device control inputs (only for default GUI)
+
+    if (this.r.btnDevPreset) {
+        this.r.btnDevPreset.addEventListener("click", function () {
+            socket.emit("device-api", "getPresetInfo");
+        });
+    }
 
     if (this.r.rVolume) {
         this.r.rVolume.addEventListener('input', function () {
@@ -240,7 +248,7 @@ WNP.setSocketDefinitions = function () {
 
         // Clear choices
         WNP.r.selDeviceChoices.innerHTML = "<option value=\"\">Select a device...</em></li>"; // Settings modal
-        WNP.r.devNameHolder.children[1].innerHTML = ""; // Device dropup
+        WNP.r.oDeviceList.innerHTML = ""; // Device dropup
 
         // Add WiiM devices
         var devicesWiiM = WNP.d.deviceList.filter((d) => { return d.manufacturer.startsWith("Linkplay") });
@@ -262,12 +270,6 @@ WNP.setSocketDefinitions = function () {
             WNP.r.selDeviceChoices.appendChild(optGroup);
 
             // Device dropup
-            // var ddHeader = document.createElement("li");
-            // var ddHeaderSpan = document.createElement("span");
-            // ddHeaderSpan.className = "dropdown-header";
-            // ddHeaderSpan.innerText = "WiiM Devices";
-            // ddHeader.appendChild(ddHeaderSpan);
-            // WNP.r.devNameHolder.children[1].appendChild(ddHeader);
             devicesWiiM.forEach((device) => {
                 var ddItem = document.createElement("li");
                 var ddItemA = document.createElement("a");
@@ -279,7 +281,7 @@ WNP.setSocketDefinitions = function () {
                     ddItemA.setAttribute("aria-current", "true");
                 }
                 ddItem.appendChild(ddItemA);
-                WNP.r.devNameHolder.children[1].appendChild(ddItem);
+                WNP.r.oDeviceList.appendChild(ddItem);
             })
 
         };
@@ -311,7 +313,7 @@ WNP.setSocketDefinitions = function () {
         // No devices found
         if (devicesWiiM.length == 0 && devicesOther.length == 0) {
             WNP.r.selDeviceChoices.innerHTML = "<option disabled=\"disabled\">No devices found!</em></li>";
-            WNP.r.devNameHolder.children[1].innerHTML = "<li><span class=\"dropdown-header\">No devices found!</span></li>";
+            WNP.r.oDeviceList.innerHTML = "<li><span class=\"dropdown-header\">No devices found!</span></li>";
         };
 
     });
@@ -511,7 +513,7 @@ WNP.setSocketDefinitions = function () {
     // On device refresh
     socket.on("devices-refresh", function (msg) {
         WNP.r.selDeviceChoices.innerHTML = "<option disabled=\"disabled\">Waiting for devices...</em></li>";
-        WNP.r.devNameHolder.children[1].innerHTML = "<li><span class=\"dropdown-header\">Waiting for devices...</span></li>";
+        WNP.r.oDeviceList.innerHTML = "<li><span class=\"dropdown-header\">Waiting for devices...</span></li>";
     });
 
     // On device action (i.e. for play, pause, next, previous)
@@ -536,6 +538,58 @@ WNP.setSocketDefinitions = function () {
         }
     });
 
+    // On device API response
+    socket.on("device-api", function (msg, param) {
+
+        switch (msg) {
+            case "getPresetInfo":
+                console.log("WNP", "Presets:", param);
+                // Preset dropup
+                if (!param || param.preset_num < 1) {
+                    // No presets
+                    WNP.r.oPresetList.innerHTML = "<li><span class=\"dropdown-header\">No presets found!</span></li>";
+                    return false;
+                }
+                else {
+                    // Presets found
+                    WNP.r.oPresetList.innerHTML = ""; // Clear existing list
+                    [
+    {
+        "number": 2,
+        "name": "NPO Radio 2",
+        "url": "unknow",
+        "source": "newTuneIn",
+        "picurl": "http://cdn-radiotime-logos.tunein.com/s9483g.png"
+    },
+    {
+        "number": 3,
+        "name": "NPO 3FM",
+        "url": "unknow",
+        "source": "newTuneIn",
+        "picurl": "http://cdn-profiles.tunein.com/s6707/images/logog.png?t=637376157950000000"
+    }
+]
+                    param.preset_list.forEach((preset) => {
+                        var ddItem = document.createElement("li");
+                        var ddItemA = document.createElement("a");
+                        ddItemA.className = "dropdown-item";
+                        ddItemA.href = "javascript:WNP.setPresetByNumber(" + preset.number + ");";
+                        ddItemA.innerHTML = "<img src=\"" + preset.picurl + "\"/> " + preset.name;
+                        // if (WNP.d.serverSettings && WNP.d.serverSettings.selectedDevice && WNP.d.serverSettings.selectedDevice.location === device.location) {
+                        //     ddItemA.classList.add("active");
+                        //     ddItemA.setAttribute("aria-current", "true");
+                        // }
+                        ddItem.appendChild(ddItemA);
+                        WNP.r.oPresetList.appendChild(ddItem);
+                    })
+                }
+                break;
+            default:
+                // No action
+                break;
+        }
+    });
+
 };
 
 // =======================================================
@@ -549,6 +603,19 @@ WNP.setSocketDefinitions = function () {
 WNP.setDeviceByLocation = function (deviceLocation) {
     if (deviceLocation) {
         socket.emit("device-set", deviceLocation);
+    }
+    return false;
+};
+
+/**
+ * Set the preset on the device.
+ * @param {integer} presetNumber - The number of the preset to set.
+ * @return {undefined}
+ */
+
+WNP.setPresetByNumber = function (presetNumber) {
+    if (presetNumber && !isNaN(presetNumber) && presetNumber > 0) {
+        socket.emit("device-api", "MCUKeyShortClick:" + presetNumber);
     }
     return false;
 };

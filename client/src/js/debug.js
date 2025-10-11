@@ -125,7 +125,7 @@ WNP.setUIListeners = function () {
     console.log("WNP DEBUG", "Set UI Listeners...")
 
     // ------------------------------------------------
-    // Buttons
+    // Settings buttons
 
     this.r.btnRefresh.addEventListener("click", function () {
         WNP.r.tickDevicesRefreshUp.classList.add("tickAnimate");
@@ -348,7 +348,7 @@ WNP.setSocketDefinitions = function () {
     socket.on("device-set", function (msg) {
         console.log("IO: device-set", msg);
         WNP.r.tickDeviceSetDown.classList.add("tickAnimate");
-        // Device wissel? Haal 'alles' opnieuw op
+        // Device switch? Fetch settings and device info again.
         WNP.r.tickServerSettingsUp.classList.add("tickAnimate");
         socket.emit("server-settings");
         WNP.r.tickDevicesGetUp.classList.add("tickAnimate");
@@ -364,6 +364,14 @@ WNP.setSocketDefinitions = function () {
         console.log("IO: devices-refresh", msg);
         WNP.r.tickDevicesRefreshDown.classList.add("tickAnimate");
         WNP.r.selDeviceChoices.innerHTML = "<option disabled=\"disabled\">Waiting for devices...</em></li>";
+    });
+
+    // On device action (i.e. for play, pause, next, previous)
+    socket.on("device-action", function (msg, param) {
+        // Actions do not return a message.
+        // so we don't need to do anything here.
+        // Maybe later we can use this to show a notification or similar.
+        console.log("WNP DEBUG", "Action:", msg);
     });
 
     // On device control (i.e. for volume changes)

@@ -88,11 +88,16 @@
                             <button id="btnDevSelect" type="button" class="btn btn-outline-secondary dropdown-toggle"
                                 data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-speaker"></i> <span
                                     id="devName">...</span></button>
-                            <ul class="dropdown-menu" data-bs-theme="dark">
+                            <ul class="dropdown-menu" data-bs-theme="dark" id="oDeviceList">
                                 <li><span class="dropdown-header">Waiting for devices...</span></li>
                             </ul>
                         </div>
                         <div id="devVolumeHolder" class="text-secondary dropup">
+                            <button id="btnDevPreset" type="button" class="btn btn-outline-secondary dropdown-toggle"
+                                data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-list-ul"></i></button>
+                            <ul class="dropdown-menu" data-bs-theme="dark" id="oPresetList">
+                                <li><span class="dropdown-header">Loading presets...</span></li>
+                            </ul>
                             <button id="btnDevVolume" type="button" class="btn btn-outline-secondary dropdown-toggle"
                                 data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-volume-down-fill"></i>
                                 <span id="devVol"></span></button>
