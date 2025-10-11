@@ -246,6 +246,13 @@
                 }
             }
 
+            #oPresetList img {
+                max-height: 20px;
+                max-width: 20px;
+                vertical-align: middle;
+                margin-right: 8px;
+            }
+
             #rVolume {
                 width: 250px;
                 _writing-mode: horizontal-tb;
