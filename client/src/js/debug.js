@@ -398,6 +398,8 @@ WNP.setSocketDefinitions = function () {
             case "getPresetInfo":
                 WNP.r.tickPresetsListDown.classList.add("tickAnimate");
                 WNP.r.sPresetsList.innerHTML = param ? JSON.stringify(param) : "";
+                var sCurrentTitle = WNP.r.sTitle.children[0].innerText;
+                var sCurrentSubtitle = WNP.r.sSubtitle.children[0].innerText;
                 // Update preset buttons
                 if (WNP.r.oPresetsGroup) {
                     WNP.r.oPresetsGroup.innerHTML = "";
@@ -408,6 +410,9 @@ WNP.setSocketDefinitions = function () {
                             btn.classList = "btn btn-secondary";
                             btn.innerText = preset.number;
                             btn.title = preset.name;
+                            if (preset.name === sCurrentTitle || preset.name === sCurrentSubtitle) {
+                                btn.classList.add("active");
+                            }
                             btn.addEventListener("click", function () {
                                 // Load preset
                                 socket.emit("device-api", "MCUKeyShortClick:" + preset.number);

@@ -553,32 +553,18 @@ WNP.setSocketDefinitions = function () {
                 else {
                     // Presets found
                     WNP.r.oPresetList.innerHTML = ""; // Clear existing list
-                    [
-    {
-        "number": 2,
-        "name": "NPO Radio 2",
-        "url": "unknow",
-        "source": "newTuneIn",
-        "picurl": "http://cdn-radiotime-logos.tunein.com/s9483g.png"
-    },
-    {
-        "number": 3,
-        "name": "NPO 3FM",
-        "url": "unknow",
-        "source": "newTuneIn",
-        "picurl": "http://cdn-profiles.tunein.com/s6707/images/logog.png?t=637376157950000000"
-    }
-]
+                    var sCurrentTitle = WNP.r.mediaTitle.innerText;
+                    var sCurrentSubtitle = WNP.r.mediaSubTitle.innerText;
                     param.preset_list.forEach((preset) => {
                         var ddItem = document.createElement("li");
                         var ddItemA = document.createElement("a");
                         ddItemA.className = "dropdown-item";
                         ddItemA.href = "javascript:WNP.setPresetByNumber(" + preset.number + ");";
                         ddItemA.innerHTML = "<img src=\"" + preset.picurl + "\"/> " + preset.name;
-                        // if (WNP.d.serverSettings && WNP.d.serverSettings.selectedDevice && WNP.d.serverSettings.selectedDevice.location === device.location) {
-                        //     ddItemA.classList.add("active");
-                        //     ddItemA.setAttribute("aria-current", "true");
-                        // }
+                        if (sCurrentTitle === preset.name || sCurrentSubtitle === preset.name) {
+                            ddItemA.classList.add("active");
+                            ddItemA.setAttribute("aria-current", "true");
+                        }
                         ddItem.appendChild(ddItemA);
                         WNP.r.oPresetList.appendChild(ddItem);
                     })
@@ -835,6 +821,7 @@ WNP.getSourceIdent = function (playMedium, trackSource) {
  * CD Quality: 44.1 KHz/16 bit. Bitrate 1,411 kbps. For mp3 bitrate can vary, but also be 320/192/160/128/... kbps.
  * Hi-Res quality: 96 kHz/24 bit and up. Bitrate 9,216 kbps.
  * 
+ * Spotify Lossless: bitrate 700 kbps, 44.1 kHz/24 bit
  * Spotify and Pandora usual bitrate 160 kbps, premium is 320 kbps
  * Tidal has CD quality, and FLAC, MQA, Master, ...
  * Qobuz apparently really has hi-res?
@@ -859,7 +846,10 @@ WNP.getQualityIdent = function (songQuality, songActualQuality, songBitrate, son
 
     var sIdent = "";
 
-    if (songBitrate > 1000 && songBitDepth === 16 && songSampleRate === 44100) {
+    if (songBitrate >= 700 && songBitDepth == 24 && songSampleRate == 44100) {
+        sIdent = "Lossless";
+    }
+    if (songBitrate > 1000 && songBitDepth == 16 && songSampleRate == 44100) {
         sIdent = "CD";
     }
     else if (songBitrate > 7000 && songBitDepth >= 24 && songSampleRate >= 96000) {
