@@ -214,6 +214,15 @@
             }
         }
 
+        .dropup .dropdown-toggle::after {
+            border-width: .2em;
+            vertical-align: 0.3em;
+        }
+
+        .dropdown-menu {
+            opacity: 0.8;
+        }
+
         #devNameHolder {
             position: absolute;
             left: 12px;
@@ -253,11 +262,15 @@
                 margin-right: 8px;
             }
 
+            #rDevVolume {
+                transform: translate(130px, -168px) rotate(-90deg) !important;
+            }
+
             #rVolume {
-                width: 250px;
-                _writing-mode: horizontal-tb;
-                _height: 24px;
-                _transform: rotate(270deg);
+                display: block;
+                width: 300px;
+                height: 24px;
+                padding: 0 10px;
             }
         }
 
