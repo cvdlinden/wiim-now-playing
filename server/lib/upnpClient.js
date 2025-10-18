@@ -319,6 +319,7 @@ const callDeviceAction = (io, action, deviceInfo, serverSettings) => {
  * @param {object} deviceInfo - The device info object.
  * @param {object} serverSettings - The server settings object.
  * @returns {object} The resulting object of the action (or null).
+ * TODO: Replace with device-api!
  */
 const callDeviceControl = (io, action, deviceInfo, serverSettings) => {
     log("callDeviceControl()", action);

@@ -135,7 +135,8 @@ WNP.setUIListeners = function () {
     if (this.r.rVolume) {
         this.r.rVolume.addEventListener('input', function () {
             if (!isNaN(this.value) && this.value >= 0 && this.value <= 100) {
-                socket.emit("device-control", { "Control": "SetVolume", "Params": { "DesiredVolume": this.value } });
+                socket.emit("device-control", { "Control": "SetVolume", "Params": { "DesiredVolume": this.value } }); // TODO: Replace with device-api!
+                // socket.emit("device-api", "setPlayerCmd:vol:" + this.value); // HTTP API way
             }
         });
     }
@@ -248,7 +249,7 @@ WNP.setSocketDefinitions = function () {
 
         // Clear choices
         WNP.r.selDeviceChoices.innerHTML = "<option value=\"\">Select a device...</em></li>"; // Settings modal
-        WNP.r.oDeviceList.innerHTML = ""; // Device dropup
+        if (WNP.r.oDeviceList) WNP.r.oDeviceList.innerHTML = ""; // Device dropup
 
         // Add WiiM devices
         var devicesWiiM = WNP.d.deviceList.filter((d) => { return d.manufacturer.startsWith("Linkplay") });
@@ -270,19 +271,21 @@ WNP.setSocketDefinitions = function () {
             WNP.r.selDeviceChoices.appendChild(optGroup);
 
             // Device dropup
-            devicesWiiM.forEach((device) => {
-                var ddItem = document.createElement("li");
-                var ddItemA = document.createElement("a");
-                ddItemA.className = "dropdown-item";
-                ddItemA.href = "javascript:WNP.setDeviceByLocation('" + device.location + "');";
-                ddItemA.innerText = device.friendlyName;
-                if (WNP.d.serverSettings && WNP.d.serverSettings.selectedDevice && WNP.d.serverSettings.selectedDevice.location === device.location) {
-                    ddItemA.classList.add("active");
-                    ddItemA.setAttribute("aria-current", "true");
-                }
-                ddItem.appendChild(ddItemA);
-                WNP.r.oDeviceList.appendChild(ddItem);
-            })
+            if (WNP.r.oDeviceList) {
+                devicesWiiM.forEach((device) => {
+                    var ddItem = document.createElement("li");
+                    var ddItemA = document.createElement("a");
+                    ddItemA.className = "dropdown-item";
+                    ddItemA.href = "javascript:WNP.setDeviceByLocation('" + device.location + "');";
+                    ddItemA.innerText = device.friendlyName;
+                    if (WNP.d.serverSettings && WNP.d.serverSettings.selectedDevice && WNP.d.serverSettings.selectedDevice.location === device.location) {
+                        ddItemA.classList.add("active");
+                        ddItemA.setAttribute("aria-current", "true");
+                    }
+                    ddItem.appendChild(ddItemA);
+                    WNP.r.oDeviceList.appendChild(ddItem);
+                })
+            }
 
         };
 
@@ -313,7 +316,7 @@ WNP.setSocketDefinitions = function () {
         // No devices found
         if (devicesWiiM.length == 0 && devicesOther.length == 0) {
             WNP.r.selDeviceChoices.innerHTML = "<option disabled=\"disabled\">No devices found!</em></li>";
-            WNP.r.oDeviceList.innerHTML = "<li><span class=\"dropdown-header\">No devices found!</span></li>";
+            if (WNP.r.oDeviceList) WNP.r.oDeviceList.innerHTML = "<li><span class=\"dropdown-header\">No devices found!</span></li>";
         };
 
     });
@@ -513,7 +516,7 @@ WNP.setSocketDefinitions = function () {
     // On device refresh
     socket.on("devices-refresh", function (msg) {
         WNP.r.selDeviceChoices.innerHTML = "<option disabled=\"disabled\">Waiting for devices...</em></li>";
-        WNP.r.oDeviceList.innerHTML = "<li><span class=\"dropdown-header\">Waiting for devices...</span></li>";
+        if (WNP.r.oDeviceList) WNP.r.oDeviceList.innerHTML = "<li><span class=\"dropdown-header\">Waiting for devices...</span></li>";
     });
 
     // On device action (i.e. for play, pause, next, previous)
@@ -525,6 +528,7 @@ WNP.setSocketDefinitions = function () {
     });
 
     // On device control (i.e. for volume changes)
+     // TODO: Replace with device-api!
     socket.on("device-control", function (msg, param) {
         if (msg && msg === "GetVolume") {
             if (param && param.CurrentVolume !== undefined) {
@@ -569,6 +573,14 @@ WNP.setSocketDefinitions = function () {
                         WNP.r.oPresetList.appendChild(ddItem);
                     })
                 }
+                break;
+            case msg.startsWith("MCUKeyShortClick:") ? msg : false:
+                // Preset set response
+                // console.log("WNP", "Preset set", param);
+                break;
+            case msg.startsWith("setPlayerCmd:vol:") ? msg : false:
+                // Volume set response
+                // console.log("WNP", "Volume set", param);
                 break;
             default:
                 // No action

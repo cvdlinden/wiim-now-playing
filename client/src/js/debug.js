@@ -64,7 +64,7 @@ WNP.Init = function () {
         socket.emit("devices-get");
         // Get volume
         this.r.tickVolumeGetUp.classList.add("tickAnimate");
-        socket.emit("device-control", { "Control": "GetVolume" });
+        socket.emit("device-control", { "Control": "GetVolume" }); // TODO: Replace with device-api!
         // Get presets
         this.r.tickPresetsListUp.classList.add("tickAnimate");
         socket.emit("device-api", "getPresetInfo");
@@ -160,7 +160,7 @@ WNP.setUIListeners = function () {
 
     this.r.btnGetVolume.addEventListener("click", function () {
         WNP.r.tickVolumeGetUp.classList.add("tickAnimate");
-        socket.emit("device-control", { "Control": "GetVolume" });
+        socket.emit("device-control", { "Control": "GetVolume" }); // TODO: Replace with device-api!
     });
 
     this.r.btnSetVolume.addEventListener("click", function () {
@@ -170,7 +170,7 @@ WNP.setUIListeners = function () {
             return;
         }
         WNP.r.tickVolumeSetUp.classList.add("tickAnimate");
-        socket.emit("device-control", { "Control": "SetVolume", "Params": { "DesiredVolume": volume } });
+        socket.emit("device-control", { "Control": "SetVolume", "Params": { "DesiredVolume": volume } }); // TODO: Replace with device-api!
     });
 
     this.r.btnReloadUI.addEventListener("click", function () {
@@ -354,7 +354,7 @@ WNP.setSocketDefinitions = function () {
         WNP.r.tickDevicesGetUp.classList.add("tickAnimate");
         socket.emit("devices-get");
         WNP.r.tickVolumeGetUp.classList.add("tickAnimate");
-        socket.emit("device-control", { "Control": "GetVolume" });
+        socket.emit("device-control", { "Control": "GetVolume" }); // TODO: Replace with device-api!
         WNP.r.tickPresetsListUp.classList.add("tickAnimate");
         socket.emit("device-api", "getPresetInfo");
     });
@@ -375,6 +375,7 @@ WNP.setSocketDefinitions = function () {
     });
 
     // On device control (i.e. for volume changes)
+    // TODO: Replace with device-api!
     socket.on("device-control", function (msg, param) {
         console.log("IO: device-control", msg, param);
         if (msg && msg === "GetVolume") {
