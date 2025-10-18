@@ -241,6 +241,7 @@ io.on("connection", (socket) => {
      * Listener for device controls. I.e. GetVolume, SetVolume, ...
      * @param {string} msg - The control action to perform on the device.
      * @returns {undefined}
+     * TODO: Replace with device-api!
      */
     socket.on("device-control", (msg) => {
         log("Socket event", "device-control", msg);
