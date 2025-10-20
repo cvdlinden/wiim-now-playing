@@ -407,7 +407,7 @@ const setDefaultSelectedDevice = (serverSettings, device) => {
             "manufacturer": device.manufacturer,
             "modelName": device.modelName,
             "location": device.location,
-            "actions": Object.keys(device.actions),
+            "actions": Object.keys(device.actions)
         };
         lib.saveSettings(serverSettings); // Make sure the settings are stored
     };
