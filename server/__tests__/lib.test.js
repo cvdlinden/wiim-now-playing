@@ -82,8 +82,7 @@ describe('lib.js', () => {
                 selectedDevice: {
                     friendlyName: 'Test Device',
                     location: 'http://192.168.1.101:8080/desc.xml',
-                    actions: {},
-                    controls: {}
+                    actions: {}
                 }
             };
             lib.saveSettings(serverSettings);
