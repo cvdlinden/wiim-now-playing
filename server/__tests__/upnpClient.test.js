@@ -23,8 +23,7 @@ describe('upnpClient.js', () => {
         serverSettings = {
             selectedDevice: {
                 location: 'http://192.168.1.100:1400/desc.xml',
-                actions: ['GetTransportInfo', 'Play'],
-                controls: ['SetVolume']
+                actions: ['GetTransportInfo', 'Play']
             },
             timeouts: { state: 1000, metadata: 2000 }
         };
@@ -163,23 +162,6 @@ describe('upnpClient.js', () => {
         it('should not call action if not available', () => {
             serverSettings.selectedDevice.actions = [];
             upnpClient.callDeviceAction(io, 'Pause', deviceInfo, serverSettings);
-            expect(io.emit).not.toHaveBeenCalled();
-        });
-    });
-
-    describe('callDeviceControl', () => {
-        it('should call control and emit result', () => {
-            deviceInfo.client = {
-                callAction: (service, action, options, cb) => cb(null, { result: 'ok' })
-            };
-            serverSettings.selectedDevice.controls = ['SetVolume'];
-            upnpClient.callDeviceControl(io, { Control: 'SetVolume', Params: { DesiredVolume: 10 } }, deviceInfo, serverSettings);
-            expect(io.emit).toHaveBeenCalledWith('device-control', 'SetVolume', { result: 'ok' });
-        });
-
-        it('should not call control if not available', () => {
-            serverSettings.selectedDevice.controls = [];
-            upnpClient.callDeviceControl(io, { Control: 'Mute' }, deviceInfo, serverSettings);
             expect(io.emit).not.toHaveBeenCalled();
         });
     });

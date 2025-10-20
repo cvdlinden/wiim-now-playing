@@ -311,56 +311,6 @@ const callDeviceAction = (io, action, deviceInfo, serverSettings) => {
 
 }
 
-/** This function calls a control action to perform on the device renderer.
- * E.g. "GetVolume","SetVolume".
- * See the selected device controls to see what the renderer is capable of.
- * @param {object} io - The Socket.IO object to emit to clients.
- * @param {string} action - The RenderingControl action to perform.
- * @param {object} deviceInfo - The device info object.
- * @param {object} serverSettings - The server settings object.
- * @returns {object} The resulting object of the action (or null).
- * TODO: Replace with device-api!
- */
-const callDeviceControl = (io, action, deviceInfo, serverSettings) => {
-    log("callDeviceControl()", action);
-
-    if (serverSettings.selectedDevice.location &&
-        action.Control && serverSettings.selectedDevice.controls.includes(action.Control)) {
-
-        let options = { InstanceID: 0, Channel: "Master" }; // Always required
-        if (action.Params !== undefined) {
-            Object.keys(action.Params).forEach(param => {
-                options[param] = action.Params[param];
-            });
-        }
-        log("callDeviceControl()", "Options", options);
-
-        ensureClient(deviceInfo, serverSettings);
-        deviceInfo.client.callAction(
-            "RenderingControl",
-            action.Control,
-            options,
-            (err, result) => { // Callback
-                if (err) {
-                    log("callDeviceControl()", "UPnP Error", err);
-                }
-                else {
-                    log("callDeviceControl()", "Result", action.Control, result);
-                    io.emit("device-control", action.Control, result);
-                    // Update metadata info immediately
-                    // module.exports.updateDeviceMetadata(io, deviceInfo, serverSettings);
-                    // module.exports.updateDeviceState(io, deviceInfo, serverSettings);
-                }
-            }
-        );
-
-    }
-    else {
-        log("callDeviceControl()", "Device control cannot be executed!");
-    }
-
-}
-
 /**
  * This function gets the device description.
  * @param {array} deviceList - The array of found device objects.
@@ -407,7 +357,6 @@ const getServiceDescription = (deviceList, serverSettings, deviceClient, respSSD
         location: respSSDP.LOCATION,
         ...deviceDesc,
         actions: {},
-        controls: {},
         ssdp: respSSDP
     };
 
@@ -417,9 +366,9 @@ const getServiceDescription = (deviceList, serverSettings, deviceClient, respSSD
         if (err) {
             log("getServiceDescription('AVTransport')", "Error", err);
 
-            // Just add the device without actions and controls
+            // Just add the device without actions
             deviceList.push(device);
-            log("getServiceDescription()", "Adding device without actions and controls:", device.friendlyName);
+            log("getServiceDescription()", "Adding device without actions:", device.friendlyName);
             log("getServiceDescription()", "Total devices found:", deviceList.length);
 
             setDefaultSelectedDevice(serverSettings, device);
@@ -430,32 +379,11 @@ const getServiceDescription = (deviceList, serverSettings, deviceClient, respSSD
             // Add actions to device object
             device.actions = serviceDesc.actions;
 
-            deviceClient.getServiceDescription("RenderingControl", function (err, serviceDesc) {
-                if (err) {
-                    log("getServiceDescription('RenderingControl')", "Error", err);
+            deviceList.push(device);
+            log("getServiceDescription()", "New device added:", device.friendlyName);
+            log("getServiceDescription()", "Total devices found:", deviceList.length);
 
-                    // Just add the device without controls
-                    deviceList.push(device);
-                    log("getServiceDescription()", "Adding device without controls:", device.friendlyName);
-                    log("getServiceDescription()", "Total devices found:", deviceList.length);
-
-                    setDefaultSelectedDevice(serverSettings, device);
-
-                }
-                else {
-
-                    // Add controls to device object
-                    device.controls = serviceDesc.actions;
-
-                    deviceList.push(device);
-                    log("getServiceDescription()", "New device added:", device.friendlyName);
-                    log("getServiceDescription()", "Total devices found:", deviceList.length);
-
-                    setDefaultSelectedDevice(serverSettings, device);
-
-                }
-
-            });
+            setDefaultSelectedDevice(serverSettings, device);
 
         }
     });
@@ -480,7 +408,6 @@ const setDefaultSelectedDevice = (serverSettings, device) => {
             "modelName": device.modelName,
             "location": device.location,
             "actions": Object.keys(device.actions),
-            "controls": Object.keys(device.controls)
         };
         lib.saveSettings(serverSettings); // Make sure the settings are stored
     };
@@ -494,7 +421,6 @@ module.exports = {
     updateDeviceState,
     updateDeviceMetadata,
     callDeviceAction,
-    callDeviceControl,
     getDeviceDescription,
     getServiceDescription
 };

@@ -53,8 +53,7 @@ const setDevice = (io, deviceList, deviceInfo, serverSettings, location) => {
             "manufacturer": selDevice[0].manufacturer,
             "modelName": selDevice[0].modelName,
             "location": selDevice[0].location,
-            "actions": Object.keys(selDevice[0].actions),
-            "controls": Object.keys(selDevice[0].controls)
+            "actions": Object.keys(selDevice[0].actions)
         };
 
         io.emit("device-set", serverSettings.selectedDevice); // Send selected device props

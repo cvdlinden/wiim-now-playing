@@ -64,7 +64,7 @@ WNP.Init = function () {
         socket.emit("devices-get");
         // Get volume
         this.r.tickVolumeGetUp.classList.add("tickAnimate");
-        socket.emit("device-control", { "Control": "GetVolume" }); // TODO: Replace with device-api!
+        socket.emit("device-api", "getPlayerStatus");
         // Get presets
         this.r.tickPresetsListUp.classList.add("tickAnimate");
         socket.emit("device-api", "getPresetInfo");
@@ -160,7 +160,7 @@ WNP.setUIListeners = function () {
 
     this.r.btnGetVolume.addEventListener("click", function () {
         WNP.r.tickVolumeGetUp.classList.add("tickAnimate");
-        socket.emit("device-control", { "Control": "GetVolume" }); // TODO: Replace with device-api!
+        socket.emit("device-api", "getPlayerStatus");
     });
 
     this.r.btnSetVolume.addEventListener("click", function () {
@@ -170,7 +170,7 @@ WNP.setUIListeners = function () {
             return;
         }
         WNP.r.tickVolumeSetUp.classList.add("tickAnimate");
-        socket.emit("device-control", { "Control": "SetVolume", "Params": { "DesiredVolume": volume } }); // TODO: Replace with device-api!
+        socket.emit("device-api", "setPlayerCmd:vol:" + volume);
     });
 
     this.r.btnReloadUI.addEventListener("click", function () {
@@ -354,7 +354,7 @@ WNP.setSocketDefinitions = function () {
         WNP.r.tickDevicesGetUp.classList.add("tickAnimate");
         socket.emit("devices-get");
         WNP.r.tickVolumeGetUp.classList.add("tickAnimate");
-        socket.emit("device-control", { "Control": "GetVolume" }); // TODO: Replace with device-api!
+        socket.emit("device-api", "getPlayerStatus");
         WNP.r.tickPresetsListUp.classList.add("tickAnimate");
         socket.emit("device-api", "getPresetInfo");
     });
@@ -374,29 +374,12 @@ WNP.setSocketDefinitions = function () {
         console.log("WNP DEBUG", "Action:", msg);
     });
 
-    // On device control (i.e. for volume changes)
-    // TODO: Replace with device-api!
-    socket.on("device-control", function (msg, param) {
-        console.log("IO: device-control", msg, param);
-        if (msg && msg === "GetVolume") {
-            WNP.r.tickVolumeGetDown.classList.add("tickAnimate");
-            if (param && param.CurrentVolume !== undefined) {
-                WNP.r.sVolume.value = param.CurrentVolume;
-            }
-        }
-        if (msg && msg === "SetVolume") {
-            WNP.r.tickVolumeSetDown.classList.add("tickAnimate");
-            // Get the volume again, because SetVolume does not return the new volume
-            WNP.r.tickVolumeGetUp.classList.add("tickAnimate");
-            socket.emit("device-control", { "Control": "GetVolume" });
-        }
-    });
-
     // On device API response
     socket.on("device-api", function (msg, param) {
         console.log("IO: device-api", msg, param);
         switch (msg) {
             case "getPresetInfo":
+                // Preset info response
                 WNP.r.tickPresetsListDown.classList.add("tickAnimate");
                 WNP.r.sPresetsList.innerHTML = param ? JSON.stringify(param) : "";
                 var sCurrentTitle = WNP.r.sTitle.children[0].innerText;
@@ -430,6 +413,22 @@ WNP.setSocketDefinitions = function () {
                         WNP.r.oPresetsGroup.appendChild(p);
                     }
                 }
+                break;
+            case msg.startsWith("MCUKeyShortClick:") ? msg : false:
+                // Preset set response, no further action needed
+                break;
+            case "getPlayerStatus":
+                // Player status response
+                // Called when getting volume
+                WNP.r.tickVolumeGetDown.classList.add("tickAnimate");
+                if (param && param.vol !== undefined) {
+                    WNP.r.sVolume.value = param.vol;
+                }
+                break;
+            case msg.startsWith("setPlayerCmd:vol:") ? msg : false:
+                // Volume set response
+                WNP.r.tickVolumeSetDown.classList.add("tickAnimate");
+                socket.emit("device-api", "getPlayerStatus"); // Refresh volume UI
                 break;
             default:
                 // No action

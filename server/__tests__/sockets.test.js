@@ -26,16 +26,14 @@ describe('sockets.js', () => {
                     manufacturer: 'Manu1',
                     modelName: 'Model1',
                     location: 'http://ip1',
-                    actions: { Play: true },
-                    controls: { Volume: true }
+                    actions: { Play: true }
                 },
                 {
                     friendlyName: 'Device2',
                     manufacturer: 'Manu2',
                     modelName: 'Model2',
                     location: 'http://ip2',
-                    actions: { Pause: true },
-                    controls: { Mute: true }
+                    actions: { Pause: true }
                 }
             ];
             sockets.getDevices(io, deviceList);
@@ -64,8 +62,7 @@ describe('sockets.js', () => {
                     manufacturer: 'Manu1',
                     modelName: 'Model1',
                     location: 'http://ip1',
-                    actions: { Play: true, Pause: true },
-                    controls: { Volume: true }
+                    actions: { Play: true, Pause: true }
                 }
             ];
             const deviceInfo = {};
@@ -76,8 +73,7 @@ describe('sockets.js', () => {
                 manufacturer: 'Manu1',
                 modelName: 'Model1',
                 location: 'http://ip1',
-                actions: ['Play', 'Pause'],
-                controls: ['Volume']
+                actions: ['Play', 'Pause']
             });
             expect(io.emit).toHaveBeenCalledWith('device-set', serverSettings.selectedDevice);
             expect(lib.saveSettings).toHaveBeenCalledWith(serverSettings);

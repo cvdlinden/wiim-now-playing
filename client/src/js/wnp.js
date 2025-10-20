@@ -135,8 +135,7 @@ WNP.setUIListeners = function () {
     if (this.r.rVolume) {
         this.r.rVolume.addEventListener('input', function () {
             if (!isNaN(this.value) && this.value >= 0 && this.value <= 100) {
-                socket.emit("device-control", { "Control": "SetVolume", "Params": { "DesiredVolume": this.value } }); // TODO: Replace with device-api!
-                // socket.emit("device-api", "setPlayerCmd:vol:" + this.value); // HTTP API way
+                socket.emit("device-api", "setPlayerCmd:vol:" + this.value);
             }
         });
     }
@@ -527,28 +526,12 @@ WNP.setSocketDefinitions = function () {
         console.log("WNP", "Action:", msg);
     });
 
-    // On device control (i.e. for volume changes)
-     // TODO: Replace with device-api!
-    socket.on("device-control", function (msg, param) {
-        if (msg && msg === "GetVolume") {
-            if (param && param.CurrentVolume !== undefined) {
-                // console.log("WNP", "Volume changed:", param.CurrentVolume);
-                WNP.r.devVol.innerText = param.CurrentVolume;
-            }
-        }
-        if (msg && msg === "SetVolume") {
-            // Get the volume again, because SetVolume does not return the new volume
-            socket.emit("device-control", { "Control": "GetVolume" });
-        }
-    });
-
     // On device API response
     socket.on("device-api", function (msg, param) {
-
+        // console.log("IO: device-api", msg, param);
         switch (msg) {
             case "getPresetInfo":
-                console.log("WNP", "Presets:", param);
-                // Preset dropup
+                // Preset info response
                 if (!param || param.preset_num < 1) {
                     // No presets
                     WNP.r.oPresetList.innerHTML = "<li><span class=\"dropdown-header\">No presets found!</span></li>";
@@ -575,12 +558,18 @@ WNP.setSocketDefinitions = function () {
                 }
                 break;
             case msg.startsWith("MCUKeyShortClick:") ? msg : false:
-                // Preset set response
-                // console.log("WNP", "Preset set", param);
+                // Preset set response, no further action needed
+                break;
+            case "getPlayerStatus":
+                // Player status response
+                // Called when getting volume
+                if (param && param.vol !== undefined) {
+                    WNP.r.devVol.innerText = param.vol;
+                }
                 break;
             case msg.startsWith("setPlayerCmd:vol:") ? msg : false:
                 // Volume set response
-                // console.log("WNP", "Volume set", param);
+                socket.emit("device-api", "getPlayerStatus"); // Refresh volume UI
                 break;
             default:
                 // No action
