@@ -62,8 +62,8 @@ body {
         }
     }
 
-    #sAlbumArtUri {
-        .bi {
+    #sAlbumArtUriStatus {
+        &.bi {
             &.bi-exclamation-circle-fill {
                 color: yellow;
             }

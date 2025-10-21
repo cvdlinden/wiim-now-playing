@@ -49,11 +49,21 @@
             <textarea id="metadata" class="form-control" style="height: 180px"></textarea>
             <div class="form-text text-white">
                 <ul>
-                    <li id="sTitle">Title: <span></span></li>
-                    <li id="sArtist">Artist: <span></span></li>
-                    <li id="sAlbum">Album: <span></span></li>
-                    <li id="sAlbumArtUri">Album Art URI: <span></span> <i class="" title=""></i></li>
-                    <li id="sSubtitle">Subtitle: <span></span></li>
+                    <li>Source: <span id="mediaSource"></span></li>
+                    <li>Title: <span id="mediaTitle"></span></li>
+                    <li>Artist: <span id="mediaArtist"></span></li>
+                    <li>Album: <span id="mediaAlbum"></span></li>
+                    <li>Subtitle: <span id="mediaSubTitle"></span></li>
+                    <li>Album Art URI: <span id="sAlbumArtUriRaw"></span>
+                        <br />Album Art URI used: <span id="sAlbumArtUri"></span> <i id="sAlbumArtUriStatus" class=""
+                            title=""></i>
+                    </li>
+                    <li>Quality: <span id="mediaQualityIdent"></span>
+                        <br />Bit rate: <span id="mediaBitRate"></span>;
+                        Bit depth: <span id="mediaBitDepth"></span>;
+                        Sample rate: <span id="mediaSampleRate"></span>.
+                    </li>
+                    <li>Loop mode: <span id="mediaLoopMode"></span></li>
                 </ul>
             </div>
         </div>
@@ -90,7 +100,7 @@
                 <span id="tickVolumeSetDown" class="tick tickDown"><i class="bi bi-arrow-down-circle-fill"></i></span>)
                 <div class="btn-toolbar justify-content-between">
                     <div class="input-group" aria-label="Device actions">
-                        <input type="text" id="sVolume" class="form-control" style="width: 60px;" value="" />
+                        <input type="text" id="devVol" class="form-control" style="width: 60px;" value="" />
                         <button type="button" class="btn btn-secondary" id="btnGetVolume">Get volume</button>
                         <button type="button" class="btn btn-secondary" id="btnSetVolume">Set volume</button>
                     </div>
@@ -120,14 +130,14 @@
             <textarea id="sServerSettings" class="form-control" style="height: 180px"></textarea>
             <div class="form-text text-white">
                 <ul>
-                    <li id="sFriendlyname">Friendlyname: <span></span></li>
-                    <li id="sManufacturer">Manufacturer: <span></span></li>
-                    <li id="sModelName">ModelName: <span></span></li>
-                    <li id="sLocation">Location: <span></span></li>
-                    <li id="sServerUrlHostname">Server URL by hostname: <span></span></li>
-                    <li id="sServerUrlIP">Server URL by IP address: <span></span></li>
-                    <li id="sServerVersion">Server Version: <span></span></li>
-                    <li id="sClientVersion">Client Version: <span></span></li>
+                    <li>Friendlyname: <span id="devName"></span></li>
+                    <li>Manufacturer: <span id="sManufacturer"></span></li>
+                    <li>ModelName: <span id="sModelName"></span></li>
+                    <li>Location: <span id="sLocation"></span></li>
+                    <li>Server URL by hostname: <span id="sServerUrlHostname"></span></li>
+                    <li>Server URL by IP address: <span id="sServerUrlIP"></span></li>
+                    <li>Server Version: <span id="sServerVersion"></span></li>
+                    <li>Client Version: <span id="sClientVersion"></span></li>
                 </ul>
             </div>
         </div>
