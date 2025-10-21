@@ -1,5 +1,5 @@
 // =======================================================
-// WiiM Now Playing (Debug)
+// WiiM Now Playing
 // Debugging script for the WiiM Now Playing server
 
 // Namespacing
@@ -10,20 +10,25 @@ WNP.s = {
     // Host runs on default port 80, but in cases where another port is chosen adapt
     locHostname: location.hostname,
     locPort: (location.port && location.port != "80" && location.port != "1234") ? location.port : "80",
+    rndAlbumArtUri: "./img/fake-album-1.jpg",
     // Device selection
-    aDeviceUI: ["btnRefresh", "selDeviceChoices", "btnDevices", "btnGetVolume", "btnSetVolume", "sVolume"],
+    aDeviceUI: ["btnRefresh", "selDeviceChoices", "devName", "mediaTitle", "mediaSubTitle", "mediaArtist", "mediaAlbum", "mediaBitRate", "mediaBitDepth", "mediaSampleRate", "mediaQualityIdent", "devVol", "mediaSource"],
     // Server actions to be used in the app
-    aServerUI: ["btnReboot", "btnUpdate", "btnShutdown", "btnReloadUI"],
+    aServerUI: ["btnReboot", "btnUpdate", "btnShutdown", "btnReloadUI", "sServerUrlHostname", "sServerUrlIP", "sServerVersion", "sClientVersion"],
     // Ticks to be used in the app (debug)
     aTicksUI: ["tickDevicesGetUp", "tickDevicesRefreshUp", "tickServerSettingsUp", "tickStateUp", "tickStateDown", "tickMetadataUp", "tickMetadataDown", "tickDeviceSetUp", "tickDeviceSetDown", "tickServerSettingsDown", "tickDevicesGetDown", "tickDevicesRefreshDown", "tickVolumeGetUp", "tickVolumeGetDown", "tickVolumeSetUp", "tickVolumeSetDown", "tickPresetsListUp", "tickPresetsListDown"],
     // Debug UI elements
-    aDebugUI: ["state", "metadata", "sPresetsList", "sServerSettings", "sFriendlyname", "sManufacturer", "sModelName", "sLocation", "sServerUrlHostname", "sServerUrlIP", "sServerVersion", "sClientVersion", "sTimeStampDiff", "sTitle", "sArtist", "sAlbum", "sAlbumArtUri", "sSubtitle", "oPresetsGroup"]
+    aDebugUI: ["state", "metadata", "sPresetsList", "sServerSettings", "sManufacturer", "sModelName", "sLocation", "sTimeStampDiff", "sAlbumArtUri", "sAlbumArtUriRaw", "sAlbumArtUriStatus", "oPresetsGroup", "btnDevices", "btnGetVolume", "btnSetVolume", "mediaLoopMode"]
 };
 
 // Data placeholders.
 WNP.d = {
-    serverSettings: null,
-    deviceList: null
+    serverSettings: null, // Server settings, used to store the server settings
+    deviceList: null, // Device list, used to store the devices found through SSDP
+    prevTransportState: null, // Previous transport state, used to detect changes in the transport state
+    prevPlayMedium: null, // Previous play medium, used to detect changes in the play medium
+    prevSourceIdent: null, // Previous source ident, used to detect changes in the source
+    prevTrackInfo: null // Previous track info, used to detect changes in the metadata
 };
 
 // Reference placeholders.
@@ -36,10 +41,10 @@ WNP.r = {};
  * @returns {undefined}
  */
 WNP.Init = function () {
-    console.log("WNP DEBUG", "Initialising...");
+    console.log("WNP", "Initialising...");
 
     // Init Socket.IO, connect to port where server resides
-    console.log("WNP DEBUG", "Listening on " + this.s.locHostname + ":" + this.s.locPort)
+    console.log("WNP", "Listening on " + this.s.locHostname + ":" + this.s.locPort)
     window.socket = io.connect(":" + this.s.locPort);
 
     // Set references to the UI elements
@@ -62,13 +67,19 @@ WNP.Init = function () {
         // Get devices
         this.r.tickDevicesGetUp.classList.add("tickAnimate");
         socket.emit("devices-get");
-        // Get volume
-        this.r.tickVolumeGetUp.classList.add("tickAnimate");
-        socket.emit("device-api", "getPlayerStatus");
+        // // Get volume
+        // this.r.tickVolumeGetUp.classList.add("tickAnimate");
+        // socket.emit("device-api", "getPlayerStatus");
         // Get presets
         this.r.tickPresetsListUp.classList.add("tickAnimate");
         socket.emit("device-api", "getPresetInfo");
     }, 500);
+
+    // Create random album intervals, every 3 minutes
+    WNP.s.rndAlbumArtUri = WNP.rndAlbumArt("fake-album-");
+    var rndAlbumInterval = setInterval(function () {
+        WNP.s.rndAlbumArtUri = WNP.rndAlbumArt("fake-album-");
+    }, 3 * 60 * 1000);
 
 };
 
@@ -77,14 +88,14 @@ WNP.Init = function () {
  * @returns {undefined}
  */
 WNP.setUIReferences = function () {
-    console.log("WNP DEBUG", "Set UI references...")
+    console.log("WNP", "Set UI references...")
 
     function addElementToRef(id) {
         const element = document.getElementById(id);
         if (element) {
             WNP.r[id] = element;
         } else {
-            console.warn("WNP DEBUG", `Element with ID '${id}' not found.`);
+            console.warn("WNP", `Element with ID '${id}' not found.`);
         }
     }
 
@@ -111,7 +122,7 @@ WNP.setTickHandlers = function () {
         if (this.r[tick]) {
             this.r[tick].addEventListener("animationend", removeTickAnimate);
         } else {
-            console.warn("WNP DEBUG", `Element with ID '${tick}' not found.`);
+            console.warn("WNP", `Element with ID '${tick}' not found.`);
         }
     });
 
@@ -122,11 +133,29 @@ WNP.setTickHandlers = function () {
  * @returns {undefined}
  */
 WNP.setUIListeners = function () {
-    console.log("WNP DEBUG", "Set UI Listeners...")
+    console.log("WNP", "Set UI Listeners...")
+
+    // ------------------------------------------------
+    // Player buttons
+
+    // (no player buttons in debug mode)
 
     // ------------------------------------------------
     // Settings buttons
 
+    // Device selection dropdown
+    this.r.selDeviceChoices.addEventListener("change", function () {
+        WNP.r.tickDeviceSetUp.classList.add("tickAnimate");
+        socket.emit("device-set", this.value);
+    });
+
+    // Devices get button
+    this.r.btnDevices.addEventListener("click", function () {
+        WNP.r.tickDevicesGetUp.classList.add("tickAnimate");
+        socket.emit("devices-get");
+    });
+
+    // Refresh devices button
     this.r.btnRefresh.addEventListener("click", function () {
         WNP.r.tickDevicesRefreshUp.classList.add("tickAnimate");
         socket.emit("devices-refresh");
@@ -141,30 +170,15 @@ WNP.setUIListeners = function () {
         }, 5000);
     });
 
-    this.r.selDeviceChoices.addEventListener("change", function () {
-        WNP.r.tickDeviceSetUp.classList.add("tickAnimate");
-        socket.emit("device-set", this.value);
-    });
-
-    this.r.btnReboot.addEventListener("click", function () {
-        socket.emit("server-reboot");
-    });
-
-    this.r.btnUpdate.addEventListener("click", function () {
-        socket.emit("server-update");
-    });
-
-    this.r.btnShutdown.addEventListener("click", function () {
-        socket.emit("server-shutdown");
-    });
-
+    // Get volume button
     this.r.btnGetVolume.addEventListener("click", function () {
         WNP.r.tickVolumeGetUp.classList.add("tickAnimate");
         socket.emit("device-api", "getPlayerStatus");
     });
 
+    // Set volume button
     this.r.btnSetVolume.addEventListener("click", function () {
-        var volume = parseInt(WNP.r.sVolume.value);
+        var volume = parseInt(WNP.r.devVol.value);
         if (isNaN(volume) || volume < 0 || volume > 100) {
             alert("Please enter a valid volume between 0 and 100.");
             return;
@@ -173,13 +187,24 @@ WNP.setUIListeners = function () {
         socket.emit("device-api", "setPlayerCmd:vol:" + volume);
     });
 
-    this.r.btnReloadUI.addEventListener("click", function () {
-        location.reload();
+    // Reboot button
+    this.r.btnReboot.addEventListener("click", function () {
+        socket.emit("server-reboot");
     });
 
-    this.r.btnDevices.addEventListener("click", function () {
-        WNP.r.tickDevicesGetUp.classList.add("tickAnimate");
-        socket.emit("devices-get");
+    // Update button
+    this.r.btnUpdate.addEventListener("click", function () {
+        socket.emit("server-update");
+    });
+
+    // Shutdown button
+    this.r.btnShutdown.addEventListener("click", function () {
+        socket.emit("server-shutdown");
+    });
+
+    // Reload UI button
+    this.r.btnReloadUI.addEventListener("click", function () {
+        location.reload();
     });
 
 };
@@ -189,7 +214,7 @@ WNP.setUIListeners = function () {
  * @returns {undefined}
  */
 WNP.setSocketDefinitions = function () {
-    console.log("WNP DEBUG", "Setting Socket definitions...")
+    console.log("WNP", "Setting Socket definitions...")
 
     // On server settings
     socket.on("server-settings", function (msg) {
@@ -208,19 +233,19 @@ WNP.setSocketDefinitions = function () {
         };
 
         // Set device name
-        WNP.r.sFriendlyname.children[0].innerText = (msg && msg.selectedDevice && msg.selectedDevice.friendlyName) ? msg.selectedDevice.friendlyName : "-";
-        WNP.r.sManufacturer.children[0].innerText = (msg && msg.selectedDevice && msg.selectedDevice.manufacturer) ? msg.selectedDevice.manufacturer : "-";
-        WNP.r.sModelName.children[0].innerText = (msg && msg.selectedDevice && msg.selectedDevice.modelName) ? msg.selectedDevice.modelName : "-";
-        WNP.r.sLocation.children[0].innerHTML = (msg && msg.selectedDevice && msg.selectedDevice.location) ? "<a href=\"" + msg.selectedDevice.location + "\">" + msg.selectedDevice.location + "</a>" : "-";
+        WNP.r.devName.innerText = (msg && msg.selectedDevice && msg.selectedDevice.friendlyName) ? msg.selectedDevice.friendlyName : "-";
+        WNP.r.sManufacturer.innerText = (msg && msg.selectedDevice && msg.selectedDevice.manufacturer) ? msg.selectedDevice.manufacturer : "-";
+        WNP.r.sModelName.innerText = (msg && msg.selectedDevice && msg.selectedDevice.modelName) ? msg.selectedDevice.modelName : "-";
+        WNP.r.sLocation.innerHTML = (msg && msg.selectedDevice && msg.selectedDevice.location) ? "<a href=\"" + msg.selectedDevice.location + "\">" + msg.selectedDevice.location + "</a>" : "-";
 
-        // Set the server url
+        // Set the server url(s)
         if (msg && msg.os && msg.os.hostname) {
             var sUrl = "http://" + msg.os.hostname.toLowerCase() + ".local";
             sUrl += (location && location.port && location.port != 80) ? ":" + location.port + "/" : "/";
-            WNP.r.sServerUrlHostname.children[0].innerHTML = "<a href=\"" + sUrl + "\">" + sUrl + "</a>";
+            WNP.r.sServerUrlHostname.innerHTML = "<a href=\"" + sUrl + "\">" + sUrl + "</a>";
         }
         else {
-            WNP.r.sServerUrlHostname.children[0].innerText = "-";
+            WNP.r.sServerUrlHostname.innerText = "-";
         }
         // Set the server ip address
         if (msg && msg.selectedDevice && msg.selectedDevice.location && msg.os && msg.os.networkInterfaces) {
@@ -237,18 +262,18 @@ WNP.setSocketDefinitions = function () {
                     // Construct ip address and optional port
                     var sUrl = "http://" + sIpFound.address;
                     sUrl += (location && location.port && location.port != 80) ? ":" + location.port + "/" : "/";
-                    WNP.r.sServerUrlIP.children[0].innerHTML = "<a href=\"" + sUrl + "\">" + sUrl + "</a>";
+                    WNP.r.sServerUrlIP.innerHTML = "<a href=\"" + sUrl + "\">" + sUrl + "</a>";
                 }
             });
         }
         else {
-            WNP.r.sServerUrlIP.children[0].innerText = "-";
+            WNP.r.sServerUrlIP.innerText = "-";
         }
 
         // Set the server version
-        WNP.r.sServerVersion.children[0].innerText = (msg && msg.version && msg.version.server) ? msg.version.server : "-";
+        WNP.r.sServerVersion.innerText = (msg && msg.version && msg.version.server) ? msg.version.server : "-";
         // Set the client version
-        WNP.r.sClientVersion.children[0].innerText = (msg && msg.version && msg.version.client) ? msg.version.client : "-";
+        WNP.r.sClientVersion.innerText = (msg && msg.version && msg.version.client) ? msg.version.client : "-";
 
     });
 
@@ -267,6 +292,7 @@ WNP.setSocketDefinitions = function () {
         // Add WiiM devices
         var devicesWiiM = WNP.d.deviceList.filter((d) => { return d.manufacturer.startsWith("Linkplay") });
         if (devicesWiiM.length > 0) {
+
             var optGroup = document.createElement("optgroup");
             optGroup.label = "WiiM devices";
             devicesWiiM.forEach((device) => {
@@ -283,8 +309,10 @@ WNP.setSocketDefinitions = function () {
         };
 
         // Other devices
+        // Possibly removing this section in future releases.
         var devicesOther = WNP.d.deviceList.filter((d) => { return !d.manufacturer.startsWith("Linkplay") });
         if (devicesOther.length > 0) {
+
             var optGroup = document.createElement("optgroup");
             optGroup.label = "Other devices";
             devicesOther.forEach((device) => {
@@ -301,6 +329,7 @@ WNP.setSocketDefinitions = function () {
 
         };
 
+        // No devices found
         if (devicesWiiM.length == 0 && devicesOther.length == 0) {
             WNP.r.selDeviceChoices.innerHTML = "<option disabled=\"disabled\">No devices found!</em></li>";
         };
@@ -310,7 +339,6 @@ WNP.setSocketDefinitions = function () {
     // On state
     socket.on("state", function (msg) {
         if (!msg) { return false; }
-        // console.log("IO: state", msg);
 
         WNP.r.tickStateDown.classList.add("tickAnimate");
         WNP.r.state.innerHTML = JSON.stringify(msg);
@@ -321,26 +349,102 @@ WNP.setSocketDefinitions = function () {
         else {
             WNP.r.sTimeStampDiff.innerHTML = "";
         }
+
     });
 
     // On metadata
     socket.on("metadata", function (msg) {
-        // console.log("IO: metadata", msg);
+        if (!msg) { return false; }
+
         WNP.r.tickMetadataDown.classList.add("tickAnimate");
         WNP.r.metadata.innerHTML = JSON.stringify(msg);
-        WNP.r.sTitle.children[0].innerText = (msg && msg.trackMetaData && msg.trackMetaData["dc:title"]) ? msg.trackMetaData["dc:title"] : "-";
-        WNP.r.sArtist.children[0].innerText = (msg && msg.trackMetaData && msg.trackMetaData["upnp:artist"]) ? msg.trackMetaData["upnp:artist"] : "-";
-        WNP.r.sAlbum.children[0].innerText = (msg && msg.trackMetaData && msg.trackMetaData["upnp:album"]) ? msg.trackMetaData["upnp:album"] : "-";
-        WNP.r.sAlbumArtUri.children[0].innerText = (msg && msg.trackMetaData && msg.trackMetaData["upnp:albumArtURI"]) ? msg.trackMetaData["upnp:albumArtURI"] : "-";
-        WNP.r.sSubtitle.children[0].innerText = (msg && msg.trackMetaData && msg.trackMetaData["dc:subtitle"]) ? msg.trackMetaData["dc:subtitle"] : "-";
 
-        // Check the current album art properties
-        if (msg && msg.trackMetaData && msg.trackMetaData["upnp:albumArtURI"]) {
-            WNP.checkAlbumArtURI(msg.trackMetaData["upnp:albumArtURI"], msg.metadataTimeStamp);
-        } else {
-            WNP.r.sAlbumArtUri.children[1].classList = "bi bi-info-circle";
-            WNP.r.sAlbumArtUri.children[1].title = "No album art URI found";
-        };
+        // Source detection
+        var playMedium = (msg.PlayMedium) ? msg.PlayMedium : "";
+        var trackSource = (msg.TrackSource) ? msg.TrackSource : "";
+        var sourceIdent = WNP.getSourceIdent(playMedium, trackSource);
+        // Did the source ident change...?
+        if (sourceIdent !== WNP.d.prevSourceIdent) {
+            if (sourceIdent !== "") {
+                mediaSource.innerText = playMedium + ": " + trackSource + " (" + sourceIdent + ")";
+            }
+            else {
+                mediaSource.innerText = playMedium + ": " + trackSource;
+            }
+            WNP.d.prevSourceIdent = sourceIdent; // Remember the last Source Ident
+        }
+
+        // Song Title, Subtitle, Artist, Album
+        WNP.r.mediaTitle.innerText = (msg.trackMetaData && msg.trackMetaData["dc:title"]) ? msg.trackMetaData["dc:title"] : "";
+        WNP.r.mediaSubTitle.innerText = (msg.trackMetaData && msg.trackMetaData["dc:subtitle"]) ? msg.trackMetaData["dc:subtitle"] : "";
+        WNP.r.mediaArtist.innerText = (msg.trackMetaData && msg.trackMetaData["upnp:artist"]) ? msg.trackMetaData["upnp:artist"] : "";
+        WNP.r.mediaAlbum.innerText = (msg.trackMetaData && msg.trackMetaData["upnp:album"]) ? msg.trackMetaData["upnp:album"] : "";
+
+        // Audio quality
+        var songBitrate = (msg.trackMetaData && msg.trackMetaData["song:bitrate"]) ? msg.trackMetaData["song:bitrate"] : "";
+        var songBitDepth = (msg.trackMetaData && msg.trackMetaData["song:format_s"]) ? msg.trackMetaData["song:format_s"] : "";
+        var songSampleRate = (msg.trackMetaData && msg.trackMetaData["song:rate_hz"]) ? msg.trackMetaData["song:rate_hz"] : "";
+        WNP.r.mediaBitRate.innerText = (songBitrate > 0) ? ((songBitrate > 1000) ? (songBitrate / 1000).toFixed(2) + " mbps (" + songBitrate + ")" : songBitrate + " kbps (" + songBitrate + ")") : "";
+        WNP.r.mediaBitDepth.innerText = (songBitDepth > 0) ? ((songBitDepth > 24) ? "24 bit (" + songBitDepth + ")" : songBitDepth + " bit (" + songBitDepth + ")") : "";
+        WNP.r.mediaSampleRate.innerText = (songSampleRate > 0) ? (songSampleRate / 1000).toFixed(1) + " kHz (" + songSampleRate + ")" : "";
+
+        // Audio quality ident badge (HD/Hi-res/CD/...)
+        var songQuality = (msg.trackMetaData && msg.trackMetaData["song:quality"]) ? msg.trackMetaData["song:quality"] : "";
+        var songActualQuality = (msg.trackMetaData && msg.trackMetaData["song:actualQuality"]) ? msg.trackMetaData["song:actualQuality"] : "";
+        var qualiIdent = WNP.getQualityIdent(songQuality, songActualQuality, songBitrate, songBitDepth, songSampleRate);
+        if (qualiIdent !== "") {
+            WNP.r.mediaQualityIdent.innerText = qualiIdent + " (" + songQuality + ", " + songActualQuality + ")";
+        }
+        else {
+            WNP.r.mediaQualityIdent.innerText = songQuality + ", " + songActualQuality;
+        }
+
+        // Pre-process Album Art uri, if any is available from the metadata.
+        var albumArtUriRaw = (msg.trackMetaData && msg.trackMetaData["upnp:albumArtURI"]) ? msg.trackMetaData["upnp:albumArtURI"] : "";
+        var albumArtUri = WNP.checkAlbumArtURI(albumArtUriRaw, msg.metadataTimeStamp);
+
+        // Set Album Art, only if the track changed and the URI changed
+        var trackChanged = false;
+        var currentTrackInfo = WNP.r.mediaTitle.innerText + "|" + WNP.r.mediaSubTitle.innerText + "|" + WNP.r.mediaArtist.innerText + "|" + WNP.r.mediaAlbum.innerText;
+        var currentAlbumArt = WNP.r.sAlbumArtUri.innerText;
+        if (WNP.d.prevTrackInfo !== currentTrackInfo) {
+            trackChanged = true;
+            WNP.d.prevTrackInfo = currentTrackInfo; // Remember the last track info
+            console.log("WNP", "Track changed:", currentTrackInfo);
+        }
+        if (trackChanged && currentAlbumArt != albumArtUri) {
+            WNP.r.sAlbumArtUriRaw.innerText = albumArtUriRaw;
+            WNP.r.sAlbumArtUri.innerText = albumArtUri;
+        }
+
+        // Device volume
+        WNP.r.devVol.value = (msg.CurrentVolume) ? msg.CurrentVolume : "-"; // Set the volume on the UI
+
+        // Loop mode status
+        if (msg.LoopMode) {
+            switch (msg.LoopMode) {
+                case "5": // repeat-1 | shuffle
+                    WNP.r.mediaLoopMode.innerText = "Shuffle enabled, Repeat enabled - loop once";
+                    break;
+                case "3": // no repeat | shuffle
+                    WNP.r.mediaLoopMode.innerText = "Shuffle enabled, Repeat disabled";
+                    break;
+                case "2": // repeat | shuffle
+                    WNP.r.mediaLoopMode.innerText = "Shuffle enabled, Repeat enabled - loop";
+                    break;
+                case "1": // repeat-1 | no shuffle
+                    WNP.r.mediaLoopMode.innerText = "Shuffle disabled, Repeat enabled - loop once";
+                    break;
+                case "0": // repeat | no shuffle
+                    WNP.r.mediaLoopMode.innerText = "Shuffle disabled, Repeat enabled - loop";
+                    break;
+                default: // no repeat | no shuffle #4
+                    WNP.r.mediaLoopMode.innerText = "Shuffle disabled, Repeat disabled";
+            }
+        }
+        else { // Unknown, so set default
+            WNP.r.mediaLoopMode.innerText = "Unknown";
+        }
 
     });
 
@@ -371,7 +475,7 @@ WNP.setSocketDefinitions = function () {
         // Actions do not return a message.
         // so we don't need to do anything here.
         // Maybe later we can use this to show a notification or similar.
-        console.log("WNP DEBUG", "Action:", msg);
+        console.log("WNP", "Action:", msg);
     });
 
     // On device API response
@@ -382,8 +486,8 @@ WNP.setSocketDefinitions = function () {
                 // Preset info response
                 WNP.r.tickPresetsListDown.classList.add("tickAnimate");
                 WNP.r.sPresetsList.innerHTML = param ? JSON.stringify(param) : "";
-                var sCurrentTitle = WNP.r.sTitle.children[0].innerText;
-                var sCurrentSubtitle = WNP.r.sSubtitle.children[0].innerText;
+                var sCurrentTitle = WNP.r.mediaTitle.innerText;
+                var sCurrentSubtitle = WNP.r.mediaSubTitle.innerText;
                 // Update preset buttons
                 if (WNP.r.oPresetsGroup) {
                     WNP.r.oPresetsGroup.innerHTML = "";
@@ -422,7 +526,7 @@ WNP.setSocketDefinitions = function () {
                 // Called when getting volume
                 WNP.r.tickVolumeGetDown.classList.add("tickAnimate");
                 if (param && param.vol !== undefined) {
-                    WNP.r.sVolume.value = param.vol;
+                    WNP.r.devVol.value = param.vol;
                 }
                 break;
             case msg.startsWith("setPlayerCmd:vol:") ? msg : false:
@@ -448,36 +552,224 @@ WNP.setSocketDefinitions = function () {
  * @description This function creates a virtual image element to check if the album art URI is valid.
  */
 WNP.checkAlbumArtURI = function (sAlbumArtUri, nTimestamp) {
-    // Create a virtual image element to check the album art URI
-    var img = new Image();
 
+    // Create a virtual image element to check the album art URI behind the scenes
+    var img = new Image();
     // On successful load
     img.onload = function () {
-        console.log("WNP DEBUG", "Album art loaded successfully.", "Size: " + this.width + "x" + this.height + "px");
-        WNP.r.sAlbumArtUri.children[1].classList = "bi bi-check-circle-fill";
-        WNP.r.sAlbumArtUri.children[1].title = "Able to load album art";
+        console.log("WNP", "Album art loaded successfully.", "Size: " + this.width + "x" + this.height + "px");
+        WNP.r.sAlbumArtUriStatus.classList = "bi bi-check-circle-fill";
+        WNP.r.sAlbumArtUriStatus.title = "Able to load album art";
     };
     // On error loading the image
     img.onerror = function () {
-        console.error("WNP DEBUG", "Failed to load album art:", sAlbumArtUri);
-        WNP.r.sAlbumArtUri.children[1].classList = "bi bi-x-circle-fill";
-        WNP.r.sAlbumArtUri.children[1].title = "Unable to load album art";
+        console.error("WNP", "Failed to load album art:", sAlbumArtUri);
+        WNP.r.sAlbumArtUriStatus.classList = "bi bi-x-circle-fill";
+        WNP.r.sAlbumArtUriStatus.title = "Unable to load album art";
     };
 
     // If the URI starts with https, the self signed certificate may not trusted by the browser.
     // Hence we always try and load the image through a reverse proxy, ignoring the certificate.
     if (sAlbumArtUri && sAlbumArtUri.startsWith("https")) {
-        img.src = "http://" + WNP.s.locHostname + ":" + WNP.s.locPort + "/proxy-art?url=" + encodeURIComponent(sAlbumArtUri) + "&ts=" + nTimestamp;
+        var sAlbumArtProxyUri = "";
+        if (WNP.s.locPort != "80") { // If the server is not running on port 80, we need to add the port to the URI
+            sAlbumArtProxyUri = "http://" + WNP.s.locHostname + ":" + WNP.s.locPort + "/proxy-art?url=" + encodeURIComponent(sAlbumArtUri) + "&ts=" + nTimestamp; // Use the current timestamp as cache buster
+        } else {
+            sAlbumArtProxyUri = "http://" + WNP.s.locHostname + "/proxy-art?url=" + encodeURIComponent(sAlbumArtUri) + "&ts=" + nTimestamp; // Use the current timestamp as cache buster
+        }
+        img.src = sAlbumArtProxyUri; // Test loading the image through the proxy
+        return sAlbumArtProxyUri;
     } else if (sAlbumArtUri && sAlbumArtUri.startsWith("http")) {
-        img.src = sAlbumArtUri;
+        img.src = sAlbumArtUri; // Test loading the image directly
+        return sAlbumArtUri;
     } else {
-        // If the URL is invalid, log a warning
-        console.warn("WNP DEBUG", "Invalid URL for album art:", sAlbumArtUri);
-        WNP.r.sAlbumArtUri.children[1].classList = "bi bi-exclamation-circle-fill";
-        WNP.r.sAlbumArtUri.children[1].title = "Invalid album art URI";
+        // Looks like an invalid/un_known album art, use the fallback.
+        WNP.r.sAlbumArtUriStatus.classList = "bi bi-exclamation-circle-fill";
+        WNP.r.sAlbumArtUriStatus.title = "Falling back to random album art";
+        return WNP.s.rndAlbumArtUri;
     }
 };
 
+/**
+ * Come up with a random album art URI (locally from the img folder).
+ * @param {string} prefix - The prefix for the album art URI, i.e. 'fake-album-'
+ * @returns {string} An URI for album art
+ */
+WNP.rndAlbumArt = function (prefix) {
+    return "./img/" + prefix + this.rndNumber(1, 16) + ".jpg";
+};
+
+/**
+ * Get a random number between min and max, including min and max.
+ * @param {integer} min - Minimum number to pick, keep it lower than max.
+ * @param {integer} max - Maximum number to pick.
+ * @returns {integer} The random number
+ */
+WNP.rndNumber = function (min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+};
+
+/**
+ * Get an identifier for the current play medium combined with the tracksource.
+ * TODO: Verify all/most sources...
+ * @param {string} playMedium - The PlayMedium as indicated by the device. Values: SONGLIST-NETWORK, RADIO-NETWORK, STATION-NETWORK, CAST, AIRPLAY, SPOTIFY, UNKOWN
+ * @param {string} trackSource - The stream source as indicated by the device. Values: Prime, Qobuz, SPOTIFY, newTuneIn, iHeartRadio, Deezer, UPnPServer, Tidal, vTuner
+ * @returns {string} The uri to the source identifier (image url)
+ */
+WNP.getSourceIdent = function (playMedium, trackSource) {
+
+    var sIdentUri = "";
+
+    switch (playMedium.toLowerCase()) {
+        case "airplay":
+            sIdentUri = "./img/sources/airplay2.png";
+            break;
+        case "third-dlna":
+            sIdentUri = "./img/sources/dlna2.png";
+            break;
+        case "cast":
+            sIdentUri = "./img/sources/chromecast2.png";
+            break;
+        case "radio-network":
+            sIdentUri = "./img/sources/radio.png";
+            break;
+        case "songlist-network":
+            sIdentUri = "./img/sources/ethernet2.png";
+            break;
+        case "spotify":
+            sIdentUri = "./img/sources/spotify.png";
+            break;
+        case "squeezelite":
+            sIdentUri = "./img/sources/music-assistant2.png";
+            break;
+        case "none":
+            sIdentUri = "./img/sources/none2.png";
+            break;
+        case "bluetooth":
+            sIdentUri = "./img/sources/bluetooth2.png";
+            break;
+        case "hdmi":
+            sIdentUri = "./img/sources/hdmi2.png";
+            break;
+        case "line-in":
+            sIdentUri = "./img/sources/line-in2.png";
+            break;
+        case "optical":
+            sIdentUri = "./img/sources/spdif2.png";
+            break;
+    };
+
+    switch (trackSource.toLowerCase()) {
+        case "deezer":
+        case "deezer2":
+            sIdentUri = "./img/sources/deezer.png";
+            break;
+        case "iheartradio":
+            sIdentUri = "./img/sources/iheart.png";
+            break;
+        case "newtunein":
+            sIdentUri = "./img/sources/newtunein.png";
+            break;
+        case "plex":
+            sIdentUri = "./img/sources/plex.png";
+            break;
+        case "prime":
+            sIdentUri = "./img/sources/amazon-music2.png";
+            break;
+        case "qobuz":
+            sIdentUri = "./img/sources/qobuz2.png";
+            break;
+        case "tidal":
+            sIdentUri = "./img/sources/tidal2.png";
+            break;
+        case "upnpserver":
+            sIdentUri = "./img/sources/dlna2.png";
+            break;
+        case "vtuner":
+            sIdentUri = "./img/sources/vtuner2.png";
+            break;
+    };
+
+    return sIdentUri;
+
+};
+
+/**
+ * Get an identifier for the current audio/song quality.
+ * TODO: Verify all/most sources...
+ * Found so far:
+ * 
+ * CD Quality: 44.1 KHz/16 bit. Bitrate 1,411 kbps. For mp3 bitrate can vary, but also be 320/192/160/128/... kbps.
+ * Hi-Res quality: 96 kHz/24 bit and up. Bitrate 9,216 kbps.
+ * 
+ * Spotify Lossless: bitrate 700 kbps, 44.1 kHz/24 bit
+ * Spotify and Pandora usual bitrate 160 kbps, premium is 320 kbps
+ * Tidal has CD quality, and FLAC, MQA, Master, ...
+ * Qobuz apparently really has hi-res?
+ * Amazon Music (Unlimited) does Atmos?
+ * Apple Music -> Airplay 2, does hi-res?
+ * YouTube Music -> Cast, does what?
+ * 
+ * TIDAL -
+ * Sample High: "song:quality":"2","song:actualQuality":"LOSSLESS"
+ * Sample MQA: "song:quality":"3","song:actualQuality":"HI_RES"
+ * Sample FLAC: "song:quality":"4","song:actualQuality":"HI_RES_LOSSLESS"
+ * 
+ * @param {integer} songQuality - A number identifying the quality, as indicated by the streaming service(?).
+ * @param {string} songActualQuality - An indicator for the actual quality, as indicated by the streaming service(?).
+ * @param {integer} songBitrate - The current bitrate in kilobit per second.
+ * @param {integer} songBitDepth - The current sample depth in bits.
+ * @param {integer} songSampleRate - The current sample rate in Hz.
+ * @returns {string} The identifier for the audio quality, just a string.
+ */
+WNP.getQualityIdent = function (songQuality, songActualQuality, songBitrate, songBitDepth, songSampleRate) {
+    // console.log(songQuality, songActualQuality, songBitrate, songBitDepth, songSampleRate);
+
+    var sIdent = "";
+
+    if (songBitrate >= 700 && songBitDepth == 24 && songSampleRate == 44100) {
+        sIdent = "Lossless";
+    }
+    if (songBitrate > 1000 && songBitDepth == 16 && songSampleRate == 44100) {
+        sIdent = "CD";
+    }
+    else if (songBitrate > 7000 && songBitDepth >= 24 && songSampleRate >= 96000) {
+        sIdent = "Hi-Res";
+    }
+
+    // Based of Tidal/Amazon Music Unlimited/Deezer/Qobuz
+    switch (songQuality + ":" + songActualQuality) {
+        case "2:LOSSLESS": // Tidal
+        case ":LOSSLESS": // Tidal
+            sIdent = "HIGH";
+            break;
+        case "3:HI_RES": // Tidal
+            sIdent = "MQA";
+            break;
+        case "4:HI_RES_LOSSLESS": // Tidal
+        case ":HI_RES_LOSSLESS": // Tidal
+        case "0:LOSSLESS": // Deezer
+            sIdent = "FLAC";
+            break;
+        case ":UHD": // Amazon Music
+            sIdent = "ULTRA HD";
+            break;
+        case ":HD":
+            sIdent = "HD"; // Amazon Music
+            break;
+        case "3:7":
+        case "4:27":
+            sIdent = "Hi-Res"; // Qobuz
+            break;
+        case "2:6":
+            sIdent = "CD"; // Qobuz
+            break;
+    };
+
+    return sIdent;
+
+};
+
 // =======================================================
-// Start WiiM Now Playing debugger
+// Start WiiM Now Playing app debugger
 WNP.Init();

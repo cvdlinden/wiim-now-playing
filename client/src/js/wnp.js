@@ -23,7 +23,7 @@ WNP.d = {
     prevTransportState: null, // Previous transport state, used to detect changes in the transport state
     prevPlayMedium: null, // Previous play medium, used to detect changes in the play medium
     prevSourceIdent: null, // Previous source ident, used to detect changes in the source
-    prevTrackInfo: null, // Previous track info, used to detect changes in the metadata
+    prevTrackInfo: null // Previous track info, used to detect changes in the metadata
 };
 
 // Reference placeholders.
@@ -39,7 +39,7 @@ WNP.Init = function () {
     console.log("WNP", "Initialising...");
 
     // Init Socket.IO, connect to port where server resides
-    console.log("WNP DEBUG", "Listening on " + this.s.locHostname + ":" + this.s.locPort)
+    console.log("WNP", "Listening on " + this.s.locHostname + ":" + this.s.locPort)
     window.socket = io.connect(":" + this.s.locPort);
 
     // Set references to the UI elements
@@ -99,6 +99,7 @@ WNP.setUIListeners = function () {
     // ------------------------------------------------
     // Player buttons
 
+    // Previous button
     this.r.btnPrev.addEventListener("click", function () {
         var wnpAction = this.getAttribute("wnp-action");
         if (wnpAction) {
@@ -107,6 +108,7 @@ WNP.setUIListeners = function () {
         }
     });
 
+    // Play/Pause/Stop button
     this.r.btnPlay.addEventListener("click", function () {
         var wnpAction = this.getAttribute("wnp-action");
         if (wnpAction) {
@@ -115,6 +117,7 @@ WNP.setUIListeners = function () {
         }
     });
 
+    // Next button
     this.r.btnNext.addEventListener("click", function () {
         var wnpAction = this.getAttribute("wnp-action");
         if (wnpAction) {
@@ -124,14 +127,16 @@ WNP.setUIListeners = function () {
     });
 
     // ------------------------------------------------
-    // Device control inputs (only for default GUI)
+    // Device control inputs (only for default GUI, not TV mode)
 
+    // Device select button
     if (this.r.btnDevPreset) {
         this.r.btnDevPreset.addEventListener("click", function () {
             socket.emit("device-api", "getPresetInfo");
         });
     }
 
+    // Device volume range input
     if (this.r.rVolume) {
         this.r.rVolume.addEventListener('input', function () {
             if (!isNaN(this.value) && this.value >= 0 && this.value <= 100) {
@@ -143,6 +148,12 @@ WNP.setUIListeners = function () {
     // ------------------------------------------------
     // Settings buttons
 
+    // Device selection dropdown
+    this.r.selDeviceChoices.addEventListener("change", function () {
+        socket.emit("device-set", this.value);
+    });
+
+    // Refresh devices button
     this.r.btnRefresh.addEventListener("click", function () {
         socket.emit("devices-refresh");
         // Wait for discovery to finish
@@ -152,22 +163,22 @@ WNP.setUIListeners = function () {
         }, 5000);
     });
 
-    this.r.selDeviceChoices.addEventListener("change", function () {
-        socket.emit("device-set", this.value);
-    });
-
+    // Reboot button
     this.r.btnReboot.addEventListener("click", function () {
         socket.emit("server-reboot");
     });
 
+    // Update button
     this.r.btnUpdate.addEventListener("click", function () {
         socket.emit("server-update");
     });
 
+    // Shutdown button
     this.r.btnShutdown.addEventListener("click", function () {
         socket.emit("server-shutdown");
     });
 
+    // Reload UI button
     this.r.btnReloadUI.addEventListener("click", function () {
         location.reload();
     });
@@ -195,18 +206,16 @@ WNP.setSocketDefinitions = function () {
         };
 
         // Set device name
-        if (msg.selectedDevice && msg.selectedDevice.friendlyName) {
-            WNP.r.devName.innerText = msg.selectedDevice.friendlyName;
-        };
+        WNP.r.devName.innerText = (msg && msg.selectedDevice && msg.selectedDevice.friendlyName) ? msg.selectedDevice.friendlyName : "-";
 
         // Set the server url(s) under the settings modal
         if (msg && msg.os && msg.os.hostname) {
             var sUrl = "http://" + msg.os.hostname.toLowerCase() + ".local";
             sUrl += (location && location.port && location.port != 80) ? ":" + location.port + "/" : "/";
-            WNP.r.sServerUrlHostname.children[0].innerHTML = "<a href=\"" + sUrl + "\">" + sUrl + "</a>";
+            WNP.r.sServerUrlHostname.innerHTML = "<a href=\"" + sUrl + "\">" + sUrl + "</a>";
         }
         else {
-            WNP.r.sServerUrlHostname.children[0].innerText = "-";
+            WNP.r.sServerUrlHostname.innerText = "-";
         }
         // Set the server ip address
         if (msg && msg.selectedDevice && msg.selectedDevice.location && msg.os && msg.os.networkInterfaces) {
@@ -223,19 +232,18 @@ WNP.setSocketDefinitions = function () {
                     // Construct ip address and optional port
                     var sUrl = "http://" + sIpFound.address;
                     sUrl += (location && location.port && location.port != 80) ? ":" + location.port + "/" : "/";
-                    WNP.r.sServerUrlIP.children[0].innerHTML = "<a href=\"" + sUrl + "\">" + sUrl + "</a>";
+                    WNP.r.sServerUrlIP.innerHTML = "<a href=\"" + sUrl + "\">" + sUrl + "</a>";
                 }
             });
         }
         else {
-            WNP.r.sServerUrlIP.children[0].innerText = "-";
+            WNP.r.sServerUrlIP.innerText = "-";
         }
 
         // Set the server version
         WNP.r.sServerVersion.innerText = (msg && msg.version && msg.version.server) ? msg.version.server : "-";
         // Set the client version
         WNP.r.sClientVersion.innerText = (msg && msg.version && msg.version.client) ? msg.version.client : "-";
-
 
     });
 
@@ -289,6 +297,7 @@ WNP.setSocketDefinitions = function () {
         };
 
         // Other devices
+        // Possibly removing this section in future releases.
         var devicesOther = WNP.d.deviceList.filter((d) => { return !d.manufacturer.startsWith("Linkplay") });
         if (devicesOther.length > 0) {
 
@@ -323,7 +332,6 @@ WNP.setSocketDefinitions = function () {
     // On state
     socket.on("state", function (msg) {
         if (!msg) { return false; }
-        // console.log(msg);
 
         // Get player progress data from the state message.
         var timeStampDiff = 0;
@@ -411,20 +419,13 @@ WNP.setSocketDefinitions = function () {
         if (playMedium === "SONGLIST-NETWORK" && !trackSource && msg.CurrentTransportState === "STOPPED") {
             WNP.r.mediaTitle.innerText = "No Music Selected";
         }
-        var trackChanged = false;
-        var currentTrackInfo = WNP.r.mediaTitle.innerText + "|" + WNP.r.mediaSubTitle.innerText + "|" + WNP.r.mediaArtist.innerText + "|" + WNP.r.mediaAlbum.innerText;
-        if (WNP.d.prevTrackInfo !== currentTrackInfo) {
-            trackChanged = true;
-            WNP.d.prevTrackInfo = currentTrackInfo; // Remember the last track info
-            console.log("WNP", "Track changed:", currentTrackInfo);
-        }
 
         // Audio quality
         var songBitrate = (msg.trackMetaData && msg.trackMetaData["song:bitrate"]) ? msg.trackMetaData["song:bitrate"] : "";
         var songBitDepth = (msg.trackMetaData && msg.trackMetaData["song:format_s"]) ? msg.trackMetaData["song:format_s"] : "";
         var songSampleRate = (msg.trackMetaData && msg.trackMetaData["song:rate_hz"]) ? msg.trackMetaData["song:rate_hz"] : "";
         WNP.r.mediaBitRate.innerText = (songBitrate > 0) ? ((songBitrate > 1000) ? (songBitrate / 1000).toFixed(2) + " mbps, " : songBitrate + " kbps, ") : "";
-        WNP.r.mediaBitDepth.innerText = (songBitDepth > 0) ? ((songBitDepth > 24) ? "24 bit/" : songBitDepth + " bit/") : ""; // TODO: 32 bits is suspect according to the WiiM app?
+        WNP.r.mediaBitDepth.innerText = (songBitDepth > 0) ? ((songBitDepth > 24) ? "24 bit/" : songBitDepth + " bit/") : "";
         WNP.r.mediaSampleRate.innerText = (songSampleRate > 0) ? (songSampleRate / 1000).toFixed(1) + " kHz" : "";
         if (!songBitrate && !songBitDepth && !songSampleRate) {
             WNP.r.mediaQualityIdent.style.display = "none";
@@ -449,10 +450,19 @@ WNP.setSocketDefinitions = function () {
         }
 
         // Pre-process Album Art uri, if any is available from the metadata.
-        var albumArtUri = WNP.checkAlbumArtURI((msg.trackMetaData && msg.trackMetaData["upnp:albumArtURI"]) ? msg.trackMetaData["upnp:albumArtURI"] : "", msg.metadataTimeStamp);
+        var albumArtUriRaw = (msg.trackMetaData && msg.trackMetaData["upnp:albumArtURI"]) ? msg.trackMetaData["upnp:albumArtURI"] : "";
+        var albumArtUri = WNP.checkAlbumArtURI(albumArtUriRaw, msg.metadataTimeStamp);
 
         // Set Album Art, only if the track changed and the URI changed
-        if (trackChanged && WNP.r.albumArt.src != albumArtUri) {
+        var trackChanged = false;
+        var currentTrackInfo = WNP.r.mediaTitle.innerText + "|" + WNP.r.mediaSubTitle.innerText + "|" + WNP.r.mediaArtist.innerText + "|" + WNP.r.mediaAlbum.innerText;
+        var currentAlbumArt = WNP.r.albumArt.src;
+        if (WNP.d.prevTrackInfo !== currentTrackInfo) {
+            trackChanged = true;
+            WNP.d.prevTrackInfo = currentTrackInfo; // Remember the last track info
+            console.log("WNP", "Track changed:", currentTrackInfo);
+        }
+        if (trackChanged && currentAlbumArt != albumArtUri) {
             WNP.setAlbumArt(albumArtUri);
         }
 
@@ -686,15 +696,17 @@ WNP.checkAlbumArtURI = function (sAlbumArtUri, nTimestamp) {
     // If the URI starts with https, the self signed certificate may not trusted by the browser.
     // Hence we always try and load the image through a reverse proxy, ignoring the certificate.
     if (sAlbumArtUri && sAlbumArtUri.startsWith("https")) {
+        var sAlbumArtProxyUri = "";
         if (WNP.s.locPort != "80") { // If the server is not running on port 80, we need to add the port to the URI
-            return "http://" + WNP.s.locHostname + ":" + WNP.s.locPort + "/proxy-art?url=" + encodeURIComponent(sAlbumArtUri) + "&ts=" + nTimestamp; // Use the current timestamp as cache buster
+            sAlbumArtProxyUri = "http://" + WNP.s.locHostname + ":" + WNP.s.locPort + "/proxy-art?url=" + encodeURIComponent(sAlbumArtUri) + "&ts=" + nTimestamp; // Use the current timestamp as cache buster
         } else {
-            return "http://" + WNP.s.locHostname + "/proxy-art?url=" + encodeURIComponent(sAlbumArtUri) + "&ts=" + nTimestamp; // Use the current timestamp as cache buster
+            sAlbumArtProxyUri = "http://" + WNP.s.locHostname + "/proxy-art?url=" + encodeURIComponent(sAlbumArtUri) + "&ts=" + nTimestamp; // Use the current timestamp as cache buster
         }
+        return sAlbumArtProxyUri;
     } else if (sAlbumArtUri && sAlbumArtUri.startsWith("http")) {
         return sAlbumArtUri;
     } else {
-        // If not, use the random album art URI
+        // Looks like an invalid/un_known album art, use the fallback.
         return WNP.s.rndAlbumArtUri;
     }
 };
