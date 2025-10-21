@@ -30,7 +30,7 @@
         </div>
 
         <div class="row mb-3">
-            <label class="form-label">State:
+            <label class="form-label" for="state">State:
                 <span id="tickStateUp" class="tick tickUp"><i class="bi bi-arrow-up-circle-fill"></i>
                 </span>
                 <span id="tickStateDown" class="tick tickDown"><i class="bi bi-arrow-down-circle-fill"></i></span>
@@ -42,7 +42,7 @@
         </div>
 
         <div class="row mb-3">
-            <label class="form-label">Metadata:
+            <label class="form-label" for="metadata">Metadata:
                 <span id="tickMetadataUp" class="tick tickUp"><i class="bi bi-arrow-up-circle-fill"></i></span>
                 <span id="tickMetadataDown" class="tick tickDown"><i class="bi bi-arrow-down-circle-fill"></i></span>
             </label>
@@ -92,23 +92,24 @@
         </div>
 
         <div>
-            <label class="form-label" for="txtVolume">Volume:
+            <label class="form-label" for="devVol">Volume:
                 <span id="tickVolumeGetUp" class="tick tickUp"><i class="bi bi-arrow-up-circle-fill"></i></span>
                 <span id="tickVolumeGetDown" class="tick tickDown"><i class="bi bi-arrow-down-circle-fill"></i></span>
                 (set volume: <span id="tickVolumeSetUp" class="tick tickUp"><i
                         class="bi bi-arrow-up-circle-fill"></i></span>
                 <span id="tickVolumeSetDown" class="tick tickDown"><i class="bi bi-arrow-down-circle-fill"></i></span>)
-                <div class="btn-toolbar justify-content-between">
-                    <div class="input-group" aria-label="Device actions">
-                        <input type="text" id="devVol" class="form-control" style="width: 60px;" value="" />
-                        <button type="button" class="btn btn-secondary" id="btnGetVolume">Get volume</button>
-                        <button type="button" class="btn btn-secondary" id="btnSetVolume">Set volume</button>
-                    </div>
+            </label>
+            <div class="btn-toolbar justify-content-between">
+                <div class="input-group" aria-label="Device actions">
+                    <input type="text" id="devVol" class="form-control" style="width: 60px;" value="" />
+                    <button type="button" class="btn btn-secondary" id="btnGetVolume">Get volume</button>
+                    <button type="button" class="btn btn-secondary" id="btnSetVolume">Set volume</button>
                 </div>
+            </div>
         </div>
 
         <div class="row mb-3">
-            <label class="form-label">Presets List:
+            <label class="form-label" for="sPresetsList">Presets List:
                 <span id="tickPresetsListUp" class="tick tickUp"><i class="bi bi-arrow-up-circle-fill"></i></span>
                 <span id="tickPresetsListDown" class="tick tickDown"><i class="bi bi-arrow-down-circle-fill"></i></span>
             </label>
@@ -122,7 +123,7 @@
         </div>
 
         <div class="row mb-3">
-            <label class="form-label">Server Settings:
+            <label class="form-label" for="sServerSettings">Server Settings:
                 <span id="tickServerSettingsUp" class="tick tickUp"><i class="bi bi-arrow-up-circle-fill"></i></span>
                 <span id="tickServerSettingsDown" class="tick tickDown"><i
                         class="bi bi-arrow-down-circle-fill"></i></span>
@@ -143,7 +144,7 @@
         </div>
 
         <div class="row mb-3">
-            <label class="form-label">Server Actions:</label>
+            <label class="form-label" for="btnReloadUI">Server Actions:</label>
             <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with server actions">
                 <div class="btn-group" role="group" aria-label="Server actions">
                     <!-- The following buttons are disabled by default. They will be enabled when shell/bash is available, i.e., on a Raspberry Pi. -->
