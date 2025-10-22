@@ -18,7 +18,7 @@ WNP.s = {
     // Ticks to be used in the app (debug)
     aTicksUI: ["tickDevicesGetUp", "tickDevicesRefreshUp", "tickServerSettingsUp", "tickStateUp", "tickStateDown", "tickMetadataUp", "tickMetadataDown", "tickDeviceSetUp", "tickDeviceSetDown", "tickServerSettingsDown", "tickDevicesGetDown", "tickDevicesRefreshDown", "tickVolumeGetUp", "tickVolumeGetDown", "tickVolumeSetUp", "tickVolumeSetDown", "tickPresetsListUp", "tickPresetsListDown"],
     // Debug UI elements
-    aDebugUI: ["state", "metadata", "sPresetsList", "sServerSettings", "sManufacturer", "sModelName", "sLocation", "sTimeStampDiff", "sAlbumArtUri", "sAlbumArtUriRaw", "sAlbumArtUriStatus", "oPresetsGroup", "btnDevices", "btnGetVolume", "btnSetVolume", "mediaLoopMode"]
+    aDebugUI: ["state", "metadata", "sPresetsList", "sServerSettings", "sManufacturer", "sModelName", "sLocation", "sTimeStampDiff", "sAlbumArtUri", "sAlbumArtUriRaw", "sAlbumArtUriStatus", "oPresetsGroup", "btnDevices", "btnGetVolume", "btnSetVolume", "mediaLoopMode", "sTransportState", "sPlayMedium", "sPlayerProgress"]
 };
 
 // Data placeholders.
@@ -95,7 +95,7 @@ WNP.setUIReferences = function () {
         if (element) {
             WNP.r[id] = element;
         } else {
-            console.warn("WNP", `Element with ID '${id}' not found.`);
+            console.warn("WNP", `Element with ID '${id}' not found in current HTML.`);
         }
     }
 
@@ -238,7 +238,7 @@ WNP.setSocketDefinitions = function () {
         WNP.r.sModelName.innerText = (msg && msg.selectedDevice && msg.selectedDevice.modelName) ? msg.selectedDevice.modelName : "-";
         WNP.r.sLocation.innerHTML = (msg && msg.selectedDevice && msg.selectedDevice.location) ? "<a href=\"" + msg.selectedDevice.location + "\">" + msg.selectedDevice.location + "</a>" : "-";
 
-        // Set the server url(s)
+        // Set the server local url
         if (msg && msg.os && msg.os.hostname) {
             var sUrl = "http://" + msg.os.hostname.toLowerCase() + ".local";
             sUrl += (location && location.port && location.port != 80) ? ":" + location.port + "/" : "/";
@@ -293,6 +293,7 @@ WNP.setSocketDefinitions = function () {
         var devicesWiiM = WNP.d.deviceList.filter((d) => { return d.manufacturer.startsWith("Linkplay") });
         if (devicesWiiM.length > 0) {
 
+            // Device select options
             var optGroup = document.createElement("optgroup");
             optGroup.label = "WiiM devices";
             devicesWiiM.forEach((device) => {
@@ -313,6 +314,7 @@ WNP.setSocketDefinitions = function () {
         var devicesOther = WNP.d.deviceList.filter((d) => { return !d.manufacturer.startsWith("Linkplay") });
         if (devicesOther.length > 0) {
 
+            // Device select dropdown options
             var optGroup = document.createElement("optgroup");
             optGroup.label = "Other devices";
             devicesOther.forEach((device) => {
@@ -342,12 +344,26 @@ WNP.setSocketDefinitions = function () {
 
         WNP.r.tickStateDown.classList.add("tickAnimate");
         WNP.r.state.innerHTML = JSON.stringify(msg);
-        if (msg && msg.stateTimeStamp && msg.metadataTimeStamp) {
-            var timeStampDiff = (msg.stateTimeStamp && msg.metadataTimeStamp) ? Math.round((msg.stateTimeStamp - msg.metadataTimeStamp) / 1000) : 0;
-            WNP.r.sTimeStampDiff.innerHTML = timeStampDiff + "s";
+
+        // Get player progress data from the state message.
+        var timeStampDiff = 0;
+        if (msg.CurrentTransportState === "PLAYING") {
+            timeStampDiff = (msg.stateTimeStamp && msg.metadataTimeStamp) ? Math.round((msg.stateTimeStamp - msg.metadataTimeStamp) / 1000) : 0;
         }
-        else {
-            WNP.r.sTimeStampDiff.innerHTML = "";
+        var relTime = (msg.RelTime) ? msg.RelTime : "00:00:00";
+        var trackDuration = (msg.TrackDuration) ? msg.TrackDuration : "00:00:00";
+        WNP.r.sTimeStampDiff.innerHTML = timeStampDiff + "s";
+
+        // Get current player progress and set UI elements accordingly.
+        var oPlayerProgress = WNP.getPlayerProgress(relTime, trackDuration, timeStampDiff, msg.CurrentTransportState);
+        WNP.r.sPlayerProgress.innerText = JSON.stringify(oPlayerProgress);
+
+        // Device transport state or play medium changed...?
+        if (WNP.d.prevTransportState !== msg.CurrentTransportState || WNP.d.prevPlayMedium !== msg.PlayMedium) {
+            WNP.r.sTransportState.innerText = msg.CurrentTransportState;
+            WNP.r.sPlayMedium.innerText = msg.PlayMedium;
+            WNP.d.prevTransportState = msg.CurrentTransportState; // Remember the last transport state
+            WNP.d.prevPlayMedium = msg.PlayMedium; // Remember the last PlayMedium
         }
 
     });
@@ -546,10 +562,78 @@ WNP.setSocketDefinitions = function () {
 // Helper functions
 
 /**
- * Check if the album art is a valid URL and load it.
- * @param {string} sAlbumArtUri - The album art URI to check.
- * @returns {undefined}
- * @description This function creates a virtual image element to check if the album art URI is valid.
+ * Get player progress helper.
+ * @param {string} relTime - Time elapsed while playing, format 00:00:00
+ * @param {string} trackDuration - Total play time, format 00:00:00
+ * @param {integer} timeStampDiff - Possible play time offset in seconds
+ * @param {string} currentTransportState - The current transport state "PLAYING" or otherwise
+ * @returns {object} An object with corrected played, left, total and percentage played
+ */
+WNP.getPlayerProgress = function (relTime, trackDuration, timeStampDiff, currentTransportState) {
+    var relTimeSec = this.convertToSeconds(relTime) + timeStampDiff;
+    var trackDurationSec = this.convertToSeconds(trackDuration);
+    if (trackDurationSec > 0 && relTimeSec < trackDurationSec) {
+        var percentPlayed = ((relTimeSec / trackDurationSec) * 100).toFixed(1);
+        return {
+            played: WNP.convertToMinutes(relTimeSec),
+            left: WNP.convertToMinutes(trackDurationSec - relTimeSec),
+            total: WNP.convertToMinutes(trackDurationSec),
+            percent: percentPlayed
+        };
+    }
+    else if (trackDurationSec == 0 && currentTransportState == "PLAYING") {
+        return {
+            played: "Live",
+            left: "",
+            total: "",
+            percent: 100
+        };
+    }
+    else {
+        return {
+            played: "Paused",
+            left: "",
+            total: "",
+            percent: 0
+        };
+    };
+};
+
+/**
+ * Convert time format '00:00:00' to total number of seconds.
+ * @param {string} sDuration - Time, format 00:00:00.
+ * @returns {integer} The number of seconds that the string represents.
+ */
+WNP.convertToSeconds = function (sDuration) {
+    const timeSections = sDuration.split(":");
+    let totalSeconds = 0;
+    for (let i = 0; i < timeSections.length; i++) {
+        var nFactor = timeSections.length - 1 - i; // Count backwards
+        var nMultiplier = Math.pow(60, nFactor); // 60^n
+        totalSeconds += nMultiplier * parseInt(timeSections[i]); // Calculate the seconds
+    }
+    return totalSeconds
+};
+
+/**
+ * Convert number of seconds to '00:00' string format. 
+ * Sorry for those hour+ long songs...
+ * @param {integer} seconds - Number of seconds total.
+ * @returns {string} The string representation of seconds in minutes, format 00:00.
+ */
+WNP.convertToMinutes = function (seconds) {
+    var tempDate = new Date(0);
+    tempDate.setSeconds(seconds);
+    var result = tempDate.toISOString().substring(14, 19);
+    return result;
+};
+
+/**
+ * Check if the album art is a valid URI. Returns the URI if valid, otherwise a random URI.
+ * This function creates a virtual image element to check if the album art URI is valid.
+ * @param {string} sAlbumArtUri - The URI of the album art.
+ * @param {integer} nTimestamp - The time in milliseconds, used as cache buster.
+ * @returns {string} The URI of the album art.
  */
 WNP.checkAlbumArtURI = function (sAlbumArtUri, nTimestamp) {
 

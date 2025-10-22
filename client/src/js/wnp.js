@@ -208,7 +208,7 @@ WNP.setSocketDefinitions = function () {
         // Set device name
         WNP.r.devName.innerText = (msg && msg.selectedDevice && msg.selectedDevice.friendlyName) ? msg.selectedDevice.friendlyName : "-";
 
-        // Set the server url(s) under the settings modal
+        // Set the server local url
         if (msg && msg.os && msg.os.hostname) {
             var sUrl = "http://" + msg.os.hostname.toLowerCase() + ".local";
             sUrl += (location && location.port && location.port != 80) ? ":" + location.port + "/" : "/";
@@ -262,7 +262,7 @@ WNP.setSocketDefinitions = function () {
         var devicesWiiM = WNP.d.deviceList.filter((d) => { return d.manufacturer.startsWith("Linkplay") });
         if (devicesWiiM.length > 0) {
 
-            // Settings modal
+            // Device select options
             var optGroup = document.createElement("optgroup");
             optGroup.label = "WiiM devices";
             devicesWiiM.forEach((device) => {
@@ -301,7 +301,7 @@ WNP.setSocketDefinitions = function () {
         var devicesOther = WNP.d.deviceList.filter((d) => { return !d.manufacturer.startsWith("Linkplay") });
         if (devicesOther.length > 0) {
 
-            // Settings modal
+            // Device select dropdown options
             var optGroup = document.createElement("optgroup");
             optGroup.label = "Other devices";
             devicesOther.forEach((device) => {
@@ -342,11 +342,11 @@ WNP.setSocketDefinitions = function () {
         var trackDuration = (msg.TrackDuration) ? msg.TrackDuration : "00:00:00";
 
         // Get current player progress and set UI elements accordingly.
-        var playerProgress = WNP.getPlayerProgress(relTime, trackDuration, timeStampDiff, msg.CurrentTransportState);
-        progressPlayed.children[0].innerText = playerProgress.played;
-        progressLeft.children[0].innerText = (playerProgress.left != "") ? "-" + playerProgress.left : "";
-        progressPercent.setAttribute("aria-valuenow", playerProgress.percent)
-        progressPercent.children[0].setAttribute("style", "width:" + playerProgress.percent + "%");
+        var oPlayerProgress = WNP.getPlayerProgress(relTime, trackDuration, timeStampDiff, msg.CurrentTransportState);
+        WNP.r.progressPlayed.children[0].innerText = oPlayerProgress.played;
+        WNP.r.progressLeft.children[0].innerText = (oPlayerProgress.left != "") ? "-" + oPlayerProgress.left : "";
+        WNP.r.progressPercent.setAttribute("aria-valuenow", oPlayerProgress.percent)
+        WNP.r.progressPercent.children[0].setAttribute("style", "width:" + oPlayerProgress.percent + "%");
 
         // Device transport state or play medium changed...?
         if (WNP.d.prevTransportState !== msg.CurrentTransportState || WNP.d.prevPlayMedium !== msg.PlayMedium) {
@@ -593,7 +593,7 @@ WNP.setSocketDefinitions = function () {
 // Helper functions
 
 /**
- * Set device according to the chosen one through the Devce dropup.
+ * Set device according to the chosen one through the Device dropup.
  * @param {string} deviceLocation - The location of the device to set.
  * @return {undefined}
   */
@@ -629,7 +629,6 @@ WNP.getPlayerProgress = function (relTime, trackDuration, timeStampDiff, current
     var relTimeSec = this.convertToSeconds(relTime) + timeStampDiff;
     var trackDurationSec = this.convertToSeconds(trackDuration);
     if (trackDurationSec > 0 && relTimeSec < trackDurationSec) {
-        // var percentPlayed = Math.floor((relTimeSec / trackDurationSec) * 100);
         var percentPlayed = ((relTimeSec / trackDurationSec) * 100).toFixed(1);
         return {
             played: WNP.convertToMinutes(relTimeSec),
