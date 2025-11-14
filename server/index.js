@@ -25,6 +25,7 @@ const io = new Server(server, {
 // Other (custom) modules
 const ssdp = require("./lib/ssdp.js"); // SSDP functionality
 const upnp = require("./lib/upnpClient.js"); // UPnP Client functionality
+const httpApi = require("./lib/httpApi.js"); // HTTP API functionality
 const sockets = require("./lib/sockets.js"); // Sockets.io functionality
 const shell = require("./lib/shell.js"); // Shell command functionality
 const lib = require("./lib/lib.js"); // Generic functionality
@@ -56,7 +57,7 @@ let serverSettings = { // Placeholder for current server settings
         "manufacturer": null,
         "modelName": null,
         "location": null,
-        "actions": null
+        "actions": {}
     },
     "os": lib.getOS(), // Initially grab the environment we are running in. Things may not have settled yet, so we update this later.
     "timeouts": {
@@ -106,24 +107,27 @@ setTimeout(() => {
 // Set Express functionality
 // Use CORS
 app.use(cors());
-// Reroute all clients to the /public folder
+// By default reroute all clients to the /public server folder
 app.use(express.static(__dirname + "/public"));
-app.get("/tv", function (req, res) {
+
+// Exceptions:
+app.get("/tv", function (req, res) { // TV Mode
     res.sendFile(__dirname + "/public/tv.html");
 });
-app.get("/debug", function (req, res) {
+app.get("/debug", function (req, res) { // Debug page
     res.sendFile(__dirname + "/public/debug.html");
 });
-app.get("/res", function (req, res) {
+app.get("/res", function (req, res) { // Resolution test page
     res.sendFile(__dirname + "/public/res.html");
 });
-app.get("/assets", function (req, res) {
+app.get("/assets", function (req, res) { // Assets test page
     res.sendFile(__dirname + "/public/assets.html");
 });
+
 // Proxy https album art requests through this app, because this could be a https request with a self signed certificate.
 // If the device does not have a valid (self-signed) certificate the browser cannot load the album art, hence we ignore the self signed certificate.
 // TODO: Limit usage to only the devices we are connected to? Use CORS to limit access?
-app.get("/proxy", function (req, res) {
+app.get("/proxy-art", function (req, res) {
     log("Album Art Proxy request:", req.query.url, req.query.ts);
 
     const options = {
@@ -131,7 +135,11 @@ app.get("/proxy", function (req, res) {
     };
 
     https.get(req.query.url, options, (resp) => {
+        res.writeHead(resp.statusCode, resp.headers);
         resp.pipe(res);
+    })
+    .on('error', function (e) {
+        res.status(404).send("<div>404 Not Found</div>");
     });
 
 });
@@ -219,13 +227,23 @@ io.on("connection", (socket) => {
     });
 
     /**
-     * Listener for device interaction. I.e. Play, Stop, Pause, ...
+     * Listener for device actions. I.e. Play, Stop, Pause, ...
      * @param {string} msg - The action to perform on the device.
      * @returns {undefined}
      */
     socket.on("device-action", (msg) => {
         log("Socket event", "device-action", msg);
         upnp.callDeviceAction(io, msg, deviceInfo, serverSettings);
+    });
+
+    /**
+     * Listener for HTTP API commands.
+     * @param {string} msg - The API command to perform on the device.
+     * @returns {undefined}
+     */
+    socket.on("device-api", (msg) => {
+        log("Socket event", "device-api", msg);
+        httpApi.callApi(io, msg, serverSettings);
     });
 
     // ======================================

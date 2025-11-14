@@ -24,7 +24,6 @@ const getDevices = (io, deviceList) => {
         "manufacturer": d.manufacturer,
         "modelName": d.modelName,
         "location": d.location,
-        // "actions": Object.keys(d.actions)
     }));
     io.emit("devices-get", devicesMap);
 }
