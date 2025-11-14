@@ -13,12 +13,12 @@ Examples:
 ![TV Mode](./assets/Screenshot%202025-11-14%20011750.png)  
 *TV Mode*
 
-![Settings](./assets/Screenshot%202025-11-14%20011033.png)  
-*Settings*
-
 | *Device selection* | *Preset selection* | *Volume control* |
 | :---: | :---: | :---: |
 | ![Device selection](./assets/device-selection.png) | ![Preset selection](./assets/presets-selection.png) | ![Volume control](./assets/volume-control.png) |
+
+![Settings](./assets/Screenshot%202025-11-14%20011033.png)  
+*Settings*
 
 ## "I just want it to run, here and now!"
 
