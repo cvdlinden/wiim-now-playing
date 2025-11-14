@@ -139,7 +139,8 @@
             font-size: calc(1.275rem + .3vw);
         }
 
-        div, p {
+        div,
+        p {
             font-size: calc(.875rem + .3vw);
         }
 
@@ -213,19 +214,64 @@
             }
         }
 
+        .dropup .dropdown-toggle::after {
+            border-width: .2em;
+            vertical-align: 0.3em;
+        }
+
+        .dropdown-menu {
+            opacity: 0.8;
+        }
+
         #devNameHolder {
             position: absolute;
-            left: 24px;
-            bottom: 15px;
+            left: 12px;
+            bottom: 10px;
             font-size: calc(.875rem + .3vw);
+
+            button {
+                border: none;
+                color: #b3bdba;
+
+                span {
+                    padding-right: 5px;
+                }
+            }
         }
 
         #devVolumeHolder {
             position: absolute;
-            right: 24px;
-            bottom: 15px;
+            right: 12px;
+            bottom: 10px;
             text-align: right;
             font-size: calc(.875rem + .3vw);
+
+            button {
+                border: none;
+                color: #b3bdba;
+
+                span {
+                    padding-right: 5px;
+                }
+            }
+
+            #oPresetList img {
+                max-height: 20px;
+                max-width: 20px;
+                vertical-align: middle;
+                margin-right: 8px;
+            }
+
+            #rDevVolume {
+                transform: translate(130px, -168px) rotate(-90deg) !important;
+            }
+
+            #rVolume {
+                display: block;
+                width: 300px;
+                height: 24px;
+                padding: 0 10px;
+            }
         }
 
     }
@@ -276,13 +322,13 @@
         .wnpMediaInfo {
 
             #mediaSource {
-    
+
                 img {
                     max-height: 28px;
                 }
-    
+
             }
-    
+
         }
 
         /* Footer contents */
@@ -302,15 +348,15 @@
         .wnpMediaInfo {
 
             #mediaSource {
-    
+
                 img {
                     max-height: 30px;
                 }
-    
+
             }
-    
+
         }
-        
+
     }
 
     // X-Large devices (large desktops, 1200px and up)
@@ -320,13 +366,13 @@
         .wnpMediaInfo {
 
             #mediaSource {
-    
+
                 img {
                     max-height: 32px;
                 }
-    
+
             }
-    
+
         }
 
     }

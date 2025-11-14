@@ -270,9 +270,11 @@ const updateDeviceMetadata = (io, deviceInfo, serverSettings) => {
  * This function calls an action to perform on the device renderer.
  * E.g. "Next","Pause","Play","Previous","Seek".
  * See the selected device actions to see what the renderer is capable of.
+ * @param {object} io - The Socket.IO object to emit to clients.
  * @param {string} action - The AVTransport action to perform.
+ * @param {object} deviceInfo - The device info object.
  * @param {object} serverSettings - The server settings object.
- * @returns {object} The restulting object of the action (or null).
+ * @returns {object} The resulting object of the action (or null).
  */
 const callDeviceAction = (io, action, deviceInfo, serverSettings) => {
     log("callDeviceAction()", action);
@@ -350,37 +352,65 @@ const getDeviceDescription = (deviceList, serverSettings, respSSDP) => {
 const getServiceDescription = (deviceList, serverSettings, deviceClient, respSSDP, deviceDesc) => {
     // log("getServiceDescription()");
 
+    // Define device object
+    let device = {
+        location: respSSDP.LOCATION,
+        ...deviceDesc,
+        actions: {},
+        ssdp: respSSDP
+    };
+
+    // Get AVTransport service description
+    // Call is async, so we add the device in the callback
     deviceClient.getServiceDescription("AVTransport", function (err, serviceDesc) {
-        if (err) { log("getServiceDescription()", "Error", err); }
+        if (err) {
+            log("getServiceDescription('AVTransport')", "Error", err);
+
+            // Just add the device without actions
+            deviceList.push(device);
+            log("getServiceDescription()", "Adding device without actions:", device.friendlyName);
+            log("getServiceDescription()", "Total devices found:", deviceList.length);
+
+            setDefaultSelectedDevice(serverSettings, device);
+
+        }
         else {
 
-            const device = {
-                location: respSSDP.LOCATION,
-                ...deviceDesc,
-                actions: serviceDesc.actions,
-                ssdp: respSSDP
-            };
+            // Add actions to device object
+            device.actions = serviceDesc.actions;
+
             deviceList.push(device);
             log("getServiceDescription()", "New device added:", device.friendlyName);
             log("getServiceDescription()", "Total devices found:", deviceList.length);
 
-            // Do we need to set the default selected device?
-            // If it is a WiiM device and no other has been selected, then yes.
-            if (!serverSettings.selectedDevice.location &&
-                (device.manufacturer.includes("Linkplay") || device.modelName.includes("WiiM"))) {
-                serverSettings.selectedDevice = {
-                    "friendlyName": device.friendlyName,
-                    "manufacturer": device.manufacturer,
-                    "modelName": device.modelName,
-                    "location": device.location,
-                    "actions": Object.keys(device.actions)
-                };
-                lib.saveSettings(serverSettings); // Make sure the settings are stored
-            };
+            setDefaultSelectedDevice(serverSettings, device);
 
-        };
+        }
     });
 
+}
+
+/**
+ * This function sets the default selected device, given the location uri.
+ * Do we need to set the default selected device?
+ * @param {array} serverSettings - The array of found device objects.
+ * @param {object} device - The device info object.
+ * @returns {undefined}
+ */
+const setDefaultSelectedDevice = (serverSettings, device) => {
+    // If it is a WiiM device and no other has been selected yet, then make this the default selected device.
+    // Or if the stored selected device corresponds to this device location, then just update with the latest info.
+    if (((device.manufacturer.includes("Linkplay") || device.modelName.includes("WiiM")) && !serverSettings.selectedDevice.location)
+        || (serverSettings.selectedDevice.location === device.location)) {
+        serverSettings.selectedDevice = {
+            "friendlyName": device.friendlyName,
+            "manufacturer": device.manufacturer,
+            "modelName": device.modelName,
+            "location": device.location,
+            "actions": Object.keys(device.actions)
+        };
+        lib.saveSettings(serverSettings); // Make sure the settings are stored
+    };
 }
 
 module.exports = {

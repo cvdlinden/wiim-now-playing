@@ -41,6 +41,7 @@ client.getDeviceDescription(function (err, deviceDesc) {
 
                     if (a.startsWith("Get") || a.startsWith("X_Get")) {
                         let options = { InstanceID: 0 };
+                        if (s.endsWith("RenderingControl")) { options.Channel = "Master" }; // RenderingControl
                         if (a.startsWith("Read")) { options.Id = 0 }; // OpenHome
                         client.callAction(s, a, options, function (err, result) {
                             console.log();

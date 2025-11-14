@@ -11,7 +11,7 @@ WNP.s = {
     locPort: (location.port && location.port != "80" && location.port != "1234") ? location.port : "80",
     rndAlbumArtUri: "./img/fake-album-1.jpg",
     // Device selection
-    aDeviceUI: ["btnPrev", "btnPlay", "btnNext", "btnRefresh", "selDeviceChoices", "devName", "mediaTitle", "mediaSubTitle", "mediaArtist", "mediaAlbum", "mediaBitRate", "mediaBitDepth", "mediaSampleRate", "mediaQualityIdent", "devVol", "btnRepeat", "btnShuffle", "progressPlayed", "progressLeft", "progressPercent", "mediaSource", "albumArt", "bgAlbumArtBlur"],
+    aDeviceUI: ["btnPrev", "btnPlay", "btnNext", "btnRefresh", "selDeviceChoices", "devName", "devNameHolder", "mediaTitle", "mediaSubTitle", "mediaArtist", "mediaAlbum", "mediaBitRate", "mediaBitDepth", "mediaSampleRate", "mediaQualityIdent", "devVol", "btnRepeat", "btnShuffle", "progressPlayed", "progressLeft", "progressPercent", "mediaSource", "albumArt", "bgAlbumArtBlur", "btnDevSelect", "oDeviceList", "btnDevPreset", "oPresetList", "btnDevVolume", "rVolume"],
     // Server actions to be used in the app
     aServerUI: ["btnReboot", "btnUpdate", "btnShutdown", "btnReloadUI", "sServerUrlHostname", "sServerUrlIP", "sServerVersion", "sClientVersion"],
 };
@@ -23,7 +23,7 @@ WNP.d = {
     prevTransportState: null, // Previous transport state, used to detect changes in the transport state
     prevPlayMedium: null, // Previous play medium, used to detect changes in the play medium
     prevSourceIdent: null, // Previous source ident, used to detect changes in the source
-    prevTrackInfo: null, // Previous track info, used to detect changes in the metadata
+    prevTrackInfo: null // Previous track info, used to detect changes in the metadata
 };
 
 // Reference placeholders.
@@ -39,7 +39,7 @@ WNP.Init = function () {
     console.log("WNP", "Initialising...");
 
     // Init Socket.IO, connect to port where server resides
-    console.log("WNP DEBUG", "Listening on " + this.s.locHostname + ":" + this.s.locPort)
+    console.log("WNP", "Listening on " + this.s.locHostname + ":" + this.s.locPort)
     window.socket = io.connect(":" + this.s.locPort);
 
     // Set references to the UI elements
@@ -53,7 +53,9 @@ WNP.Init = function () {
 
     // Initial calls, wait a bit for socket to start
     setTimeout(() => {
+        // Get server settings
         socket.emit("server-settings");
+        // Get devices
         socket.emit("devices-get");
     }, 500);
 
@@ -77,7 +79,7 @@ WNP.setUIReferences = function () {
         if (element) {
             WNP.r[id] = element;
         } else {
-            console.warn("WNP", `Element with ID '${id}' not found.`);
+            console.log("WNP", `Element with ID '${id}' not found in current HTML.`);
         }
     }
 
@@ -97,6 +99,7 @@ WNP.setUIListeners = function () {
     // ------------------------------------------------
     // Player buttons
 
+    // Previous button
     this.r.btnPrev.addEventListener("click", function () {
         var wnpAction = this.getAttribute("wnp-action");
         if (wnpAction) {
@@ -105,6 +108,7 @@ WNP.setUIListeners = function () {
         }
     });
 
+    // Play/Pause/Stop button
     this.r.btnPlay.addEventListener("click", function () {
         var wnpAction = this.getAttribute("wnp-action");
         if (wnpAction) {
@@ -113,6 +117,7 @@ WNP.setUIListeners = function () {
         }
     });
 
+    // Next button
     this.r.btnNext.addEventListener("click", function () {
         var wnpAction = this.getAttribute("wnp-action");
         if (wnpAction) {
@@ -122,8 +127,33 @@ WNP.setUIListeners = function () {
     });
 
     // ------------------------------------------------
+    // Device control inputs (only for default GUI, not TV mode)
+
+    // Device select button
+    if (this.r.btnDevPreset) {
+        this.r.btnDevPreset.addEventListener("click", function () {
+            socket.emit("device-api", "getPresetInfo");
+        });
+    }
+
+    // Device volume range input
+    if (this.r.rVolume) {
+        this.r.rVolume.addEventListener('input', function () {
+            if (!isNaN(this.value) && this.value >= 0 && this.value <= 100) {
+                socket.emit("device-api", "setPlayerCmd:vol:" + this.value);
+            }
+        });
+    }
+
+    // ------------------------------------------------
     // Settings buttons
 
+    // Device selection dropdown
+    this.r.selDeviceChoices.addEventListener("change", function () {
+        socket.emit("device-set", this.value);
+    });
+
+    // Refresh devices button
     this.r.btnRefresh.addEventListener("click", function () {
         socket.emit("devices-refresh");
         // Wait for discovery to finish
@@ -133,22 +163,22 @@ WNP.setUIListeners = function () {
         }, 5000);
     });
 
-    this.r.selDeviceChoices.addEventListener("change", function () {
-        socket.emit("device-set", this.value);
-    });
-
+    // Reboot button
     this.r.btnReboot.addEventListener("click", function () {
         socket.emit("server-reboot");
     });
 
+    // Update button
     this.r.btnUpdate.addEventListener("click", function () {
         socket.emit("server-update");
     });
 
+    // Shutdown button
     this.r.btnShutdown.addEventListener("click", function () {
         socket.emit("server-shutdown");
     });
 
+    // Reload UI button
     this.r.btnReloadUI.addEventListener("click", function () {
         location.reload();
     });
@@ -176,19 +206,18 @@ WNP.setSocketDefinitions = function () {
         };
 
         // Set device name
-        if (msg.selectedDevice && msg.selectedDevice.friendlyName) {
-            WNP.r.devName.innerText = msg.selectedDevice.friendlyName;
-        };
+        WNP.r.devName.innerText = (msg && msg.selectedDevice && msg.selectedDevice.friendlyName) ? msg.selectedDevice.friendlyName : "-";
 
-        // Set the server url(s) under the settings modal
+        // Set the server local url
         if (msg && msg.os && msg.os.hostname) {
             var sUrl = "http://" + msg.os.hostname.toLowerCase() + ".local";
             sUrl += (location && location.port && location.port != 80) ? ":" + location.port + "/" : "/";
-            WNP.r.sServerUrlHostname.children[0].innerHTML = "<a href=\"" + sUrl + "\">" + sUrl + "</a>";
+            WNP.r.sServerUrlHostname.innerHTML = "<a href=\"" + sUrl + "\">" + sUrl + "</a>";
         }
         else {
-            WNP.r.sServerUrlHostname.children[0].innerText = "-";
+            WNP.r.sServerUrlHostname.innerText = "-";
         }
+        // Set the server ip address
         if (msg && msg.selectedDevice && msg.selectedDevice.location && msg.os && msg.os.networkInterfaces) {
             // Grab the ip address pattern of the selected device
             // Assumption is that the wiim-now-playing server is on the same ip range as the client..
@@ -203,19 +232,18 @@ WNP.setSocketDefinitions = function () {
                     // Construct ip address and optional port
                     var sUrl = "http://" + sIpFound.address;
                     sUrl += (location && location.port && location.port != 80) ? ":" + location.port + "/" : "/";
-                    WNP.r.sServerUrlIP.children[0].innerHTML = "<a href=\"" + sUrl + "\">" + sUrl + "</a>";
+                    WNP.r.sServerUrlIP.innerHTML = "<a href=\"" + sUrl + "\">" + sUrl + "</a>";
                 }
             });
         }
         else {
-            WNP.r.sServerUrlIP.children[0].innerText = "-";
+            WNP.r.sServerUrlIP.innerText = "-";
         }
 
         // Set the server version
         WNP.r.sServerVersion.innerText = (msg && msg.version && msg.version.server) ? msg.version.server : "-";
         // Set the client version
         WNP.r.sClientVersion.innerText = (msg && msg.version && msg.version.client) ? msg.version.client : "-";
-
 
     });
 
@@ -227,11 +255,14 @@ WNP.setSocketDefinitions = function () {
         WNP.d.deviceList.sort((a, b) => { return (a.friendlyName < b.friendlyName) ? -1 : 1 });
 
         // Clear choices
-        WNP.r.selDeviceChoices.innerHTML = "<option value=\"\">Select a device...</em></li>";
+        WNP.r.selDeviceChoices.innerHTML = "<option value=\"\">Select a device...</em></li>"; // Settings modal
+        if (WNP.r.oDeviceList) WNP.r.oDeviceList.innerHTML = ""; // Device dropup
 
         // Add WiiM devices
         var devicesWiiM = WNP.d.deviceList.filter((d) => { return d.manufacturer.startsWith("Linkplay") });
         if (devicesWiiM.length > 0) {
+
+            // Device select options
             var optGroup = document.createElement("optgroup");
             optGroup.label = "WiiM devices";
             devicesWiiM.forEach((device) => {
@@ -245,11 +276,32 @@ WNP.setSocketDefinitions = function () {
                 optGroup.appendChild(opt);
             })
             WNP.r.selDeviceChoices.appendChild(optGroup);
+
+            // Device dropup
+            if (WNP.r.oDeviceList) {
+                devicesWiiM.forEach((device) => {
+                    var ddItem = document.createElement("li");
+                    var ddItemA = document.createElement("a");
+                    ddItemA.className = "dropdown-item";
+                    ddItemA.href = "javascript:WNP.setDeviceByLocation('" + device.location + "');";
+                    ddItemA.innerText = device.friendlyName;
+                    if (WNP.d.serverSettings && WNP.d.serverSettings.selectedDevice && WNP.d.serverSettings.selectedDevice.location === device.location) {
+                        ddItemA.classList.add("active");
+                        ddItemA.setAttribute("aria-current", "true");
+                    }
+                    ddItem.appendChild(ddItemA);
+                    WNP.r.oDeviceList.appendChild(ddItem);
+                })
+            }
+
         };
 
         // Other devices
+        // Possibly removing this section in future releases.
         var devicesOther = WNP.d.deviceList.filter((d) => { return !d.manufacturer.startsWith("Linkplay") });
         if (devicesOther.length > 0) {
+
+            // Device select dropdown options
             var optGroup = document.createElement("optgroup");
             optGroup.label = "Other devices";
             devicesOther.forEach((device) => {
@@ -264,10 +316,15 @@ WNP.setSocketDefinitions = function () {
             })
             WNP.r.selDeviceChoices.appendChild(optGroup);
 
+            // Device dropup
+            // We won't show non-WiiM devices in the dropup for now.
+
         };
 
+        // No devices found
         if (devicesWiiM.length == 0 && devicesOther.length == 0) {
             WNP.r.selDeviceChoices.innerHTML = "<option disabled=\"disabled\">No devices found!</em></li>";
+            if (WNP.r.oDeviceList) WNP.r.oDeviceList.innerHTML = "<li><span class=\"dropdown-header\">No devices found!</span></li>";
         };
 
     });
@@ -275,7 +332,6 @@ WNP.setSocketDefinitions = function () {
     // On state
     socket.on("state", function (msg) {
         if (!msg) { return false; }
-        // console.log(msg);
 
         // Get player progress data from the state message.
         var timeStampDiff = 0;
@@ -286,11 +342,11 @@ WNP.setSocketDefinitions = function () {
         var trackDuration = (msg.TrackDuration) ? msg.TrackDuration : "00:00:00";
 
         // Get current player progress and set UI elements accordingly.
-        var playerProgress = WNP.getPlayerProgress(relTime, trackDuration, timeStampDiff, msg.CurrentTransportState);
-        progressPlayed.children[0].innerText = playerProgress.played;
-        progressLeft.children[0].innerText = (playerProgress.left != "") ? "-" + playerProgress.left : "";
-        progressPercent.setAttribute("aria-valuenow", playerProgress.percent)
-        progressPercent.children[0].setAttribute("style", "width:" + playerProgress.percent + "%");
+        var oPlayerProgress = WNP.getPlayerProgress(relTime, trackDuration, timeStampDiff, msg.CurrentTransportState);
+        WNP.r.progressPlayed.children[0].innerText = oPlayerProgress.played;
+        WNP.r.progressLeft.children[0].innerText = (oPlayerProgress.left != "") ? "-" + oPlayerProgress.left : "";
+        WNP.r.progressPercent.setAttribute("aria-valuenow", oPlayerProgress.percent)
+        WNP.r.progressPercent.children[0].setAttribute("style", "width:" + oPlayerProgress.percent + "%");
 
         // Device transport state or play medium changed...?
         if (WNP.d.prevTransportState !== msg.CurrentTransportState || WNP.d.prevPlayMedium !== msg.PlayMedium) {
@@ -363,20 +419,13 @@ WNP.setSocketDefinitions = function () {
         if (playMedium === "SONGLIST-NETWORK" && !trackSource && msg.CurrentTransportState === "STOPPED") {
             WNP.r.mediaTitle.innerText = "No Music Selected";
         }
-        var trackChanged = false;
-        var currentTrackInfo = WNP.r.mediaTitle.innerText + "|" + WNP.r.mediaSubTitle.innerText + "|" + WNP.r.mediaArtist.innerText + "|" + WNP.r.mediaAlbum.innerText;
-        if (WNP.d.prevTrackInfo !== currentTrackInfo) {
-            trackChanged = true;
-            WNP.d.prevTrackInfo = currentTrackInfo; // Remember the last track info
-            console.log("WNP", "Track changed:", currentTrackInfo);
-        }
 
         // Audio quality
         var songBitrate = (msg.trackMetaData && msg.trackMetaData["song:bitrate"]) ? msg.trackMetaData["song:bitrate"] : "";
         var songBitDepth = (msg.trackMetaData && msg.trackMetaData["song:format_s"]) ? msg.trackMetaData["song:format_s"] : "";
         var songSampleRate = (msg.trackMetaData && msg.trackMetaData["song:rate_hz"]) ? msg.trackMetaData["song:rate_hz"] : "";
         WNP.r.mediaBitRate.innerText = (songBitrate > 0) ? ((songBitrate > 1000) ? (songBitrate / 1000).toFixed(2) + " mbps, " : songBitrate + " kbps, ") : "";
-        WNP.r.mediaBitDepth.innerText = (songBitDepth > 0) ? ((songBitDepth > 24) ? "24 bit/" : songBitDepth + " bit/") : ""; // TODO: 32 bits is suspect according to the WiiM app?
+        WNP.r.mediaBitDepth.innerText = (songBitDepth > 0) ? ((songBitDepth > 24) ? "24 bit/" : songBitDepth + " bit/") : "";
         WNP.r.mediaSampleRate.innerText = (songSampleRate > 0) ? (songSampleRate / 1000).toFixed(1) + " kHz" : "";
         if (!songBitrate && !songBitDepth && !songSampleRate) {
             WNP.r.mediaQualityIdent.style.display = "none";
@@ -401,15 +450,27 @@ WNP.setSocketDefinitions = function () {
         }
 
         // Pre-process Album Art uri, if any is available from the metadata.
-        var albumArtUri = WNP.checkAlbumArtURI((msg.trackMetaData && msg.trackMetaData["upnp:albumArtURI"]) ? msg.trackMetaData["upnp:albumArtURI"] : "", msg.metadataTimeStamp);
+        var albumArtUriRaw = (msg.trackMetaData && msg.trackMetaData["upnp:albumArtURI"]) ? msg.trackMetaData["upnp:albumArtURI"] : "";
+        var albumArtUri = WNP.checkAlbumArtURI(albumArtUriRaw, msg.metadataTimeStamp);
 
         // Set Album Art, only if the track changed and the URI changed
-        if (trackChanged && WNP.r.albumArt.src != albumArtUri) {
+        var trackChanged = false;
+        var currentTrackInfo = WNP.r.mediaTitle.innerText + "|" + WNP.r.mediaSubTitle.innerText + "|" + WNP.r.mediaArtist.innerText + "|" + WNP.r.mediaAlbum.innerText;
+        var currentAlbumArt = WNP.r.albumArt.src;
+        if (WNP.d.prevTrackInfo !== currentTrackInfo) {
+            trackChanged = true;
+            WNP.d.prevTrackInfo = currentTrackInfo; // Remember the last track info
+            console.log("WNP", "Track changed:", currentTrackInfo);
+        }
+        if (trackChanged && currentAlbumArt != albumArtUri) {
             WNP.setAlbumArt(albumArtUri);
         }
 
         // Device volume
-        WNP.r.devVol.innerText = (msg.CurrentVolume) ? msg.CurrentVolume : "-";
+        WNP.r.devVol.innerText = (msg.CurrentVolume) ? msg.CurrentVolume : "-"; // Set the volume on the UI
+        if (WNP.r.rVolume && (WNP.r.rVolume.value !== WNP.r.devVol.innerText)) { // If volume on the range slider is different then update the range input value
+            WNP.r.rVolume.value = WNP.r.devVol.innerText;
+        }
 
         // Loop mode status
         if (msg.LoopMode) {
@@ -464,12 +525,97 @@ WNP.setSocketDefinitions = function () {
     // On device refresh
     socket.on("devices-refresh", function (msg) {
         WNP.r.selDeviceChoices.innerHTML = "<option disabled=\"disabled\">Waiting for devices...</em></li>";
+        if (WNP.r.oDeviceList) WNP.r.oDeviceList.innerHTML = "<li><span class=\"dropdown-header\">Waiting for devices...</span></li>";
+    });
+
+    // On device action (i.e. for play, pause, next, previous)
+    socket.on("device-action", function (msg, param) {
+        // Actions do not return a message.
+        // so we don't need to do anything here.
+        // Maybe later we can use this to show a notification or similar.
+        console.log("WNP", "Action:", msg);
+    });
+
+    // On device API response
+    socket.on("device-api", function (msg, param) {
+        // console.log("IO: device-api", msg, param);
+        switch (msg) {
+            case "getPresetInfo":
+                // Preset info response
+                if (!param || param.preset_num < 1) {
+                    // No presets
+                    WNP.r.oPresetList.innerHTML = "<li><span class=\"dropdown-header\">No presets found!</span></li>";
+                    return false;
+                }
+                else {
+                    // Presets found
+                    WNP.r.oPresetList.innerHTML = ""; // Clear existing list
+                    var sCurrentTitle = WNP.r.mediaTitle.innerText;
+                    var sCurrentSubtitle = WNP.r.mediaSubTitle.innerText;
+                    param.preset_list.forEach((preset) => {
+                        var ddItem = document.createElement("li");
+                        var ddItemA = document.createElement("a");
+                        ddItemA.className = "dropdown-item";
+                        ddItemA.href = "javascript:WNP.setPresetByNumber(" + preset.number + ");";
+                        ddItemA.innerHTML = "<img src=\"" + preset.picurl + "\"/> " + preset.name;
+                        if (sCurrentTitle === preset.name || sCurrentSubtitle === preset.name) {
+                            ddItemA.classList.add("active");
+                            ddItemA.setAttribute("aria-current", "true");
+                        }
+                        ddItem.appendChild(ddItemA);
+                        WNP.r.oPresetList.appendChild(ddItem);
+                    })
+                }
+                break;
+            case msg.startsWith("MCUKeyShortClick:") ? msg : false:
+                // Preset set response, no further action needed
+                break;
+            case "getPlayerStatus":
+                // Player status response
+                // Called when getting volume
+                if (param && param.vol !== undefined) {
+                    WNP.r.devVol.innerText = param.vol;
+                }
+                break;
+            case msg.startsWith("setPlayerCmd:vol:") ? msg : false:
+                // Volume set response
+                socket.emit("device-api", "getPlayerStatus"); // Refresh volume UI
+                break;
+            default:
+                // No action
+                break;
+        }
     });
 
 };
 
 // =======================================================
 // Helper functions
+
+/**
+ * Set device according to the chosen one through the Device dropup.
+ * @param {string} deviceLocation - The location of the device to set.
+ * @return {undefined}
+  */
+WNP.setDeviceByLocation = function (deviceLocation) {
+    if (deviceLocation) {
+        socket.emit("device-set", deviceLocation);
+    }
+    return false;
+};
+
+/**
+ * Set the preset on the device.
+ * @param {integer} presetNumber - The number of the preset to set.
+ * @return {undefined}
+ */
+
+WNP.setPresetByNumber = function (presetNumber) {
+    if (presetNumber && !isNaN(presetNumber) && presetNumber > 0) {
+        socket.emit("device-api", "MCUKeyShortClick:" + presetNumber);
+    }
+    return false;
+};
 
 /**
  * Get player progress helper.
@@ -483,7 +629,6 @@ WNP.getPlayerProgress = function (relTime, trackDuration, timeStampDiff, current
     var relTimeSec = this.convertToSeconds(relTime) + timeStampDiff;
     var trackDurationSec = this.convertToSeconds(trackDuration);
     if (trackDurationSec > 0 && relTimeSec < trackDurationSec) {
-        // var percentPlayed = Math.floor((relTimeSec / trackDurationSec) * 100);
         var percentPlayed = ((relTimeSec / trackDurationSec) * 100).toFixed(1);
         return {
             played: WNP.convertToMinutes(relTimeSec),
@@ -550,15 +695,17 @@ WNP.checkAlbumArtURI = function (sAlbumArtUri, nTimestamp) {
     // If the URI starts with https, the self signed certificate may not trusted by the browser.
     // Hence we always try and load the image through a reverse proxy, ignoring the certificate.
     if (sAlbumArtUri && sAlbumArtUri.startsWith("https")) {
+        var sAlbumArtProxyUri = "";
         if (WNP.s.locPort != "80") { // If the server is not running on port 80, we need to add the port to the URI
-            return "http://" + WNP.s.locHostname + ":" + WNP.s.locPort + "/proxy?url=" + encodeURIComponent(sAlbumArtUri) + "&ts=" + nTimestamp; // Use the current timestamp as cache buster
+            sAlbumArtProxyUri = "http://" + WNP.s.locHostname + ":" + WNP.s.locPort + "/proxy-art?url=" + encodeURIComponent(sAlbumArtUri) + "&ts=" + nTimestamp; // Use the current timestamp as cache buster
         } else {
-            return "http://" + WNP.s.locHostname + "/proxy?url=" + encodeURIComponent(sAlbumArtUri) + "&ts=" + nTimestamp; // Use the current timestamp as cache buster
+            sAlbumArtProxyUri = "http://" + WNP.s.locHostname + "/proxy-art?url=" + encodeURIComponent(sAlbumArtUri) + "&ts=" + nTimestamp; // Use the current timestamp as cache buster
         }
+        return sAlbumArtProxyUri;
     } else if (sAlbumArtUri && sAlbumArtUri.startsWith("http")) {
         return sAlbumArtUri;
     } else {
-        // If not, use the random album art URI
+        // Looks like an invalid/un_known album art, use the fallback.
         return WNP.s.rndAlbumArtUri;
     }
 };
@@ -686,6 +833,7 @@ WNP.getSourceIdent = function (playMedium, trackSource) {
  * CD Quality: 44.1 KHz/16 bit. Bitrate 1,411 kbps. For mp3 bitrate can vary, but also be 320/192/160/128/... kbps.
  * Hi-Res quality: 96 kHz/24 bit and up. Bitrate 9,216 kbps.
  * 
+ * Spotify Lossless: bitrate 700 kbps, 44.1 kHz/24 bit
  * Spotify and Pandora usual bitrate 160 kbps, premium is 320 kbps
  * Tidal has CD quality, and FLAC, MQA, Master, ...
  * Qobuz apparently really has hi-res?
@@ -710,7 +858,10 @@ WNP.getQualityIdent = function (songQuality, songActualQuality, songBitrate, son
 
     var sIdent = "";
 
-    if (songBitrate > 1000 && songBitDepth === 16 && songSampleRate === 44100) {
+    if (songBitrate >= 700 && songBitDepth == 24 && songSampleRate == 44100) {
+        sIdent = "Lossless";
+    }
+    if (songBitrate > 1000 && songBitDepth == 16 && songSampleRate == 44100) {
         sIdent = "CD";
     }
     else if (songBitrate > 7000 && songBitDepth >= 24 && songSampleRate >= 96000) {
