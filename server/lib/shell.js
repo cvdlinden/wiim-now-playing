@@ -9,6 +9,7 @@
 
 // Other modules
 const exec = require("child_process").exec;
+const execFile = require("child_process").execFile;
 const log = require("debug")("lib:shell");
 
 /**
@@ -52,24 +53,22 @@ const shutdown = (io) => {
  * @returns {undefined}
  */
 const update = (io) => {
-    log("Update requested..."); 
-    // io.emit("server-update", __dirname);
+    log("Update requested...");
     io.emit("server-update", "Updating...")
-    // exec("cd ../../ && pwd", function (err, stdout, stderr) {
-    //     io.emit("server-update", stdout);
-    // });
-    // git.stdout.on("data", data => {
-    //     log(`Git replied: ${data}`);
-    //     io.emit("server-update", data);
-    //  });
-    exec("git -C " + __dirname + " pull && npm install", function (err, stdout, stderr) {
+    execFile("git", ["-C", __dirname, "pull"], (err, gitStdout, gitStderr) => {
         if (err) {
-            log("Error", err);
-            io.emit("server-update", err);
-        }
-        else {
-            log("Update completed", stdout);
-            io.emit("server-update", { "Updated" : stdout });
+            log("Git error", err);
+            io.emit("server-update", { "Git error": err, "stderr": gitStderr });
+        } else {
+            execFile("npm", ["install"], { cwd: __dirname }, (npmErr, npmStdout, npmStderr) => {
+                if (npmErr) {
+                    log("npm install error", npmErr);
+                    io.emit("server-update", { "Updated": gitStdout, "npm error": npmErr, "stderr": npmStderr });
+                } else {
+                    log("Update completed", gitStdout + "\n" + npmStdout);
+                    io.emit("server-update", { "Updated": gitStdout, "npm": npmStdout });
+                }
+            });
         }
     });
 }
