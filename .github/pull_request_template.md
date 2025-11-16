@@ -1,5 +1,3 @@
-# Pull Request Template
-
 ## 🧾 Summary
 
 Briefly describe what you changed and why.
