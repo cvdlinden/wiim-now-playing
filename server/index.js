@@ -110,9 +110,12 @@ setTimeout(() => {
 app.use(cors());
 
 // Set up rate limiter: maximum 100 requests per 15 minutes per IP
+// As static file serving can be quite intensive we set a limit here
+// As suggested by Github code scanning tools
+// As suggested by: https://www.npmjs.com/package/express-rate-limit
 const limiter = RateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 100, // limit each IP to 100 requests per windowMs
+    max: 1000, // limit each IP to 1000 requests per windowMs
 });
 
 // Apply rate limiter to static/file-serving routes
@@ -148,9 +151,9 @@ app.get("/proxy-art", limiter, function (req, res) {
         res.writeHead(resp.statusCode, resp.headers);
         resp.pipe(res);
     })
-    .on('error', function (e) {
-        res.status(404).send("<div>404 Not Found</div>");
-    });
+        .on('error', function (e) {
+            res.status(404).send("<div>404 Not Found</div>");
+        });
 
 });
 
