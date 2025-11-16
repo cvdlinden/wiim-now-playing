@@ -557,7 +557,7 @@ WNP.setSocketDefinitions = function () {
                         var ddItemA = document.createElement("a");
                         ddItemA.className = "dropdown-item";
                         ddItemA.href = "javascript:WNP.setPresetByNumber(" + preset.number + ");";
-                        ddItemA.innerHTML = "<img src=\"" + preset.picurl + "\"/> " + preset.name;
+                        ddItemA.innerHTML = "<img src=\"" + WNP.checkAlbumArtURI(preset.picurl, Date.now()) + "\"/> " + preset.name;
                         if (sCurrentTitle === preset.name || sCurrentSubtitle === preset.name) {
                             ddItemA.classList.add("active");
                             ddItemA.setAttribute("aria-current", "true");
