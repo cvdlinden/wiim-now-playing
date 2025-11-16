@@ -6,7 +6,7 @@
 // Express modules
 const express = require("express");
 const cors = require("cors");
-const RateLimit = require("express-rate-limit");
+const rateLimit = require("express-rate-limit");
 const app = express();
 
 // Node.js modules
@@ -113,7 +113,7 @@ app.use(cors());
 // As static file serving can be quite intensive we set a limit here
 // As suggested by Github code scanning tools
 // As suggested by: https://www.npmjs.com/package/express-rate-limit
-const limiter = RateLimit({
+const limiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
     max: 1000, // limit each IP to 1000 requests per windowMs
 });
