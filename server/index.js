@@ -120,6 +120,7 @@ const limiter = rateLimit({
 
 // Apply rate limiter to static/file-serving routes
 app.use(limiter);
+
 // By default reroute all clients to the /public server folder
 app.use(express.static(__dirname + "/public"));
 
@@ -143,11 +144,25 @@ app.get("/assets", limiter, function (req, res) { // Assets test page
 app.get("/proxy-art", limiter, function (req, res) {
     log("Album Art Proxy request:", req.query.url, req.query.ts);
 
+    // Validate URL
+    let targetUrl;
+    try {
+        targetUrl = new URL(req.query.url);
+    } catch (e) {
+        res.status(400).send("<div>Invalid URL</div>");
+        return;
+    }
+
+    if (targetUrl.protocol !== "https:") {
+        res.status(400).send("<div>Invalid protocol</div>");
+        return;
+    }
+    console.log("Fetching URL:", targetUrl.toString());
     const options = {
         rejectUnauthorized: false, // Ignore self-signed certificate
     };
 
-    https.get(req.query.url, options, (resp) => {
+    https.get(targetUrl.href, options, (resp) => {
         res.writeHead(resp.statusCode, resp.headers);
         resp.pipe(res);
     })
