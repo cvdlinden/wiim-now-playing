@@ -7,7 +7,7 @@ permissions:
 
 on:
   push:
-    branches: [ "main", "plex-preset" ]
+    branches: [ "main", "alert-autofix-5" ]
   pull_request:
     branches: [ "main" ]
 
