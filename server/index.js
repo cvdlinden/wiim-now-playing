@@ -152,12 +152,11 @@ app.get("/proxy-art", limiter, function (req, res) {
         res.status(400).send("<div>Invalid URL</div>");
         return;
     }
-
     if (targetUrl.protocol !== "https:") {
         res.status(400).send("<div>Invalid protocol</div>");
         return;
     }
-    console.log("Fetching URL:", targetUrl.toString());
+
     const options = {
         rejectUnauthorized: false, // Ignore self-signed certificate
     };
