@@ -162,9 +162,12 @@ app.get("/proxy-art", limiter, function (req, res) {
     };
 
     https.get(targetUrl.href, options, (resp) => {
-        // TODO: Add content-type validation for image types?
         // If the response is valid, pipe it to the client
-        // Valid content-types could be: image/jpeg, image/png, image/webp, image/svg+xml, image/gif
+        // Valid content-types could be: image/jpeg, image/png, image/webp, image/svg+xml, image/gif, etc.
+        if (!resp.headers['content-type'] || !resp.headers['content-type'].startsWith('image/')) {
+            res.status(415).send("<div>Unsupported Media Type</div>");
+            return;
+        }
         res.writeHead(resp.statusCode, resp.headers);
         resp.pipe(res);
     })
