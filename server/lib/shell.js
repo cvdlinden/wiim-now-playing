@@ -54,19 +54,19 @@ const shutdown = (io) => {
  */
 const update = (io) => {
     log("Update requested...");
-    io.emit("server-update", "Updating...")
+    io.emit("server-update", { "status": "updating" });
     execFile("git", ["-C", __dirname, "pull"], (err, gitStdout, gitStderr) => {
         if (err) {
             log("Git error", err);
-            io.emit("server-update", { "Git error": err, "stderr": gitStderr });
+            io.emit("server-update", { "status": "error", "git": err, "stderr": gitStderr });
         } else {
             execFile("npm", ["install"], { cwd: __dirname }, (npmErr, npmStdout, npmStderr) => {
                 if (npmErr) {
                     log("npm install error", npmErr);
-                    io.emit("server-update", { "Updated": gitStdout, "npm error": npmErr, "stderr": npmStderr });
+                    io.emit("server-update", { "status": "error", "git": gitStdout, "npm": npmErr, "stderr": npmStderr });
                 } else {
                     log("Update completed", gitStdout + "\n" + npmStdout);
-                    io.emit("server-update", { "Updated": gitStdout, "npm": npmStdout });
+                    io.emit("server-update", { "status": "ok", "git": gitStdout, "npm": npmStdout });
                 }
             });
         }
