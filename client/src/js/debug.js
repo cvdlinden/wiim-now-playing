@@ -556,6 +556,24 @@ WNP.setSocketDefinitions = function () {
         }
     });
 
+    // On server reboot
+    socket.on("server-reboot", function (msg) {
+        // Possibly show a notification that reboot is in progress
+        console.log("WNP", "Server reboot:", msg);
+    });
+
+    // On server update
+    socket.on("server-update", function (msg) {
+        // Possibly show a notification that update is in progress
+        console.log("WNP", "Server update:", msg);
+    });
+
+    // On server shutdown
+    socket.on("server-shutdown", function (msg) {
+        // Possibly show a notification that shutdown is in progress
+        console.log("WNP", "Server shutdown:", msg);
+    });
+
 };
 
 // =======================================================

@@ -7,7 +7,7 @@ permissions:
 
 on:
   push:
-    branches: [ "main", "alert-autofix-5" ]
+    branches: [ "main", "refactor" ]
   pull_request:
     branches: [ "main" ]
 

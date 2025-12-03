@@ -140,7 +140,6 @@ app.get("/assets", limiter, function (req, res) { // Assets test page
 
 // Proxy https album art requests through this app, because this could be a https request with a self signed certificate.
 // If the device does not have a valid (self-signed) certificate the browser cannot load the album art, hence we ignore the self signed certificate.
-// TODO: Limit usage to only the devices we are connected to? Use CORS to limit access?
 app.get("/proxy-art", limiter, function (req, res) {
     log("Album Art Proxy request:", req.query.url, req.query.ts);
 
@@ -162,6 +161,12 @@ app.get("/proxy-art", limiter, function (req, res) {
     };
 
     https.get(targetUrl.href, options, (resp) => {
+        // If the response is valid, pipe it to the client
+        // Valid content-types could be: image/jpeg, image/png, image/webp, image/svg+xml, image/gif, etc.
+        if (!resp.headers['content-type'] || !resp.headers['content-type'].startsWith('image/')) {
+            res.status(415).send("<div>Unsupported Media Type</div>");
+            return;
+        }
         res.writeHead(resp.statusCode, resp.headers);
         resp.pipe(res);
     })
