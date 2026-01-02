@@ -6,6 +6,9 @@ Now that you've configured the RPi and the wiim-now-playing app (server part) to
 
 For this we need to get the chromium-browser to also start automatically in kiosk mode and point to the wiim-now-playing app.
 
+> Note: The ```chromium-browser``` package may have been moved to the ```chromium``` package.  
+  If the ```chromium-browser``` package cannot be found, use the ```chromium``` package.
+
 1. Make an SSH connection to the RPi.
 2. Install the chromium-browser and some basic desktop functionality (LXDE) by using the following commands to install the required applications:
 
