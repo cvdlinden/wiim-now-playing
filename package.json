@@ -1,6 +1,6 @@
 {
   "name": "wiim-now-playing",
-  "version": "1.7.2.1",
+  "version": "1.7.2.2",
   "description": "Show what the Wiim device is currently playing on a separate screen.",
   "main": "server/index.js",
   "scripts": {
@@ -17,7 +17,7 @@
     "express": "^5.2.1",
     "express-rate-limit": "^8.2.1",
     "node-ssdp": "^4.0.1",
-    "socket.io": "^4.8.1",
+    "socket.io": "^4.8.3",
     "upnp-device-client": "^1.0.2",
     "xml2js": "^0.6.2"
   },
