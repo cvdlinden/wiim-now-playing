@@ -89,10 +89,17 @@ const getSettings = (serverSettings) => {
             serverSettings.selectedDevice = settings.selectedDevice;
         }
         if (settings.features) {
+            const defaultLyrics = serverSettings.features.lyrics;
             serverSettings.features = {
                 ...serverSettings.features,
                 ...settings.features
             };
+            if (settings.features.lyrics) {
+                serverSettings.features.lyrics = {
+                    ...defaultLyrics,
+                    ...settings.features.lyrics
+                };
+            }
         }
     }
     catch { // Not found, create a settings file

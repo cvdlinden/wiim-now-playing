@@ -13,7 +13,7 @@ WNP.s = {
     // Device selection
     aDeviceUI: ["btnPrev", "btnPlay", "btnNext", "btnRefresh", "selDeviceChoices", "devName", "devNameHolder", "mediaTitle", "mediaSubTitle", "mediaArtist", "mediaAlbum", "mediaBitRate", "mediaBitDepth", "mediaSampleRate", "mediaQualityIdent", "devVol", "btnRepeat", "btnShuffle", "progressPlayed", "progressLeft", "progressPercent", "mediaSource", "albumArt", "bgAlbumArtBlur", "btnDevSelect", "oDeviceList", "btnDevPreset", "oPresetList", "btnDevVolume", "rVolume", "lyricsContainer", "lyricsPrev", "lyricsCurrent", "lyricsNext"],
     // Server actions to be used in the app
-    aServerUI: ["btnReboot", "btnUpdate", "btnShutdown", "btnReloadUI", "sServerUrlHostname", "sServerUrlIP", "sServerVersion", "sClientVersion", "chkLyricsEnabled"],
+    aServerUI: ["btnReboot", "btnUpdate", "btnShutdown", "btnReloadUI", "sServerUrlHostname", "sServerUrlIP", "sServerVersion", "sClientVersion", "chkLyricsEnabled", "lyricsOffsetMs"],
 };
 
 // Data placeholders.
@@ -27,7 +27,8 @@ WNP.d = {
     lastState: null, // Last known state, used for lyrics timing
     lyrics: null, // Current lyrics payload
     lyricsIndex: null, // Current lyrics line index
-    lyricsLines: [] // Parsed lyrics lines
+    lyricsLines: [], // Parsed lyrics lines
+    lyricsCookieApplied: false // Track if cookie setting has been applied
 };
 
 // Reference placeholders.
@@ -190,10 +191,27 @@ WNP.setUIListeners = function () {
     // Lyrics toggle
     if (this.r.chkLyricsEnabled) {
         this.r.chkLyricsEnabled.addEventListener("change", function () {
+            WNP.setCookie("wnpLyricsEnabled", this.checked, 180);
             socket.emit("server-settings-update", {
                 features: {
                     lyrics: {
                         enabled: this.checked
+                    }
+                }
+            });
+        });
+    }
+
+    if (this.r.lyricsOffsetMs) {
+        this.r.lyricsOffsetMs.addEventListener("change", function () {
+            var offsetValue = parseInt(this.value, 10);
+            if (isNaN(offsetValue)) {
+                offsetValue = 0;
+            }
+            socket.emit("server-settings-update", {
+                features: {
+                    lyrics: {
+                        offsetMs: offsetValue
                     }
                 }
             });
@@ -264,6 +282,30 @@ WNP.setSocketDefinitions = function () {
 
         if (WNP.r.chkLyricsEnabled) {
             WNP.r.chkLyricsEnabled.checked = Boolean(msg && msg.features && msg.features.lyrics && msg.features.lyrics.enabled);
+        }
+        if (WNP.r.lyricsOffsetMs) {
+            var offsetMs = (msg && msg.features && msg.features.lyrics && typeof msg.features.lyrics.offsetMs === "number") ? msg.features.lyrics.offsetMs : 0;
+            WNP.r.lyricsOffsetMs.value = offsetMs;
+        }
+
+        if (WNP.r.chkLyricsEnabled && !WNP.d.lyricsCookieApplied) {
+            var cookieValue = WNP.getCookie("wnpLyricsEnabled");
+            if (cookieValue !== null) {
+                var cookieEnabled = cookieValue === "true";
+                if (WNP.r.chkLyricsEnabled.checked !== cookieEnabled) {
+                    WNP.r.chkLyricsEnabled.checked = cookieEnabled;
+                    socket.emit("server-settings-update", {
+                        features: {
+                            lyrics: {
+                                enabled: cookieEnabled
+                            }
+                        }
+                    });
+                }
+            } else {
+                WNP.setCookie("wnpLyricsEnabled", WNP.r.chkLyricsEnabled.checked, 180);
+            }
+            WNP.d.lyricsCookieApplied = true;
         }
 
     });
@@ -815,7 +857,7 @@ WNP.updateLyricsProgress = function (relTime, timeStampDiff) {
     var currentRelTime = relTime || (WNP.d.lastState && WNP.d.lastState.RelTime) || "00:00:00";
     var currentOffset = timeStampDiff || 0;
     var currentSeconds = WNP.convertToSeconds(currentRelTime) + currentOffset;
-    var currentMs = currentSeconds * 1000;
+    var currentMs = currentSeconds * 1000 + WNP.getLyricsOffsetMs();
 
     var currentIndex = -1;
     for (let i = 0; i < WNP.d.lyricsLines.length; i++) {
@@ -857,6 +899,51 @@ WNP.setLyricsLines = function (prevLine, currentLine, nextLine) {
     WNP.r.lyricsPrev.innerText = prevLine;
     WNP.r.lyricsCurrent.innerText = currentLine;
     WNP.r.lyricsNext.innerText = nextLine;
+};
+
+/**
+ * Get lyrics offset (in ms) from server settings.
+ * @returns {number}
+ */
+WNP.getLyricsOffsetMs = function () {
+    if (WNP.d.serverSettings && WNP.d.serverSettings.features && WNP.d.serverSettings.features.lyrics && typeof WNP.d.serverSettings.features.lyrics.offsetMs === "number") {
+        return WNP.d.serverSettings.features.lyrics.offsetMs;
+    }
+    return 0;
+};
+
+/**
+ * Set a cookie with optional expiration in days.
+ * @param {string} name - Cookie name.
+ * @param {string|boolean|number} value - Cookie value.
+ * @param {number} days - Days until expiration.
+ * @returns {undefined}
+ */
+WNP.setCookie = function (name, value, days) {
+    var expires = "";
+    if (typeof days === "number") {
+        var date = new Date();
+        date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+        expires = "; expires=" + date.toUTCString();
+    }
+    document.cookie = name + "=" + encodeURIComponent(String(value)) + expires + "; path=/";
+};
+
+/**
+ * Get a cookie by name.
+ * @param {string} name - Cookie name.
+ * @returns {string|null}
+ */
+WNP.getCookie = function (name) {
+    var nameEQ = name + "=";
+    var ca = document.cookie.split(";");
+    for (var i = 0; i < ca.length; i++) {
+        var c = ca[i].trim();
+        if (c.indexOf(nameEQ) === 0) {
+            return decodeURIComponent(c.substring(nameEQ.length, c.length));
+        }
+    }
+    return null;
 };
 
 /**
