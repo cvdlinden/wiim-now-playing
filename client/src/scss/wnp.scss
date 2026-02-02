@@ -150,6 +150,37 @@
             font-size: calc(.875rem + .3vw);
         }
 
+        .wnpLyrics {
+            display: none;
+            margin-top: 14px;
+            padding: 8px 12px;
+            border-radius: 12px;
+            background: rgba(0, 0, 0, 0.35);
+            backdrop-filter: blur(4px);
+            min-height: 84px;
+        }
+
+        .wnpLyrics.is-visible {
+            display: block;
+        }
+
+        .lyrics-line {
+            text-align: center;
+            opacity: 0.65;
+            line-height: 1.35;
+        }
+
+        .lyrics-current {
+            font-weight: 600;
+            opacity: 1;
+            font-size: calc(.95rem + .35vw);
+        }
+
+        .lyrics-prev,
+        .lyrics-next {
+            font-size: calc(.85rem + .25vw);
+        }
+
         // Media Album and Quality Ident
         #mediaAlbumIdent,
         #mediaQualityIdent {

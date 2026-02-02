@@ -30,6 +30,7 @@ const httpApi = require("./lib/httpApi.js"); // HTTP API functionality
 const sockets = require("./lib/sockets.js"); // Sockets.io functionality
 const shell = require("./lib/shell.js"); // Shell command functionality
 const lib = require("./lib/lib.js"); // Generic functionality
+const lyrics = require("./lib/lyrics.js"); // Lyrics functionality
 const log = require("debug")("index"); // See README.md on debugging
 
 // For versionioning purposes
@@ -66,6 +67,12 @@ let serverSettings = { // Placeholder for current server settings
         "state": 1000, // Timeout for state updates in milliseconds. Every second.
         "metadata": 4 * 1000, // Timeout for metadata updates in milliseconds. Every 4 seconds.
         "rescan": 10 * 1000 // Timeout for possible rescan of devices in milliseconds. Every 10 seconds.
+    },
+    "features": {
+        "lyrics": {
+            "enabled": false,
+            "provider": "lrclib"
+        }
     },
     "server": null, // Placeholder for the express server (port) information
     "version": { // Version information for the server and client
@@ -201,6 +208,9 @@ io.on("connection", (socket) => {
         // setTimeout(() => {
         socket.emit("state", deviceInfo.state);
         socket.emit("metadata", deviceInfo.metadata);
+        if (deviceInfo.lyrics) {
+            socket.emit("lyrics", deviceInfo.lyrics);
+        }
         // }, serverSettings.timeouts.immediate)
     }
 
@@ -288,6 +298,23 @@ io.on("connection", (socket) => {
     socket.on("server-settings", () => {
         log("Socket event", "server-settings");
         sockets.getServerSettings(io, serverSettings);
+    });
+
+    /**
+     * Listener for server settings updates.
+     * @param {object} msg - The updated settings.
+     * @returns {undefined}
+     */
+    socket.on("server-settings-update", (msg) => {
+        log("Socket event", "server-settings-update", msg);
+        if (msg && msg.features && msg.features.lyrics && typeof msg.features.lyrics.enabled === "boolean") {
+            serverSettings.features.lyrics.enabled = msg.features.lyrics.enabled;
+            lib.saveSettings(serverSettings);
+            sockets.getServerSettings(io, serverSettings);
+            lyrics.getLyricsForMetadata(io, deviceInfo, serverSettings).catch((error) => {
+                log("Lyrics update error", error);
+            });
+        }
     });
 
     /**

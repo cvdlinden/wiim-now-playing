@@ -46,6 +46,7 @@ const setDevice = (io, deviceList, deviceInfo, serverSettings, location) => {
         deviceInfo.state = null;
         deviceInfo.metadata = null;
         deviceInfo.client = null;
+        deviceInfo.lyrics = null;
 
         // Set currently selected device
         serverSettings.selectedDevice = {

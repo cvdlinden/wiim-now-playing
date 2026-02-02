@@ -11,9 +11,9 @@ WNP.s = {
     locPort: (location.port && location.port != "80" && location.port != "1234") ? location.port : "80",
     rndAlbumArtUri: "./img/fake-album-1.jpg",
     // Device selection
-    aDeviceUI: ["btnPrev", "btnPlay", "btnNext", "btnRefresh", "selDeviceChoices", "devName", "devNameHolder", "mediaTitle", "mediaSubTitle", "mediaArtist", "mediaAlbum", "mediaBitRate", "mediaBitDepth", "mediaSampleRate", "mediaQualityIdent", "devVol", "btnRepeat", "btnShuffle", "progressPlayed", "progressLeft", "progressPercent", "mediaSource", "albumArt", "bgAlbumArtBlur", "btnDevSelect", "oDeviceList", "btnDevPreset", "oPresetList", "btnDevVolume", "rVolume"],
+    aDeviceUI: ["btnPrev", "btnPlay", "btnNext", "btnRefresh", "selDeviceChoices", "devName", "devNameHolder", "mediaTitle", "mediaSubTitle", "mediaArtist", "mediaAlbum", "mediaBitRate", "mediaBitDepth", "mediaSampleRate", "mediaQualityIdent", "devVol", "btnRepeat", "btnShuffle", "progressPlayed", "progressLeft", "progressPercent", "mediaSource", "albumArt", "bgAlbumArtBlur", "btnDevSelect", "oDeviceList", "btnDevPreset", "oPresetList", "btnDevVolume", "rVolume", "lyricsContainer", "lyricsPrev", "lyricsCurrent", "lyricsNext"],
     // Server actions to be used in the app
-    aServerUI: ["btnReboot", "btnUpdate", "btnShutdown", "btnReloadUI", "sServerUrlHostname", "sServerUrlIP", "sServerVersion", "sClientVersion"],
+    aServerUI: ["btnReboot", "btnUpdate", "btnShutdown", "btnReloadUI", "sServerUrlHostname", "sServerUrlIP", "sServerVersion", "sClientVersion", "chkLyricsEnabled"],
 };
 
 // Data placeholders.
@@ -23,7 +23,11 @@ WNP.d = {
     prevTransportState: null, // Previous transport state, used to detect changes in the transport state
     prevPlayMedium: null, // Previous play medium, used to detect changes in the play medium
     prevSourceIdent: null, // Previous source ident, used to detect changes in the source
-    prevTrackInfo: null // Previous track info, used to detect changes in the metadata
+    prevTrackInfo: null, // Previous track info, used to detect changes in the metadata
+    lastState: null, // Last known state, used for lyrics timing
+    lyrics: null, // Current lyrics payload
+    lyricsIndex: null, // Current lyrics line index
+    lyricsLines: [] // Parsed lyrics lines
 };
 
 // Reference placeholders.
@@ -183,6 +187,19 @@ WNP.setUIListeners = function () {
         location.reload();
     });
 
+    // Lyrics toggle
+    if (this.r.chkLyricsEnabled) {
+        this.r.chkLyricsEnabled.addEventListener("change", function () {
+            socket.emit("server-settings-update", {
+                features: {
+                    lyrics: {
+                        enabled: this.checked
+                    }
+                }
+            });
+        });
+    }
+
 };
 
 /**
@@ -244,6 +261,10 @@ WNP.setSocketDefinitions = function () {
         WNP.r.sServerVersion.innerText = (msg && msg.version && msg.version.server) ? msg.version.server : "-";
         // Set the client version
         WNP.r.sClientVersion.innerText = (msg && msg.version && msg.version.client) ? msg.version.client : "-";
+
+        if (WNP.r.chkLyricsEnabled) {
+            WNP.r.chkLyricsEnabled.checked = Boolean(msg && msg.features && msg.features.lyrics && msg.features.lyrics.enabled);
+        }
 
     });
 
@@ -347,6 +368,9 @@ WNP.setSocketDefinitions = function () {
         WNP.r.progressLeft.children[0].innerText = (oPlayerProgress.left != "") ? "-" + oPlayerProgress.left : "";
         WNP.r.progressPercent.setAttribute("aria-valuenow", oPlayerProgress.percent)
         WNP.r.progressPercent.children[0].setAttribute("style", "width:" + oPlayerProgress.percent + "%");
+
+        WNP.d.lastState = msg;
+        WNP.updateLyricsProgress(relTime, timeStampDiff);
 
         // Device transport state or play medium changed...?
         if (WNP.d.prevTransportState !== msg.CurrentTransportState || WNP.d.prevPlayMedium !== msg.PlayMedium) {
@@ -461,6 +485,7 @@ WNP.setSocketDefinitions = function () {
             trackChanged = true;
             WNP.d.prevTrackInfo = currentTrackInfo; // Remember the last track info
             console.log("WNP", "Track changed:", currentTrackInfo);
+            WNP.clearLyrics();
         }
         if (trackChanged && currentAlbumArt != albumArtUri) {
             WNP.setAlbumArt(albumArtUri);
@@ -513,6 +538,26 @@ WNP.setSocketDefinitions = function () {
             WNP.r.btnShuffle.className = "btn btn-outline-light";
         }
 
+    });
+
+    // On lyrics
+    socket.on("lyrics", function (msg) {
+        WNP.d.lyrics = msg;
+        WNP.d.lyricsIndex = null;
+
+        if (!msg || msg.status !== "ok" || !msg.syncedLyrics) {
+            WNP.clearLyrics();
+            return;
+        }
+
+        WNP.d.lyricsLines = WNP.parseSyncedLyrics(msg.syncedLyrics);
+        if (!WNP.d.lyricsLines.length) {
+            WNP.clearLyrics();
+            return;
+        }
+
+        WNP.r.lyricsContainer.classList.add("is-visible");
+        WNP.updateLyricsProgress(null, 0);
     });
 
     // On device set
@@ -700,6 +745,118 @@ WNP.convertToMinutes = function (seconds) {
     tempDate.setSeconds(seconds);
     var result = tempDate.toISOString().substring(14, 19);
     return result;
+};
+
+/**
+ * Parse synced lyrics (LRC format) into timestamps.
+ * @param {string} syncedLyrics - LRC formatted lyrics string.
+ * @returns {array} Array of lyric lines with time in ms.
+ */
+WNP.parseSyncedLyrics = function (syncedLyrics) {
+    if (!syncedLyrics) {
+        return [];
+    }
+    const lines = syncedLyrics.split(/\r?\n/);
+    const parsed = [];
+    const timeRegex = /\[(\d{2}):(\d{2})(?:\.(\d{2,3}))?\]/g;
+
+    lines.forEach((line) => {
+        let match;
+        const text = line.replace(timeRegex, "").trim();
+        while ((match = timeRegex.exec(line)) !== null) {
+            const minutes = parseInt(match[1], 10);
+            const seconds = parseInt(match[2], 10);
+            const fraction = match[3] ? match[3].padEnd(3, "0") : "000";
+            const millis = (minutes * 60 + seconds) * 1000 + parseInt(fraction, 10);
+            parsed.push({
+                timeMs: millis,
+                text: text
+            });
+        }
+    });
+
+    return parsed
+        .filter((entry) => entry.text !== "")
+        .sort((a, b) => a.timeMs - b.timeMs);
+};
+
+/**
+ * Clear lyrics UI.
+ * @returns {undefined}
+ */
+WNP.clearLyrics = function () {
+    if (WNP.r.lyricsContainer) {
+        WNP.r.lyricsContainer.classList.remove("is-visible");
+    }
+    if (WNP.r.lyricsPrev) {
+        WNP.r.lyricsPrev.innerText = "";
+    }
+    if (WNP.r.lyricsCurrent) {
+        WNP.r.lyricsCurrent.innerText = "";
+    }
+    if (WNP.r.lyricsNext) {
+        WNP.r.lyricsNext.innerText = "";
+    }
+    WNP.d.lyricsLines = [];
+    WNP.d.lyricsIndex = null;
+};
+
+/**
+ * Update lyrics display based on player progress.
+ * @param {string|null} relTime - Time elapsed while playing, format 00:00:00.
+ * @param {integer} timeStampDiff - Possible play time offset in seconds.
+ * @returns {undefined}
+ */
+WNP.updateLyricsProgress = function (relTime, timeStampDiff) {
+    if (!WNP.d.lyricsLines || WNP.d.lyricsLines.length === 0) {
+        return;
+    }
+
+    var currentRelTime = relTime || (WNP.d.lastState && WNP.d.lastState.RelTime) || "00:00:00";
+    var currentOffset = timeStampDiff || 0;
+    var currentSeconds = WNP.convertToSeconds(currentRelTime) + currentOffset;
+    var currentMs = currentSeconds * 1000;
+
+    var currentIndex = -1;
+    for (let i = 0; i < WNP.d.lyricsLines.length; i++) {
+        if (WNP.d.lyricsLines[i].timeMs <= currentMs) {
+            currentIndex = i;
+        } else {
+            break;
+        }
+    }
+
+    if (currentIndex === -1) {
+        WNP.setLyricsLines("", WNP.d.lyricsLines[0].text, WNP.d.lyricsLines[1] ? WNP.d.lyricsLines[1].text : "");
+        WNP.d.lyricsIndex = 0;
+        return;
+    }
+
+    if (WNP.d.lyricsIndex === currentIndex) {
+        return;
+    }
+
+    WNP.d.lyricsIndex = currentIndex;
+    var prevLine = currentIndex > 0 ? WNP.d.lyricsLines[currentIndex - 1].text : "";
+    var currentLine = WNP.d.lyricsLines[currentIndex].text;
+    var nextLine = WNP.d.lyricsLines[currentIndex + 1] ? WNP.d.lyricsLines[currentIndex + 1].text : "";
+    WNP.setLyricsLines(prevLine, currentLine, nextLine);
+};
+
+/**
+ * Update lyrics line text.
+ * @param {string} prevLine - Previous line.
+ * @param {string} currentLine - Current line.
+ * @param {string} nextLine - Next line.
+ * @returns {undefined}
+ */
+WNP.setLyricsLines = function (prevLine, currentLine, nextLine) {
+    if (!WNP.r.lyricsPrev || !WNP.r.lyricsCurrent || !WNP.r.lyricsNext) {
+        return;
+    }
+    WNP.r.lyricsPrev.innerText = prevLine;
+    WNP.r.lyricsCurrent.innerText = currentLine;
+    WNP.r.lyricsNext.innerText = nextLine;
 };
 
 /**
