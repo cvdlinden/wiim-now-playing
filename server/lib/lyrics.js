@@ -263,48 +263,91 @@ const getLyricsForMetadata = async (io, deviceInfo, serverSettings) => {
     }
 
     try {
-        const lyrics = await fetchLyricsBySignature(signature, serverSettings);
-        if (lyrics && lyrics.syncedLyrics) {
-            const payload = {
-                status: "ok",
-                provider: "lrclib",
-                trackKey,
-                signature,
-                id: lyrics.id,
-                trackName: lyrics.trackName,
-                artistName: lyrics.artistName,
-                albumName: lyrics.albumName,
-                duration: lyrics.duration,
-                instrumental: lyrics.instrumental,
-                syncedLyrics: lyrics.syncedLyrics
-            };
-            cache.set(trackKey, {
-                payload,
-                expiresAt: Date.now() + CACHE_TTL_MS
-            });
+        const payload = await fetchLyricsForSignature(signature, trackKey, serverSettings);
+        if (payload) {
             setLyricsState(io, deviceInfo, payload);
             return;
         }
-
-        const payload = {
-            status: "not-found",
-            provider: "lrclib",
-            trackKey,
-            signature
-        };
-        cache.set(trackKey, {
-            payload,
-            expiresAt: Date.now() + NEGATIVE_CACHE_TTL_MS
-        });
-        setLyricsState(io, deviceInfo, payload);
+        clearLyrics(io, deviceInfo, "not-found", signature, trackKey);
     } catch (error) {
         log("LRCLIB error:", error.message);
         clearLyrics(io, deviceInfo, "error", signature, trackKey);
     }
 };
 
+const fetchLyricsForSignature = async (signature, trackKey, serverSettings) => {
+    const cached = cache.get(trackKey);
+    if (cached && cached.expiresAt > Date.now()) {
+        return cached.payload;
+    }
+
+    const lyrics = await fetchLyricsBySignature(signature, serverSettings);
+    if (lyrics && lyrics.syncedLyrics) {
+        const payload = {
+            status: "ok",
+            provider: "lrclib",
+            trackKey,
+            signature,
+            id: lyrics.id,
+            trackName: lyrics.trackName,
+            artistName: lyrics.artistName,
+            albumName: lyrics.albumName,
+            duration: lyrics.duration,
+            instrumental: lyrics.instrumental,
+            syncedLyrics: lyrics.syncedLyrics
+        };
+        cache.set(trackKey, {
+            payload,
+            expiresAt: Date.now() + CACHE_TTL_MS
+        });
+        return payload;
+    }
+
+    const payload = {
+        status: "not-found",
+        provider: "lrclib",
+        trackKey,
+        signature
+    };
+    cache.set(trackKey, {
+        payload,
+        expiresAt: Date.now() + NEGATIVE_CACHE_TTL_MS
+    });
+    return payload;
+};
+
+const prefetchLyricsForMetadata = async (metadata, serverSettings) => {
+    const enabled = serverSettings?.features?.lyrics?.enabled;
+    if (!enabled || !metadata || !metadata.trackMetaData) {
+        return;
+    }
+
+    const trackSource = (metadata.TrackSource || "").toLowerCase();
+    if (trackSource !== "tidal") {
+        return;
+    }
+
+    const signature = buildSignatureFromMetadata(metadata);
+    if (!signature) {
+        return;
+    }
+
+    const trackKey = buildTrackKey(signature.trackName, signature.artistName, signature.albumName, signature.duration);
+    const cached = cache.get(trackKey);
+    if (cached && cached.expiresAt > Date.now()) {
+        return;
+    }
+
+    try {
+        await fetchLyricsForSignature(signature, trackKey, serverSettings);
+    } catch (error) {
+        log("LRCLIB prefetch error:", error.message);
+    }
+};
+
 module.exports = {
     getLyricsForMetadata,
+    prefetchLyricsForMetadata,
     parseDurationToSeconds,
     buildTrackKey
 };

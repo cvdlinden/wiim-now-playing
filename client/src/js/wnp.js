@@ -829,6 +829,7 @@ WNP.parseSyncedLyrics = function (syncedLyrics) {
 WNP.clearLyrics = function () {
     if (WNP.r.lyricsContainer) {
         WNP.r.lyricsContainer.classList.remove("is-visible");
+        WNP.r.lyricsContainer.classList.remove("is-pending");
     }
     if (WNP.r.lyricsPrev) {
         WNP.r.lyricsPrev.innerText = "";
@@ -841,6 +842,22 @@ WNP.clearLyrics = function () {
     }
     WNP.d.lyricsLines = [];
     WNP.d.lyricsIndex = null;
+};
+
+/**
+ * Toggle pending lyrics state.
+ * @param {boolean} isPending - Whether lyrics are pending.
+ * @returns {undefined}
+ */
+WNP.setLyricsPending = function (isPending) {
+    if (!WNP.r.lyricsContainer) {
+        return;
+    }
+    if (isPending) {
+        WNP.r.lyricsContainer.classList.add("is-pending");
+    } else {
+        WNP.r.lyricsContainer.classList.remove("is-pending");
+    }
 };
 
 /**
@@ -869,8 +886,13 @@ WNP.updateLyricsProgress = function (relTime, timeStampDiff) {
     }
 
     if (currentIndex === -1) {
-        WNP.setLyricsLines("", WNP.d.lyricsLines[0].text, WNP.d.lyricsLines[1] ? WNP.d.lyricsLines[1].text : "");
-        WNP.d.lyricsIndex = 0;
+        WNP.setLyricsPending(true);
+        WNP.setLyricsLines(
+            WNP.d.lyricsLines[0] ? WNP.d.lyricsLines[0].text : "",
+            WNP.d.lyricsLines[1] ? WNP.d.lyricsLines[1].text : "",
+            WNP.d.lyricsLines[2] ? WNP.d.lyricsLines[2].text : ""
+        );
+        WNP.d.lyricsIndex = -1;
         return;
     }
 
@@ -878,6 +900,7 @@ WNP.updateLyricsProgress = function (relTime, timeStampDiff) {
         return;
     }
 
+    WNP.setLyricsPending(false);
     WNP.d.lyricsIndex = currentIndex;
     var prevLine = currentIndex > 0 ? WNP.d.lyricsLines[currentIndex - 1].text : "";
     var currentLine = WNP.d.lyricsLines[currentIndex].text;
