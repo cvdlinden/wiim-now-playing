@@ -37,6 +37,11 @@
                         class="badge badge-outlined"><i class="bi bi-soundwave"></i></span><span id="mediaBitRate">{xxx
                         kbps}/</span><span id="mediaBitDepth">{yy
                         bits}/</span><span id="mediaSampleRate">{zz,z kHz}</span></div>
+                <div id="lyricsContainer" class="wnpLyrics" aria-live="polite">
+                    <div id="lyricsPrev" class="lyrics-line lyrics-prev"></div>
+                    <div id="lyricsCurrent" class="lyrics-line lyrics-current"></div>
+                    <div id="lyricsNext" class="lyrics-line lyrics-next"></div>
+                </div>
             </div>
 
             <div class="wnpAlbumArt">
@@ -174,6 +179,18 @@
                                 the power. (Raspberry Pi only)<br />
                                 <strong>Reload UI</strong>: In case it is no longer responsive or acting up, you can try
                                 and reload the browser with this option.
+                            </div>
+                        </div>
+
+                        <!-- Lyrics settings -->
+                        <div class="mb-3">
+                            <label class="form-label">Lyrics:</label>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="chkLyricsEnabled">
+                                <label class="form-check-label" for="chkLyricsEnabled">Enable synced lyrics (LRCLIB)</label>
+                            </div>
+                            <div class="form-text">
+                                Only synced lyrics are displayed. If none are found, lyrics stay hidden.
                             </div>
                         </div>
 
