@@ -71,7 +71,8 @@ let serverSettings = { // Placeholder for current server settings
     "features": {
         "lyrics": {
             "enabled": false,
-            "provider": "lrclib"
+            "provider": "lrclib",
+            "offsetMs": 0
         }
     },
     "server": null, // Placeholder for the express server (port) information
@@ -307,13 +308,22 @@ io.on("connection", (socket) => {
      */
     socket.on("server-settings-update", (msg) => {
         log("Socket event", "server-settings-update", msg);
-        if (msg && msg.features && msg.features.lyrics && typeof msg.features.lyrics.enabled === "boolean") {
-            serverSettings.features.lyrics.enabled = msg.features.lyrics.enabled;
+        if (msg && msg.features && msg.features.lyrics) {
+            var shouldRefreshLyrics = false;
+            if (typeof msg.features.lyrics.enabled === "boolean") {
+                serverSettings.features.lyrics.enabled = msg.features.lyrics.enabled;
+                shouldRefreshLyrics = true;
+            }
+            if (typeof msg.features.lyrics.offsetMs === "number") {
+                serverSettings.features.lyrics.offsetMs = msg.features.lyrics.offsetMs;
+            }
             lib.saveSettings(serverSettings);
             sockets.getServerSettings(io, serverSettings);
-            lyrics.getLyricsForMetadata(io, deviceInfo, serverSettings).catch((error) => {
-                log("Lyrics update error", error);
-            });
+            if (shouldRefreshLyrics) {
+                lyrics.getLyricsForMetadata(io, deviceInfo, serverSettings).catch((error) => {
+                    log("Lyrics update error", error);
+                });
+            }
         }
     });
 
