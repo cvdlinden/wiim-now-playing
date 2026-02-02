@@ -164,6 +164,14 @@
             display: block;
         }
 
+        .wnpLyrics.is-pending {
+            .lyrics-current {
+                font-weight: 400;
+                opacity: 0.65;
+                font-size: calc(.85rem + .25vw);
+            }
+        }
+
         .lyrics-line {
             text-align: center;
             opacity: 0.65;
