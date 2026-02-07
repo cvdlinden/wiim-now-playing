@@ -58,6 +58,21 @@ For instructions see running a [Raspberry Pi Setup - headless](docs/RPi-Headless
 
 There are some hardware requirements, not a whole lot, see: [Raspberry Pi requirements for a wiim-now-playing setup](docs/RPi-Requirements.md)
 
+## Debug logging
+
+The server uses the [`debug`](https://www.npmjs.com/package/debug) module for lyrics/cache logging. To see those logs,
+set the `DEBUG` environment variable before starting the server.
+
+Examples:
+
+```shell
+# Only lyrics + cache logs
+DEBUG=lib:lyrics,lib:lyrics-cache node server/index.js
+
+# All library logs
+DEBUG=lib:* node server/index.js
+```
+
 ## "How do I update to the latest version?"
 
 This depends on how you've installed WiiM Now Playing the first time.
