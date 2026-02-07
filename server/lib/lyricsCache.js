@@ -11,6 +11,7 @@ const log = require("debug")("lib:lyrics-cache");
 
 const DEFAULT_CACHE_PATH = process.env.LYRICS_CACHE_PATH
     || "/var/lib/wiim-now-playing/lyrics-cache.sqlite";
+const DEFAULT_CHECKPOINT_INTERVAL_MS = 5 * 60 * 1000;
 const BROTLI_OPTIONS = {
     params: {
         [zlib.constants.BROTLI_PARAM_QUALITY]: 4,
@@ -21,6 +22,7 @@ const BROTLI_OPTIONS = {
 let db = null;
 let statements = null;
 let dbError = null;
+let maintenanceTimer = null;
 
 const getCacheConfig = (serverSettings) => {
     const cacheSettings = serverSettings?.features?.lyrics?.cache || {};
@@ -54,6 +56,7 @@ const ensureDb = (cachePath) => {
         db = new DatabaseSync(cachePath);
         db.exec("PRAGMA journal_mode = WAL;");
         db.exec("PRAGMA synchronous = NORMAL;");
+        db.exec("PRAGMA wal_autocheckpoint = 1000;");
 
         db.exec(`
             CREATE TABLE IF NOT EXISTS lyrics_cache (
@@ -299,11 +302,60 @@ const storeLyrics = (payload, serverSettings) => {
     }
 };
 
+const checkpointCache = () => {
+    if (!db) {
+        return false;
+    }
+    try {
+        db.exec("PRAGMA wal_checkpoint(TRUNCATE);");
+        return true;
+    } catch (error) {
+        log("Cache checkpoint error:", error.message);
+        return false;
+    }
+};
+
+const startCacheMaintenance = (serverSettings) => {
+    const cacheConfig = getCacheConfig(serverSettings);
+    if (!cacheConfig.enabled) {
+        if (maintenanceTimer) {
+            clearInterval(maintenanceTimer);
+            maintenanceTimer = null;
+            log("Cache maintenance stopped");
+        }
+        return false;
+    }
+    if (!ensureDb(cacheConfig.path)) {
+        return false;
+    }
+    if (maintenanceTimer) {
+        return true;
+    }
+    maintenanceTimer = setInterval(() => {
+        checkpointCache();
+    }, DEFAULT_CHECKPOINT_INTERVAL_MS);
+    if (maintenanceTimer.unref) {
+        maintenanceTimer.unref();
+    }
+    log("Cache maintenance started");
+    return true;
+};
+
+const stopCacheMaintenance = () => {
+    if (!maintenanceTimer) {
+        return;
+    }
+    clearInterval(maintenanceTimer);
+    maintenanceTimer = null;
+    log("Cache maintenance stopped");
+};
+
 const closeCache = () => {
     if (!db) {
         return;
     }
     try {
+        checkpointCache();
         db.close();
         log("Cache database closed");
     } catch (error) {
@@ -311,6 +363,7 @@ const closeCache = () => {
     } finally {
         db = null;
         statements = null;
+        stopCacheMaintenance();
     }
 };
 
@@ -346,6 +399,8 @@ module.exports = {
     storeLyrics,
     pruneCache,
     closeCache,
+    startCacheMaintenance,
+    stopCacheMaintenance,
     hasAlbumPrefetchComplete,
     markAlbumPrefetchComplete
 };
