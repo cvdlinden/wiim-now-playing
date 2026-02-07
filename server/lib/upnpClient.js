@@ -216,10 +216,14 @@ const updateDeviceMetadata = (io, deviceInfo, serverSettings) => {
                                                             TrackDuration: result.NextTrackDuration || null,
                                                             TrackSource: result.NextTrackSource || result.TrackSource || ""
                                                         };
-                                                        lyrics.prefetchLyricsForMetadata(nextMetadata, serverSettings);
+                                                        lyrics.prefetchLyricsForMetadata(io, nextMetadata, serverSettings);
                                                     }
                                                 }
                                             );
+                                        } else {
+                                            lyrics.prefetchLyricsForMetadata(io, null, serverSettings, {
+                                                reason: "no-next-track-metadata"
+                                            });
                                         }
                                     }
                                 }
@@ -247,10 +251,14 @@ const updateDeviceMetadata = (io, deviceInfo, serverSettings) => {
                                                 TrackDuration: result.NextTrackDuration || null,
                                                 TrackSource: result.NextTrackSource || result.TrackSource || ""
                                             };
-                                            lyrics.prefetchLyricsForMetadata(nextMetadata, serverSettings);
+                                            lyrics.prefetchLyricsForMetadata(io, nextMetadata, serverSettings);
                                         }
                                     }
                                 );
+                            } else {
+                                lyrics.prefetchLyricsForMetadata(io, null, serverSettings, {
+                                    reason: "no-next-track-metadata"
+                                });
                             }
                         }
                     }
@@ -301,10 +309,14 @@ const updateDeviceMetadata = (io, deviceInfo, serverSettings) => {
                                                             TrackDuration: result.NextTrackDuration || null,
                                                             TrackSource: result.NextTrackSource || result.TrackSource || ""
                                                         };
-                                                        lyrics.prefetchLyricsForMetadata(nextMetadata, serverSettings);
+                                                        lyrics.prefetchLyricsForMetadata(io, nextMetadata, serverSettings);
                                                     }
                                                 }
                                             );
+                                        } else {
+                                            lyrics.prefetchLyricsForMetadata(io, null, serverSettings, {
+                                                reason: "no-next-track-metadata"
+                                            });
                                         }
                                     }
                                 }
@@ -332,10 +344,14 @@ const updateDeviceMetadata = (io, deviceInfo, serverSettings) => {
                                                 TrackDuration: result.NextTrackDuration || null,
                                                 TrackSource: result.NextTrackSource || result.TrackSource || ""
                                             };
-                                            lyrics.prefetchLyricsForMetadata(nextMetadata, serverSettings);
+                                            lyrics.prefetchLyricsForMetadata(io, nextMetadata, serverSettings);
                                         }
                                     }
                                 );
+                            } else {
+                                lyrics.prefetchLyricsForMetadata(io, null, serverSettings, {
+                                    reason: "no-next-track-metadata"
+                                });
                             }
                         }
                     }

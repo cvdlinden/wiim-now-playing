@@ -99,6 +99,12 @@ const getSettings = (serverSettings) => {
                     ...defaultLyrics,
                     ...settings.features.lyrics
                 };
+                if (settings.features.lyrics.cache) {
+                    serverSettings.features.lyrics.cache = {
+                        ...defaultLyrics.cache,
+                        ...settings.features.lyrics.cache
+                    };
+                }
             }
         }
     }

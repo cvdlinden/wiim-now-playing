@@ -31,6 +31,7 @@ const sockets = require("./lib/sockets.js"); // Sockets.io functionality
 const shell = require("./lib/shell.js"); // Shell command functionality
 const lib = require("./lib/lib.js"); // Generic functionality
 const lyrics = require("./lib/lyrics.js"); // Lyrics functionality
+const lyricsCache = require("./lib/lyricsCache.js");
 const log = require("debug")("index"); // See README.md on debugging
 
 // For versionioning purposes
@@ -72,7 +73,13 @@ let serverSettings = { // Placeholder for current server settings
         "lyrics": {
             "enabled": false,
             "provider": "lrclib",
-            "offsetMs": 0
+            "offsetMs": 0,
+            "cache": {
+                "enabled": true,
+                "maxSizeMB": 50,
+                "prefetch": "album",
+                "maxPrefetchConcurrency": 4
+            }
         }
     },
     "server": null, // Placeholder for the express server (port) information
@@ -317,6 +324,20 @@ io.on("connection", (socket) => {
             if (typeof msg.features.lyrics.offsetMs === "number") {
                 serverSettings.features.lyrics.offsetMs = msg.features.lyrics.offsetMs;
             }
+            if (msg.features.lyrics.cache) {
+                if (typeof msg.features.lyrics.cache.enabled === "boolean") {
+                    serverSettings.features.lyrics.cache.enabled = msg.features.lyrics.cache.enabled;
+                }
+                if (typeof msg.features.lyrics.cache.maxSizeMB === "number") {
+                    serverSettings.features.lyrics.cache.maxSizeMB = Math.max(0, msg.features.lyrics.cache.maxSizeMB);
+                }
+                if (typeof msg.features.lyrics.cache.prefetch === "string") {
+                    const prefetch = msg.features.lyrics.cache.prefetch;
+                    if (prefetch === "off" || prefetch === "album") {
+                        serverSettings.features.lyrics.cache.prefetch = prefetch;
+                    }
+                }
+            }
             lib.saveSettings(serverSettings);
             sockets.getServerSettings(io, serverSettings);
             if (shouldRefreshLyrics) {
@@ -361,3 +382,15 @@ server.listen(port, () => {
     serverSettings.server = server.address();
     console.log("Web Server started at http://localhost:%s", server.address().port);
 });
+
+const shutdownServer = (signal) => {
+    log("Shutdown signal received:", signal);
+    try {
+        lyricsCache.closeCache();
+    } finally {
+        process.exit(0);
+    }
+};
+
+process.on("SIGINT", () => shutdownServer("SIGINT"));
+process.on("SIGTERM", () => shutdownServer("SIGTERM"));

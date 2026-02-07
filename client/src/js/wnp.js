@@ -13,7 +13,21 @@ WNP.s = {
     // Device selection
     aDeviceUI: ["btnPrev", "btnPlay", "btnNext", "btnRefresh", "selDeviceChoices", "devName", "devNameHolder", "mediaTitle", "mediaSubTitle", "mediaArtist", "mediaAlbum", "mediaBitRate", "mediaBitDepth", "mediaSampleRate", "mediaQualityIdent", "devVol", "btnRepeat", "btnShuffle", "progressPlayed", "progressLeft", "progressPercent", "mediaSource", "albumArt", "bgAlbumArtBlur", "btnDevSelect", "oDeviceList", "btnDevPreset", "oPresetList", "btnDevVolume", "rVolume", "lyricsContainer", "lyricsPrev", "lyricsCurrent", "lyricsNext"],
     // Server actions to be used in the app
-    aServerUI: ["btnReboot", "btnUpdate", "btnShutdown", "btnReloadUI", "sServerUrlHostname", "sServerUrlIP", "sServerVersion", "sClientVersion", "chkLyricsEnabled", "lyricsOffsetMs"],
+    aServerUI: [
+        "btnReboot",
+        "btnUpdate",
+        "btnShutdown",
+        "btnReloadUI",
+        "sServerUrlHostname",
+        "sServerUrlIP",
+        "sServerVersion",
+        "sClientVersion",
+        "chkLyricsEnabled",
+        "lyricsOffsetMs",
+        "chkLyricsCacheEnabled",
+        "lyricsCacheSizeMB",
+        "lyricsPrefetchMode"
+    ],
 };
 
 // Data placeholders.
@@ -218,6 +232,52 @@ WNP.setUIListeners = function () {
         });
     }
 
+    if (this.r.chkLyricsCacheEnabled) {
+        this.r.chkLyricsCacheEnabled.addEventListener("change", function () {
+            socket.emit("server-settings-update", {
+                features: {
+                    lyrics: {
+                        cache: {
+                            enabled: this.checked
+                        }
+                    }
+                }
+            });
+        });
+    }
+
+    if (this.r.lyricsCacheSizeMB) {
+        this.r.lyricsCacheSizeMB.addEventListener("change", function () {
+            var sizeValue = parseInt(this.value, 10);
+            if (isNaN(sizeValue) || sizeValue < 0) {
+                sizeValue = 0;
+            }
+            socket.emit("server-settings-update", {
+                features: {
+                    lyrics: {
+                        cache: {
+                            maxSizeMB: sizeValue
+                        }
+                    }
+                }
+            });
+        });
+    }
+
+    if (this.r.lyricsPrefetchMode) {
+        this.r.lyricsPrefetchMode.addEventListener("change", function () {
+            socket.emit("server-settings-update", {
+                features: {
+                    lyrics: {
+                        cache: {
+                            prefetch: this.value
+                        }
+                    }
+                }
+            });
+        });
+    }
+
 };
 
 /**
@@ -286,6 +346,20 @@ WNP.setSocketDefinitions = function () {
         if (WNP.r.lyricsOffsetMs) {
             var offsetMs = (msg && msg.features && msg.features.lyrics && typeof msg.features.lyrics.offsetMs === "number") ? msg.features.lyrics.offsetMs : 0;
             WNP.r.lyricsOffsetMs.value = offsetMs;
+        }
+        if (WNP.r.chkLyricsCacheEnabled || WNP.r.lyricsCacheSizeMB || WNP.r.lyricsPrefetchMode) {
+            var cacheSettings = (msg && msg.features && msg.features.lyrics && msg.features.lyrics.cache) ? msg.features.lyrics.cache : {};
+            var cacheSizeMB = (typeof cacheSettings.maxSizeMB === "number") ? cacheSettings.maxSizeMB : 0;
+            var cacheEnabled = cacheSettings.enabled !== false && cacheSizeMB > 0;
+            if (WNP.r.chkLyricsCacheEnabled) {
+                WNP.r.chkLyricsCacheEnabled.checked = cacheEnabled;
+            }
+            if (WNP.r.lyricsCacheSizeMB) {
+                WNP.r.lyricsCacheSizeMB.value = cacheSizeMB;
+            }
+            if (WNP.r.lyricsPrefetchMode) {
+                WNP.r.lyricsPrefetchMode.value = cacheSettings.prefetch || "off";
+            }
         }
 
         if (WNP.r.chkLyricsEnabled && !WNP.d.lyricsCookieApplied) {
