@@ -13,10 +13,16 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@parcel/optimizer-htmlnano": "^2.16.4",
+    "@parcel/packager-raw-url": "^2.16.4",
+    "@parcel/transformer-sass": "^2.16.4",
+    "@parcel/transformer-webmanifest": "^2.16.4",
     "debug": "^4.4.3",
     "express": "^5.2.1",
     "express-rate-limit": "^8.2.1",
     "node-ssdp": "^4.0.1",
+    "parcel": "^2.16.4",
+    "shx": "^0.4.0",
     "socket.io": "^4.8.3",
     "upnp-device-client": "^1.0.2",
     "xml2js": "^0.6.2"
