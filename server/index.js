@@ -96,6 +96,7 @@ let pollMetadata = null; // For the renderer metadata
 // ===========================================================================
 // Get the server settings from local file storage, if any.
 lib.getSettings(serverSettings);
+lyricsCache.startCacheMaintenance(serverSettings);
 
 // ===========================================================================
 // Initial SSDP scan for devices.
@@ -339,6 +340,7 @@ io.on("connection", (socket) => {
                 }
             }
             lib.saveSettings(serverSettings);
+            lyricsCache.startCacheMaintenance(serverSettings);
             sockets.getServerSettings(io, serverSettings);
             if (shouldRefreshLyrics) {
                 lyrics.getLyricsForMetadata(io, deviceInfo, serverSettings).catch((error) => {
