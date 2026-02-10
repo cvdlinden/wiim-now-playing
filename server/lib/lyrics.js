@@ -429,12 +429,6 @@ const getLyricsForMetadata = async (io, deviceInfo, serverSettings) => {
         return;
     }
 
-    const trackSource = (metadata.TrackSource || "").toLowerCase();
-    if (trackSource !== "tidal") {
-        clearLyrics(io, deviceInfo, "not-supported-source", null, null, diagnostics);
-        return;
-    }
-
     const signature = buildSignatureFromMetadata(metadata);
     if (!signature) {
         clearLyrics(io, deviceInfo, "missing-signature", null, null, diagnostics);
@@ -809,16 +803,6 @@ const prefetchLyricsForMetadata = async (io, metadata, serverSettings, options =
         setLyricsPrefetchState(io, {
             status: "skipped",
             reason: options.reason || (!enabled ? "disabled" : "missing-metadata")
-        });
-        return;
-    }
-
-    const trackSource = (metadata.TrackSource || "").toLowerCase();
-    if (trackSource !== "tidal") {
-        setLyricsPrefetchState(io, {
-            status: "skipped",
-            reason: "not-supported-source",
-            trackSource
         });
         return;
     }
