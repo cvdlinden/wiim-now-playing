@@ -17,6 +17,7 @@ const UPnP = require("upnp-device-client");
 // Other modules
 const xml2js = require("xml2js");
 const lib = require("./lib.js"); // Generic functionality
+const lyrics = require("./lyrics.js"); // Lyrics functionality
 const log = require("debug")("lib:upnpClient");
 
 /**
@@ -123,6 +124,7 @@ const updateDeviceState = (io, deviceInfo, serverSettings) => {
                     }
                     else {
                         log("updateDeviceState()", "GetTransportInfo:", result.CurrentTransportState);
+                        const previousState = deviceInfo.state ? deviceInfo.state.CurrentTransportState : null;
                         deviceInfo.state = {
                             ...result,
                             RelTime: (deviceInfo.metadata && deviceInfo.metadata.RelTime) ? deviceInfo.metadata.RelTime : null,
@@ -133,6 +135,9 @@ const updateDeviceState = (io, deviceInfo, serverSettings) => {
                             stateTimeStamp: lib.getTimeStamp(),
                         };
                         io.emit("state", deviceInfo.state);
+                        if (result.CurrentTransportState === "TRANSITIONING" && previousState !== "TRANSITIONING") {
+                            module.exports.updateDeviceMetadata(io, deviceInfo, serverSettings);
+                        }
                     }
                 }
             );
@@ -195,6 +200,31 @@ const updateDeviceMetadata = (io, deviceInfo, serverSettings) => {
                                             metadataTimeStamp: lib.getTimeStamp()
                                         };;
                                         io.emit("metadata", deviceInfo.metadata);
+                                        lyrics.getLyricsForMetadata(io, deviceInfo, serverSettings).catch((error) => {
+                                            log("Lyrics update error", error);
+                                        });
+                                        if (result.NextTrackMetaData) {
+                                            xml2js.parseString(
+                                                result.NextTrackMetaData,
+                                                { explicitArray: false, ignoreAttrs: true },
+                                                (err, nextMetadataJson) => {
+                                                    if (err) {
+                                                        log("updateDeviceMetadata()", "NextTrackMetaData error", err);
+                                                    } else if (nextMetadataJson && nextMetadataJson["DIDL-Lite"] && nextMetadataJson["DIDL-Lite"]["item"]) {
+                                                        const nextMetadata = {
+                                                            trackMetaData: nextMetadataJson["DIDL-Lite"]["item"],
+                                                            TrackDuration: result.NextTrackDuration || null,
+                                                            TrackSource: result.NextTrackSource || result.TrackSource || ""
+                                                        };
+                                                        lyrics.prefetchLyricsForMetadata(io, nextMetadata, serverSettings);
+                                                    }
+                                                }
+                                            );
+                                        } else {
+                                            lyrics.prefetchLyricsForMetadata(io, null, serverSettings, {
+                                                reason: "no-next-track-metadata"
+                                            });
+                                        }
                                     }
                                 }
                             );
@@ -205,6 +235,31 @@ const updateDeviceMetadata = (io, deviceInfo, serverSettings) => {
                                 metadataTimeStamp: lib.getTimeStamp()
                             };
                             io.emit("metadata", deviceInfo.metadata);
+                            lyrics.getLyricsForMetadata(io, deviceInfo, serverSettings).catch((error) => {
+                                log("Lyrics update error", error);
+                            });
+                            if (result.NextTrackMetaData) {
+                                xml2js.parseString(
+                                    result.NextTrackMetaData,
+                                    { explicitArray: false, ignoreAttrs: true },
+                                    (err, nextMetadataJson) => {
+                                        if (err) {
+                                            log("updateDeviceMetadata()", "NextTrackMetaData error", err);
+                                        } else if (nextMetadataJson && nextMetadataJson["DIDL-Lite"] && nextMetadataJson["DIDL-Lite"]["item"]) {
+                                            const nextMetadata = {
+                                                trackMetaData: nextMetadataJson["DIDL-Lite"]["item"],
+                                                TrackDuration: result.NextTrackDuration || null,
+                                                TrackSource: result.NextTrackSource || result.TrackSource || ""
+                                            };
+                                            lyrics.prefetchLyricsForMetadata(io, nextMetadata, serverSettings);
+                                        }
+                                    }
+                                );
+                            } else {
+                                lyrics.prefetchLyricsForMetadata(io, null, serverSettings, {
+                                    reason: "no-next-track-metadata"
+                                });
+                            }
                         }
                     }
                 }
@@ -238,6 +293,31 @@ const updateDeviceMetadata = (io, deviceInfo, serverSettings) => {
                                             metadataTimeStamp: lib.getTimeStamp()
                                         };
                                         io.emit("metadata", deviceInfo.metadata);
+                                        lyrics.getLyricsForMetadata(io, deviceInfo, serverSettings).catch((error) => {
+                                            log("Lyrics update error", error);
+                                        });
+                                        if (result.NextTrackMetaData) {
+                                            xml2js.parseString(
+                                                result.NextTrackMetaData,
+                                                { explicitArray: false, ignoreAttrs: true },
+                                                (err, nextMetadataJson) => {
+                                                    if (err) {
+                                                        log("updateDeviceMetadata()", "NextTrackMetaData error", err);
+                                                    } else if (nextMetadataJson && nextMetadataJson["DIDL-Lite"] && nextMetadataJson["DIDL-Lite"]["item"]) {
+                                                        const nextMetadata = {
+                                                            trackMetaData: nextMetadataJson["DIDL-Lite"]["item"],
+                                                            TrackDuration: result.NextTrackDuration || null,
+                                                            TrackSource: result.NextTrackSource || result.TrackSource || ""
+                                                        };
+                                                        lyrics.prefetchLyricsForMetadata(io, nextMetadata, serverSettings);
+                                                    }
+                                                }
+                                            );
+                                        } else {
+                                            lyrics.prefetchLyricsForMetadata(io, null, serverSettings, {
+                                                reason: "no-next-track-metadata"
+                                            });
+                                        }
                                     }
                                 }
                             );
@@ -248,6 +328,31 @@ const updateDeviceMetadata = (io, deviceInfo, serverSettings) => {
                                 metadataTimeStamp: lib.getTimeStamp()
                             };
                             io.emit("metadata", deviceInfo.metadata);
+                            lyrics.getLyricsForMetadata(io, deviceInfo, serverSettings).catch((error) => {
+                                log("Lyrics update error", error);
+                            });
+                            if (result.NextTrackMetaData) {
+                                xml2js.parseString(
+                                    result.NextTrackMetaData,
+                                    { explicitArray: false, ignoreAttrs: true },
+                                    (err, nextMetadataJson) => {
+                                        if (err) {
+                                            log("updateDeviceMetadata()", "NextTrackMetaData error", err);
+                                        } else if (nextMetadataJson && nextMetadataJson["DIDL-Lite"] && nextMetadataJson["DIDL-Lite"]["item"]) {
+                                            const nextMetadata = {
+                                                trackMetaData: nextMetadataJson["DIDL-Lite"]["item"],
+                                                TrackDuration: result.NextTrackDuration || null,
+                                                TrackSource: result.NextTrackSource || result.TrackSource || ""
+                                            };
+                                            lyrics.prefetchLyricsForMetadata(io, nextMetadata, serverSettings);
+                                        }
+                                    }
+                                );
+                            } else {
+                                lyrics.prefetchLyricsForMetadata(io, null, serverSettings, {
+                                    reason: "no-next-track-metadata"
+                                });
+                            }
                         }
                     }
                 }

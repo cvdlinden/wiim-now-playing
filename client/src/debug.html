@@ -76,6 +76,40 @@
         </div>
 
         <div class="row mb-3">
+            <label class="form-label" for="lyrics">Lyrics:
+                <span id="tickLyricsUp" class="tick tickUp"><i class="bi bi-arrow-up-circle-fill"></i></span>
+                <span id="tickLyricsDown" class="tick tickDown"><i class="bi bi-arrow-down-circle-fill"></i></span>
+            </label>
+            <textarea id="lyrics" class="form-control" style="height: 120px"></textarea>
+            <div class="form-text text-white">
+                <ul>
+                    <li>Status: <span id="lyricsStatus"></span></li>
+                    <li>Provider: <span id="lyricsProvider"></span></li>
+                    <li>Track key: <span id="lyricsTrackKey"></span></li>
+                    <li>Cache enabled: <span id="lyricsCacheEnabled"></span></li>
+                    <li>Cache status: <span id="lyricsCacheStatus"></span></li>
+                    <li>Cache size: <span id="lyricsCacheSize"></span></li>
+                    <li>Cache max: <span id="lyricsCacheMax"></span></li>
+                    <li>Cache prefetch mode: <span id="lyricsCachePrefetchMode"></span></li>
+                    <li>Cache prefetch concurrency: <span id="lyricsCachePrefetchConcurrency"></span></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="row mb-3">
+            <label class="form-label" for="lyricsPrefetch">Lyrics Prefetch:</label>
+            <textarea id="lyricsPrefetch" class="form-control" style="height: 120px"></textarea>
+            <div class="form-text text-white">
+                <ul>
+                    <li>Status: <span id="lyricsPrefetchStatus"></span></li>
+                    <li>Track key: <span id="lyricsPrefetchTrackKey"></span></li>
+                    <li>Mode: <span id="lyricsPrefetchMode"></span></li>
+                    <li>Reason: <span id="lyricsPrefetchReason"></span></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="row mb-3">
             <label class="form-label" for="selDeviceChoices">Devices:
                 <span id="tickDevicesGetUp" class="tick tickUp"><i class="bi bi-arrow-up-circle-fill"></i></span>
                 <span id="tickDevicesGetDown" class="tick tickDown"><i class="bi bi-arrow-down-circle-fill"></i></span>
