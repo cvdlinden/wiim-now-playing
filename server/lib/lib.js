@@ -88,6 +88,27 @@ const getSettings = (serverSettings) => {
             log("fs", "Amend the current server settings with the stored values.");
             serverSettings.selectedDevice = settings.selectedDevice;
         }
+        // TODO: review what is happening here. Are we doing double work here?
+        // Or are we loading the extra features from settings.json, because we did not get them earlier?
+        if (settings.features) {
+            const defaultLyrics = serverSettings.features.lyrics;
+            serverSettings.features = {
+                ...serverSettings.features,
+                ...settings.features
+            };
+            if (settings.features.lyrics) {
+                serverSettings.features.lyrics = {
+                    ...defaultLyrics,
+                    ...settings.features.lyrics
+                };
+                if (settings.features.lyrics.cache) {
+                    serverSettings.features.lyrics.cache = {
+                        ...defaultLyrics.cache,
+                        ...settings.features.lyrics.cache
+                    };
+                }
+            }
+        }
     }
     catch { // Not found, create a settings file
         log("fs", "No settings file found! Trying to create one...");
@@ -106,7 +127,8 @@ const saveSettings = (serverSettings) => {
     log("fs", "Saving settings to:", settingsFile);
 
     const settingsToStore = {
-        "selectedDevice": serverSettings.selectedDevice
+        "selectedDevice": serverSettings.selectedDevice,
+        "features": serverSettings.features
     };
     log("fs", "Settings to store", settingsToStore);
 

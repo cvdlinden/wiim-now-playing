@@ -30,6 +30,8 @@ const httpApi = require("./lib/httpApi.js"); // HTTP API functionality
 const sockets = require("./lib/sockets.js"); // Sockets.io functionality
 const shell = require("./lib/shell.js"); // Shell command functionality
 const lib = require("./lib/lib.js"); // Generic functionality
+const lyrics = require("./lib/lyrics.js"); // Lyrics functionality
+const lyricsCache = require("./lib/lyricsCache.js");
 const log = require("debug")("index"); // See README.md on debugging
 
 // For versionioning purposes
@@ -67,6 +69,19 @@ let serverSettings = { // Placeholder for current server settings
         "metadata": 4 * 1000, // Timeout for metadata updates in milliseconds. Every 4 seconds.
         "rescan": 10 * 1000 // Timeout for possible rescan of devices in milliseconds. Every 10 seconds.
     },
+    "features": {
+        "lyrics": {
+            "enabled": false,
+            "provider": "lrclib",
+            "offsetMs": 0,
+            "cache": {
+                "enabled": false,
+                "maxSizeMB": 50,
+                "prefetch": "album",
+                "maxPrefetchConcurrency": 4
+            }
+        }
+    },
     "server": null, // Placeholder for the express server (port) information
     "version": { // Version information for the server and client
         "server": packageJsonServer.version,
@@ -81,6 +96,7 @@ let pollMetadata = null; // For the renderer metadata
 // ===========================================================================
 // Get the server settings from local file storage, if any.
 lib.getSettings(serverSettings);
+lyricsCache.startCacheMaintenance(serverSettings);
 
 // ===========================================================================
 // Initial SSDP scan for devices.
@@ -201,6 +217,9 @@ io.on("connection", (socket) => {
         // setTimeout(() => {
         socket.emit("state", deviceInfo.state);
         socket.emit("metadata", deviceInfo.metadata);
+        if (deviceInfo.lyrics) {
+            socket.emit("lyrics", deviceInfo.lyrics);
+        }
         // }, serverSettings.timeouts.immediate)
     }
 
@@ -291,6 +310,47 @@ io.on("connection", (socket) => {
     });
 
     /**
+     * Listener for server settings updates.
+     * @param {object} msg - The updated settings.
+     * @returns {undefined}
+     */
+    socket.on("server-settings-update", (msg) => {
+        log("Socket event", "server-settings-update", msg);
+        if (msg && msg.features && msg.features.lyrics) {
+            var shouldRefreshLyrics = false;
+            if (typeof msg.features.lyrics.enabled === "boolean") {
+                serverSettings.features.lyrics.enabled = msg.features.lyrics.enabled;
+                shouldRefreshLyrics = true;
+            }
+            if (typeof msg.features.lyrics.offsetMs === "number") {
+                serverSettings.features.lyrics.offsetMs = msg.features.lyrics.offsetMs;
+            }
+            if (msg.features.lyrics.cache) {
+                if (typeof msg.features.lyrics.cache.enabled === "boolean") {
+                    serverSettings.features.lyrics.cache.enabled = msg.features.lyrics.cache.enabled;
+                }
+                if (typeof msg.features.lyrics.cache.maxSizeMB === "number") {
+                    serverSettings.features.lyrics.cache.maxSizeMB = Math.max(0, msg.features.lyrics.cache.maxSizeMB);
+                }
+                if (typeof msg.features.lyrics.cache.prefetch === "string") {
+                    const prefetch = msg.features.lyrics.cache.prefetch;
+                    if (prefetch === "off" || prefetch === "album") {
+                        serverSettings.features.lyrics.cache.prefetch = prefetch;
+                    }
+                }
+            }
+            lib.saveSettings(serverSettings);
+            lyricsCache.startCacheMaintenance(serverSettings);
+            sockets.getServerSettings(io, serverSettings);
+            if (shouldRefreshLyrics) {
+                lyrics.getLyricsForMetadata(io, deviceInfo, serverSettings).catch((error) => {
+                    log("Lyrics update error", error);
+                });
+            }
+        }
+    });
+
+    /**
      * Listener for server reboot.
      * @returns {undefined}
      */
@@ -324,3 +384,16 @@ server.listen(port, () => {
     serverSettings.server = server.address();
     console.log("Web Server started at http://localhost:%s", server.address().port);
 });
+
+// Caching related, so is this still required?
+// const shutdownServer = (signal) => {
+//     log("Shutdown signal received:", signal);
+//     try {
+//         lyricsCache.closeCache();
+//     } finally {
+//         process.exit(0);
+//     }
+// };
+
+// process.on("SIGINT", () => shutdownServer("SIGINT"));
+// process.on("SIGTERM", () => shutdownServer("SIGTERM"));

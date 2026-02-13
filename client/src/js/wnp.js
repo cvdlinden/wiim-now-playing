@@ -11,9 +11,9 @@ WNP.s = {
     locPort: (location.port && location.port != "80" && location.port != "1234") ? location.port : "80",
     rndAlbumArtUri: "./img/fake-album-1.jpg",
     // Device selection
-    aDeviceUI: ["btnPrev", "btnPlay", "btnNext", "btnRefresh", "selDeviceChoices", "devName", "devNameHolder", "mediaTitle", "mediaSubTitle", "mediaArtist", "mediaAlbum", "mediaBitRate", "mediaBitDepth", "mediaSampleRate", "mediaQualityIdent", "devVol", "btnRepeat", "btnShuffle", "progressPlayed", "progressLeft", "progressPercent", "mediaSource", "albumArt", "bgAlbumArtBlur", "btnDevSelect", "oDeviceList", "btnDevPreset", "oPresetList", "btnDevVolume", "rVolume"],
+    aDeviceUI: ["btnPrev", "btnPlay", "btnNext", "btnRefresh", "selDeviceChoices", "devName", "devNameHolder", "mediaTitle", "mediaSubTitle", "mediaArtist", "mediaAlbum", "mediaBitRate", "mediaBitDepth", "mediaSampleRate", "mediaQualityIdent", "devVol", "btnRepeat", "btnShuffle", "progressPlayed", "progressLeft", "progressPercent", "mediaSource", "albumArt", "bgAlbumArtBlur", "btnDevSelect", "oDeviceList", "btnDevPreset", "oPresetList", "btnDevVolume", "rVolume", "lyricsContainer", "lyricsPrev", "lyricsCurrent", "lyricsNext"],
     // Server actions to be used in the app
-    aServerUI: ["btnReboot", "btnUpdate", "btnShutdown", "btnReloadUI", "sServerUrlHostname", "sServerUrlIP", "sServerVersion", "sClientVersion"],
+    aServerUI: ["btnReboot", "btnUpdate", "btnShutdown", "btnReloadUI", "sServerUrlHostname", "sServerUrlIP", "sServerVersion", "sClientVersion", "chkLyricsEnabled", "lyricsOffsetMs", "chkLyricsCacheEnabled", "lyricsCacheSizeMB", "lyricsPrefetchMode"],
 };
 
 // Data placeholders.
@@ -23,7 +23,12 @@ WNP.d = {
     prevTransportState: null, // Previous transport state, used to detect changes in the transport state
     prevPlayMedium: null, // Previous play medium, used to detect changes in the play medium
     prevSourceIdent: null, // Previous source ident, used to detect changes in the source
-    prevTrackInfo: null // Previous track info, used to detect changes in the metadata
+    prevTrackInfo: null, // Previous track info, used to detect changes in the metadata
+    lastState: null, // Last known state, used for lyrics timing
+    lyrics: null, // Current lyrics payload
+    lyricsIndex: null, // Current lyrics line index
+    lyricsLines: [], // Parsed lyrics lines
+    // lyricsCookieApplied: false // Track if cookie setting has been applied -> TODO: Why are we using cookies?
 };
 
 // Reference placeholders.
@@ -183,6 +188,86 @@ WNP.setUIListeners = function () {
         location.reload();
     });
 
+    // Lyrics toggle
+    if (this.r.chkLyricsEnabled) {
+        this.r.chkLyricsEnabled.addEventListener("change", function () {
+            // WNP.setCookie("wnpLyricsEnabled", this.checked, 180);
+            socket.emit("server-settings-update", {
+                features: {
+                    lyrics: {
+                        enabled: this.checked
+                    }
+                }
+            });
+        });
+    }
+
+    // Lyrics offset in ms
+    if (this.r.lyricsOffsetMs) {
+        this.r.lyricsOffsetMs.addEventListener("change", function () {
+            var offsetValue = parseInt(this.value, 10);
+            if (isNaN(offsetValue)) {
+                offsetValue = 0;
+            }
+            socket.emit("server-settings-update", {
+                features: {
+                    lyrics: {
+                        offsetMs: offsetValue
+                    }
+                }
+            });
+        });
+    }
+
+    // Lyrics caching enabled/disabled
+    if (this.r.chkLyricsCacheEnabled) {
+        this.r.chkLyricsCacheEnabled.addEventListener("change", function () {
+            socket.emit("server-settings-update", {
+                features: {
+                    lyrics: {
+                        cache: {
+                            enabled: this.checked
+                        }
+                    }
+                }
+            });
+        });
+    }
+
+    // Lyrics cache size in MB
+    if (this.r.lyricsCacheSizeMB) {
+        this.r.lyricsCacheSizeMB.addEventListener("change", function () {
+            var sizeValue = parseInt(this.value, 10);
+            if (isNaN(sizeValue) || sizeValue < 0) {
+                sizeValue = 0;
+            }
+            socket.emit("server-settings-update", {
+                features: {
+                    lyrics: {
+                        cache: {
+                            maxSizeMB: sizeValue
+                        }
+                    }
+                }
+            });
+        });
+    }
+
+    // Lyrics pre-fetching
+    if (this.r.lyricsPrefetchMode) {
+        this.r.lyricsPrefetchMode.addEventListener("change", function () {
+            socket.emit("server-settings-update", {
+                features: {
+                    lyrics: {
+                        cache: {
+                            prefetch: this.value
+                        }
+                    }
+                }
+            });
+        });
+    }
+
 };
 
 /**
@@ -244,6 +329,52 @@ WNP.setSocketDefinitions = function () {
         WNP.r.sServerVersion.innerText = (msg && msg.version && msg.version.server) ? msg.version.server : "-";
         // Set the client version
         WNP.r.sClientVersion.innerText = (msg && msg.version && msg.version.client) ? msg.version.client : "-";
+
+        // Lyrics enabled/disabled
+        if (WNP.r.chkLyricsEnabled) {
+            WNP.r.chkLyricsEnabled.checked = Boolean(msg && msg.features && msg.features.lyrics && msg.features.lyrics.enabled);
+        }
+        // Lyrics offset in ms
+        if (WNP.r.lyricsOffsetMs) {
+            var offsetMs = (msg && msg.features && msg.features.lyrics && typeof msg.features.lyrics.offsetMs === "number") ? msg.features.lyrics.offsetMs : 0;
+            WNP.r.lyricsOffsetMs.value = offsetMs;
+        }
+        // Lyrics caching enabled/disabled, and corresponding properties
+        if (WNP.r.chkLyricsCacheEnabled || WNP.r.lyricsCacheSizeMB || WNP.r.lyricsPrefetchMode) {
+            var cacheSettings = (msg && msg.features && msg.features.lyrics && msg.features.lyrics.cache) ? msg.features.lyrics.cache : {};
+            var cacheSizeMB = (typeof cacheSettings.maxSizeMB === "number") ? cacheSettings.maxSizeMB : 0;
+            var cacheEnabled = cacheSettings.enabled !== false && cacheSizeMB > 0;
+            if (WNP.r.chkLyricsCacheEnabled) {
+                WNP.r.chkLyricsCacheEnabled.checked = cacheEnabled;
+            }
+            if (WNP.r.lyricsCacheSizeMB) {
+                WNP.r.lyricsCacheSizeMB.value = cacheSizeMB;
+            }
+            if (WNP.r.lyricsPrefetchMode) {
+                WNP.r.lyricsPrefetchMode.value = cacheSettings.prefetch || "off";
+            }
+        }
+
+        // Lyrics cookie?
+        // if (WNP.r.chkLyricsEnabled && !WNP.d.lyricsCookieApplied) {
+        //     var cookieValue = WNP.getCookie("wnpLyricsEnabled");
+        //     if (cookieValue !== null) {
+        //         var cookieEnabled = cookieValue === "true";
+        //         if (WNP.r.chkLyricsEnabled.checked !== cookieEnabled) {
+        //             WNP.r.chkLyricsEnabled.checked = cookieEnabled;
+        //             socket.emit("server-settings-update", {
+        //                 features: {
+        //                     lyrics: {
+        //                         enabled: cookieEnabled
+        //                     }
+        //                 }
+        //             });
+        //         }
+        //     } else {
+        //         WNP.setCookie("wnpLyricsEnabled", WNP.r.chkLyricsEnabled.checked, 180);
+        //     }
+        //     WNP.d.lyricsCookieApplied = true;
+        // }
 
     });
 
@@ -347,6 +478,9 @@ WNP.setSocketDefinitions = function () {
         WNP.r.progressLeft.children[0].innerText = (oPlayerProgress.left != "") ? "-" + oPlayerProgress.left : "";
         WNP.r.progressPercent.setAttribute("aria-valuenow", oPlayerProgress.percent)
         WNP.r.progressPercent.children[0].setAttribute("style", "width:" + oPlayerProgress.percent + "%");
+
+        WNP.d.lastState = msg;
+        WNP.updateLyricsProgress(relTime, timeStampDiff);
 
         // Device transport state or play medium changed...?
         if (WNP.d.prevTransportState !== msg.CurrentTransportState || WNP.d.prevPlayMedium !== msg.PlayMedium) {
@@ -461,6 +595,7 @@ WNP.setSocketDefinitions = function () {
             trackChanged = true;
             WNP.d.prevTrackInfo = currentTrackInfo; // Remember the last track info
             console.log("WNP", "Track changed:", currentTrackInfo);
+            WNP.clearLyrics();
         }
         if (trackChanged && currentAlbumArt != albumArtUri) {
             WNP.setAlbumArt(albumArtUri);
@@ -513,6 +648,26 @@ WNP.setSocketDefinitions = function () {
             WNP.r.btnShuffle.className = "btn btn-outline-light";
         }
 
+    });
+
+    // On lyrics
+    socket.on("lyrics", function (msg) {
+        WNP.d.lyrics = msg;
+        WNP.d.lyricsIndex = null;
+
+        if (!msg || msg.status !== "ok" || !msg.syncedLyrics) {
+            WNP.clearLyrics();
+            return;
+        }
+
+        WNP.d.lyricsLines = WNP.parseSyncedLyrics(msg.syncedLyrics);
+        if (!WNP.d.lyricsLines.length) {
+            WNP.clearLyrics();
+            return;
+        }
+
+        WNP.r.lyricsContainer.classList.add("is-visible");
+        WNP.updateLyricsProgress(null, 0);
     });
 
     // On device set
@@ -701,6 +856,186 @@ WNP.convertToMinutes = function (seconds) {
     var result = tempDate.toISOString().substring(14, 19);
     return result;
 };
+
+/**
+ * Parse synced lyrics (LRC format) into timestamps.
+ * @param {string} syncedLyrics - LRC formatted lyrics string.
+ * @returns {array} Array of lyric lines with time in ms.
+ */
+WNP.parseSyncedLyrics = function (syncedLyrics) {
+    if (!syncedLyrics) {
+        return [];
+    }
+    const lines = syncedLyrics.split(/\r?\n/);
+    const parsed = [];
+    const timeRegex = /\[(\d{2}):(\d{2})(?:\.(\d{2,3}))?\]/g;
+
+    lines.forEach((line) => {
+        let match;
+        const text = line.replace(timeRegex, "").trim();
+        while ((match = timeRegex.exec(line)) !== null) {
+            const minutes = parseInt(match[1], 10);
+            const seconds = parseInt(match[2], 10);
+            const fraction = match[3] ? match[3].padEnd(3, "0") : "000";
+            const millis = (minutes * 60 + seconds) * 1000 + parseInt(fraction, 10);
+            parsed.push({
+                timeMs: millis,
+                text: text
+            });
+        }
+    });
+
+    return parsed
+        .filter((entry) => entry.text !== "")
+        .sort((a, b) => a.timeMs - b.timeMs);
+};
+
+/**
+ * Clear lyrics UI.
+ * @returns {undefined}
+ */
+WNP.clearLyrics = function () {
+    if (WNP.r.lyricsContainer) {
+        WNP.r.lyricsContainer.classList.remove("is-visible");
+        WNP.r.lyricsContainer.classList.remove("is-pending");
+    }
+    if (WNP.r.lyricsPrev) {
+        WNP.r.lyricsPrev.innerText = "";
+    }
+    if (WNP.r.lyricsCurrent) {
+        WNP.r.lyricsCurrent.innerText = "";
+    }
+    if (WNP.r.lyricsNext) {
+        WNP.r.lyricsNext.innerText = "";
+    }
+    WNP.d.lyricsLines = [];
+    WNP.d.lyricsIndex = null;
+};
+
+/**
+ * Toggle pending lyrics state.
+ * @param {boolean} isPending - Whether lyrics are pending.
+ * @returns {undefined}
+ */
+WNP.setLyricsPending = function (isPending) {
+    if (!WNP.r.lyricsContainer) {
+        return;
+    }
+    if (isPending) {
+        WNP.r.lyricsContainer.classList.add("is-pending");
+    } else {
+        WNP.r.lyricsContainer.classList.remove("is-pending");
+    }
+};
+
+/**
+ * Update lyrics display based on player progress.
+ * @param {string|null} relTime - Time elapsed while playing, format 00:00:00.
+ * @param {integer} timeStampDiff - Possible play time offset in seconds.
+ * @returns {undefined}
+ */
+WNP.updateLyricsProgress = function (relTime, timeStampDiff) {
+    if (!WNP.d.lyricsLines || WNP.d.lyricsLines.length === 0) {
+        return;
+    }
+
+    var currentRelTime = relTime || (WNP.d.lastState && WNP.d.lastState.RelTime) || "00:00:00";
+    var currentOffset = timeStampDiff || 0;
+    var currentSeconds = WNP.convertToSeconds(currentRelTime) + currentOffset;
+    var currentMs = currentSeconds * 1000 + WNP.getLyricsOffsetMs();
+
+    var currentIndex = -1;
+    for (let i = 0; i < WNP.d.lyricsLines.length; i++) {
+        if (WNP.d.lyricsLines[i].timeMs <= currentMs) {
+            currentIndex = i;
+        } else {
+            break;
+        }
+    }
+
+    if (currentIndex === -1) {
+        WNP.setLyricsPending(true);
+        WNP.setLyricsLines(
+            "",
+            WNP.d.lyricsLines[1] ? WNP.d.lyricsLines[0].text : "",
+            WNP.d.lyricsLines[2] ? WNP.d.lyricsLines[1].text : ""
+        );
+        WNP.d.lyricsIndex = -1;
+        return;
+    }
+
+    if (WNP.d.lyricsIndex === currentIndex) {
+        return;
+    }
+
+    WNP.setLyricsPending(false);
+    WNP.d.lyricsIndex = currentIndex;
+    var prevLine = currentIndex > 0 ? WNP.d.lyricsLines[currentIndex - 1].text : "";
+    var currentLine = WNP.d.lyricsLines[currentIndex].text;
+    var nextLine = WNP.d.lyricsLines[currentIndex + 1] ? WNP.d.lyricsLines[currentIndex + 1].text : "";
+    WNP.setLyricsLines(prevLine, currentLine, nextLine);
+};
+
+/**
+ * Update lyrics line text.
+ * @param {string} prevLine - Previous line.
+ * @param {string} currentLine - Current line.
+ * @param {string} nextLine - Next line.
+ * @returns {undefined}
+ */
+WNP.setLyricsLines = function (prevLine, currentLine, nextLine) {
+    if (!WNP.r.lyricsPrev || !WNP.r.lyricsCurrent || !WNP.r.lyricsNext) {
+        return;
+    }
+    WNP.r.lyricsPrev.innerText = prevLine;
+    WNP.r.lyricsCurrent.innerText = currentLine;
+    WNP.r.lyricsNext.innerText = nextLine;
+};
+
+/**
+ * Get lyrics offset (in ms) from server settings.
+ * @returns {number}
+ */
+WNP.getLyricsOffsetMs = function () {
+    if (WNP.d.serverSettings && WNP.d.serverSettings.features && WNP.d.serverSettings.features.lyrics && typeof WNP.d.serverSettings.features.lyrics.offsetMs === "number") {
+        return WNP.d.serverSettings.features.lyrics.offsetMs;
+    }
+    return 0;
+};
+
+// /**
+//  * Set a cookie with optional expiration in days.
+//  * @param {string} name - Cookie name.
+//  * @param {string|boolean|number} value - Cookie value.
+//  * @param {number} days - Days until expiration.
+//  * @returns {undefined}
+//  */
+// WNP.setCookie = function (name, value, days) {
+//     var expires = "";
+//     if (typeof days === "number") {
+//         var date = new Date();
+//         date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+//         expires = "; expires=" + date.toUTCString();
+//     }
+//     document.cookie = name + "=" + encodeURIComponent(String(value)) + expires + "; path=/";
+// };
+
+// /**
+//  * Get a cookie by name.
+//  * @param {string} name - Cookie name.
+//  * @returns {string|null}
+//  */
+// WNP.getCookie = function (name) {
+//     var nameEQ = name + "=";
+//     var ca = document.cookie.split(";");
+//     for (var i = 0; i < ca.length; i++) {
+//         var c = ca[i].trim();
+//         if (c.indexOf(nameEQ) === 0) {
+//             return decodeURIComponent(c.substring(nameEQ.length, c.length));
+//         }
+//     }
+//     return null;
+// };
 
 /**
  * Check if the album art is a valid URI. Returns the URI if valid, otherwise a random URI.
