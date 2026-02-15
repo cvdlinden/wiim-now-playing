@@ -1,59 +1,39 @@
 // ===========================================================================
 // lyricsCache.js
-//
-// Persistent lyrics cache (SQLite)
 
 /**
- * ATTENTION: CACHE STRATEGY & HARDWARE CONSTRAINTS
- * 
- * This module will be refactored from the original PR. 
- * Original implementation uses node:sqlite, which is avoided here because:
- * 1. HARDWARE: This app is designed to run on Raspberry Pi with SD cards. Frequent SQL writes 
- *    (journaling/WAL) drastically shorten SD card lifespan.
- * 2. PERFORMANCE: JSON blobs are better handled in-memory or via simple key-value stores.
- * 
- * STRATEGY: 
- * - Use In-Memory storage for high-frequency access.
- * - [Optional: Persist to disk only on exit or intervals to save the SD card.]
- * 
+ * Lyrics caching module.
+ * Creates and maintains a cache in memory.
+ * @module
  */
 
-
+// Other modules
 // const fs = require("fs");
 // const path = require("path");
 // const zlib = require("zlib");
 // const { DatabaseSync } = require("node:sqlite");
+const { createStorage } = require("unstorage");
+const lru = require("unstorage/drivers/lru-cache");
 const log = require("debug")("lib:lyrics-cache");
 
 /**
  * Initializes memory storage cache
  */
-let storage;
-async function init() {
-    log("init()")
-    const { createStorage } = await import("unstorage");
-    const lru = (await import("unstorage/drivers/lru-cache")).default;
-
-    storage = createStorage({
-        driver: lru({
-            max: 1000, // Max 1000 JSON objects in RAM
-            ttl: 1000 * 60 * 60 * 8 // Keep cached items for 8 hours
-        })
-    });
-}
-
-// Start init
-const setup = init();
+const storage = createStorage({
+    driver: lru({
+        max: 1000, // Max 1000 JSON objects in RAM
+        ttl: 1000 * 60 * 60 * 8 // Keep cached items for 8 hours
+    })
+});
 
 /**
  * Get an item from cache
  * @param {string} key 
- * @returns {obj}
+ * @returns {Promise<object|null>}
  */
 async function get(key) {
-    await setup;
-    let value = await storage.getItem(key)
-    log("GET:", key, value?.status)
+    const value = await storage.getItem(key);
+    log("GET:", key, value ? value.status : "MISS");
     return value;
 }
 
@@ -63,32 +43,29 @@ async function get(key) {
  * @param {object} val 
  */
 async function set(key, val) {
-    log("SET:", key, val?.status)
-    await setup;
+    log("SET:", key, val?.status);
     await storage.setItem(key, val);
 }
 
 /**
  * Check whether the item is cache
  * @param {string} key 
- * @returns {boolean}
+ * @returns {Promise<boolean>}
  */
 async function has(key) {
-    await setup;
-    let value = await storage.hasItem(key)
-    log("HAS:", key, value)
-    return value;
+    const exists = await storage.hasItem(key);
+    log("HAS:", key, exists);
+    return exists;
 }
 
 /**
  * Count the number of items in cache
- * @returns {int}
+ * @returns {Promise<number>}
  */
 async function count() {
-    await setup;
-    let keys = await storage.getKeys()
-    log("COUNT:", keys.length)
-    return keys.length
+    const keys = await storage.getKeys();
+    log("COUNT:", keys.length);
+    return keys.length;
 }
 
 module.exports = {
