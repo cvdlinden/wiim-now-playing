@@ -201,20 +201,23 @@ const fetchJson = (path) => new Promise((resolve, reject) => {
                     resolve(JSON.parse(data));
                 } catch (error) {
                     log("API error:", error)
-                    reject(error);
+                    // reject(error);
+                    resolve(null);
                 }
             } else if (res.statusCode === 404) {
                 log("API: 404 Not found")
                 resolve(null);
             } else {
                 log("API error:", res.statusCode)
-                reject(new Error(`LRCLIB request failed with status ${res.statusCode}`));
+                resolve(null);
+                // reject(new Error(`LRCLIB request failed with status ${res.statusCode}`));
             }
         });
     });
     req.on("error", (error) => {
         log("API error:", error)
-        reject
+        resolve(null);
+        // reject
     });
 });
 
