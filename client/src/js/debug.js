@@ -18,8 +18,8 @@ WNP.s = {
     // Ticks to be used in the app (debug)
     aTicksUI: ["tickDevicesGetUp", "tickDevicesRefreshUp", "tickServerSettingsUp", "tickStateUp", "tickStateDown", "tickMetadataUp", "tickMetadataDown", "tickLyricsUp", "tickLyricsDown", "tickDeviceSetUp", "tickDeviceSetDown", "tickServerSettingsDown", "tickDevicesGetDown", "tickDevicesRefreshDown", "tickVolumeGetUp", "tickVolumeGetDown", "tickVolumeSetUp", "tickVolumeSetDown", "tickPresetsListUp", "tickPresetsListDown"],
     // Debug UI elements
-    // aDebugUI: ["state", "metadata", "lyrics", "lyricsStatus", "lyricsProvider", "lyricsTrackKey", "lyricsCacheEnabled", "lyricsCacheStatus", "lyricsCacheSize", "lyricsCacheMax", "lyricsCachePrefetchMode", "lyricsCachePrefetchConcurrency", "lyricsPrefetch", "lyricsPrefetchStatus", "lyricsPrefetchTrackKey", "lyricsPrefetchMode", "lyricsPrefetchReason", "sPresetsList", "sServerSettings", "sManufacturer", "sModelName", "sLocation", "sTimeStampDiff", "sAlbumArtUri", "sAlbumArtUriRaw", "sAlbumArtUriStatus", "oPresetsGroup", "btnDevices", "btnGetVolume", "btnSetVolume", "mediaLoopMode", "sTransportState", "sPlayMedium", "sPlayerProgress"]
-    aDebugUI: ["state", "metadata", "lyrics", "lyricsStatus", "lyricsTrackKey", "sPresetsList", "sServerSettings", "sManufacturer", "sModelName", "sLocation", "sTimeStampDiff", "sAlbumArtUri", "sAlbumArtUriRaw", "sAlbumArtUriStatus", "oPresetsGroup", "btnDevices", "btnGetVolume", "btnSetVolume", "mediaLoopMode", "sTransportState", "sPlayMedium", "sPlayerProgress"]
+    // aDebugUI: ["state", "metadata", "lyrics", "lyricsStatus", "lyricsTrackKey", "lyricsPrefetch", "lyricsPrefetchStatus", "lyricsPrefetchTrackKey", "lyricsPrefetchMode", "lyricsPrefetchReason", "sPresetsList", "sServerSettings", "sManufacturer", "sModelName", "sLocation", "sTimeStampDiff", "sAlbumArtUri", "sAlbumArtUriRaw", "sAlbumArtUriStatus", "oPresetsGroup", "btnDevices", "btnGetVolume", "btnSetVolume", "mediaLoopMode", "sTransportState", "sPlayMedium", "sPlayerProgress"]
+    aDebugUI: ["state", "metadata", "lyrics", "lyricsStatus", "lyricsTrackKey", "lyricsPayload", "lyricsSyncedLyrics", "sPresetsList", "sServerSettings", "sManufacturer", "sModelName", "sLocation", "sTimeStampDiff", "sAlbumArtUri", "sAlbumArtUriRaw", "sAlbumArtUriStatus", "oPresetsGroup", "btnDevices", "btnGetVolume", "btnSetVolume", "mediaLoopMode", "sTransportState", "sPlayMedium", "sPlayerProgress"]
 };
 
 // Data placeholders.
@@ -292,8 +292,6 @@ WNP.setSocketDefinitions = function () {
             WNP.r.chkLyricsEnabled.checked = Boolean(msg && msg.features && msg.features.lyrics && msg.features.lyrics.enabled);
         }
 
-        WNP.updateLyricsCacheSettings();
-
     });
 
     // On devices get
@@ -490,20 +488,9 @@ WNP.setSocketDefinitions = function () {
         WNP.r.lyrics.innerHTML = JSON.stringify(msg);
 
         WNP.r.lyricsStatus.innerText = (msg && msg.status) ? msg.status : "-";
-        // WNP.r.lyricsProvider.innerText = (msg && msg.provider) ? msg.provider : "-";
         WNP.r.lyricsTrackKey.innerText = (msg && msg.trackKey) ? msg.trackKey : "-";
-
-        // const diagnostics = msg?.diagnostics || {};
-        // if (WNP.r.lyricsCacheStatus) {
-        //     WNP.r.lyricsCacheStatus.innerText = diagnostics.cacheStatus || "-";
-        // }
-        // if (WNP.r.lyricsCacheSize) {
-        //     WNP.r.lyricsCacheSize.innerText = WNP.formatBytes(diagnostics.cacheSizeBytes);
-        // }
-        // if (WNP.r.lyricsCacheMax) {
-        //     WNP.r.lyricsCacheMax.innerText = WNP.formatBytes(diagnostics.cacheMaxBytes);
-        // }
-        WNP.updateLyricsCacheSettings();
+        WNP.r.lyricsPayload.innerText = (msg && msg.payload) ? true : false;
+        WNP.r.lyricsSyncedLyrics.innerText = (msg && msg.payload && msg.payload.syncedLyrics) ? true : false;
     });
 
     // socket.on("lyrics-prefetch", function (msg) {
@@ -949,28 +936,6 @@ WNP.formatBytes = function (bytes) {
     const exponent = Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), units.length - 1);
     const value = bytes / Math.pow(1024, exponent);
     return `${value.toFixed(value >= 10 || exponent === 0 ? 0 : 1)} ${units[exponent]}`;
-};
-
-/**
- * Update the Lyrics cache settings
- * @param {void}
- * @returns {void}
- */
-WNP.updateLyricsCacheSettings = function () {
-    const cacheSettings = WNP.d.serverSettings?.features?.lyrics?.cache || {};
-    if (WNP.r.lyricsCacheEnabled) {
-        WNP.r.lyricsCacheEnabled.innerText = (typeof cacheSettings.enabled === "boolean")
-            ? (cacheSettings.enabled ? "true" : "false")
-            : "-";
-    }
-    if (WNP.r.lyricsCachePrefetchMode) {
-        WNP.r.lyricsCachePrefetchMode.innerText = cacheSettings.prefetch || "-";
-    }
-    if (WNP.r.lyricsCachePrefetchConcurrency) {
-        WNP.r.lyricsCachePrefetchConcurrency.innerText = (typeof cacheSettings.maxPrefetchConcurrency === "number")
-            ? cacheSettings.maxPrefetchConcurrency
-            : "-";
-    }
 };
 
 // =======================================================

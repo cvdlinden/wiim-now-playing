@@ -46,13 +46,12 @@ const LRCLIB_BASE_URL = "https://lrclib.net";
  */
 const getLyricsForMetadata = async (io, deviceInfo, serverSettings) => {
     log("getLyricsForMetadata()");
-    // const diagnostics = buildDiagnostics(deviceInfo?.metadata, deviceInfo, serverSettings);
 
     // Are lyrics enabled?
     const enabled = serverSettings?.features?.lyrics?.enabled;
     if (!enabled) {
         log("Lyrics disabled!")
-        clearLyrics(io, deviceInfo, "disabled", null, null, diagnostics);
+        clearLyrics(io, deviceInfo, "disabled", null, null);
         return;
     }
 
@@ -60,7 +59,7 @@ const getLyricsForMetadata = async (io, deviceInfo, serverSettings) => {
     const metadata = deviceInfo.metadata;
     if (!metadata || !metadata.trackMetaData) {
         log("No metadata found to fetch lyrics for.")
-        clearLyrics(io, deviceInfo, "no-metadata", null, null, diagnostics);
+        clearLyrics(io, deviceInfo, "no-metadata", null, null);
         return;
     }
 
@@ -68,7 +67,7 @@ const getLyricsForMetadata = async (io, deviceInfo, serverSettings) => {
     const signature = buildSignatureFromMetadata(metadata);
     if (!signature) {
         log("Missing signature or incomplete...")
-        clearLyrics(io, deviceInfo, "missing-signature", null, null, diagnostics);
+        clearLyrics(io, deviceInfo, "missing-signature", null, null);
         return;
     }
 
@@ -86,15 +85,12 @@ const getLyricsForMetadata = async (io, deviceInfo, serverSettings) => {
         log(`[Cache Miss] Fetching API for '${trackKey}'...`);
 
         try {
-            // const payload = await fetchLyricsForSignature(signature, trackKey, serverSettings, diagnostics);
             // const payload = await fetchLyricsForSignature(signature, trackKey, serverSettings, null);
             const payload = await fetchLyrics(signature, trackKey);
-            // diagnostics.totalMs = Date.now() - diagnostics.requestedAt;
             if (payload) {
                 // log("Lyrics fetched from API!")
                 setLyricsState(io, deviceInfo, {
                     ...payload,
-                    // diagnostics: snapshotDiagnostics()
                 });
                 // schedulePrefetchForSignature(io, signature, serverSettings, {
                 //     reason: "live-fetch"
@@ -103,13 +99,10 @@ const getLyricsForMetadata = async (io, deviceInfo, serverSettings) => {
             }
             else {
                 log("Lyrics not found from API!")
-                // clearLyrics(io, deviceInfo, "not-found", signature, trackKey, snapshotDiagnostics());
                 clearLyrics(io, deviceInfo, "not-found", signature, trackKey, null);
             }
         } catch (error) {
             log("LRCLIB error:", error.message);
-            // diagnostics.totalMs = Date.now() - diagnostics.requestedAt;
-            // clearLyrics(io, deviceInfo, "error", signature, trackKey, snapshotDiagnostics());
             clearLyrics(io, deviceInfo, "error", signature, trackKey, null);
         }
 
@@ -123,39 +116,6 @@ const getLyricsForMetadata = async (io, deviceInfo, serverSettings) => {
         // });
         return;
     }
-    // diagnostics.cacheLookupMs = cacheLookup.durationMs;
-    // diagnostics.cacheStatus = cacheLookup.status;
-    // diagnostics.cacheSizeBytes = cacheLookup.cacheConfig?.enabled
-    //     ? lyricsCache.getCacheStats(cacheLookup.cacheConfig).totalSize
-    //     : 0;
-    // diagnostics.cacheMaxBytes = cacheLookup.cacheConfig?.maxSizeBytes || 0;
-
-    // if (cacheLookup.status === "hit" && cacheLookup.payload) {
-    //     // diagnostics.totalMs = Date.now() - diagnostics.requestedAt;
-    //     log(`Lyrics cache hit (${cacheLookup.durationMs}ms)`, trackKey);
-    //     setLyricsState(io, deviceInfo, {
-    //         ...cacheLookup.payload,
-    //         diagnostics
-    //     });
-    //     schedulePrefetchForSignature(io, signature, serverSettings, {
-    //         reason: "cache-hit"
-    //     });
-    //     return;
-    // }
-    // if (cacheLookup.status === "miss") {
-    //     log(`Lyrics cache miss (${cacheLookup.durationMs}ms)`, trackKey);
-    // }
-
-    // const snapshotDiagnostics = () => {
-    //     if (!diagnostics) {
-    //         return null;
-    //     }
-    //     return {
-    //         ...diagnostics,
-    //         requests: diagnostics.requests ? [...diagnostics.requests] : [],
-    //         pendingRequests: diagnostics.pendingRequests ? [...diagnostics.pendingRequests] : []
-    //     };
-    // };
 };
 
 const fetchLyrics = async (signature, trackKey) => {
@@ -186,17 +146,16 @@ const fetchLyrics = async (signature, trackKey) => {
     else {
         return null
     }
-}
+};
 
 // /**
 //  * Fetch the lyrics for the specific signature (track, artist, album and duration)
 //  * @param {object} signature 
 //  * @param {string} trackKey 
 //  * @param {object} serverSettings 
-//  * @param {void} diagnostics 
 //  * @param {object} options 
 //  */
-// const fetchLyricsForSignature = async (signature, trackKey, serverSettings, diagnostics, options = {}) => {
+// const fetchLyricsForSignature = async (signature, trackKey, serverSettings, options = {}) => {
 //     log("fetchLyricsForSignature()")
 //     // const withPrefetchMetadata = (payload) => {
 //     //     if (!options.prefetch) {
@@ -230,7 +189,7 @@ const fetchLyrics = async (signature, trackKey) => {
 
 //     // Async request for lyrics...
 //     const request = (async () => {
-//         const lyrics = await fetchLyricsBySignature(signature, serverSettings, diagnostics);
+//         const lyrics = await fetchLyricsBySignature(signature, serverSettings);
 //         if (lyrics && lyrics.syncedLyrics) {
 //             log("Lyrics found!")
 //             const payload = {
@@ -301,7 +260,7 @@ const fetchLyrics = async (signature, trackKey) => {
 //     // }
 // };
 
-// const fetchLyricsBySignature = async (signature, serverSettings, diagnostics) => {
+// const fetchLyricsBySignature = async (signature, serverSettings) => {
 //     log("fetchLyricsBySignature()")
 //     const params = new URLSearchParams({
 //         track_name: signature.trackName,
@@ -313,17 +272,17 @@ const fetchLyrics = async (signature, trackKey) => {
 //     const tasks = [
 // {
 //     label: "get-cached",
-//     promise: fetchJson(`/api/get-cached?${params.toString()}`, serverSettings, diagnostics, "get-cached")
-//     // promise: fetchJsonWithTiming(`/api/get-cached?${params.toString()}`, serverSettings, diagnostics, "get-cached")
+//     promise: fetchJson(`/api/get-cached?${params.toString()}`, serverSettings, "get-cached")
+//     // promise: fetchJsonWithTiming(`/api/get-cached?${params.toString()}`, serverSettings, "get-cached")
 // },
 //         {
 //             label: "get",
-//             promise: fetchJson(`/api/get?${params.toString()}`, serverSettings, diagnostics, "get")
-//             // promise: fetchJsonWithTiming(`/api/get?${params.toString()}`, serverSettings, diagnostics, "get")
+//             promise: fetchJson(`/api/get?${params.toString()}`, serverSettings, "get")
+//             // promise: fetchJsonWithTiming(`/api/get?${params.toString()}`, serverSettings, "get")
 //         },
 //         {
 //             label: "search",
-//             promise: fetchLyricsFromSearch(signature, serverSettings, diagnostics)
+//             promise: fetchLyricsFromSearch(signature, serverSettings)
 //         }
 //     ].map((task) => ({
 //         label: task.label,
@@ -342,9 +301,6 @@ const fetchLyrics = async (signature, trackKey) => {
 
 //         if (settled.status === "ok" && isValidLyrics(settled.result)) {
 //             log("SETTLED:", settled.label);
-//             // if (diagnostics) {
-//             //     diagnostics.pendingRequests = pending.map((task) => task.label);
-//             // }
 //             return settled.result;
 //         }
 //         else {
@@ -355,28 +311,13 @@ const fetchLyrics = async (signature, trackKey) => {
 //     return null;
 // };
 
-// const fetchJsonWithTiming = async (path, serverSettings, diagnostics, label) => {
+// const fetchJsonWithTiming = async (path, serverSettings, label) => {
 //     log("fetchJsonWithTiming()", label, path)
 //     // const startedAt = Date.now();
 //     try {
 //         const result = await fetchJson(path, serverSettings);
-//         // if (diagnostics?.requests) {
-//         //     diagnostics.requests.push({
-//         //         endpoint: label,
-//         //         durationMs: Date.now() - startedAt,
-//         //         result: result ? "hit" : "miss"
-//         //     });
-//         // }
 //         return result;
 //     } catch (error) {
-//         // if (diagnostics?.requests) {
-//         //     diagnostics.requests.push({
-//         //         endpoint: label,
-//         //         durationMs: Date.now() - startedAt,
-//         //         result: "error",
-//         //         error: error.message
-//         //     });
-//         // }
 //         throw error;
 //     }
 // };
@@ -417,7 +358,7 @@ const fetchJson = (path, serverSettings) => new Promise((resolve, reject) => {
             }
         });
     });
-    req.on("error", () => {
+    req.on("error", (error) => {
         log("API error:", error)
         reject
     });
@@ -437,8 +378,7 @@ const setLyricsState = (io, deviceInfo, payload) => {
         status: payload?.status,
         // provider: payload?.provider,
         trackKey: payload?.trackKey,
-        // signature: payload?.signature,
-        // diagnostics: payload?.diagnostics
+        // signature: payload?.signature
     });
     io.emit("lyrics", payload);
 };
@@ -450,10 +390,9 @@ const setLyricsState = (io, deviceInfo, payload) => {
  * @param {sting} reason 
  * @param {string} signature 
  * @param {string} trackKey 
- * @param {void} diagnostics 
  * @returns 
  */
-const clearLyrics = (io, deviceInfo, reason, signature, trackKey, diagnostics) => {
+const clearLyrics = (io, deviceInfo, reason, signature, trackKey) => {
     log("clearLyrics()", reason, signature, trackKey)
     if (deviceInfo.lyrics && deviceInfo.lyrics.trackKey === trackKey && deviceInfo.lyrics.status === reason) {
         return;
@@ -462,7 +401,6 @@ const clearLyrics = (io, deviceInfo, reason, signature, trackKey, diagnostics) =
         status: reason,
         trackKey: trackKey || null,
         signature: signature || null,
-        diagnostics: diagnostics || null
     });
 };
 
@@ -495,9 +433,9 @@ const buildSignatureFromMetadata = (metadata) => {
 const buildTrackKey = (signature) => {
     // log("buildTrackKey()");
     const base = [
-        normalizeText(signature.trackName),
         normalizeText(signature.artistName),
         normalizeAlbum(signature.albumName),
+        normalizeText(signature.trackName),
         normalizeDurationForKey(signature.duration)
     ].join("|");
 
@@ -672,14 +610,14 @@ const normalizeDurationForKey = (duration) => {
 //     return filtered[0] || null;
 // };
 
-// const fetchLyricsFromSearch = async (signature, serverSettings, diagnostics) => {
+// const fetchLyricsFromSearch = async (signature, serverSettings) => {
 //     log("fetchLyricsFromSearch()")
 //     const params = new URLSearchParams({
 //         track_name: signature.trackName,
 //         artist_name: signature.artistName,
 //         album_name: signature.albumName
 //     });
-//     const results = await fetchJsonWithTiming(`/api/search?${params.toString()}`, serverSettings, diagnostics, "search");
+//     const results = await fetchJsonWithTiming(`/api/search?${params.toString()}`, serverSettings, "search");
 //     if (!Array.isArray(results)) {
 //         return null;
 //     }
@@ -703,7 +641,7 @@ const normalizeDurationForKey = (duration) => {
 //     }
 // }
 
-// const fetchBestLyricsBySignature = async (signature, serverSettings, diagnostics) => {
+// const fetchBestLyricsBySignature = async (signature, serverSettings) => {
 //     log("fetchBestLyricsBySignature()")
 //     const params = new URLSearchParams({
 //         track_name: signature.trackName,
@@ -718,9 +656,9 @@ const normalizeDurationForKey = (duration) => {
 //         album_name: signature.albumName
 //     });
 //     const results = await Promise.all([
-//         fetchJsonWithTiming(`/api/get-cached?${params.toString()}`, serverSettings, diagnostics, "get-cached"),
-//         fetchJsonWithTiming(`/api/get?${params.toString()}`, serverSettings, diagnostics, "get"),
-//         fetchJsonWithTiming(`/api/search?${searchParams.toString()}`, serverSettings, diagnostics, "search")
+//         fetchJsonWithTiming(`/api/get-cached?${params.toString()}`, serverSettings, "get-cached"),
+//         fetchJsonWithTiming(`/api/get?${params.toString()}`, serverSettings, "get"),
+//         fetchJsonWithTiming(`/api/search?${searchParams.toString()}`, serverSettings, "search")
 //     ].map((promise) => promise.catch(() => null)));
 
 //     const candidates = [];
@@ -786,27 +724,6 @@ const normalizeDurationForKey = (duration) => {
 //     //     }
 //     // }
 //     return lyricsCache.get(trackKey);
-// };
-
-// const buildDiagnostics = (metadata, deviceInfo, serverSettings) => {
-//     log("buildDiagnostics()")
-//     const requestedAt = Date.now();
-//     const metadataTimeStamp = metadata?.metadataTimeStamp || null;
-//     const stateTimeStamp = deviceInfo?.state?.stateTimeStamp || null;
-
-//     return {
-//         requestedAt,
-//         metadataTimeStamp,
-//         metadataAgeMs: metadataTimeStamp ? requestedAt - metadataTimeStamp : null,
-//         stateTimeStamp,
-//         stateAgeMs: stateTimeStamp ? requestedAt - stateTimeStamp : null,
-//         metadataPollIntervalMs: serverSettings?.timeouts?.metadata || null,
-//         cacheLookupMs: null,
-//         cacheStatus: null,
-//         cacheSizeBytes: null,
-//         cacheMaxBytes: null,
-//         requests: []
-//     };
 // };
 
 // const matchesAlbum = (candidate, signature) => {
