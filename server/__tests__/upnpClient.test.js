@@ -7,6 +7,7 @@
 
 const upnpClient = require('../lib/upnpClient.js');
 const lib = require('../lib/lib.js');
+const lyrics = require("./lyrics.js"); // Lyrics error
 const xml2js = require('xml2js');
 const UPnP = require("upnp-device-client");
 
