@@ -52,7 +52,8 @@ let deviceList = []; // Placeholder for found devices through SSDP
 let deviceInfo = { // Placeholder for the currently selected device info
     state: null, // Keeps the device state updates
     metadata: null, // Keeps the device metadata updates
-    client: null // Keeps the UPnP client object
+    client: null, // Keeps the UPnP client object
+    lyrics: null // Keeps the lyrics object
 };
 let serverSettings = { // Placeholder for current server settings
     "selectedDevice": { // The selected device properties, a placeholder for now. Will be filled once a (default) device selection has been made.

@@ -51,7 +51,7 @@ const getLyricsForMetadata = async (io, deviceInfo, serverSettings) => {
     const enabled = serverSettings?.features?.lyrics?.enabled;
     if (!enabled) {
         log("Lyrics disabled!")
-        clearLyrics(io, deviceInfo, "disabled", null, null);
+        clearLyricsState(io, deviceInfo, "disabled", null, null);
         return;
     }
 
@@ -59,7 +59,7 @@ const getLyricsForMetadata = async (io, deviceInfo, serverSettings) => {
     const metadata = deviceInfo.metadata;
     if (!metadata || !metadata.trackMetaData) {
         log("No metadata found to fetch lyrics for.")
-        clearLyrics(io, deviceInfo, "no-metadata", null, null);
+        clearLyricsState(io, deviceInfo, "no-metadata", null, null);
         return;
     }
 
@@ -67,7 +67,7 @@ const getLyricsForMetadata = async (io, deviceInfo, serverSettings) => {
     const signature = buildSignatureFromMetadata(metadata);
     if (!signature) {
         log("Missing signature or incomplete...")
-        clearLyrics(io, deviceInfo, "missing-signature", null, null);
+        clearLyricsState(io, deviceInfo, "missing-signature", null, null);
         return;
     }
 
@@ -99,15 +99,15 @@ const getLyricsForMetadata = async (io, deviceInfo, serverSettings) => {
             }
             else {
                 log("Lyrics not found from API!")
-                clearLyrics(io, deviceInfo, "not-found", signature, trackKey, null);
+                clearLyricsState(io, deviceInfo, "not-found", signature, trackKey);
             }
         } catch (error) {
             log("LRCLIB error:", error.message);
-            clearLyrics(io, deviceInfo, "error", signature, trackKey, null);
+            clearLyricsState(io, deviceInfo, "error", signature, trackKey);
         }
 
     } else {
-        log(`[Cache Hit] Entry present for ${trackKey}`);
+        log(`[Cache Hit] Entry present for ${trackKey}, status ${cacheLookup?.status}`);
         setLyricsState(io, deviceInfo, {
             ...cacheLookup
         });
@@ -118,34 +118,138 @@ const getLyricsForMetadata = async (io, deviceInfo, serverSettings) => {
     }
 };
 
+/**
+ * Fetch the lyrics from the API and store it in the cache
+ * First we try /api/get, if no result we try /api/search
+ * If nothing is found, we cache the status only
+ * @param {object} signature 
+ * @param {string} trackKey 
+ * @returns 
+ */
 const fetchLyrics = async (signature, trackKey) => {
     log("fetchLyrics()");
 
     // Set cache pending, if not already present
-    const hasCache = await lyricsCache.has(trackKey)
+    const hasCache = await lyricsCache.has(trackKey);
     if (!hasCache) {
-        lyricsCache.set(trackKey, { status: "pending", signature: signature, trackKey: trackKey, payload: null })
+        lyricsCache.set(trackKey, { status: "pending", signature: signature, trackKey: trackKey, payload: null });
     }
 
-    // Look for lyrics info from API
+    // Look for lyrics info from API using /api/get
     const params = new URLSearchParams({
         track_name: signature.trackName,
         artist_name: signature.artistName,
         album_name: signature.albumName,
         duration: signature.duration
     });
-    const getResult = await fetchJson(`/api/get?${params.toString()}`, null)
+    const getResult = await fetchJson(`/api/get?${params.toString()}`)
+    // const getResult = await fetchJson(`/api/get?${params.toString()}`)
 
     // Did we get anything from the API?
     if (getResult) {
-        lyricsCache.set(trackKey, { status: "ok", signature: signature, trackKey: trackKey, payload: getResult })
-        // let keyCount = await lyricsCache.count();
+        const cacheEntry = { status: "ok", signature: signature, trackKey: trackKey, payload: getResult };
+        lyricsCache.set(trackKey, cacheEntry);
+        let keyCount = await lyricsCache.count();
         // log("Cache entries:", keyCount)
-        return getResult;
+        return cacheEntry;
     }
     else {
-        return null
+        const searchParams = new URLSearchParams({
+            track_name: signature.trackName,
+            artist_name: signature.artistName,
+            album_name: signature.albumName
+        });
+        const searchResult = await fetchJson(`/api/search?${searchParams.toString()}`)
+
+        // Did we get anything from a search?
+        if (searchResult) {
+            // Currently doing first one in, but we should filter on proper lyrics...
+            const cacheEntry = { status: "ok", signature: signature, trackKey: trackKey, payload: searchResult[0] };
+            lyricsCache.set(trackKey, cacheEntry);
+            return cacheEntry
+        }
+        else {
+            const cacheEntry = { status: "not-found", signature: signature, trackKey: trackKey, payload: null };
+            lyricsCache.set(trackKey, cacheEntry);
+            return cacheEntry
+        }
+
     }
+};
+
+/**
+ * Fetch the json from the API
+ * Uses a https.get
+ * @param {string} path 
+ * @returns 
+ */
+const fetchJson = (path) => new Promise((resolve, reject) => {
+    const url = `${LRCLIB_BASE_URL}${path}`;
+    log("fetchJson()", url)
+    const req = https.get(url, {
+        // headers: {
+        //     "User-Agent": getUserAgent(serverSettings)
+        // }
+    }, (res) => {
+        let data = "";
+        res.on("data", (chunk) => { data += chunk; });
+        res.on("end", () => {
+            if (res.statusCode && res.statusCode >= 200 && res.statusCode < 300) {
+                log("API:", res.statusCode, res.statusMessage);
+                try {
+                    // log("API data returning...")
+                    resolve(JSON.parse(data));
+                } catch (error) {
+                    log("API error:", error)
+                    reject(error);
+                }
+            } else if (res.statusCode === 404) {
+                log("API: 404 Not found")
+                resolve(null);
+            } else {
+                log("API error:", res.statusCode)
+                reject(new Error(`LRCLIB request failed with status ${res.statusCode}`));
+            }
+        });
+    });
+    req.on("error", (error) => {
+        log("API error:", error)
+        reject
+    });
+});
+
+/**
+ * Sets and emits the current Lyrics state
+ * @param {object} io 
+ * @param {object} deviceInfo 
+ * @param {object} payload 
+ */
+const setLyricsState = (io, deviceInfo, payload) => {
+    log("setLyricsState()")
+    deviceInfo.lyrics = payload;
+    log("Lyrics STATE:", `status = ${payload?.status}; trackKey: ${payload?.trackKey}; payloadId: ${payload?.payload?.id}`)
+    io.emit("lyrics", payload);
+};
+
+/**
+ * Clears the current Lyrics State
+ * @param {object} io 
+ * @param {object} deviceInfo 
+ * @param {sting} reason 
+ * @param {string} signature 
+ * @param {string} trackKey 
+ * @returns 
+ */
+const clearLyricsState = (io, deviceInfo, reason, signature, trackKey) => {
+    log("clearLyricsState()")
+    if (deviceInfo.lyrics && deviceInfo.lyrics.trackKey === trackKey && deviceInfo.lyrics.status === reason) {
+        return;
+    }
+    setLyricsState(io, deviceInfo, {
+        status: reason,
+        trackKey: trackKey || null,
+        signature: signature || null,
+    });
 };
 
 // /**
@@ -323,88 +427,6 @@ const fetchLyrics = async (signature, trackKey) => {
 // };
 
 /**
- * Fetch the json from the API
- * Uses a https.get
- * @param {string} path 
- * @param {object} serverSettings 
- * @returns 
- */
-const fetchJson = (path, serverSettings) => new Promise((resolve, reject) => {
-    const url = `${LRCLIB_BASE_URL}${path}`;
-    log("fetchJson()", url)
-    const req = https.get(url, {
-        // headers: {
-        //     "User-Agent": getUserAgent(serverSettings)
-        // }
-    }, (res) => {
-        let data = "";
-        res.on("data", (chunk) => { data += chunk; });
-        res.on("end", () => {
-            log("API status code:", res.statusCode);
-            if (res.statusCode && res.statusCode >= 200 && res.statusCode < 300) {
-                try {
-                    // log("API data returning...")
-                    resolve(JSON.parse(data));
-                } catch (error) {
-                    log("API error:", error)
-                    reject(error);
-                }
-            } else if (res.statusCode === 404) {
-                log("API: 404 Not found")
-                resolve(null);
-            } else {
-                log("API error:", res.statusCode)
-                reject(new Error(`LRCLIB request failed with status ${res.statusCode}`));
-            }
-        });
-    });
-    req.on("error", (error) => {
-        log("API error:", error)
-        reject
-    });
-});
-
-/**
- * Emits the current Lyrics state
- * @param {object} io 
- * @param {object} deviceInfo 
- * @param {object} payload 
- */
-const setLyricsState = (io, deviceInfo, payload) => {
-    log("setLyricsState()")
-    deviceInfo.lyrics = payload;
-    log("Lyrics:", {
-        payloadId: payload?.payload?.id,
-        status: payload?.status,
-        // provider: payload?.provider,
-        trackKey: payload?.trackKey,
-        // signature: payload?.signature
-    });
-    io.emit("lyrics", payload);
-};
-
-/**
- * Clears the Lyrics State
- * @param {object} io 
- * @param {object} deviceInfo 
- * @param {sting} reason 
- * @param {string} signature 
- * @param {string} trackKey 
- * @returns 
- */
-const clearLyrics = (io, deviceInfo, reason, signature, trackKey) => {
-    log("clearLyrics()", reason, signature, trackKey)
-    if (deviceInfo.lyrics && deviceInfo.lyrics.trackKey === trackKey && deviceInfo.lyrics.status === reason) {
-        return;
-    }
-    setLyricsState(io, deviceInfo, {
-        status: reason,
-        trackKey: trackKey || null,
-        signature: signature || null,
-    });
-};
-
-/**
  * Helper that builds a signature from the metadata.
  * Uses the track name, artist name, album name and duration.
  * @param {object} metadata 
@@ -421,7 +443,7 @@ const buildSignatureFromMetadata = (metadata) => {
         return null;
     }
 
-    log(`signature: ${trackName}; ${artistName}; ${albumName}; ${duration}`)
+    // log(`buildSignatureFromMetadata() ${trackName}; ${artistName}; ${albumName}; ${duration}`)
     return { trackName, artistName, albumName, duration };
 };
 
@@ -438,8 +460,7 @@ const buildTrackKey = (signature) => {
         normalizeText(signature.trackName),
         normalizeDurationForKey(signature.duration)
     ].join("|");
-
-    log("Track key:", base);
+    // log("buildTrackKey()", base);
     return base;
 };
 
