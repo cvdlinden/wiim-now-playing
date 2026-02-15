@@ -203,33 +203,33 @@ const updateDeviceMetadata = (io, deviceInfo, serverSettings) => {
                                         };;
                                         io.emit("metadata", deviceInfo.metadata);
                                         // TODO: We are doing this bit multiple times -> To Function()
-                                        // Get lyrics
-                                        lyrics.getLyricsForMetadata(io, deviceInfo, serverSettings).catch((error) => {
-                                            log("Lyrics update error", error);
-                                        });
-                                        // Lyrics prefetch...
-                                        if (result.NextTrackMetaData) {
-                                            xml2js.parseString(
-                                                result.NextTrackMetaData,
-                                                { explicitArray: false, ignoreAttrs: true },
-                                                (err, nextMetadataJson) => {
-                                                    if (err) {
-                                                        log("updateDeviceMetadata()", "NextTrackMetaData error", err);
-                                                    } else if (nextMetadataJson && nextMetadataJson["DIDL-Lite"] && nextMetadataJson["DIDL-Lite"]["item"]) {
-                                                        const nextMetadata = {
-                                                            trackMetaData: nextMetadataJson["DIDL-Lite"]["item"],
-                                                            TrackDuration: result.NextTrackDuration || null,
-                                                            TrackSource: result.NextTrackSource || result.TrackSource || ""
-                                                        };
-                                                        lyrics.prefetchLyricsForMetadata(io, nextMetadata, serverSettings);
-                                                    }
-                                                }
-                                            );
-                                        } else {
-                                            lyrics.prefetchLyricsForMetadata(io, null, serverSettings, {
-                                                reason: "no-next-track-metadata"
-                                            });
+                                        // Get lyrics, if enabled...
+                                        if (serverSettings.features?.lyrics?.enabled) {
+                                            lyrics.getLyricsForMetadata(io, deviceInfo, serverSettings);
                                         }
+                                        // Lyrics prefetch...
+                                        // if (result.NextTrackMetaData) {
+                                        //     xml2js.parseString(
+                                        //         result.NextTrackMetaData,
+                                        //         { explicitArray: false, ignoreAttrs: true },
+                                        //         (err, nextMetadataJson) => {
+                                        //             if (err) {
+                                        //                 log("updateDeviceMetadata()", "NextTrackMetaData error", err);
+                                        //             } else if (nextMetadataJson && nextMetadataJson["DIDL-Lite"] && nextMetadataJson["DIDL-Lite"]["item"]) {
+                                        //                 const nextMetadata = {
+                                        //                     trackMetaData: nextMetadataJson["DIDL-Lite"]["item"],
+                                        //                     TrackDuration: result.NextTrackDuration || null,
+                                        //                     TrackSource: result.NextTrackSource || result.TrackSource || ""
+                                        //                 };
+                                        //                 lyrics.prefetchLyricsForMetadata(io, nextMetadata, serverSettings);
+                                        //             }
+                                        //         }
+                                        //     );
+                                        // } else {
+                                        //     lyrics.prefetchLyricsForMetadata(io, null, serverSettings, {
+                                        //         reason: "no-next-track-metadata"
+                                        //     });
+                                        // }
                                     }
                                 }
                             );
@@ -240,33 +240,33 @@ const updateDeviceMetadata = (io, deviceInfo, serverSettings) => {
                                 metadataTimeStamp: lib.getTimeStamp()
                             };
                             io.emit("metadata", deviceInfo.metadata);
-                            // Get lyrics
-                            lyrics.getLyricsForMetadata(io, deviceInfo, serverSettings).catch((error) => {
-                                log("Lyrics update error", error);
-                            });
-                            // Lyrics prefetch...
-                            if (result.NextTrackMetaData) {
-                                xml2js.parseString(
-                                    result.NextTrackMetaData,
-                                    { explicitArray: false, ignoreAttrs: true },
-                                    (err, nextMetadataJson) => {
-                                        if (err) {
-                                            log("updateDeviceMetadata()", "NextTrackMetaData error", err);
-                                        } else if (nextMetadataJson && nextMetadataJson["DIDL-Lite"] && nextMetadataJson["DIDL-Lite"]["item"]) {
-                                            const nextMetadata = {
-                                                trackMetaData: nextMetadataJson["DIDL-Lite"]["item"],
-                                                TrackDuration: result.NextTrackDuration || null,
-                                                TrackSource: result.NextTrackSource || result.TrackSource || ""
-                                            };
-                                            lyrics.prefetchLyricsForMetadata(io, nextMetadata, serverSettings);
-                                        }
-                                    }
-                                );
-                            } else {
-                                lyrics.prefetchLyricsForMetadata(io, null, serverSettings, {
-                                    reason: "no-next-track-metadata"
-                                });
+                            // Get lyrics, if enabled...
+                            if (serverSettings.features?.lyrics?.enabled) {
+                                lyrics.getLyricsForMetadata(io, deviceInfo, serverSettings);
                             }
+                            // Lyrics prefetch...
+                            // if (result.NextTrackMetaData) {
+                            //     xml2js.parseString(
+                            //         result.NextTrackMetaData,
+                            //         { explicitArray: false, ignoreAttrs: true },
+                            //         (err, nextMetadataJson) => {
+                            //             if (err) {
+                            //                 log("updateDeviceMetadata()", "NextTrackMetaData error", err);
+                            //             } else if (nextMetadataJson && nextMetadataJson["DIDL-Lite"] && nextMetadataJson["DIDL-Lite"]["item"]) {
+                            //                 const nextMetadata = {
+                            //                     trackMetaData: nextMetadataJson["DIDL-Lite"]["item"],
+                            //                     TrackDuration: result.NextTrackDuration || null,
+                            //                     TrackSource: result.NextTrackSource || result.TrackSource || ""
+                            //                 };
+                            //                 lyrics.prefetchLyricsForMetadata(io, nextMetadata, serverSettings);
+                            //             }
+                            //         }
+                            //     );
+                            // } else {
+                            //     lyrics.prefetchLyricsForMetadata(io, null, serverSettings, {
+                            //         reason: "no-next-track-metadata"
+                            //     });
+                            // }
                         }
                     }
                 }
@@ -300,33 +300,33 @@ const updateDeviceMetadata = (io, deviceInfo, serverSettings) => {
                                             metadataTimeStamp: lib.getTimeStamp()
                                         };
                                         io.emit("metadata", deviceInfo.metadata);
-                                        // Get lyrics
-                                        lyrics.getLyricsForMetadata(io, deviceInfo, serverSettings).catch((error) => {
-                                            log("Lyrics update error", error);
-                                        });
-                                        // Lyrics prefetch...
-                                        if (result.NextTrackMetaData) {
-                                            xml2js.parseString(
-                                                result.NextTrackMetaData,
-                                                { explicitArray: false, ignoreAttrs: true },
-                                                (err, nextMetadataJson) => {
-                                                    if (err) {
-                                                        log("updateDeviceMetadata()", "NextTrackMetaData error", err);
-                                                    } else if (nextMetadataJson && nextMetadataJson["DIDL-Lite"] && nextMetadataJson["DIDL-Lite"]["item"]) {
-                                                        const nextMetadata = {
-                                                            trackMetaData: nextMetadataJson["DIDL-Lite"]["item"],
-                                                            TrackDuration: result.NextTrackDuration || null,
-                                                            TrackSource: result.NextTrackSource || result.TrackSource || ""
-                                                        };
-                                                        lyrics.prefetchLyricsForMetadata(io, nextMetadata, serverSettings);
-                                                    }
-                                                }
-                                            );
-                                        } else {
-                                            lyrics.prefetchLyricsForMetadata(io, null, serverSettings, {
-                                                reason: "no-next-track-metadata"
-                                            });
+                                        // Get lyrics, if enabled...
+                                        if (serverSettings.features?.lyrics?.enabled) {
+                                            lyrics.getLyricsForMetadata(io, deviceInfo, serverSettings);
                                         }
+                                        // Lyrics prefetch...
+                                        // if (result.NextTrackMetaData) {
+                                        //     xml2js.parseString(
+                                        //         result.NextTrackMetaData,
+                                        //         { explicitArray: false, ignoreAttrs: true },
+                                        //         (err, nextMetadataJson) => {
+                                        //             if (err) {
+                                        //                 log("updateDeviceMetadata()", "NextTrackMetaData error", err);
+                                        //             } else if (nextMetadataJson && nextMetadataJson["DIDL-Lite"] && nextMetadataJson["DIDL-Lite"]["item"]) {
+                                        //                 const nextMetadata = {
+                                        //                     trackMetaData: nextMetadataJson["DIDL-Lite"]["item"],
+                                        //                     TrackDuration: result.NextTrackDuration || null,
+                                        //                     TrackSource: result.NextTrackSource || result.TrackSource || ""
+                                        //                 };
+                                        //                 lyrics.prefetchLyricsForMetadata(io, nextMetadata, serverSettings);
+                                        //             }
+                                        //         }
+                                        //     );
+                                        // } else {
+                                        //     lyrics.prefetchLyricsForMetadata(io, null, serverSettings, {
+                                        //         reason: "no-next-track-metadata"
+                                        //     });
+                                        // }
                                     }
                                 }
                             );
@@ -337,33 +337,33 @@ const updateDeviceMetadata = (io, deviceInfo, serverSettings) => {
                                 metadataTimeStamp: lib.getTimeStamp()
                             };
                             io.emit("metadata", deviceInfo.metadata);
-                            // Get lyrics
-                            lyrics.getLyricsForMetadata(io, deviceInfo, serverSettings).catch((error) => {
-                                log("Lyrics update error", error);
-                            });
-                            // Lyrics prefetch...
-                            if (result.NextTrackMetaData) {
-                                xml2js.parseString(
-                                    result.NextTrackMetaData,
-                                    { explicitArray: false, ignoreAttrs: true },
-                                    (err, nextMetadataJson) => {
-                                        if (err) {
-                                            log("updateDeviceMetadata()", "NextTrackMetaData error", err);
-                                        } else if (nextMetadataJson && nextMetadataJson["DIDL-Lite"] && nextMetadataJson["DIDL-Lite"]["item"]) {
-                                            const nextMetadata = {
-                                                trackMetaData: nextMetadataJson["DIDL-Lite"]["item"],
-                                                TrackDuration: result.NextTrackDuration || null,
-                                                TrackSource: result.NextTrackSource || result.TrackSource || ""
-                                            };
-                                            lyrics.prefetchLyricsForMetadata(io, nextMetadata, serverSettings);
-                                        }
-                                    }
-                                );
-                            } else {
-                                lyrics.prefetchLyricsForMetadata(io, null, serverSettings, {
-                                    reason: "no-next-track-metadata"
-                                });
+                            // Get lyrics, if enabled...
+                            if (serverSettings.features?.lyrics?.enabled) {
+                                lyrics.getLyricsForMetadata(io, deviceInfo, serverSettings);
                             }
+                            // Lyrics prefetch...
+                            // if (result.NextTrackMetaData) {
+                            //     xml2js.parseString(
+                            //         result.NextTrackMetaData,
+                            //         { explicitArray: false, ignoreAttrs: true },
+                            //         (err, nextMetadataJson) => {
+                            //             if (err) {
+                            //                 log("updateDeviceMetadata()", "NextTrackMetaData error", err);
+                            //             } else if (nextMetadataJson && nextMetadataJson["DIDL-Lite"] && nextMetadataJson["DIDL-Lite"]["item"]) {
+                            //                 const nextMetadata = {
+                            //                     trackMetaData: nextMetadataJson["DIDL-Lite"]["item"],
+                            //                     TrackDuration: result.NextTrackDuration || null,
+                            //                     TrackSource: result.NextTrackSource || result.TrackSource || ""
+                            //                 };
+                            //                 lyrics.prefetchLyricsForMetadata(io, nextMetadata, serverSettings);
+                            //             }
+                            //         }
+                            //     );
+                            // } else {
+                            //     lyrics.prefetchLyricsForMetadata(io, null, serverSettings, {
+                            //         reason: "no-next-track-metadata"
+                            //     });
+                            // }
                         }
                     }
                 }

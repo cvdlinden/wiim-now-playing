@@ -31,7 +31,7 @@ const sockets = require("./lib/sockets.js"); // Sockets.io functionality
 const shell = require("./lib/shell.js"); // Shell command functionality
 const lib = require("./lib/lib.js"); // Generic functionality
 const lyrics = require("./lib/lyrics.js"); // Lyrics functionality
-const lyricsCache = require("./lib/lyricsCache.js");
+// const lyricsCache = require("./lib/lyricsCache.js");
 const log = require("debug")("index"); // See README.md on debugging
 
 // For versionioning purposes
@@ -72,7 +72,7 @@ let serverSettings = { // Placeholder for current server settings
     "features": {
         "lyrics": {
             "enabled": false,
-            "provider": "lrclib",
+            // "provider": "lrclib",
             "offsetMs": 0,
             "cache": {
                 "enabled": false,
@@ -96,7 +96,7 @@ let pollMetadata = null; // For the renderer metadata
 // ===========================================================================
 // Get the server settings from local file storage, if any.
 lib.getSettings(serverSettings);
-lyricsCache.startCacheMaintenance(serverSettings);
+// lyricsCache.startCacheMaintenance(serverSettings);
 
 // ===========================================================================
 // Initial SSDP scan for devices.
@@ -340,7 +340,7 @@ io.on("connection", (socket) => {
                 }
             }
             lib.saveSettings(serverSettings);
-            lyricsCache.startCacheMaintenance(serverSettings);
+            // lyricsCache.startCacheMaintenance(serverSettings);
             sockets.getServerSettings(io, serverSettings);
             if (shouldRefreshLyrics) {
                 lyrics.getLyricsForMetadata(io, deviceInfo, serverSettings).catch((error) => {

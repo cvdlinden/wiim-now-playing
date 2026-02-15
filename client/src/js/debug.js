@@ -14,11 +14,12 @@ WNP.s = {
     // Device selection
     aDeviceUI: ["btnRefresh", "selDeviceChoices", "devName", "mediaTitle", "mediaSubTitle", "mediaArtist", "mediaAlbum", "mediaBitRate", "mediaBitDepth", "mediaSampleRate", "mediaQualityIdent", "devVol", "mediaSource"],
     // Server actions to be used in the app
-    aServerUI: ["btnReboot", "btnUpdate", "btnShutdown", "btnReloadUI", "sServerUrlHostname", "sServerUrlIP", "sServerVersion", "sClientVersion"],
+    aServerUI: ["btnReboot", "btnUpdate", "btnShutdown", "btnReloadUI", "sServerUrlHostname", "sServerUrlIP", "sServerVersion", "sClientVersion", "chkLyricsEnabled"],
     // Ticks to be used in the app (debug)
     aTicksUI: ["tickDevicesGetUp", "tickDevicesRefreshUp", "tickServerSettingsUp", "tickStateUp", "tickStateDown", "tickMetadataUp", "tickMetadataDown", "tickLyricsUp", "tickLyricsDown", "tickDeviceSetUp", "tickDeviceSetDown", "tickServerSettingsDown", "tickDevicesGetDown", "tickDevicesRefreshDown", "tickVolumeGetUp", "tickVolumeGetDown", "tickVolumeSetUp", "tickVolumeSetDown", "tickPresetsListUp", "tickPresetsListDown"],
     // Debug UI elements
-    aDebugUI: ["state", "metadata", "lyrics", "lyricsStatus", "lyricsProvider", "lyricsTrackKey", "lyricsCacheEnabled", "lyricsCacheStatus", "lyricsCacheSize", "lyricsCacheMax", "lyricsCachePrefetchMode", "lyricsCachePrefetchConcurrency", "lyricsPrefetch", "lyricsPrefetchStatus", "lyricsPrefetchTrackKey", "lyricsPrefetchMode", "lyricsPrefetchReason", "sPresetsList", "sServerSettings", "sManufacturer", "sModelName", "sLocation", "sTimeStampDiff", "sAlbumArtUri", "sAlbumArtUriRaw", "sAlbumArtUriStatus", "oPresetsGroup", "btnDevices", "btnGetVolume", "btnSetVolume", "mediaLoopMode", "sTransportState", "sPlayMedium", "sPlayerProgress"]
+    // aDebugUI: ["state", "metadata", "lyrics", "lyricsStatus", "lyricsProvider", "lyricsTrackKey", "lyricsCacheEnabled", "lyricsCacheStatus", "lyricsCacheSize", "lyricsCacheMax", "lyricsCachePrefetchMode", "lyricsCachePrefetchConcurrency", "lyricsPrefetch", "lyricsPrefetchStatus", "lyricsPrefetchTrackKey", "lyricsPrefetchMode", "lyricsPrefetchReason", "sPresetsList", "sServerSettings", "sManufacturer", "sModelName", "sLocation", "sTimeStampDiff", "sAlbumArtUri", "sAlbumArtUriRaw", "sAlbumArtUriStatus", "oPresetsGroup", "btnDevices", "btnGetVolume", "btnSetVolume", "mediaLoopMode", "sTransportState", "sPlayMedium", "sPlayerProgress"]
+    aDebugUI: ["state", "metadata", "lyrics", "lyricsStatus", "lyricsTrackKey", "sPresetsList", "sServerSettings", "sManufacturer", "sModelName", "sLocation", "sTimeStampDiff", "sAlbumArtUri", "sAlbumArtUriRaw", "sAlbumArtUriStatus", "oPresetsGroup", "btnDevices", "btnGetVolume", "btnSetVolume", "mediaLoopMode", "sTransportState", "sPlayMedium", "sPlayerProgress"]
 };
 
 // Data placeholders.
@@ -207,6 +208,17 @@ WNP.setUIListeners = function () {
         location.reload();
     });
 
+    // Lyrics toggle
+    this.r.chkLyricsEnabled.addEventListener("change", function () {
+        socket.emit("server-settings-update", {
+            features: {
+                lyrics: {
+                    enabled: this.checked
+                }
+            }
+        });
+    });
+
 };
 
 /**
@@ -274,6 +286,11 @@ WNP.setSocketDefinitions = function () {
         WNP.r.sServerVersion.innerText = (msg && msg.version && msg.version.server) ? msg.version.server : "-";
         // Set the client version
         WNP.r.sClientVersion.innerText = (msg && msg.version && msg.version.client) ? msg.version.client : "-";
+
+        // Lyrics enabled/disabled
+        if (WNP.r.chkLyricsEnabled) {
+            WNP.r.chkLyricsEnabled.checked = Boolean(msg && msg.features && msg.features.lyrics && msg.features.lyrics.enabled);
+        }
 
         WNP.updateLyricsCacheSettings();
 
@@ -473,40 +490,40 @@ WNP.setSocketDefinitions = function () {
         WNP.r.lyrics.innerHTML = JSON.stringify(msg);
 
         WNP.r.lyricsStatus.innerText = (msg && msg.status) ? msg.status : "-";
-        WNP.r.lyricsProvider.innerText = (msg && msg.provider) ? msg.provider : "-";
+        // WNP.r.lyricsProvider.innerText = (msg && msg.provider) ? msg.provider : "-";
         WNP.r.lyricsTrackKey.innerText = (msg && msg.trackKey) ? msg.trackKey : "-";
 
-        const diagnostics = msg?.diagnostics || {};
-        if (WNP.r.lyricsCacheStatus) {
-            WNP.r.lyricsCacheStatus.innerText = diagnostics.cacheStatus || "-";
-        }
-        if (WNP.r.lyricsCacheSize) {
-            WNP.r.lyricsCacheSize.innerText = WNP.formatBytes(diagnostics.cacheSizeBytes);
-        }
-        if (WNP.r.lyricsCacheMax) {
-            WNP.r.lyricsCacheMax.innerText = WNP.formatBytes(diagnostics.cacheMaxBytes);
-        }
+        // const diagnostics = msg?.diagnostics || {};
+        // if (WNP.r.lyricsCacheStatus) {
+        //     WNP.r.lyricsCacheStatus.innerText = diagnostics.cacheStatus || "-";
+        // }
+        // if (WNP.r.lyricsCacheSize) {
+        //     WNP.r.lyricsCacheSize.innerText = WNP.formatBytes(diagnostics.cacheSizeBytes);
+        // }
+        // if (WNP.r.lyricsCacheMax) {
+        //     WNP.r.lyricsCacheMax.innerText = WNP.formatBytes(diagnostics.cacheMaxBytes);
+        // }
         WNP.updateLyricsCacheSettings();
     });
 
-    socket.on("lyrics-prefetch", function (msg) {
-        console.log("IO: lyrics-prefetch", msg);
-        if (WNP.r.lyricsPrefetch) {
-            WNP.r.lyricsPrefetch.innerHTML = JSON.stringify(msg);
-        }
-        if (WNP.r.lyricsPrefetchStatus) {
-            WNP.r.lyricsPrefetchStatus.innerText = (msg && msg.status) ? msg.status : "-";
-        }
-        if (WNP.r.lyricsPrefetchTrackKey) {
-            WNP.r.lyricsPrefetchTrackKey.innerText = (msg && msg.trackKey) ? msg.trackKey : "-";
-        }
-        if (WNP.r.lyricsPrefetchMode) {
-            WNP.r.lyricsPrefetchMode.innerText = (msg && msg.mode) ? msg.mode : "-";
-        }
-        if (WNP.r.lyricsPrefetchReason) {
-            WNP.r.lyricsPrefetchReason.innerText = (msg && msg.reason) ? msg.reason : "-";
-        }
-    });
+    // socket.on("lyrics-prefetch", function (msg) {
+    //     console.log("IO: lyrics-prefetch", msg);
+    //     if (WNP.r.lyricsPrefetch) {
+    //         WNP.r.lyricsPrefetch.innerHTML = JSON.stringify(msg);
+    //     }
+    //     if (WNP.r.lyricsPrefetchStatus) {
+    //         WNP.r.lyricsPrefetchStatus.innerText = (msg && msg.status) ? msg.status : "-";
+    //     }
+    //     if (WNP.r.lyricsPrefetchTrackKey) {
+    //         WNP.r.lyricsPrefetchTrackKey.innerText = (msg && msg.trackKey) ? msg.trackKey : "-";
+    //     }
+    //     if (WNP.r.lyricsPrefetchMode) {
+    //         WNP.r.lyricsPrefetchMode.innerText = (msg && msg.mode) ? msg.mode : "-";
+    //     }
+    //     if (WNP.r.lyricsPrefetchReason) {
+    //         WNP.r.lyricsPrefetchReason.innerText = (msg && msg.reason) ? msg.reason : "-";
+    //     }
+    // });
 
     // On device set
     socket.on("device-set", function (msg) {
