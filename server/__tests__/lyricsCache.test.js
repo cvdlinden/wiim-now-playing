@@ -8,7 +8,7 @@
 const cache = require('../lib/lyricsCache.js');
 
 describe('Lyrics Cache Module', () => {
-    
+
     // We gebruiken unieke keys per test om vervuiling te voorkomen
     const testKey = 'artist:title';
     const testData = { status: 'success', lyrics: 'Lorum Ipsum...' };
@@ -54,5 +54,27 @@ describe('Lyrics Cache Module', () => {
 
         // Assert
         expect(newCount).toBe(initialCount + 1);
+    });
+
+    test("moet een item correct verwijderen uit de cache", async () => {
+        const removeKey = "delete-me-key";
+        await cache.set(removeKey, { data: "test" });
+
+        // Bevestig dat het er eerst in staat
+        expect(await cache.has(removeKey)).toBe(true);
+
+        // Act
+        await cache.remove(removeKey);
+
+        // Assert
+        const exists = await cache.has(removeKey);
+        const data = await cache.get(removeKey);
+
+        expect(exists).toBe(false);
+        expect(data).toBeNull();
+    });
+
+    test("moet niet crashen als de key niet bestaat bij verwijderen", async () => {
+        await expect(cache.remove("non-existent-key-123")).resolves.not.toThrow();
     });
 });
