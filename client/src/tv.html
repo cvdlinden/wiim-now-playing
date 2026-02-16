@@ -33,6 +33,11 @@
                 <h3 id="mediaArtist">{ARTIST}</h3>
                 <div class="mb-2"><span id="mediaAlbum">{ALBUM TITLE}</span></div>
                 <div class="mb-2"><span id="mediaSubTitle" class="text-secondary">{SUBTITLE}</span></div>
+                <div id="lyricsContainer" class="wnpLyrics" aria-live="polite">
+                    <div id="lyricsPrev" class="lyrics-line lyrics-prev"></div>
+                    <div id="lyricsCurrent" class="lyrics-line lyrics-current"></div>
+                    <div id="lyricsNext" class="lyrics-line lyrics-next"></div>
+                </div>
             </div>
 
             <div class="wnpAlbumArt">
@@ -109,8 +114,8 @@
         </div>
 
         <!-- Settings modal -->
-        <div class="modal fade" id="settingsModal" tabindex="-1" aria-labelledby="settingsModalLabel"
-            aria-hidden="true">
+        <div class="modal fade" id="settingsModal" tabindex="-1" aria-labelledby="settingsModalLabel" aria-hidden="true"
+            data-bs-theme="dark">
             <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -161,14 +166,35 @@
                             </div>
                         </div>
 
+                        <!-- Lyrics settings -->
+                        <div class="mb-3">
+                            <label class="form-label">Lyrics:</label>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="chkLyricsEnabled">
+                                <label class="form-check-label" for="chkLyricsEnabled">Enable synced lyrics
+                                    (LRCLIB)</label>
+                            </div>
+                            <div class="form-text">
+                                Only synced lyrics are displayed. If none are found, lyrics stay hidden.
+                            </div>
+                            <div class="mt-2">
+                                <label class="form-label" for="lyricsOffsetMs">Lyrics offset (ms)</label>
+                                <input class="form-control" type="number" id="lyricsOffsetMs" step="50" min="-10000"
+                                    max="10000">
+                                <div class="form-text">
+                                    Positive values show lyrics earlier, negative values later.
+                                </div>
+                            </div>
+                        </div>
+
                         <!-- Server information -->
                         <div class="mb-3">
                             <label class="form-label">Server information:</label>
                             <div class="form-text">
                                 <p>This server can also be reached at the following URLs:</p>
                                 <ul>
-                                    <li id="sServerUrlHostname">By hostname: <span></span></li>
-                                    <li id="sServerUrlIP">By IP address: <span></span></li>
+                                    <li>By hostname: <span id="sServerUrlHostname"></span></li>
+                                    <li>By IP address: <span id="sServerUrlIP"></span></li>
                                 </ul>
                                 <p>Server version: <span id="sServerVersion"></span> | Client version: <span
                                         id="sClientVersion"></span></p>

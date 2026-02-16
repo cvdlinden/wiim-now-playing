@@ -57,6 +57,15 @@ async function has(key) {
 }
 
 /**
+ * Removes an item from cache
+ * @param {string} key 
+ */
+async function remove(key) {
+    log("REMOVE:", key)
+    await storage.removeItem(key, { removeMeta: true })
+}
+
+/**
  * Count the number of items in cache
  * @returns {Promise<number>}
  */
@@ -70,5 +79,6 @@ module.exports = {
     get,
     set,
     has,
+    remove,
     count
 };

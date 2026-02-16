@@ -13,7 +13,7 @@ WNP.s = {
     // Device selection
     aDeviceUI: ["btnPrev", "btnPlay", "btnNext", "btnRefresh", "selDeviceChoices", "devName", "devNameHolder", "mediaTitle", "mediaSubTitle", "mediaArtist", "mediaAlbum", "mediaBitRate", "mediaBitDepth", "mediaSampleRate", "mediaQualityIdent", "devVol", "btnRepeat", "btnShuffle", "progressPlayed", "progressLeft", "progressPercent", "mediaSource", "albumArt", "bgAlbumArtBlur", "btnDevSelect", "oDeviceList", "btnDevPreset", "oPresetList", "btnDevVolume", "rVolume", "lyricsContainer", "lyricsPrev", "lyricsCurrent", "lyricsNext"],
     // Server actions to be used in the app
-    aServerUI: ["btnReboot", "btnUpdate", "btnShutdown", "btnReloadUI", "sServerUrlHostname", "sServerUrlIP", "sServerVersion", "sClientVersion", "chkLyricsEnabled", "lyricsOffsetMs", "chkLyricsCacheEnabled", "lyricsCacheSizeMB", "lyricsPrefetchMode"],
+    aServerUI: ["btnReboot", "btnUpdate", "btnShutdown", "btnReloadUI", "sServerUrlHostname", "sServerUrlIP", "sServerVersion", "sClientVersion", "chkLyricsEnabled", "lyricsOffsetMs"],
 };
 
 // Data placeholders.
@@ -25,7 +25,7 @@ WNP.d = {
     prevSourceIdent: null, // Previous source ident, used to detect changes in the source
     prevTrackInfo: null, // Previous track info, used to detect changes in the metadata
     lastState: null, // Last known state, used for lyrics timing
-    lyrics: null, // Current lyrics payload
+    // lyrics: null, // Current lyrics payload
     lyricsIndex: null, // Current lyrics line index
     lyricsLines: [], // Parsed lyrics lines
     // lyricsCookieApplied: false // Track if cookie setting has been applied -> TODO: Why are we using cookies?
@@ -219,55 +219,6 @@ WNP.setUIListeners = function () {
         });
     }
 
-    // Lyrics caching enabled/disabled
-    if (this.r.chkLyricsCacheEnabled) {
-        this.r.chkLyricsCacheEnabled.addEventListener("change", function () {
-            socket.emit("server-settings-update", {
-                features: {
-                    lyrics: {
-                        cache: {
-                            enabled: this.checked
-                        }
-                    }
-                }
-            });
-        });
-    }
-
-    // Lyrics cache size in MB
-    if (this.r.lyricsCacheSizeMB) {
-        this.r.lyricsCacheSizeMB.addEventListener("change", function () {
-            var sizeValue = parseInt(this.value, 10);
-            if (isNaN(sizeValue) || sizeValue < 0) {
-                sizeValue = 0;
-            }
-            socket.emit("server-settings-update", {
-                features: {
-                    lyrics: {
-                        cache: {
-                            maxSizeMB: sizeValue
-                        }
-                    }
-                }
-            });
-        });
-    }
-
-    // Lyrics pre-fetching
-    if (this.r.lyricsPrefetchMode) {
-        this.r.lyricsPrefetchMode.addEventListener("change", function () {
-            socket.emit("server-settings-update", {
-                features: {
-                    lyrics: {
-                        cache: {
-                            prefetch: this.value
-                        }
-                    }
-                }
-            });
-        });
-    }
-
 };
 
 /**
@@ -339,42 +290,6 @@ WNP.setSocketDefinitions = function () {
             var offsetMs = (msg && msg.features && msg.features.lyrics && typeof msg.features.lyrics.offsetMs === "number") ? msg.features.lyrics.offsetMs : 0;
             WNP.r.lyricsOffsetMs.value = offsetMs;
         }
-        // Lyrics caching enabled/disabled, and corresponding properties
-        if (WNP.r.chkLyricsCacheEnabled || WNP.r.lyricsCacheSizeMB || WNP.r.lyricsPrefetchMode) {
-            var cacheSettings = (msg && msg.features && msg.features.lyrics && msg.features.lyrics.cache) ? msg.features.lyrics.cache : {};
-            var cacheSizeMB = (typeof cacheSettings.maxSizeMB === "number") ? cacheSettings.maxSizeMB : 0;
-            var cacheEnabled = cacheSettings.enabled !== false && cacheSizeMB > 0;
-            if (WNP.r.chkLyricsCacheEnabled) {
-                WNP.r.chkLyricsCacheEnabled.checked = cacheEnabled;
-            }
-            if (WNP.r.lyricsCacheSizeMB) {
-                WNP.r.lyricsCacheSizeMB.value = cacheSizeMB;
-            }
-            if (WNP.r.lyricsPrefetchMode) {
-                WNP.r.lyricsPrefetchMode.value = cacheSettings.prefetch || "off";
-            }
-        }
-
-        // Lyrics cookie?
-        // if (WNP.r.chkLyricsEnabled && !WNP.d.lyricsCookieApplied) {
-        //     var cookieValue = WNP.getCookie("wnpLyricsEnabled");
-        //     if (cookieValue !== null) {
-        //         var cookieEnabled = cookieValue === "true";
-        //         if (WNP.r.chkLyricsEnabled.checked !== cookieEnabled) {
-        //             WNP.r.chkLyricsEnabled.checked = cookieEnabled;
-        //             socket.emit("server-settings-update", {
-        //                 features: {
-        //                     lyrics: {
-        //                         enabled: cookieEnabled
-        //                     }
-        //                 }
-        //             });
-        //         }
-        //     } else {
-        //         WNP.setCookie("wnpLyricsEnabled", WNP.r.chkLyricsEnabled.checked, 180);
-        //     }
-        //     WNP.d.lyricsCookieApplied = true;
-        // }
 
     });
 
@@ -652,15 +567,15 @@ WNP.setSocketDefinitions = function () {
 
     // On lyrics
     socket.on("lyrics", function (msg) {
-        WNP.d.lyrics = msg;
+        // WNP.d.lyrics = msg;
         WNP.d.lyricsIndex = null;
 
-        if (!msg || msg.status !== "ok" || !msg.syncedLyrics) {
+        if (!msg || msg.status !== "ok" || !msg.payload?.syncedLyrics) {
             WNP.clearLyrics();
             return;
         }
 
-        WNP.d.lyricsLines = WNP.parseSyncedLyrics(msg.syncedLyrics);
+        WNP.d.lyricsLines = WNP.parseSyncedLyrics(msg.payload.syncedLyrics);
         if (!WNP.d.lyricsLines.length) {
             WNP.clearLyrics();
             return;
@@ -1002,40 +917,6 @@ WNP.getLyricsOffsetMs = function () {
     }
     return 0;
 };
-
-// /**
-//  * Set a cookie with optional expiration in days.
-//  * @param {string} name - Cookie name.
-//  * @param {string|boolean|number} value - Cookie value.
-//  * @param {number} days - Days until expiration.
-//  * @returns {undefined}
-//  */
-// WNP.setCookie = function (name, value, days) {
-//     var expires = "";
-//     if (typeof days === "number") {
-//         var date = new Date();
-//         date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
-//         expires = "; expires=" + date.toUTCString();
-//     }
-//     document.cookie = name + "=" + encodeURIComponent(String(value)) + expires + "; path=/";
-// };
-
-// /**
-//  * Get a cookie by name.
-//  * @param {string} name - Cookie name.
-//  * @returns {string|null}
-//  */
-// WNP.getCookie = function (name) {
-//     var nameEQ = name + "=";
-//     var ca = document.cookie.split(";");
-//     for (var i = 0; i < ca.length; i++) {
-//         var c = ca[i].trim();
-//         if (c.indexOf(nameEQ) === 0) {
-//             return decodeURIComponent(c.substring(nameEQ.length, c.length));
-//         }
-//     }
-//     return null;
-// };
 
 /**
  * Check if the album art is a valid URI. Returns the URI if valid, otherwise a random URI.

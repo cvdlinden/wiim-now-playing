@@ -73,14 +73,7 @@ let serverSettings = { // Placeholder for current server settings
     "features": {
         "lyrics": {
             "enabled": false,
-            // "provider": "lrclib",
-            "offsetMs": 0,
-            "cache": {
-                "enabled": false,
-                "maxSizeMB": 50,
-                "prefetch": "album",
-                "maxPrefetchConcurrency": 4
-            }
+            "offsetMs": 0
         }
     },
     "server": null, // Placeholder for the express server (port) information
@@ -325,20 +318,6 @@ io.on("connection", (socket) => {
             }
             if (typeof msg.features.lyrics.offsetMs === "number") {
                 serverSettings.features.lyrics.offsetMs = msg.features.lyrics.offsetMs;
-            }
-            if (msg.features.lyrics.cache) {
-                if (typeof msg.features.lyrics.cache.enabled === "boolean") {
-                    serverSettings.features.lyrics.cache.enabled = msg.features.lyrics.cache.enabled;
-                }
-                if (typeof msg.features.lyrics.cache.maxSizeMB === "number") {
-                    serverSettings.features.lyrics.cache.maxSizeMB = Math.max(0, msg.features.lyrics.cache.maxSizeMB);
-                }
-                if (typeof msg.features.lyrics.cache.prefetch === "string") {
-                    const prefetch = msg.features.lyrics.cache.prefetch;
-                    if (prefetch === "off" || prefetch === "album") {
-                        serverSettings.features.lyrics.cache.prefetch = prefetch;
-                    }
-                }
             }
             lib.saveSettings(serverSettings);
             // lyricsCache.startCacheMaintenance(serverSettings);

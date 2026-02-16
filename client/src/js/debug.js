@@ -18,7 +18,6 @@ WNP.s = {
     // Ticks to be used in the app (debug)
     aTicksUI: ["tickDevicesGetUp", "tickDevicesRefreshUp", "tickServerSettingsUp", "tickStateUp", "tickStateDown", "tickMetadataUp", "tickMetadataDown", "tickLyricsUp", "tickLyricsDown", "tickDeviceSetUp", "tickDeviceSetDown", "tickServerSettingsDown", "tickDevicesGetDown", "tickDevicesRefreshDown", "tickVolumeGetUp", "tickVolumeGetDown", "tickVolumeSetUp", "tickVolumeSetDown", "tickPresetsListUp", "tickPresetsListDown"],
     // Debug UI elements
-    // aDebugUI: ["state", "metadata", "lyrics", "lyricsStatus", "lyricsTrackKey", "lyricsPrefetch", "lyricsPrefetchStatus", "lyricsPrefetchTrackKey", "lyricsPrefetchMode", "lyricsPrefetchReason", "sPresetsList", "sServerSettings", "sManufacturer", "sModelName", "sLocation", "sTimeStampDiff", "sAlbumArtUri", "sAlbumArtUriRaw", "sAlbumArtUriStatus", "oPresetsGroup", "btnDevices", "btnGetVolume", "btnSetVolume", "mediaLoopMode", "sTransportState", "sPlayMedium", "sPlayerProgress"]
     aDebugUI: ["state", "metadata", "lyrics", "lyricsStatus", "lyricsTrackKey", "lyricsPayload", "lyricsSyncedLyrics", "sPresetsList", "sServerSettings", "sManufacturer", "sModelName", "sLocation", "sTimeStampDiff", "sAlbumArtUri", "sAlbumArtUriRaw", "sAlbumArtUriStatus", "oPresetsGroup", "btnDevices", "btnGetVolume", "btnSetVolume", "mediaLoopMode", "sTransportState", "sPlayMedium", "sPlayerProgress"]
 };
 
@@ -492,25 +491,6 @@ WNP.setSocketDefinitions = function () {
         WNP.r.lyricsPayload.innerText = (msg && msg.payload) ? true : false;
         WNP.r.lyricsSyncedLyrics.innerText = (msg && msg.payload && msg.payload.syncedLyrics) ? true : false;
     });
-
-    // socket.on("lyrics-prefetch", function (msg) {
-    //     console.log("IO: lyrics-prefetch", msg);
-    //     if (WNP.r.lyricsPrefetch) {
-    //         WNP.r.lyricsPrefetch.innerHTML = JSON.stringify(msg);
-    //     }
-    //     if (WNP.r.lyricsPrefetchStatus) {
-    //         WNP.r.lyricsPrefetchStatus.innerText = (msg && msg.status) ? msg.status : "-";
-    //     }
-    //     if (WNP.r.lyricsPrefetchTrackKey) {
-    //         WNP.r.lyricsPrefetchTrackKey.innerText = (msg && msg.trackKey) ? msg.trackKey : "-";
-    //     }
-    //     if (WNP.r.lyricsPrefetchMode) {
-    //         WNP.r.lyricsPrefetchMode.innerText = (msg && msg.mode) ? msg.mode : "-";
-    //     }
-    //     if (WNP.r.lyricsPrefetchReason) {
-    //         WNP.r.lyricsPrefetchReason.innerText = (msg && msg.reason) ? msg.reason : "-";
-    //     }
-    // });
 
     // On device set
     socket.on("device-set", function (msg) {
