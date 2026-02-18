@@ -52,7 +52,7 @@ const getLyricsForMetadata = async (io, deviceInfo, serverSettings) => {
     // Are we already using the proper lyrics?
     const trackKey = buildTrackKey(signature);
     if (deviceInfo.lyrics && deviceInfo.lyrics.trackKey === trackKey && ["ok", "not-found"].includes(deviceInfo.lyrics.status)) {
-        log(`Lyrics state already current: '${deviceInfo.lyrics.status}', '${trackKey}'. Skip.`);
+        // log(`Lyrics state already current: '${deviceInfo.lyrics.status}', '${trackKey}'. Skip.`);
         return;
     }
 

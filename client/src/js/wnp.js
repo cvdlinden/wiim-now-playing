@@ -25,10 +25,8 @@ WNP.d = {
     prevSourceIdent: null, // Previous source ident, used to detect changes in the source
     prevTrackInfo: null, // Previous track info, used to detect changes in the metadata
     lastState: null, // Last known state, used for lyrics timing
-    // lyrics: null, // Current lyrics payload
     lyricsIndex: null, // Current lyrics line index
-    lyricsLines: [], // Parsed lyrics lines
-    // lyricsCookieApplied: false // Track if cookie setting has been applied -> TODO: Why are we using cookies?
+    lyricsLines: [] // Parsed lyrics lines
 };
 
 // Reference placeholders.
@@ -96,7 +94,7 @@ WNP.setUIReferences = function () {
 
 /**
  * Setting the listeners on the UI elements of the app.
- * @returns {undefined}
+ * @returns {void}
  */
 WNP.setUIListeners = function () {
     console.log("WNP", "Set UI Listeners...")
@@ -189,35 +187,30 @@ WNP.setUIListeners = function () {
     });
 
     // Lyrics toggle
-    if (this.r.chkLyricsEnabled) {
-        this.r.chkLyricsEnabled.addEventListener("change", function () {
-            // WNP.setCookie("wnpLyricsEnabled", this.checked, 180);
-            socket.emit("server-settings-update", {
-                features: {
-                    lyrics: {
-                        enabled: this.checked
-                    }
+    this.r.chkLyricsEnabled.addEventListener("change", function () {
+        socket.emit("server-settings-update", {
+            features: {
+                lyrics: {
+                    enabled: this.checked
                 }
-            });
+            }
         });
-    }
+    });
 
     // Lyrics offset in ms
-    if (this.r.lyricsOffsetMs) {
-        this.r.lyricsOffsetMs.addEventListener("change", function () {
-            var offsetValue = parseInt(this.value, 10);
-            if (isNaN(offsetValue)) {
-                offsetValue = 0;
-            }
-            socket.emit("server-settings-update", {
-                features: {
-                    lyrics: {
-                        offsetMs: offsetValue
-                    }
+    this.r.lyricsOffsetMs.addEventListener("change", function () {
+        var offsetValue = parseInt(this.value, 10);
+        if (isNaN(offsetValue)) {
+            offsetValue = 0;
+        }
+        socket.emit("server-settings-update", {
+            features: {
+                lyrics: {
+                    offsetMs: offsetValue
                 }
-            });
+            }
         });
-    }
+    });
 
 };
 
@@ -567,7 +560,6 @@ WNP.setSocketDefinitions = function () {
 
     // On lyrics
     socket.on("lyrics", function (msg) {
-        // WNP.d.lyrics = msg;
         WNP.d.lyricsIndex = null;
 
         if (!msg || msg.status !== "ok" || !msg.payload?.syncedLyrics) {
@@ -697,7 +689,6 @@ WNP.setDeviceByLocation = function (deviceLocation) {
  * @param {integer} presetNumber - The number of the preset to set.
  * @return {undefined}
  */
-
 WNP.setPresetByNumber = function (presetNumber) {
     if (presetNumber && !isNaN(presetNumber) && presetNumber > 0) {
         socket.emit("device-api", "MCUKeyShortClick:" + presetNumber);

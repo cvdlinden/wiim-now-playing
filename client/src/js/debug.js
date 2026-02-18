@@ -14,7 +14,7 @@ WNP.s = {
     // Device selection
     aDeviceUI: ["btnRefresh", "selDeviceChoices", "devName", "mediaTitle", "mediaSubTitle", "mediaArtist", "mediaAlbum", "mediaBitRate", "mediaBitDepth", "mediaSampleRate", "mediaQualityIdent", "devVol", "mediaSource"],
     // Server actions to be used in the app
-    aServerUI: ["btnReboot", "btnUpdate", "btnShutdown", "btnReloadUI", "sServerUrlHostname", "sServerUrlIP", "sServerVersion", "sClientVersion", "chkLyricsEnabled"],
+    aServerUI: ["btnReboot", "btnUpdate", "btnShutdown", "btnReloadUI", "sServerUrlHostname", "sServerUrlIP", "sServerVersion", "sClientVersion", "chkLyricsEnabled", "lyricsOffsetMs"],
     // Ticks to be used in the app (debug)
     aTicksUI: ["tickDevicesGetUp", "tickDevicesRefreshUp", "tickServerSettingsUp", "tickStateUp", "tickStateDown", "tickMetadataUp", "tickMetadataDown", "tickLyricsUp", "tickLyricsDown", "tickDeviceSetUp", "tickDeviceSetDown", "tickServerSettingsDown", "tickDevicesGetDown", "tickDevicesRefreshDown", "tickVolumeGetUp", "tickVolumeGetDown", "tickVolumeSetUp", "tickVolumeSetDown", "tickPresetsListUp", "tickPresetsListDown"],
     // Debug UI elements
@@ -130,7 +130,7 @@ WNP.setTickHandlers = function () {
 
 /**
  * Setting the listeners on the UI elements of the app.
- * @returns {undefined}
+ * @returns {void}
  */
 WNP.setUIListeners = function () {
     console.log("WNP", "Set UI Listeners...")
@@ -209,10 +209,27 @@ WNP.setUIListeners = function () {
 
     // Lyrics toggle
     this.r.chkLyricsEnabled.addEventListener("change", function () {
+        WNP.r.tickLyricsUp.classList.add("tickAnimate");
         socket.emit("server-settings-update", {
             features: {
                 lyrics: {
                     enabled: this.checked
+                }
+            }
+        });
+    });
+
+    // Lyrics offset in ms
+    this.r.lyricsOffsetMs.addEventListener("change", function () {
+        WNP.r.tickLyricsUp.classList.add("tickAnimate");
+        var offsetValue = parseInt(this.value, 10);
+        if (isNaN(offsetValue)) {
+            offsetValue = 0;
+        }
+        socket.emit("server-settings-update", {
+            features: {
+                lyrics: {
+                    offsetMs: offsetValue
                 }
             }
         });
@@ -289,6 +306,11 @@ WNP.setSocketDefinitions = function () {
         // Lyrics enabled/disabled
         if (WNP.r.chkLyricsEnabled) {
             WNP.r.chkLyricsEnabled.checked = Boolean(msg && msg.features && msg.features.lyrics && msg.features.lyrics.enabled);
+        }
+        // Lyrics offset in ms
+        if (WNP.r.lyricsOffsetMs) {
+            var offsetMs = (msg && msg.features && msg.features.lyrics && typeof msg.features.lyrics.offsetMs === "number") ? msg.features.lyrics.offsetMs : 0;
+            WNP.r.lyricsOffsetMs.value = offsetMs;
         }
 
     });
