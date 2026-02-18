@@ -10,21 +10,10 @@
 
 const https = require("https");
 const lyricsCache = require("./lyricsCache.js");
+const util = require('util');
 const log = require("debug")("lib:lyrics");
 
 const LRCLIB_BASE_URL = "https://lrclib.net";
-// const NEGATIVE_CACHE_TTL_MS = 10 * 60 * 1000;
-// const MATCH_SCORE_THRESHOLD = 70;
-// const PREFETCH_BATCH_LIMIT = 20;
-// const PREFETCH_CONCURRENCY_FALLBACK = 4;
-// const PREFETCH_MODES = {
-//     OFF: "off",
-//     ALBUM: "album"
-// };
-
-// const negativeCache = new Map();
-// const inFlightRequests = new Map();
-// const prefetchInFlight = new Map();
 
 /**
  * Get the lyrics for the current metadata
@@ -35,7 +24,7 @@ const LRCLIB_BASE_URL = "https://lrclib.net";
  * @returns {void}
  */
 const getLyricsForMetadata = async (io, deviceInfo, serverSettings) => {
-    log("getLyricsForMetadata()");
+    // log("getLyricsForMetadata()");
 
     // Are lyrics enabled?
     const enabled = serverSettings?.features?.lyrics?.enabled;
@@ -45,26 +34,25 @@ const getLyricsForMetadata = async (io, deviceInfo, serverSettings) => {
         return;
     }
 
-    // Do we have metadata?
-    const metadata = deviceInfo.metadata;
-    if (!metadata || !metadata.trackMetaData) {
-        log("No metadata found to fetch lyrics for. Skip.")
+    // Do we have any metadata to work with?
+    if (!deviceInfo.metadata || !deviceInfo.metadata.trackMetaData) {
+        // log("No metadata found to fetch lyrics for. Skip.")
         clearLyricsState(io, deviceInfo, "no-metadata", null, null);
         return;
     }
 
     // Do we have track, artist, album and duration?
-    const signature = buildSignatureFromMetadata(metadata);
+    const signature = buildSignatureFromMetadata(deviceInfo.metadata);
     if (!signature) {
-        log("Missing or invalid signature. Skip.")
+        // log("Missing or invalid signature. Skip.")
         clearLyricsState(io, deviceInfo, "missing-signature", null, null);
         return;
     }
 
     // Are we already using the proper lyrics?
     const trackKey = buildTrackKey(signature);
-    if (deviceInfo.lyrics && deviceInfo.lyrics.trackKey === trackKey && deviceInfo.lyrics.status === "ok") {
-        log("Lyrics already current. Skip.");
+    if (deviceInfo.lyrics && deviceInfo.lyrics.trackKey === trackKey && ["ok", "not-found"].includes(deviceInfo.lyrics.status)) {
+        log(`Lyrics state already current: '${deviceInfo.lyrics.status}', '${trackKey}'. Skip.`);
         return;
     }
 
@@ -74,11 +62,11 @@ const getLyricsForMetadata = async (io, deviceInfo, serverSettings) => {
         log(`[Cache Miss] Fetching API for '${trackKey}'...`);
 
         try {
-            const payload = await fetchLyrics(signature, trackKey, serverSettings);
-            if (payload) {
+            const cacheEntry = await fetchLyrics(signature, trackKey, serverSettings);
+            if (cacheEntry) {
                 // log("Lyrics fetched from API!")
                 setLyricsState(io, deviceInfo, {
-                    ...payload,
+                    ...cacheEntry,
                 });
                 return;
             }
@@ -96,7 +84,7 @@ const getLyricsForMetadata = async (io, deviceInfo, serverSettings) => {
         setLyricsState(io, deviceInfo, {
             ...cacheLookup
         });
-        return;
+        // return;
     }
 };
 
@@ -107,7 +95,7 @@ const getLyricsForMetadata = async (io, deviceInfo, serverSettings) => {
  * @param {object} signature 
  * @param {string} trackKey 
  * @param {object} serverSettings 
- * @returns 
+ * @returns {Promise<object>} cacheEntry
  */
 const fetchLyrics = async (signature, trackKey, serverSettings) => {
     log("fetchLyrics()");
@@ -206,8 +194,8 @@ const fetchJson = (path, serverSettings) => new Promise((resolve, reject) => {
                     resolve(JSON.parse(data));
                 } catch (error) {
                     log("API error:", error)
-                    // reject(error);
                     resolve(null);
+                    // reject(error);
                 }
             } else if (res.statusCode === 404) {
                 log("API: 404 Not found")
@@ -232,11 +220,16 @@ const fetchJson = (path, serverSettings) => new Promise((resolve, reject) => {
  * @param {object} deviceInfo 
  * @param {object} payload 
  */
-const setLyricsState = (io, deviceInfo, payload) => {
-    log("setLyricsState()")
-    deviceInfo.lyrics = payload;
-    log("Lyrics STATE:", `status = ${payload?.status}; trackKey: ${payload?.trackKey}; payloadId: ${payload?.payload?.id}`)
-    io.emit("lyrics", payload);
+const setLyricsState = (io, deviceInfo, lyricsState) => {
+    // log("setLyricsState()")
+    // Has the current lyrics state already been set?
+    if (util.isDeepStrictEqual(deviceInfo.lyrics, lyricsState)) {
+        return;
+    }
+    // Else set the current lyrics state
+    log("setLyricsState() - state changed:", `status = ${lyricsState?.status}; trackKey: ${lyricsState?.trackKey}; payloadId: ${lyricsState?.payload?.id}`)
+    deviceInfo.lyrics = lyricsState;
+    io.emit("lyrics", lyricsState);
 };
 
 /**
@@ -249,10 +242,13 @@ const setLyricsState = (io, deviceInfo, payload) => {
  * @returns 
  */
 const clearLyricsState = (io, deviceInfo, reason, signature, trackKey) => {
-    log("clearLyricsState()")
+    // log("clearLyricsState()", reason)
+    // If the existing lyrics state and trackKey are already set, skip.
     if (deviceInfo.lyrics && deviceInfo.lyrics.trackKey === trackKey && deviceInfo.lyrics.status === reason) {
         return;
     }
+    // Else clear the current lyrics state...
+    log("clearLyricsState()", reason)
     setLyricsState(io, deviceInfo, {
         status: reason,
         trackKey: trackKey || null,

@@ -31,7 +31,7 @@ const storage = createStorage({
  */
 async function get(key) {
     const value = await storage.getItem(key);
-    log("GET:", key, value ? value.status : "MISS");
+    log("GET:", value ? "HIT [" + value.status + "]" : "MISS", key);
     return value;
 }
 
@@ -41,7 +41,7 @@ async function get(key) {
  * @param {object} val 
  */
 async function set(key, val) {
-    log("SET:", key, val?.status);
+    log("SET:", `[${val?.status}]`, key);
     await storage.setItem(key, val);
 }
 
@@ -52,7 +52,7 @@ async function set(key, val) {
  */
 async function has(key) {
     const exists = await storage.hasItem(key);
-    log("HAS:", key, exists);
+    log("HAS:", `[${exists}]`, key);
     return exists;
 }
 
