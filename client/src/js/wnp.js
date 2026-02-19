@@ -11,7 +11,7 @@ WNP.s = {
     locPort: (location.port && location.port != "80" && location.port != "1234") ? location.port : "80",
     rndAlbumArtUri: "./img/fake-album-1.jpg",
     // Device selection
-    aDeviceUI: ["btnPrev", "btnPlay", "btnNext", "btnRefresh", "selDeviceChoices", "devName", "devNameHolder", "mediaTitle", "mediaSubTitle", "mediaArtist", "mediaAlbum", "mediaBitRate", "mediaBitDepth", "mediaSampleRate", "mediaQualityIdent", "devVol", "btnRepeat", "btnShuffle", "progressPlayed", "progressLeft", "progressPercent", "mediaSource", "albumArt", "bgAlbumArtBlur", "btnDevSelect", "oDeviceList", "btnDevPreset", "oPresetList", "btnDevVolume", "rVolume", "lyricsContainer", "lyricsPrev", "lyricsCurrent", "lyricsNext"],
+    aDeviceUI: ["btnPrev", "btnPlay", "btnNext", "btnRefresh", "selDeviceChoices", "devName", "devNameHolder", "mediaTitle", "mediaSubTitle", "mediaArtist", "mediaAlbum", "mediaBitRate", "mediaBitDepth", "mediaSampleRate", "mediaQualityIdent", "devVol", "btnRepeat", "btnShuffle", "progressPlayed", "progressLeft", "progressPercent", "mediaSource", "albumArt", "bgAlbumArtBlur", "btnDevSelect", "oDeviceList", "btnDevPreset", "oPresetList", "btnDevVolume", "rVolume", "mediaLyrics", "lyricPrev", "lyricCurrent", "lyricNext"],
     // Server actions to be used in the app
     aServerUI: ["btnReboot", "btnUpdate", "btnShutdown", "btnReloadUI", "sServerUrlHostname", "sServerUrlIP", "sServerVersion", "sClientVersion", "chkLyricsEnabled", "lyricsOffsetMs"],
 };
@@ -24,9 +24,9 @@ WNP.d = {
     prevPlayMedium: null, // Previous play medium, used to detect changes in the play medium
     prevSourceIdent: null, // Previous source ident, used to detect changes in the source
     prevTrackInfo: null, // Previous track info, used to detect changes in the metadata
+    lyrics: [], // Parsed lyrics lines
     lastState: null, // Last known state, used for lyrics timing
-    lyricsIndex: null, // Current lyrics line index
-    lyricsLines: [] // Parsed lyrics lines
+    lyricsIndex: null // Current lyrics line index
 };
 
 // Reference placeholders.
@@ -60,6 +60,8 @@ WNP.Init = function () {
         socket.emit("server-settings");
         // Get devices
         socket.emit("devices-get");
+        // See if any lyrics are present for the currently playing track
+        socket.emit("lyrics-get");
     }, 500);
 
     // Create random album intervals, every 3 minutes
@@ -186,9 +188,9 @@ WNP.setUIListeners = function () {
         location.reload();
     });
 
-    // Lyrics toggle
+    // Set lyrics toggle
     this.r.chkLyricsEnabled.addEventListener("change", function () {
-        socket.emit("server-settings-update", {
+        socket.emit("lyrics-settings", {
             features: {
                 lyrics: {
                     enabled: this.checked
@@ -197,13 +199,13 @@ WNP.setUIListeners = function () {
         });
     });
 
-    // Lyrics offset in ms
+    // Set lyrics offset in ms
     this.r.lyricsOffsetMs.addEventListener("change", function () {
         var offsetValue = parseInt(this.value, 10);
         if (isNaN(offsetValue)) {
             offsetValue = 0;
         }
-        socket.emit("server-settings-update", {
+        socket.emit("lyrics-settings", {
             features: {
                 lyrics: {
                     offsetMs: offsetValue
@@ -559,7 +561,8 @@ WNP.setSocketDefinitions = function () {
     });
 
     // On lyrics
-    socket.on("lyrics", function (msg) {
+    socket.on("lyrics-get", function (msg) {
+        console.log("IO: lyrics-get", msg);
         WNP.d.lyricsIndex = null;
 
         if (!msg || msg.status !== "ok" || !msg.payload?.syncedLyrics) {
@@ -567,13 +570,13 @@ WNP.setSocketDefinitions = function () {
             return;
         }
 
-        WNP.d.lyricsLines = WNP.parseSyncedLyrics(msg.payload.syncedLyrics);
-        if (!WNP.d.lyricsLines.length) {
+        WNP.d.lyrics = WNP.parseSyncedLyrics(msg.payload.syncedLyrics);
+        if (!WNP.d.lyrics.length) {
             WNP.clearLyrics();
             return;
         }
 
-        WNP.r.lyricsContainer.classList.add("is-visible");
+        WNP.r.mediaLyrics.classList.add("is-visible");
         WNP.updateLyricsProgress(null, 0);
     });
 
@@ -769,6 +772,7 @@ WNP.convertToMinutes = function (seconds) {
  * @returns {array} Array of lyric lines with time in ms.
  */
 WNP.parseSyncedLyrics = function (syncedLyrics) {
+    // console.log("WNP", "Parsing synced lyrics...");
     if (!syncedLyrics) {
         return [];
     }
@@ -801,20 +805,21 @@ WNP.parseSyncedLyrics = function (syncedLyrics) {
  * @returns {undefined}
  */
 WNP.clearLyrics = function () {
-    if (WNP.r.lyricsContainer) {
-        WNP.r.lyricsContainer.classList.remove("is-visible");
-        WNP.r.lyricsContainer.classList.remove("is-pending");
+    // console.log("WNP", "Clearing lyrics...");
+    if (WNP.r.mediaLyrics) {
+        WNP.r.mediaLyrics.classList.remove("is-visible");
+        WNP.r.mediaLyrics.classList.remove("is-pending");
     }
-    if (WNP.r.lyricsPrev) {
-        WNP.r.lyricsPrev.innerText = "";
+    if (WNP.r.lyricPrev) {
+        WNP.r.lyricPrev.innerText = "";
     }
-    if (WNP.r.lyricsCurrent) {
-        WNP.r.lyricsCurrent.innerText = "";
+    if (WNP.r.lyricCurrent) {
+        WNP.r.lyricCurrent.innerText = "";
     }
-    if (WNP.r.lyricsNext) {
-        WNP.r.lyricsNext.innerText = "";
+    if (WNP.r.lyricNext) {
+        WNP.r.lyricNext.innerText = "";
     }
-    WNP.d.lyricsLines = [];
+    WNP.d.lyrics = [];
     WNP.d.lyricsIndex = null;
 };
 
@@ -824,13 +829,14 @@ WNP.clearLyrics = function () {
  * @returns {undefined}
  */
 WNP.setLyricsPending = function (isPending) {
-    if (!WNP.r.lyricsContainer) {
+    // console.log("WNP", "Lyrics pending:", isPending);
+    if (!WNP.r.mediaLyrics) {
         return;
     }
     if (isPending) {
-        WNP.r.lyricsContainer.classList.add("is-pending");
+        WNP.r.mediaLyrics.classList.add("is-pending");
     } else {
-        WNP.r.lyricsContainer.classList.remove("is-pending");
+        WNP.r.mediaLyrics.classList.remove("is-pending");
     }
 };
 
@@ -841,7 +847,8 @@ WNP.setLyricsPending = function (isPending) {
  * @returns {undefined}
  */
 WNP.updateLyricsProgress = function (relTime, timeStampDiff) {
-    if (!WNP.d.lyricsLines || WNP.d.lyricsLines.length === 0) {
+    // console.log("WNP", "Updating lyrics progress...", { relTime, timeStampDiff });
+    if (!WNP.d.lyrics || WNP.d.lyrics.length === 0) {
         return;
     }
 
@@ -851,8 +858,8 @@ WNP.updateLyricsProgress = function (relTime, timeStampDiff) {
     var currentMs = currentSeconds * 1000 + WNP.getLyricsOffsetMs();
 
     var currentIndex = -1;
-    for (let i = 0; i < WNP.d.lyricsLines.length; i++) {
-        if (WNP.d.lyricsLines[i].timeMs <= currentMs) {
+    for (let i = 0; i < WNP.d.lyrics.length; i++) {
+        if (WNP.d.lyrics[i].timeMs <= currentMs) {
             currentIndex = i;
         } else {
             break;
@@ -861,10 +868,10 @@ WNP.updateLyricsProgress = function (relTime, timeStampDiff) {
 
     if (currentIndex === -1) {
         WNP.setLyricsPending(true);
-        WNP.setLyricsLines(
+        WNP.setLyrics(
             "",
-            WNP.d.lyricsLines[1] ? WNP.d.lyricsLines[0].text : "",
-            WNP.d.lyricsLines[2] ? WNP.d.lyricsLines[1].text : ""
+            WNP.d.lyrics[1] ? WNP.d.lyrics[0].text : "",
+            WNP.d.lyrics[2] ? WNP.d.lyrics[1].text : ""
         );
         WNP.d.lyricsIndex = -1;
         return;
@@ -876,26 +883,26 @@ WNP.updateLyricsProgress = function (relTime, timeStampDiff) {
 
     WNP.setLyricsPending(false);
     WNP.d.lyricsIndex = currentIndex;
-    var prevLine = currentIndex > 0 ? WNP.d.lyricsLines[currentIndex - 1].text : "";
-    var currentLine = WNP.d.lyricsLines[currentIndex].text;
-    var nextLine = WNP.d.lyricsLines[currentIndex + 1] ? WNP.d.lyricsLines[currentIndex + 1].text : "";
-    WNP.setLyricsLines(prevLine, currentLine, nextLine);
+    var prevLine = currentIndex > 0 ? WNP.d.lyrics[currentIndex - 1].text : "";
+    var currentLine = WNP.d.lyrics[currentIndex].text;
+    var nextLine = WNP.d.lyrics[currentIndex + 1] ? WNP.d.lyrics[currentIndex + 1].text : "";
+    WNP.setLyrics(prevLine, currentLine, nextLine);
 };
 
 /**
- * Update lyrics line text.
+ * Update the lyric lines in the UI.
  * @param {string} prevLine - Previous line.
  * @param {string} currentLine - Current line.
  * @param {string} nextLine - Next line.
  * @returns {undefined}
  */
-WNP.setLyricsLines = function (prevLine, currentLine, nextLine) {
-    if (!WNP.r.lyricsPrev || !WNP.r.lyricsCurrent || !WNP.r.lyricsNext) {
+WNP.setLyrics = function (prevLine, currentLine, nextLine) {
+    if (!WNP.r.lyricPrev || !WNP.r.lyricCurrent || !WNP.r.lyricNext) {
         return;
     }
-    WNP.r.lyricsPrev.innerText = prevLine;
-    WNP.r.lyricsCurrent.innerText = currentLine;
-    WNP.r.lyricsNext.innerText = nextLine;
+    WNP.r.lyricPrev.innerText = prevLine;
+    WNP.r.lyricCurrent.innerText = currentLine;
+    WNP.r.lyricNext.innerText = nextLine;
 };
 
 /**

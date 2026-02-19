@@ -207,10 +207,10 @@ WNP.setUIListeners = function () {
         location.reload();
     });
 
-    // Lyrics toggle
+    // Set lyrics toggle
     this.r.chkLyricsEnabled.addEventListener("change", function () {
         WNP.r.tickLyricsUp.classList.add("tickAnimate");
-        socket.emit("server-settings-update", {
+        socket.emit("lyrics-settings", {
             features: {
                 lyrics: {
                     enabled: this.checked
@@ -219,14 +219,14 @@ WNP.setUIListeners = function () {
         });
     });
 
-    // Lyrics offset in ms
+    // Set lyrics offset in ms
     this.r.lyricsOffsetMs.addEventListener("change", function () {
         WNP.r.tickLyricsUp.classList.add("tickAnimate");
         var offsetValue = parseInt(this.value, 10);
         if (isNaN(offsetValue)) {
             offsetValue = 0;
         }
-        socket.emit("server-settings-update", {
+        socket.emit("lyrics-settings", {
             features: {
                 lyrics: {
                     offsetMs: offsetValue
@@ -503,7 +503,7 @@ WNP.setSocketDefinitions = function () {
     });
 
     // On lyrics
-    socket.on("lyrics", function (msg) {
+    socket.on("lyrics-get", function (msg) {
         console.log("IO: lyrics", msg);
         WNP.r.tickLyricsDown.classList.add("tickAnimate");
         WNP.r.lyrics.innerHTML = JSON.stringify(msg);

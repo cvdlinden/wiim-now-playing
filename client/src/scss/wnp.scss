@@ -150,59 +150,51 @@
             font-size: calc(.875rem + .3vw);
         }
 
-        // Lyrics
-        .wnpLyrics {
-            display: none;
-            margin-top: 14px;
-            padding: 8px 12px;
-            border-radius: 12px;
-            background: rgba(0, 0, 0, 0.35);
-            backdrop-filter: blur(4px);
-            min-height: 84px;
-
-            &.is-visible {
-                display: block;
-            }
-
-            &.is-pending {
-                .lyrics-current {
-                    font-weight: 400;
-                    opacity: 0.65;
-                    font-size: calc(.85rem + .25vw);
-                }
-            }
-
-            .lyrics-line {
-                text-align: center;
-                opacity: 0.65;
-                line-height: 1.35;
-                min-height: 1.35em;
-
-                &:empty::before {
-                    content: "\00a0";
-                }
-
-                &.lyrics-current {
-                    font-weight: 600;
-                    opacity: 1;
-                    font-size: calc(.95rem + .35vw);
-                }
-
-                &.lyrics-prev,
-                &.lyrics-next {
-                    font-size: calc(.85rem + .25vw);
-                }
-            }
-        }
-
-        // Media Album and Quality Ident
-        #mediaAlbumIdent,
+        // Media Quality Ident
         #mediaQualityIdent {
 
             &.badge-outlined {
                 border: 1px solid rgba(118, 125, 123, 1);
                 font-weight: var(--bs-body-font-weight);
                 margin-right: 10px;
+            }
+
+        }
+
+        // Lyrics
+        #mediaLyrics {
+            display: none;
+            // position: absolute;
+            margin: 36px 24px 0 0;
+            padding: 12px 24px;
+            border-radius: 24px;
+            background: rgba(0, 0, 0, 0.2);
+            // max-height: 160px;
+            // overflow-y: hidden;
+
+            &.is-visible {
+                display: block;
+            }
+
+            >div {
+                opacity: 0.65;
+                font-size: calc(1.1rem + .35vw);
+
+                &:empty::before {
+                    content: "...";
+                }
+
+                &.current {
+                    font-weight: 600;
+                    opacity: 1;
+                    font-size: calc(1.3rem + .35vw);
+                }
+            }
+
+            &.is-pending {
+                .current {
+                    opacity: 0.65;
+                }
             }
 
         }
@@ -342,6 +334,19 @@
 
         .wnpMediaInfo {
             padding: 24px 24px 24px 0;
+
+            // Lyrics
+            #mediaLyrics {
+
+                >div {
+                    font-size: calc(.95rem + .25vw);
+
+                    &.current {
+                        font-size: calc(1rem + .35vw);
+                    }
+                }
+
+            }
         }
 
         .wnpFooter {
@@ -374,6 +379,18 @@
 
             }
 
+            // Lyrics
+            #mediaLyrics {
+
+                >div {
+                    font-size: calc(1.1rem + .35vw);
+
+                    &.current {
+                        font-size: calc(1.3rem + .35vw);
+                    }
+                }
+
+            }
         }
 
         /* Footer contents */
@@ -400,6 +417,18 @@
 
             }
 
+            // Lyrics
+            #mediaLyrics {
+
+                >div {
+                    font-size: calc(1.1rem + .35vw);
+
+                    &.current {
+                        font-size: calc(1.3rem + .35vw);
+                    }
+                }
+
+            }
         }
 
     }
@@ -416,6 +445,18 @@
                     max-height: 32px;
                 }
 
+                // Lyrics
+                #mediaLyrics {
+
+                    >div {
+                        font-size: calc(1.1rem + .35vw);
+
+                        &.current {
+                            font-size: calc(1.3rem + .35vw);
+                        }
+                    }
+
+                }
             }
 
         }

@@ -73,7 +73,7 @@ let serverSettings = { // Placeholder for current server settings
     "features": {
         "lyrics": {
             "enabled": false,
-            "offsetMs": 0
+            "offsetMs": 100
         }
     },
     "server": null, // Placeholder for the express server (port) information
@@ -90,7 +90,6 @@ let pollMetadata = null; // For the renderer metadata
 // ===========================================================================
 // Get the server settings from local file storage, if any.
 lib.getSettings(serverSettings);
-// lyricsCache.startCacheMaintenance(serverSettings);
 
 // ===========================================================================
 // Initial SSDP scan for devices.
@@ -119,7 +118,7 @@ setTimeout(() => {
 // Use CORS
 app.use(cors());
 
-// Set up rate limiter: maximum 100 requests per 15 minutes per IP
+// Set up rate limiter: maximum 1000 requests per 15 minutes per IP
 // As static file serving can be quite intensive we set a limit here
 // As suggested by Github code scanning tools
 // As suggested by: https://www.npmjs.com/package/express-rate-limit
@@ -212,7 +211,7 @@ io.on("connection", (socket) => {
         socket.emit("state", deviceInfo.state);
         socket.emit("metadata", deviceInfo.metadata);
         if (deviceInfo.lyrics) {
-            socket.emit("lyrics", deviceInfo.lyrics);
+            socket.emit("lyrics-get", deviceInfo.lyrics);
         }
         // }, serverSettings.timeouts.immediate)
     }
@@ -292,6 +291,57 @@ io.on("connection", (socket) => {
     });
 
     // ======================================
+    // Lyrics related
+
+    /**
+     * Listener for lyrics get.
+     * Returns the lyrics for the currently playing track, if any and if the feature is enabled.
+     * @returns {undefined}
+     */
+    socket.on("lyrics-get", () => {
+        log("Socket event", "lyrics-get");
+        if (serverSettings.features.lyrics.enabled && deviceInfo.lyrics) {
+            socket.emit("lyrics-get", deviceInfo.lyrics);
+        }
+    });
+
+    /**
+     * Listener for lyrics settings updates.
+     * Sets the lyrics related settings and saves them to the local storage.
+     * @param {object} msg - The updated settings.
+     * @returns {undefined}
+     */
+    socket.on("lyrics-settings", (msg) => {
+        log("Socket event", "lyrics-settings", msg);
+        if (msg && msg.features && msg.features.lyrics) {
+
+            var shouldRefreshLyrics = false;
+
+            // Lyrics enabled/disabled setting
+            if (typeof msg.features.lyrics.enabled === "boolean") {
+                serverSettings.features.lyrics.enabled = msg.features.lyrics.enabled;
+                shouldRefreshLyrics = true;
+            }
+
+            // Lyrics offset in ms setting
+            if (typeof msg.features.lyrics.offsetMs === "number") {
+                serverSettings.features.lyrics.offsetMs = msg.features.lyrics.offsetMs;
+            }
+
+            // Save settings and send updated settings to clients
+            lib.saveSettings(serverSettings);
+            sockets.getServerSettings(io, serverSettings);
+
+            // Should the lyrics be refreshed? Only if the enabled setting is changed, 
+            // not for offset changes, as the offset is applied on the client side and does not require new lyrics to be fetched.
+            if (shouldRefreshLyrics) {
+                lyrics.getLyricsForMetadata(io, deviceInfo, serverSettings);
+            }
+
+        }
+    });
+
+    // ======================================
     // Server related
 
     /**
@@ -301,33 +351,6 @@ io.on("connection", (socket) => {
     socket.on("server-settings", () => {
         log("Socket event", "server-settings");
         sockets.getServerSettings(io, serverSettings);
-    });
-
-    /**
-     * Listener for server settings updates.
-     * @param {object} msg - The updated settings.
-     * @returns {undefined}
-     */
-    socket.on("server-settings-update", (msg) => {
-        log("Socket event", "server-settings-update", msg);
-        if (msg && msg.features && msg.features.lyrics) {
-            var shouldRefreshLyrics = false;
-            if (typeof msg.features.lyrics.enabled === "boolean") {
-                serverSettings.features.lyrics.enabled = msg.features.lyrics.enabled;
-                shouldRefreshLyrics = true;
-            }
-            if (typeof msg.features.lyrics.offsetMs === "number") {
-                serverSettings.features.lyrics.offsetMs = msg.features.lyrics.offsetMs;
-            }
-            lib.saveSettings(serverSettings);
-            // lyricsCache.startCacheMaintenance(serverSettings);
-            sockets.getServerSettings(io, serverSettings);
-            if (shouldRefreshLyrics) {
-                lyrics.getLyricsForMetadata(io, deviceInfo, serverSettings).catch((error) => {
-                    log("Lyrics update error", error);
-                });
-            }
-        }
     });
 
     /**

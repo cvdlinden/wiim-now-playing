@@ -84,7 +84,6 @@ const getLyricsForMetadata = async (io, deviceInfo, serverSettings) => {
         setLyricsState(io, deviceInfo, {
             ...cacheLookup
         });
-        // return;
     }
 };
 
@@ -113,10 +112,11 @@ const fetchLyrics = async (signature, trackKey, serverSettings) => {
         album_name: signature.albumName,
         duration: signature.duration
     });
-    const getResult = await fetchJson(`/api/get?${params.toString()}`, serverSettings)
+    const getResult = await fetchJson(`/api/get?${params.toString()}`, serverSettings);
 
     // Did we get anything from the API?
-    if (getResult) {
+    // If so, did we get synced lyrics?
+    if (getResult && getResult.syncedLyrics) {
         const cacheEntry = { status: "ok", signature: signature, trackKey: trackKey, payload: getResult };
         lyricsCache.set(trackKey, cacheEntry);
         // let keyCount = await lyricsCache.count();
@@ -229,7 +229,7 @@ const setLyricsState = (io, deviceInfo, lyricsState) => {
     // Else set the current lyrics state
     log("setLyricsState() - state changed:", `status = ${lyricsState?.status}; trackKey: ${lyricsState?.trackKey}; payloadId: ${lyricsState?.payload?.id}`)
     deviceInfo.lyrics = lyricsState;
-    io.emit("lyrics", lyricsState);
+    io.emit("lyrics-get", lyricsState);
 };
 
 /**

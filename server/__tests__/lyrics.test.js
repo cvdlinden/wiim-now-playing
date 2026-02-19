@@ -71,7 +71,7 @@ describe("Lyrics Module", () => {
             // Als dit nog steeds faalt, komt hij niet voorbij de "signature" check.
             expect(lyricsCache.get).toHaveBeenCalled();
             expect(mockDeviceInfo.lyrics.status).toBe("ok");
-            expect(mockIo.emit).toHaveBeenCalledWith("lyrics", cachedData);
+            expect(mockIo.emit).toHaveBeenCalledWith("lyrics-get", cachedData);
         });
 
         test("moet de API aanroepen bij een cache miss", async () => {
@@ -96,7 +96,7 @@ describe("Lyrics Module", () => {
 
             https.get.mockImplementation((url, options, callback) => {
                 callback(mockRes);
-                mockRes.emit("data", JSON.stringify({ id: 123, plainLyrics: "API Lyrics" }));
+                mockRes.emit("data", JSON.stringify({ id: 123, plainLyrics: "API Lyrics", syncedLyrics: "[0:01] API Lyrics" }));
                 mockRes.emit("end");
                 return { on: jest.fn() };
             });
@@ -111,7 +111,8 @@ describe("Lyrics Module", () => {
             expect(lyricsCache.get).toHaveBeenCalledWith(expectedKey);
             expect(https.get).toHaveBeenCalled();
             expect(lyricsCache.set).toHaveBeenCalledWith(expectedKey, expect.objectContaining({
-                status: "ok"
+                status: "ok",
+                payload: expect.objectContaining({ syncedLyrics: "[0:01] API Lyrics" })
             }));
         });
 
@@ -207,7 +208,7 @@ describe("Lyrics Module", () => {
                     payload: expect.objectContaining({ id: 2 })
                 })
             );
-            expect(mockIo.emit).toHaveBeenCalledWith("lyrics", expect.objectContaining({ status: "ok" }));
+            expect(mockIo.emit).toHaveBeenCalledWith("lyrics-get", expect.objectContaining({ status: "ok" }));
         });
 
         test("moet clearLyricsState aanroepen bij ongeldige metadata", async () => {
@@ -215,7 +216,7 @@ describe("Lyrics Module", () => {
 
             await lyrics.getLyricsForMetadata(mockIo, mockDeviceInfo, mockServerSettings);
 
-            expect(mockIo.emit).toHaveBeenCalledWith("lyrics", expect.objectContaining({
+            expect(mockIo.emit).toHaveBeenCalledWith("lyrics-get", expect.objectContaining({
                 status: "missing-signature"
             }));
         });
