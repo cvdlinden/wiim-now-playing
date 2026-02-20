@@ -66,7 +66,7 @@ const getLyricsForMetadata = async (io, deviceInfo, serverSettings) => {
             if (cacheEntry) {
                 // log("Lyrics fetched from API!")
                 setLyricsState(io, deviceInfo, {
-                    ...cacheEntry,
+                    ...cacheEntry
                 });
                 return;
             }
@@ -94,7 +94,7 @@ const getLyricsForMetadata = async (io, deviceInfo, serverSettings) => {
  * @param {object} signature 
  * @param {string} trackKey 
  * @param {object} serverSettings 
- * @returns {Promise<object>} cacheEntry
+ * @returns {Promise<object>}
  */
 const fetchLyrics = async (signature, trackKey, serverSettings) => {
     log("fetchLyrics()");

@@ -67,6 +67,8 @@ WNP.Init = function () {
         // Get devices
         this.r.tickDevicesGetUp.classList.add("tickAnimate");
         socket.emit("devices-get");
+        // See if any lyrics are present for the currently playing track
+        socket.emit("lyrics-get");
         // // Get volume
         // this.r.tickVolumeGetUp.classList.add("tickAnimate");
         // socket.emit("device-api", "getPlayerStatus");
@@ -504,7 +506,7 @@ WNP.setSocketDefinitions = function () {
 
     // On lyrics
     socket.on("lyrics-get", function (msg) {
-        console.log("IO: lyrics", msg);
+        console.log("IO: lyrics-get", msg);
         WNP.r.tickLyricsDown.classList.add("tickAnimate");
         WNP.r.lyrics.innerHTML = JSON.stringify(msg);
 

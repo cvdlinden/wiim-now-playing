@@ -164,30 +164,27 @@
         // Lyrics
         #mediaLyrics {
             display: none;
-            // position: absolute;
-            margin: 36px 24px 0 0;
-            padding: 12px 24px;
-            border-radius: 24px;
+            border-radius: 12px;
             background: rgba(0, 0, 0, 0.2);
-            // max-height: 160px;
-            // overflow-y: hidden;
 
             &.is-visible {
                 display: block;
             }
 
             >div {
-                opacity: 0.65;
-                font-size: calc(1.1rem + .35vw);
+                text-align: center;
+                font-style: italic;
+                display: none;
+                opacity: 0.5;
 
                 &:empty::before {
                     content: "...";
+                    opacity: 0.25;
                 }
 
                 &.current {
-                    font-weight: 600;
-                    opacity: 1;
-                    font-size: calc(1.3rem + .35vw);
+                    display: block;
+                    opacity: 0.85;
                 }
             }
 
@@ -337,15 +334,8 @@
 
             // Lyrics
             #mediaLyrics {
-
-                >div {
-                    font-size: calc(.95rem + .25vw);
-
-                    &.current {
-                        font-size: calc(1rem + .35vw);
-                    }
-                }
-
+                margin: 12px 0 0 0;
+                padding: 6px 6px;
             }
         }
 
@@ -381,12 +371,22 @@
 
             // Lyrics
             #mediaLyrics {
+                margin: 24px 0 0 0;
+                padding: 9px 12px;
+
+                >div:first-child,
+                >div:last-child {
+                    display: none;
+                }
 
                 >div {
-                    font-size: calc(1.1rem + .35vw);
+                    display: block;
+                    text-align: left;
 
                     &.current {
-                        font-size: calc(1.3rem + .35vw);
+                        opacity: .85;
+                        font-weight: 600;
+                        font-size: calc(.9rem + .3vw);
                     }
                 }
 
@@ -419,12 +419,20 @@
 
             // Lyrics
             #mediaLyrics {
+                margin: 36px 6px 0 6px;
+                padding: 12px 18px;
+                border-radius: 18px;
+
+                >div:first-child,
+                >div:last-child {
+                    display: block;
+                }
 
                 >div {
-                    font-size: calc(1.1rem + .35vw);
+                    font-size: calc(1.1rem + .3vw);
 
                     &.current {
-                        font-size: calc(1.3rem + .35vw);
+                        font-size: calc(1.2rem + .3vw);
                     }
                 }
 
@@ -445,20 +453,23 @@
                     max-height: 32px;
                 }
 
-                // Lyrics
-                #mediaLyrics {
-
-                    >div {
-                        font-size: calc(1.1rem + .35vw);
-
-                        &.current {
-                            font-size: calc(1.3rem + .35vw);
-                        }
-                    }
-
-                }
             }
 
+            // Lyrics
+            #mediaLyrics {
+                margin: 48px 12px 0 12px;
+                // padding: 18px 18px;
+                // border-radius: 12px;
+
+                >div {
+                    font-size: calc(1.2rem + .35vw);
+
+                    &.current {
+                        font-size: calc(1.4rem + .35vw);
+                    }
+                }
+
+            }
         }
 
     }
@@ -493,6 +504,40 @@
             .wnpContainer {
                 grid-template-columns: 1.05fr .95fr;
                 // grid-template-rows: 1fr 105px;
+            }
+
+            /* Media info contents */
+            .wnpMediaInfo {
+
+                // Lyrics
+                #mediaLyrics {
+
+                    >div:first-child {
+                        display: none;
+                    }
+
+                    >div {
+                        display: block;
+                    }
+                }
+            }
+
+        }
+
+        // Large devices (desktops/tablets, 992px and up)
+        @media (min-width: 992px) and (orientation: landscape) {
+
+            /* Media info contents */
+            .wnpMediaInfo {
+
+                // Lyrics
+                #mediaLyrics {
+
+                    >div:first-child {
+                        display: block;
+                    }
+
+                }
             }
 
         }
@@ -551,178 +596,6 @@
             }
 
         }
-    }
-
-}
-
-// Resolution debugging, only used in res.html
-.rez {
-
-    // Color coding to see margins and paddings
-    .wnpAlbumArt {
-        background-color: #900;
-
-        >div {
-            background-color: #c00;
-        }
-
-    }
-
-    .wnpMediaInfo {
-        background-color: #090;
-
-        >div {
-            background-color: #0c0;
-        }
-
-    }
-
-    .wnpFooter {
-        background-color: #009;
-
-        >div {
-            background-color: #00c;
-        }
-
-    }
-
-    // Media queries tests
-    #wnpResTest {
-        display: block;
-        position: absolute;
-        right: 32px;
-        top: 36px;
-        color: #ccc;
-        background-color: #fff;
-        border: 2px solid #ccc;
-        padding: 5px;
-        max-width: 200px;
-
-        // Bootstrap responsive breakpoints: https://getbootstrap.com/docs/5.0/layout/breakpoints/
-        // X-Small devices (portrait phones, less than 576px)
-        // No media query for `xs` since this is the default in Bootstrap
-        .bp-xs {
-            color: #0c0;
-        }
-
-        // Small devices (landscape phones, 576px and up)
-        @media (min-width: 576px) {
-            .bp-sm {
-                color: #0c0;
-            }
-        }
-
-        // Medium devices (tablets, 768px and up)
-        @media (min-width: 768px) {
-            .bp-md {
-                color: #0c0;
-            }
-        }
-
-        // Large devices (desktops, 992px and up)
-        @media (min-width: 992px) {
-            .bp-lg {
-                color: #0c0;
-            }
-        }
-
-        // X-Large devices (large desktops, 1200px and up)
-        @media (min-width: 1200px) {
-            .bp-xl {
-                color: #0c0;
-            }
-        }
-
-        // XX-Large devices (larger desktops, 1400px and up)
-        @media (min-width: 1400px) {
-            .bp-xxl {
-                color: #0c0;
-            }
-        }
-
-        // 1080p devices (larger desktops, 1400px and up)
-        @media (min-width: 1920px) {
-            .bp-1080 {
-                color: #0c0;
-            }
-        }
-
-        // 1440p devices (larger desktops, 1400px and up)
-        @media (min-width: 2560px) {
-            .bp-1440 {
-                color: #0c0;
-            }
-        }
-
-        // 4K devices (larger desktops, 1400px and up)
-        @media (min-width: 3840px) {
-            .bp-4k {
-                color: #0c0;
-            }
-        }
-
-        // Orientation: Landscape
-        @media (orientation: landscape) {
-            .bp-ls {
-                color: #0c0;
-            }
-        }
-
-        // Orientation: Portrait
-        @media (orientation: portrait) {
-            .bp-pt {
-                color: #0c0;
-            }
-        }
-
-        // Pixel ratio 1 (True one-on-one screens i.e. desktop monitors)
-        @media screen and (-webkit-min-device-pixel-ratio: 1),
-        screen and (-moz-min-device-pixel-ratio: 1),
-        screen and (-o-min-device-pixel-ratio: 1),
-        screen and (min-device-pixel-ratio: 1) {
-            font-size: 1rem;
-
-            .bp-p1 {
-                color: #0c0;
-            }
-        }
-
-        // Pixel ratio 2 (Highres small screens i.e. iPad tablets)
-        @media screen and (-webkit-min-device-pixel-ratio: 2),
-        screen and (-moz-min-device-pixel-ratio: 2),
-        screen and (-o-min-device-pixel-ratio: 2),
-        screen and (min-device-pixel-ratio: 2) {
-            font-size: 1.2rem;
-
-            .bp-p2 {
-                color: #0c0;
-            }
-        }
-
-        // Pixel ratio 3 (Highres screens i.e. iPhones)
-        @media screen and (-webkit-min-device-pixel-ratio: 3),
-        screen and (-moz-min-device-pixel-ratio: 3),
-        screen and (-o-min-device-pixel-ratio: 3),
-        screen and (min-device-pixel-ratio: 3) {
-            font-size: 1.3rem;
-
-            .bp-p3 {
-                color: #0c0;
-            }
-        }
-
-        // Pixel ratio 4 (Very highres screens i.e. 4K tv)
-        @media screen and (-webkit-min-device-pixel-ratio: 4),
-        screen and (-moz-min-device-pixel-ratio: 4),
-        screen and (-o-min-device-pixel-ratio: 4),
-        screen and (min-device-pixel-ratio: 4) {
-            font-size: 1.4rem;
-
-            .bp-p4 {
-                color: #0c0;
-            }
-        }
-
     }
 
 }
