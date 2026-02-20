@@ -780,6 +780,7 @@ WNP.parseSyncedLyrics = function (syncedLyrics) {
     const parsed = [];
     const timeRegex = /\[(\d{2}):(\d{2})(?:\.(\d{2,3}))?\]/g;
 
+    // Parse each line for time tags to millisecond and text
     lines.forEach((line) => {
         let match;
         const text = line.replace(timeRegex, "").trim();
@@ -789,6 +790,7 @@ WNP.parseSyncedLyrics = function (syncedLyrics) {
             const fraction = match[3] ? match[3].padEnd(3, "0") : "000";
             const millis = (minutes * 60 + seconds) * 1000 + parseInt(fraction, 10);
             parsed.push({
+                match: match[0],
                 timeMs: millis,
                 text: text
             });
@@ -796,8 +798,8 @@ WNP.parseSyncedLyrics = function (syncedLyrics) {
     });
 
     return parsed
-        .filter((entry) => entry.text !== "")
-        .sort((a, b) => a.timeMs - b.timeMs);
+        // .filter((entry) => entry.text !== "")
+        // .sort((a, b) => a.timeMs - b.timeMs);
 };
 
 /**
