@@ -178,7 +178,7 @@
                 opacity: 0.5;
 
                 &:empty::before {
-                    content: "...";
+                    content: "\22EF"; /* Unicode for three dots */
                     opacity: 0.25;
                 }
 
@@ -189,6 +189,8 @@
             }
 
             &.is-pending {
+                filter: blur(1px);
+
                 .current {
                     opacity: 0.65;
                 }

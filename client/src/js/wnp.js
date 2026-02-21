@@ -376,8 +376,10 @@ WNP.setSocketDefinitions = function () {
 
         // Get player progress data from the state message.
         var timeStampDiff = 0;
+        var timeStampDiffMs = 0;
         if (msg.CurrentTransportState === "PLAYING") {
             timeStampDiff = (msg.stateTimeStamp && msg.metadataTimeStamp) ? Math.round((msg.stateTimeStamp - msg.metadataTimeStamp) / 1000) : 0;
+            timeStampDiffMs = (msg.stateTimeStamp && msg.metadataTimeStamp) ? (msg.stateTimeStamp - msg.metadataTimeStamp) : 0;
         }
         var relTime = (msg.RelTime) ? msg.RelTime : "00:00:00";
         var trackDuration = (msg.TrackDuration) ? msg.TrackDuration : "00:00:00";
@@ -390,7 +392,11 @@ WNP.setSocketDefinitions = function () {
         WNP.r.progressPercent.children[0].setAttribute("style", "width:" + oPlayerProgress.percent + "%");
 
         WNP.d.lastState = msg;
-        WNP.updateLyricsProgress(relTime, timeStampDiff);
+        WNP.updateLyricsProgress(relTime, timeStampDiffMs);
+        setTimeout(function () { // Do another update half tick (state timeout) to make sure the progress is updated and the lyrics are in sync.
+            var timeoutState = (WNP.d.serverSettings?.timeouts?.state || 1000) / 2;
+            WNP.updateLyricsProgress(msg.RelTime, timeStampDiffMs + timeoutState);
+        }, 500);
 
         // Device transport state or play medium changed...?
         if (WNP.d.prevTransportState !== msg.CurrentTransportState || WNP.d.prevPlayMedium !== msg.PlayMedium) {
@@ -710,7 +716,7 @@ WNP.setPresetByNumber = function (presetNumber) {
 WNP.getPlayerProgress = function (relTime, trackDuration, timeStampDiff, currentTransportState) {
     var relTimeSec = this.convertToSeconds(relTime) + timeStampDiff;
     var trackDurationSec = this.convertToSeconds(trackDuration);
-    if (trackDurationSec > 0 && relTimeSec < trackDurationSec) {
+    if (trackDurationSec > 0 && relTimeSec < trackDurationSec) { // Only calculate percentage if we have a valid track duration and the relTime is within the track duration
         var percentPlayed = ((relTimeSec / trackDurationSec) * 100).toFixed(1);
         return {
             played: WNP.convertToMinutes(relTimeSec),
@@ -719,7 +725,7 @@ WNP.getPlayerProgress = function (relTime, trackDuration, timeStampDiff, current
             percent: percentPlayed
         };
     }
-    else if (trackDurationSec == 0 && currentTransportState == "PLAYING") {
+    else if (trackDurationSec == 0 && currentTransportState == "PLAYING") { // For live streams or unknown duration, show "Live" when playing and "Paused" when paused/stopped
         return {
             played: "Live",
             left: "",
@@ -727,7 +733,7 @@ WNP.getPlayerProgress = function (relTime, trackDuration, timeStampDiff, current
             percent: 100
         };
     }
-    else {
+    else { // Default fallback for paused/stopped state or when relTime exceeds track duration
         return {
             played: "Paused",
             left: "",
@@ -773,33 +779,57 @@ WNP.convertToMinutes = function (seconds) {
  */
 WNP.parseSyncedLyrics = function (syncedLyrics) {
     // console.log("WNP", "Parsing synced lyrics...");
-    if (!syncedLyrics) {
-        return [];
-    }
+    if (!syncedLyrics) return [];
+
     const lines = syncedLyrics.split(/\r?\n/);
     const parsed = [];
-    const timeRegex = /\[(\d{2}):(\d{2})(?:\.(\d{2,3}))?\]/g;
+    let globalOffsetMs = 0;
 
-    // Parse each line for time tags to millisecond and text
+    // Regex for timestamps: [hh:mm:ss.xxx] or [mm:ss.xxx]
+    const timeRegex = /\[(?:(\d+):)?(\d{2}):(\d{2})[.:](\d{2,3})\]/g;
+    // Regex for the offset tag: [offset:500] or [offset:-200]
+    const offsetRegex = /\[offset:\s*(-?\d+)\s*\]/i;
+
     lines.forEach((line) => {
+
+        // Check for global offset tag first
+        const offsetMatch = line.match(offsetRegex);
+        if (offsetMatch) {
+            globalOffsetMs = parseInt(offsetMatch[1], 10);
+            return; // Skip further processing of this line
+        }
+
+        // Remove all time tags to extract the text
+        const text = line.replace(/\[.*?\]/g, "").trim();
+        // if (!text) return;
+
+        // Extract all time tags and convert to milliseconds
         let match;
-        const text = line.replace(timeRegex, "").trim();
+        timeRegex.lastIndex = 0; // Reset regex for exec()
         while ((match = timeRegex.exec(line)) !== null) {
-            const minutes = parseInt(match[1], 10);
-            const seconds = parseInt(match[2], 10);
-            const fraction = match[3] ? match[3].padEnd(3, "0") : "000";
-            const millis = (minutes * 60 + seconds) * 1000 + parseInt(fraction, 10);
+            const hrs = parseInt(match[1] || 0, 10);
+            const min = parseInt(match[2], 10);
+            const sec = parseInt(match[3], 10);
+            const msPart = match[4].padEnd(3, "0");
+            const millis = parseInt(msPart, 10);
+
+            // Calculate total time in milliseconds and apply global offset
+            let totalMs = (hrs * 3600000) + (min * 60000) + (sec * 1000) + millis;
+            totalMs += globalOffsetMs;
+
+            // Push the parsed line with time and text, ensuring time is not negative
             parsed.push({
-                match: match[0],
-                timeMs: millis,
-                text: text
+                timestamp: match[0], // Original timestamp string (for reference, not used in logic)
+                timeMs: Math.max(0, totalMs), // Ensure time is not negative after applying offset
+                text: text // Store the text without time tags
             });
         }
+
     });
 
-    return parsed
-        // .filter((entry) => entry.text !== "")
-        // .sort((a, b) => a.timeMs - b.timeMs);
+    // Sort parsed lines by time in ascending order (important for findLastIndex to work correctly)
+    return parsed.sort((a, b) => a.timeMs - b.timeMs);
+
 };
 
 /**
@@ -808,22 +838,18 @@ WNP.parseSyncedLyrics = function (syncedLyrics) {
  */
 WNP.clearLyrics = function () {
     // console.log("WNP", "Clearing lyrics...");
+    // Remove visibility and pending state classes, if set
     if (WNP.r.mediaLyrics) {
-        WNP.r.mediaLyrics.classList.remove("is-visible");
-        WNP.r.mediaLyrics.classList.remove("is-pending");
+        WNP.r.mediaLyrics.classList.remove("is-visible", "is-pending");
     }
-    if (WNP.r.lyricPrev) {
-        WNP.r.lyricPrev.innerText = "";
-    }
-    if (WNP.r.lyricCurrent) {
-        WNP.r.lyricCurrent.innerText = "";
-    }
-    if (WNP.r.lyricNext) {
-        WNP.r.lyricNext.innerText = "";
-    }
-    if (WNP.r.lyricAfter) {
-        WNP.r.lyricAfter.innerText = "";
-    }
+
+    // Clear lyric lines text content
+    if (WNP.r.lyricPrev) WNP.r.lyricPrev.textContent = "";
+    if (WNP.r.lyricCurrent) WNP.r.lyricCurrent.textContent = "";
+    if (WNP.r.lyricNext) WNP.r.lyricNext.textContent = "";
+    if (WNP.r.lyricAfter) WNP.r.lyricAfter.textContent = "";
+
+    // Reset data states
     WNP.d.lyrics = [];
     WNP.d.lyricsIndex = null;
 };
@@ -835,65 +861,70 @@ WNP.clearLyrics = function () {
  */
 WNP.setLyricsPending = function (isPending) {
     // console.log("WNP", "Lyrics pending:", isPending);
-    if (!WNP.r.mediaLyrics) {
-        return;
-    }
-    if (isPending) {
-        WNP.r.mediaLyrics.classList.add("is-pending");
-    } else {
-        WNP.r.mediaLyrics.classList.remove("is-pending");
-    }
+    if (!WNP.r.mediaLyrics) return;
+    WNP.r.mediaLyrics.classList.toggle("is-pending", isPending);
 };
 
 /**
  * Update lyrics display based on player progress.
+ * Normally called on state updates to sync lyrics with the current play time.
+ * Also called when new lyrics are loaded to set the initial display.
  * @param {string|null} relTime - Time elapsed while playing, format 00:00:00.
- * @param {integer} timeStampDiff - Possible play time offset in seconds.
+ * @param {integer} stateTimeStamp - The timestamp of the state update.
+ * @param {integer} metadataTimeStamp - The timestamp of the metadata update.
  * @returns {undefined}
  */
-WNP.updateLyricsProgress = function (relTime, timeStampDiff) {
-    // console.log("WNP", "Updating lyrics progress...", { relTime, timeStampDiff });
+WNP.updateLyricsProgress = function (relTime, timeStampDiffMs) {
+    // console.log("WNP", "Updating lyrics progress...", { relTime, stateTimeStamp, metadataTimeStamp });
+    // Are any lyrics available...?
     if (!WNP.d.lyrics || WNP.d.lyrics.length === 0) {
         return;
     }
 
+    // Calculate the current play time in milliseconds, using relTime
     var currentRelTime = relTime || (WNP.d.lastState && WNP.d.lastState.RelTime) || "00:00:00";
-    var currentOffset = timeStampDiff || 0;
-    var currentSeconds = WNP.convertToSeconds(currentRelTime) + currentOffset;
-    var currentMs = currentSeconds * 1000 + WNP.getLyricsOffsetMs();
+    var [hours, minutes, seconds] = currentRelTime.split(':').map(Number);
+    var relTimeMs = ((hours * 3600) + (minutes * 60) + seconds) * 1000;
 
-    var currentIndex = -1;
-    for (let i = 0; i < WNP.d.lyrics.length; i++) {
-        if (WNP.d.lyrics[i].timeMs <= currentMs) {
-            currentIndex = i;
-        } else {
-            break;
-        }
+    // Calculate the current play time in milliseconds by adding the time difference to the relTime milliseconds
+    var currentMs = relTimeMs + timeStampDiffMs;
+    var offsetMs = WNP.getLyricsOffsetMs();
+    if (offsetMs !== 0) {
+        currentMs += offsetMs;
     }
 
-    if (currentIndex === -1) {
+    // Find the current lyric line index based on the current play time in milliseconds.
+    // Current play time is at or past the lyric line time, but before the next lyric line time.
+    var currentLyricIdx = WNP.d.lyrics.findLastIndex(item => item.timeMs <= currentMs);
+    // console.log("WNP", "Current play time (ms):", currentMs, "Current lyric index:", currentLyricIdx);
+
+    // If the current lyric line index is the same as the last one, no need to update the display.
+    if (currentLyricIdx === WNP.d.lyricsIndex) {
+        return;
+    }
+
+    // If no lyric line is found for the current play time, set pending state and show the first line as next lyric.
+    if (currentLyricIdx === -1) {
         WNP.setLyricsPending(true);
+        WNP.d.lyricsIndex = -1;
         WNP.setLyrics(
             "",
-            WNP.d.lyrics[1] ? WNP.d.lyrics[0].text : "",
-            WNP.d.lyrics[2] ? WNP.d.lyrics[1].text : "",
-            WNP.d.lyrics[3] ? WNP.d.lyrics[2].text : ""
+            WNP.d.lyrics[0] ? WNP.d.lyrics[0].text : "",
+            WNP.d.lyrics[1] ? WNP.d.lyrics[1].text : "",
+            WNP.d.lyrics[2] ? WNP.d.lyrics[2].text : ""
         );
-        WNP.d.lyricsIndex = -1;
         return;
     }
 
-    if (WNP.d.lyricsIndex === currentIndex) {
-        return;
-    }
-
+    // Clear pending state and update the lyrics display with the current, previous and next lines.
     WNP.setLyricsPending(false);
-    WNP.d.lyricsIndex = currentIndex;
-    var prevLine = currentIndex > 0 ? WNP.d.lyrics[currentIndex - 1].text : "";
-    var currentLine = WNP.d.lyrics[currentIndex].text;
-    var nextLine = WNP.d.lyrics[currentIndex + 1] ? WNP.d.lyrics[currentIndex + 1].text : "";
-    var afterLine = WNP.d.lyrics[currentIndex + 2] ? WNP.d.lyrics[currentIndex + 2].text : "";
+    WNP.d.lyricsIndex = currentLyricIdx; // Remember the current lyric line index
+    var prevLine = WNP.d.lyrics[currentLyricIdx - 1] ? WNP.d.lyrics[currentLyricIdx - 1].text : "";
+    var currentLine = WNP.d.lyrics[currentLyricIdx] ? WNP.d.lyrics[currentLyricIdx].text : "";
+    var nextLine = WNP.d.lyrics[currentLyricIdx + 1] ? WNP.d.lyrics[currentLyricIdx + 1].text : "";
+    var afterLine = WNP.d.lyrics[currentLyricIdx + 2] ? WNP.d.lyrics[currentLyricIdx + 2].text : "";
     WNP.setLyrics(prevLine, currentLine, nextLine, afterLine);
+
 };
 
 /**
@@ -907,10 +938,10 @@ WNP.setLyrics = function (prevLine, currentLine, nextLine, afterLine) {
     if (!WNP.r.lyricPrev || !WNP.r.lyricCurrent || !WNP.r.lyricNext || !WNP.r.lyricAfter) {
         return;
     }
-    WNP.r.lyricPrev.innerText = prevLine;
-    WNP.r.lyricCurrent.innerText = currentLine;
-    WNP.r.lyricNext.innerText = nextLine;
-    WNP.r.lyricAfter.innerText = afterLine;
+    WNP.r.lyricPrev.textContent = prevLine;
+    WNP.r.lyricCurrent.textContent = currentLine;
+    WNP.r.lyricNext.textContent = nextLine;
+    WNP.r.lyricAfter.textContent = afterLine;
 };
 
 /**
