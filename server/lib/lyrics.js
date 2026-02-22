@@ -230,6 +230,7 @@ const setLyricsState = (io, deviceInfo, lyricsState) => {
     log("setLyricsState() - state changed:", `status = ${lyricsState?.status}; trackKey: ${lyricsState?.trackKey}; payloadId: ${lyricsState?.payload?.id}`)
     deviceInfo.lyrics = lyricsState;
     io.emit("lyrics-get", lyricsState);
+    getLyricsCacheStats(io);
 };
 
 /**
@@ -255,6 +256,17 @@ const clearLyricsState = (io, deviceInfo, reason, signature, trackKey) => {
         signature: signature || null,
         payload: null
     });
+};
+
+/**
+ * Get the current stats of the lyrics cache, such as the number of items in cache
+ * @param {object} io 
+ * @returns {void}
+ */
+const getLyricsCacheStats = async (io) => {
+    const count = await lyricsCache.count();
+    log("getLyricsCacheStats()", { count });
+    io.emit("lyrics-cache-stats", { count });
 };
 
 /**
@@ -389,5 +401,6 @@ const getUserAgent = (serverSettings) => {
 };
 
 module.exports = {
-    getLyricsForMetadata
+    getLyricsForMetadata,
+    getLyricsCacheStats
 };

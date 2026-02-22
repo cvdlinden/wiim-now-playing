@@ -13,7 +13,7 @@ WNP.s = {
     // Device selection
     aDeviceUI: ["btnPrev", "btnPlay", "btnNext", "btnRefresh", "selDeviceChoices", "devName", "devNameHolder", "mediaTitle", "mediaSubTitle", "mediaArtist", "mediaAlbum", "mediaBitRate", "mediaBitDepth", "mediaSampleRate", "mediaQualityIdent", "devVol", "btnRepeat", "btnShuffle", "progressPlayed", "progressLeft", "progressPercent", "mediaSource", "albumArt", "bgAlbumArtBlur", "btnDevSelect", "oDeviceList", "btnDevPreset", "oPresetList", "btnDevVolume", "rVolume", "mediaLyrics", "lyricPrev", "lyricCurrent", "lyricNext", "lyricAfter"],
     // Server actions to be used in the app
-    aServerUI: ["btnReboot", "btnUpdate", "btnShutdown", "btnReloadUI", "sServerUrlHostname", "sServerUrlIP", "sServerVersion", "sClientVersion", "chkLyricsEnabled", "lyricsOffsetMs"],
+    aServerUI: ["btnReboot", "btnUpdate", "btnShutdown", "btnReloadUI", "sServerUrlHostname", "sServerUrlIP", "sServerVersion", "sClientVersion", "chkLyricsEnabled", "lyricsCacheSize", "btnClearLyricsCache", "lyricsOffsetMs"],
 };
 
 // Data placeholders.
@@ -197,6 +197,13 @@ WNP.setUIListeners = function () {
                 }
             }
         });
+    });
+
+    // Clear lyrics cache button
+    this.r.btnClearLyricsCache.addEventListener("click", function () {
+        if (confirm("Are you sure you want to clear the lyrics cache?")) {
+            socket.emit("lyrics-cache-clear");
+        }
     });
 
     // Set lyrics offset in ms
@@ -584,6 +591,12 @@ WNP.setSocketDefinitions = function () {
 
         WNP.r.mediaLyrics.classList.add("is-visible");
         WNP.updateLyricsProgress(null, 0);
+    });
+
+    // On lyrics cache stats
+    socket.on("lyrics-cache-stats", function (msg) {
+        console.log("IO: lyrics-cache-stats", msg);
+        WNP.r.lyricsCacheSize.value = (msg && msg.count) ? `${msg.count} items cached` : "no items cached";
     });
 
     // On device set

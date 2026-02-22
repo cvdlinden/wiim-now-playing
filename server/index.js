@@ -31,7 +31,7 @@ const sockets = require("./lib/sockets.js"); // Sockets.io functionality
 const shell = require("./lib/shell.js"); // Shell command functionality
 const lib = require("./lib/lib.js"); // Generic functionality
 const lyrics = require("./lib/lyrics.js"); // Lyrics functionality
-// const lyricsCache = require("./lib/lyricsCache.js");
+const lyricsCache = require("./lib/lyricsCache.js");
 const log = require("debug")("index"); // See README.md on debugging
 
 // For versionioning purposes
@@ -72,8 +72,9 @@ let serverSettings = { // Placeholder for current server settings
     },
     "features": {
         "lyrics": {
-            "enabled": false,
-            "offsetMs": 100
+            "enabled": false, // Whether the lyrics feature is enabled or not
+            "stats": { count: 0 }, // Placeholder for lyrics cache stats, such as the number of items in cache
+            "offsetMs": 0 // The offset in milliseconds to apply to the synced lyrics, can be positive or negative, default is 0.
         }
     },
     "server": null, // Placeholder for the express server (port) information
@@ -207,13 +208,12 @@ io.on("connection", (socket) => {
     else if (io.sockets.sockets.size >= 1) {
         // If new client, send current state and metadata 'immediately'
         // When sending directly after a reboot things get wonky
-        // setTimeout(() => {
         socket.emit("state", deviceInfo.state);
         socket.emit("metadata", deviceInfo.metadata);
         if (deviceInfo.lyrics) {
             socket.emit("lyrics-get", deviceInfo.lyrics);
+            lyrics.getLyricsCacheStats(io);
         }
-        // }, serverSettings.timeouts.immediate)
     }
 
     /**
@@ -302,7 +302,30 @@ io.on("connection", (socket) => {
         log("Socket event", "lyrics-get");
         if (serverSettings.features.lyrics.enabled && deviceInfo.lyrics) {
             socket.emit("lyrics-get", deviceInfo.lyrics);
+            lyrics.getLyricsCacheStats(io);
         }
+    });
+
+    /**
+     * Listener for lyrics cache stats get.
+     * Returns the current stats of the lyrics cache, such as the number of items in cache.
+     * @returns {undefined}
+     */
+    socket.on("lyrics-cache-stats", () => {
+        log("Socket event", "lyrics-cache-stats");
+        lyrics.getLyricsCacheStats(io);
+    });
+
+    /**
+     * Listener for lyrics cache clear.
+     * Clears the lyrics cache and sends back the updated cache stats.
+     * @returns {undefined}
+     */
+    socket.on("lyrics-cache-clear", async () => {
+        log("Socket event", "lyrics-cache-clear");
+        await lyricsCache.clear();
+        // Send back the updated cache stats
+        lyrics.getLyricsCacheStats(io);
     });
 
     /**

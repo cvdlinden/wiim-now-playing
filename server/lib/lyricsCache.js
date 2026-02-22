@@ -75,10 +75,19 @@ async function count() {
     return keys.length;
 }
 
+/**
+ * Clears the entire cache
+ */
+async function clear() {
+    log("CLEAR: Clearing lyrics cache");
+    await storage.clear();
+}
+
 module.exports = {
     get,
     set,
     has,
     remove,
-    count
+    count,
+    clear
 };

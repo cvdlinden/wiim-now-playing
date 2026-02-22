@@ -119,94 +119,172 @@
             data-bs-theme="dark">
             <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
                 <div class="modal-content">
-                    <div class="modal-header">
+                    <div class="modal-header border-bottom-0">
                         <h5 class="modal-title" id="settingsModalLabel">Settings</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-                    <div class="modal-body">
 
-                        <!-- Device selection -->
-                        <div class="mb-3">
-                            <label for="selDeviceChoices" class="form-label">Select a (WiiM) device:</label>
-                            <div class="input-group">
-                                <select id="selDeviceChoices" class="form-select">
-                                    <option disabled="disabled">Waiting for devices...</option>
-                                </select>
-                                <button id="btnRefresh" class="btn btn-outline-secondary" type="button">Refresh
-                                    devices</button>
-                            </div>
-                            <div class="form-text">
-                                If you can't find your WiiM device, make sure that it is turned on and on the same
-                                network.<br /> Then press 'Refresh devices' to start a scan for devices. Please wait a
-                                while for the devices to be discovered.
-                            </div>
-                        </div>
+                    <div class="modal-body pt-0">
+                        <!-- Nav Tabs -->
+                        <ul class="nav nav-tabs mb-3" id="settingsTab" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="device-tab" data-bs-toggle="tab"
+                                    data-bs-target="#device-pane" type="button" role="tab">
+                                    <i class="bi bi-music-player me-2"></i>Device
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="server-tab" data-bs-toggle="tab"
+                                    data-bs-target="#server-pane" type="button" role="tab">
+                                    <i class="bi bi-cpu me-2"></i>Server
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="lyrics-tab" data-bs-toggle="tab"
+                                    data-bs-target="#lyrics-pane" type="button" role="tab">
+                                    <i class="bi bi-music-note-list me-2"></i>Lyrics
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="about-tab" data-bs-toggle="tab"
+                                    data-bs-target="#about-pane" type="button" role="tab">
+                                    <i class="bi bi-info-circle me-2"></i>About
+                                </button>
+                            </li>
+                        </ul>
 
-                        <!-- Server actions -->
-                        <div class="mb-3">
-                            <label class="form-label">Server actions:</label>
-                            <div class="btn-group" role="group" aria-label="Server actions">
-                                <button id="btnReboot" class="btn btn-secondary" disabled>Reboot</button>
-                                <button id="btnUpdate" class="btn btn-secondary" disabled>Update</button>
-                                <button id="btnShutdown" class="btn btn-secondary" disabled>Shutdown</button>
-                                <button id="btnReloadUI" class="btn btn-secondary">Reload UI</button>
-                            </div>
-                            <div class="form-text">
-                                <strong>Reboot server</strong>: Just wait for it to come back up. (Raspberry Pi
-                                only)<br />
-                                If it doesn't come back up, you might have to unplug the power and plug it back
-                                in.<br />
-                                <strong>Update server</strong>: EXPERIMENTAL! (Raspberry Pi
-                                only)<br />
-                                Do an update with a Git Pull. Will only work if you've used Git for the setup.<br />
-                                Please reload the ui after a short while and/or do a reboot. <br />
-                                <strong>Shutdown server</strong>: Wait for it to shut down completely before unplugging
-                                the power. (Raspberry Pi only)<br />
-                                <strong>Reload UI</strong>: In case it is no longer responsive or acting up, you can try
-                                and reload the browser with this option.
-                            </div>
-                        </div>
+                        <!-- Tab Content -->
+                        <div class="tab-content" id="settingsTabContent">
 
-                        <!-- Lyrics settings -->
-                        <div class="mb-3">
-                            <label class="form-label">Lyrics:</label>
-                            <div class="form-check form-switch">
-                                <input class="form-check-input" type="checkbox" id="chkLyricsEnabled">
-                                <label class="form-check-label" for="chkLyricsEnabled">Enable synced lyrics
-                                    (LRCLIB)</label>
-                            </div>
-                            <div class="form-text">
-                                Only synced lyrics are displayed. If none are found, lyrics stay hidden.
-                            </div>
-                            <div class="mt-2">
-                                <label class="form-label" for="lyricsOffsetMs">Lyrics offset (ms)</label>
-                                <input class="form-control" type="number" id="lyricsOffsetMs" step="50" min="-10000"
-                                    max="10000">
-                                <div class="form-text">
-                                    Positive values show lyrics earlier, negative values later.
+                            <!-- Device Tab -->
+                            <div class="tab-pane fade show active" id="device-pane" role="tabpanel"
+                                aria-labelledby="device-tab" tabindex="0">
+
+                                <!-- Device selection -->
+                                <div class="mb-3">
+                                    <label for="selDeviceChoices" class="form-label">Select a (WiiM) device:</label>
+                                    <div class="input-group">
+                                        <select id="selDeviceChoices" class="form-select">
+                                            <option disabled="disabled">Waiting for devices...</option>
+                                        </select>
+                                        <button id="btnRefresh" class="btn btn-outline-secondary" type="button">Refresh
+                                            devices</button>
+                                    </div>
+                                    <div class="form-text">
+                                        If you can't find your WiiM device, make sure that it is turned on and on the
+                                        same network. Then press 'Refresh devices' to start a scan for devices. Please
+                                        wait a while for the devices to be discovered.
+                                    </div>
                                 </div>
-                            </div>
-                        </div>
 
-                        <!-- Server information -->
-                        <div class="mb-3">
-                            <label class="form-label">Server information:</label>
-                            <div class="form-text">
-                                <p>This server can also be reached at the following URLs:</p>
-                                <ul>
-                                    <li>By hostname: <span id="sServerUrlHostname"></span></li>
-                                    <li>By IP address: <span id="sServerUrlIP"></span></li>
-                                </ul>
-                                <p>Server version: <span id="sServerVersion"></span> | Client version: <span
-                                        id="sClientVersion"></span></p>
-                                <p><a href="/debug">Show more debug information</a> | <a href="/res">Show resolution
-                                        test</a></p>
                             </div>
+
+                            <!-- Server Tab -->
+                            <div class="tab-pane fade" id="server-pane" role="tabpanel" aria-labelledby="server-tab"
+                                tabindex="0">
+
+                                <!-- Server actions -->
+                                <div class="mb-3">
+                                    <label class="form-label">Server actions:</label>
+                                    <div class="btn-group" role="group" aria-label="Server actions">
+                                        <button id="btnReboot" class="btn btn-secondary" disabled>Reboot</button>
+                                        <button id="btnUpdate" class="btn btn-secondary" disabled>Update</button>
+                                        <button id="btnShutdown" class="btn btn-secondary" disabled>Shutdown</button>
+                                        <button id="btnReloadUI" class="btn btn-secondary">Reload UI</button>
+                                    </div>
+                                    <div class="form-text small text-muted">
+                                        <strong>Reboot server</strong>: Just wait for it to come back up. (Raspberry Pi
+                                        only)<br />
+                                        If it doesn't come back up, you might have to unplug the power and plug it back
+                                        in.<br />
+                                        <strong>Update server</strong>: EXPERIMENTAL! (Raspberry Pi
+                                        only)<br />
+                                        Do an update with a Git Pull. Will only work if you've used Git for the
+                                        setup.<br />
+                                        Please reload the ui after a short while and/or do a reboot. <br />
+                                        <strong>Shutdown server</strong>: Wait for it to shut down completely before
+                                        unplugging
+                                        the power. (Raspberry Pi only)<br />
+                                        <strong>Reload UI</strong>: In case it is no longer responsive or acting up, you
+                                        can try
+                                        and reload the browser with this option.
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            <!-- Lyrics Tab -->
+                            <div class="tab-pane fade" id="lyrics-pane" role="tabpanel" aria-labelledby="lyrics-tab"
+                                tabindex="0">
+
+                                <!-- Lyrics settings -->
+                                <div class="mb-3">
+                                    <label class="form-label">Lyrics enabled?</label>
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="chkLyricsEnabled">
+                                        <label class="form-check-label" for="chkLyricsEnabled">Enable synced lyrics
+                                            (LRCLIB)</label>
+                                    </div>
+                                    <div class="form-text small text-muted">
+                                        Note: Only synced lyrics are displayed. If none are found, lyrics stay hidden.
+                                    </div>
+                                    <div class="mt-2">
+                                        <label class="form-label" for="lyricsCacheSize">Lyrics cache</label>
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" id="lyricsCacheSize"
+                                                value="n items cached" disabled>
+                                            <button type="button" class="btn btn-secondary"
+                                                id="btnClearLyricsCache">Clear cache</button>
+                                        </div>
+                                    </div>
+                                    <div class="mt-2">
+                                        <label class="form-label" for="lyricsOffsetMs">Lyrics offset (ms)</label>
+                                        <input class="form-control" type="number" id="lyricsOffsetMs" step="50"
+                                            min="-10000" max="10000">
+                                        <div class="form-text small text-muted">
+                                            If lyrics are not in sync, adjust this value. Positive values show lyrics
+                                            earlier, negative values later.<br />
+                                            Note: Timings may vary per track and source, so you might have to adjust
+                                            this value per track.
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            <!-- About Tab -->
+                            <div class="tab-pane fade" id="about-pane" role="tabpanel" aria-labelledby="about-tab"
+                                tabindex="0">
+
+                                <!-- About information -->
+                                <div class="mb-3 p-3 border rounded bg-light bg-opacity-10 text-center">
+                                    <h6><a href="https://github.com/cvdlinden/wiim-now-playing" target="_blank">WiiM Now
+                                            Playing</a></h6>
+                                    <p class="small text-muted mb-0">Server version: <span id="sServerVersion"></span> |
+                                        Client version: <span id="sClientVersion"></span></p>
+                                    <p class="small text-muted mb-0"><a href="/debug">Show more debug
+                                            information</a> |
+                                        <a href="/res">Show resolution test</a>
+                                    </p>
+                                </div>
+
+                                <!-- Server information -->
+                                <div class="mb-3">
+                                    <p>This server can also be reached at the following URLs:</p>
+                                    <ul>
+                                        <li>By hostname: <span id="sServerUrlHostname"></span></li>
+                                        <li>By IP address: <span id="sServerUrlIP"></span></li>
+                                    </ul>
+                                </div>
+
+                            </div>
+
                         </div>
 
                     </div>
+
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary px-4" data-bs-dismiss="modal">Close</button>
                     </div>
                 </div>
             </div>

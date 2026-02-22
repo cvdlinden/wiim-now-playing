@@ -74,6 +74,19 @@ describe('Lyrics Cache Module', () => {
         expect(data).toBeNull();
     });
 
+    test("moet de cache correct legen", async () => {
+        // Arrange - voeg een paar items toe
+        await cache.set("temp1", { data: "test1" });
+        await cache.set("temp2", { data: "test2" });
+        expect(await cache.count()).toBeGreaterThanOrEqual(2);
+
+        // Act
+        await cache.clear();
+
+        // Assert
+        expect(await cache.count()).toBe(0);
+    });
+
     test("moet niet crashen als de key niet bestaat bij verwijderen", async () => {
         await expect(cache.remove("non-existent-key-123")).resolves.not.toThrow();
     });
