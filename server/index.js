@@ -73,7 +73,6 @@ let serverSettings = { // Placeholder for current server settings
     "features": {
         "lyrics": {
             "enabled": false, // Whether the lyrics feature is enabled or not
-            "stats": { count: 0 }, // Placeholder for lyrics cache stats, such as the number of items in cache
             "offsetMs": 0 // The offset in milliseconds to apply to the synced lyrics, can be positive or negative, default is 0.
         }
     },

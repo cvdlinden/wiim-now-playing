@@ -50,11 +50,6 @@ const scan = (deviceList, serverSettings) => {
     // ssdpClient.search("urn:schemas-upnp-org:device:MediaRenderer"); // Search for MediaRenderer devices
     ssdpClient.search("urn:schemas-upnp-org:service:AVTransport:1"); // Search for AVTransport enabled devices
 
-    // OpenHome. Discovery works, but talking to devices is different! -> TODO
-    // There is an npm package: https://www.npmjs.com/package/openhome-devices-manager
-    // ssdpClient.search("urn:av-openhome-org:service:Product:1"); // Search for OpenHome devices
-    // ssdpClient.search("urn:av-openhome-org:service:Product:2"); // Search for OpenHome devices
-
 }
 
 module.exports = {

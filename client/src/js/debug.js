@@ -522,7 +522,7 @@ WNP.setSocketDefinitions = function () {
 
     // On lyrics cache stats
     socket.on("lyrics-cache-stats", function (msg) {
-        console.log("IO: lyrics-cache-stats", msg);
+        // console.log("IO: lyrics-cache-stats", msg);
         WNP.r.tickLyricsCacheGetDown.classList.add("tickAnimate");
 
         WNP.r.lyricsCacheSize.value = (msg && msg.count) ? `${msg.count} items cached` : "no items cached";

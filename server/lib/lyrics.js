@@ -372,7 +372,6 @@ const parseDurationToSeconds = (duration) => {
 
 /**
  * Helper to fix duration.
- * TODO: Candidate for removal???
  * @param {int} duration 
  * @returns {int}
  */

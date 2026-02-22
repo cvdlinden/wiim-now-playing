@@ -75,44 +75,31 @@ const getSettings = (serverSettings) => {
     log("fs", "Get settings from:", settingsFile);
 
     try { // Try and read the settings file
-        let settings = fs.readFileSync(settingsFile);
+        let savedSettings = fs.readFileSync(settingsFile);
         log("fs", "Settings file found! Processing...");
-        settings = JSON.parse(settings);
-        // log("fs", "settings:", settings);
-        if (!settings.selectedDevice || !settings.selectedDevice.location || !settings.selectedDevice.actions) { // Short sanity check
+        settingsParsed = JSON.parse(savedSettings);
+        // log("fs", "settings:", settingsParsed);
+        if (!settingsParsed.selectedDevice || !settingsParsed.selectedDevice.location || !settingsParsed.selectedDevice.actions) { // Short sanity check
             log("fs", "Previous selected device not stored correctly or invalid.");
             log("fs", "The file exists though. Silently ignoring, will be overwritten eventually...");
         }
         else {
-            log("fs", "selectedDevice:", settings.selectedDevice.friendlyName, settings.selectedDevice.location);
+            log("fs", "selectedDevice:", settingsParsed.selectedDevice.friendlyName, settingsParsed.selectedDevice.location);
             log("fs", "Amend the current server settings with the stored values.");
-            serverSettings.selectedDevice = settings.selectedDevice;
+            serverSettings.selectedDevice = settingsParsed.selectedDevice;
         }
-        // TODO: review what is happening here. Are we doing double work here?
-        // Or are we loading the extra features from settings.json, because we did not get them earlier?
-        if (settings.features) {
-            const defaultLyrics = serverSettings.features.lyrics;
+        // Merge the saved features settings.
+        if (settingsParsed.features) {
             serverSettings.features = {
                 ...serverSettings.features,
-                ...settings.features
+                ...settingsParsed.features
             };
-            if (settings.features.lyrics) {
-                serverSettings.features.lyrics = {
-                    ...defaultLyrics,
-                    ...settings.features.lyrics
-                };
-                if (settings.features.lyrics.cache) {
-                    serverSettings.features.lyrics.cache = {
-                        ...defaultLyrics.cache,
-                        ...settings.features.lyrics.cache
-                    };
-                }
-            }
+            log("fs", "features:", serverSettings.features);
         }
     }
-    catch { // Not found, create a settings file
+    catch (err) { // Not found, create a settings file
         log("fs", "No settings file found! Trying to create one...");
-        module.exports.saveSettings(serverSettings);
+        saveSettings(serverSettings);
     }
 
 }
