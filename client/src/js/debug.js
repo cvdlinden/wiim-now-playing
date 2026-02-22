@@ -14,11 +14,11 @@ WNP.s = {
     // Device selection
     aDeviceUI: ["btnRefresh", "selDeviceChoices", "devName", "mediaTitle", "mediaSubTitle", "mediaArtist", "mediaAlbum", "mediaBitRate", "mediaBitDepth", "mediaSampleRate", "mediaQualityIdent", "devVol", "mediaSource"],
     // Server actions to be used in the app
-    aServerUI: ["btnReboot", "btnUpdate", "btnShutdown", "btnReloadUI", "sServerUrlHostname", "sServerUrlIP", "sServerVersion", "sClientVersion"],
+    aServerUI: ["btnReboot", "btnUpdate", "btnShutdown", "btnReloadUI", "sServerUrlHostname", "sServerUrlIP", "sServerVersion", "sClientVersion", "chkLyricsEnabled", "lyricsCacheSize", "btnClearLyricsCache", "lyricsOffsetMs"],
     // Ticks to be used in the app (debug)
-    aTicksUI: ["tickDevicesGetUp", "tickDevicesRefreshUp", "tickServerSettingsUp", "tickStateUp", "tickStateDown", "tickMetadataUp", "tickMetadataDown", "tickDeviceSetUp", "tickDeviceSetDown", "tickServerSettingsDown", "tickDevicesGetDown", "tickDevicesRefreshDown", "tickVolumeGetUp", "tickVolumeGetDown", "tickVolumeSetUp", "tickVolumeSetDown", "tickPresetsListUp", "tickPresetsListDown"],
+    aTicksUI: ["tickDevicesGetUp", "tickDevicesRefreshUp", "tickServerSettingsUp", "tickStateUp", "tickStateDown", "tickMetadataUp", "tickMetadataDown", "tickLyricsUp", "tickLyricsDown", "tickLyricsCacheGetDown", "tickDeviceSetUp", "tickDeviceSetDown", "tickServerSettingsDown", "tickDevicesGetDown", "tickDevicesRefreshDown", "tickVolumeGetUp", "tickVolumeGetDown", "tickVolumeSetUp", "tickVolumeSetDown", "tickPresetsListUp", "tickPresetsListDown"],
     // Debug UI elements
-    aDebugUI: ["state", "metadata", "sPresetsList", "sServerSettings", "sManufacturer", "sModelName", "sLocation", "sTimeStampDiff", "sAlbumArtUri", "sAlbumArtUriRaw", "sAlbumArtUriStatus", "oPresetsGroup", "btnDevices", "btnGetVolume", "btnSetVolume", "mediaLoopMode", "sTransportState", "sPlayMedium", "sPlayerProgress"]
+    aDebugUI: ["state", "metadata", "lyrics", "lyricsStatus", "lyricsTrackKey", "lyricsPayload", "lyricsSyncedLyrics", "sPresetsList", "sServerSettings", "sManufacturer", "sModelName", "sLocation", "sTimeStampDiff", "sAlbumArtUri", "sAlbumArtUriRaw", "sAlbumArtUriStatus", "oPresetsGroup", "btnDevices", "btnGetVolume", "btnSetVolume", "mediaLoopMode", "sTransportState", "sPlayMedium", "sPlayerProgress"]
 };
 
 // Data placeholders.
@@ -67,9 +67,8 @@ WNP.Init = function () {
         // Get devices
         this.r.tickDevicesGetUp.classList.add("tickAnimate");
         socket.emit("devices-get");
-        // // Get volume
-        // this.r.tickVolumeGetUp.classList.add("tickAnimate");
-        // socket.emit("device-api", "getPlayerStatus");
+        // See if any lyrics are present for the currently playing track
+        socket.emit("lyrics-get");
         // Get presets
         this.r.tickPresetsListUp.classList.add("tickAnimate");
         socket.emit("device-api", "getPresetInfo");
@@ -130,7 +129,7 @@ WNP.setTickHandlers = function () {
 
 /**
  * Setting the listeners on the UI elements of the app.
- * @returns {undefined}
+ * @returns {void}
  */
 WNP.setUIListeners = function () {
     console.log("WNP", "Set UI Listeners...")
@@ -207,6 +206,41 @@ WNP.setUIListeners = function () {
         location.reload();
     });
 
+    // Set lyrics toggle
+    this.r.chkLyricsEnabled.addEventListener("change", function () {
+        WNP.r.tickLyricsUp.classList.add("tickAnimate");
+        socket.emit("lyrics-settings", {
+            features: {
+                lyrics: {
+                    enabled: this.checked
+                }
+            }
+        });
+    });
+
+    // Clear lyrics cache button
+    this.r.btnClearLyricsCache.addEventListener("click", function () {
+        if (confirm("Are you sure you want to clear the lyrics cache?")) {
+            socket.emit("lyrics-cache-clear");
+        }
+    });
+
+    // Set lyrics offset in ms
+    this.r.lyricsOffsetMs.addEventListener("change", function () {
+        WNP.r.tickLyricsUp.classList.add("tickAnimate");
+        var offsetValue = parseInt(this.value, 10);
+        if (isNaN(offsetValue)) {
+            offsetValue = 0;
+        }
+        socket.emit("lyrics-settings", {
+            features: {
+                lyrics: {
+                    offsetMs: offsetValue
+                }
+            }
+        });
+    });
+
 };
 
 /**
@@ -274,6 +308,16 @@ WNP.setSocketDefinitions = function () {
         WNP.r.sServerVersion.innerText = (msg && msg.version && msg.version.server) ? msg.version.server : "-";
         // Set the client version
         WNP.r.sClientVersion.innerText = (msg && msg.version && msg.version.client) ? msg.version.client : "-";
+
+        // Lyrics enabled/disabled
+        if (WNP.r.chkLyricsEnabled) {
+            WNP.r.chkLyricsEnabled.checked = Boolean(msg && msg.features && msg.features.lyrics && msg.features.lyrics.enabled);
+        }
+        // Lyrics offset in ms
+        if (WNP.r.lyricsOffsetMs) {
+            var offsetMs = (msg && msg.features && msg.features.lyrics && typeof msg.features.lyrics.offsetMs === "number") ? msg.features.lyrics.offsetMs : 0;
+            WNP.r.lyricsOffsetMs.value = offsetMs;
+        }
 
     });
 
@@ -462,6 +506,26 @@ WNP.setSocketDefinitions = function () {
             WNP.r.mediaLoopMode.innerText = "Unknown";
         }
 
+    });
+
+    // On lyrics
+    socket.on("lyrics-get", function (msg) {
+        console.log("IO: lyrics-get", msg);
+        WNP.r.tickLyricsDown.classList.add("tickAnimate");
+        WNP.r.lyrics.innerHTML = JSON.stringify(msg);
+
+        WNP.r.lyricsStatus.innerText = (msg && msg.status) ? msg.status : "-";
+        WNP.r.lyricsTrackKey.innerText = (msg && msg.trackKey) ? msg.trackKey : "-";
+        WNP.r.lyricsPayload.innerText = (msg && msg.payload) ? true : false;
+        WNP.r.lyricsSyncedLyrics.innerText = (msg && msg.payload && msg.payload.syncedLyrics) ? true : false;
+    });
+
+    // On lyrics cache stats
+    socket.on("lyrics-cache-stats", function (msg) {
+        // console.log("IO: lyrics-cache-stats", msg);
+        WNP.r.tickLyricsCacheGetDown.classList.add("tickAnimate");
+
+        WNP.r.lyricsCacheSize.value = (msg && msg.count) ? `${msg.count} items cached` : "no items cached";
     });
 
     // On device set

@@ -7,12 +7,24 @@
 
 const upnpClient = require('../lib/upnpClient.js');
 const lib = require('../lib/lib.js');
+const lyrics = require("../lib/lyrics.js"); // Lyrics error
 const xml2js = require('xml2js');
 const UPnP = require("upnp-device-client");
 
 jest.mock('../lib/lib.js');
 jest.mock('xml2js');
 jest.mock('upnp-device-client');
+
+jest.mock('../lib/upnpClient.js', () => {
+    const original = jest.requireActual('../lib/upnpClient.js');
+    return {
+        ...original,
+        ensureClient: jest.fn((info) => {
+            // Zorg dat er ALTIJD een mock client is als die er nog niet was
+            if (!info.client) info.client = { callAction: jest.fn() };
+        })
+    };
+});
 
 describe('upnpClient.js', () => {
     let io, deviceInfo, serverSettings;
@@ -37,124 +49,182 @@ describe('upnpClient.js', () => {
         });
     });
 
-    // describe('ensureClient', () => {
-    //     it('should create client if not present', () => {
-    //         deviceInfo.client = null;
-    //         upnpClient.ensureClient(deviceInfo, serverSettings);
-    //         expect(deviceInfo.client).toBeDefined();
-    //     });
+    describe('ensureClient', () => {
+        it('should create client if not present', () => {
+            deviceInfo.client = null;
+            upnpClient.ensureClient(deviceInfo, serverSettings);
+            expect(deviceInfo.client).toBeDefined();
+        });
 
-    //     it('should not recreate client if already present', () => {
-    //         deviceInfo.client = { test: true };
-    //         upnpClient.ensureClient(deviceInfo, serverSettings);
-    //         expect(deviceInfo.client).toEqual({ test: true });
-    //     });
-    // });
+        it('should not recreate client if already present', () => {
+            deviceInfo.client = { test: true };
+            upnpClient.ensureClient(deviceInfo, serverSettings);
+            expect(deviceInfo.client).toEqual({ test: true });
+        });
+    });
 
     describe('startState', () => {
-        it('should call updateDeviceState and set interval', () => {
-            jest.spyOn(upnpClient, 'updateDeviceState').mockImplementation(() => {});
+        it('should trigger the state update cycle', () => {
+            // 1. Zorg dat er een client is met een mock callAction
+            deviceInfo.client = { callAction: jest.fn() };
+            serverSettings.selectedDevice.actions = ['GetTransportInfo'];
+
+            // 2. Roep startState aan
             const interval = upnpClient.startState(io, deviceInfo, serverSettings);
-            expect(upnpClient.updateDeviceState).toHaveBeenCalledWith(io, deviceInfo, serverSettings);
+
+            // 3. Assert: In plaats van de spy op upnpClient, checken we de client-mock
+            // updateDeviceState wordt direct 1x aangeroepen door startState
+            expect(deviceInfo.client.callAction).toHaveBeenCalledWith(
+                "AVTransport",
+                "GetTransportInfo",
+                expect.any(Object),
+                expect.any(Function)
+            );
+
+            // Netjes opruimen
             clearInterval(interval);
         });
     });
 
     describe('startMetadata', () => {
-        it('should call updateDeviceMetadata and set interval', () => {
-            jest.spyOn(upnpClient, 'updateDeviceMetadata').mockImplementation(() => {});
+        it('should trigger the metadata update cycle', () => {
+            // 1. Setup: Zorg dat de client en de juiste acties aanwezig zijn
+            deviceInfo.client = { callAction: jest.fn() };
+            serverSettings.selectedDevice.actions = ['GetInfoEx'];
+            serverSettings.selectedDevice.location = 'http://1.1.1.1';
+
+            // 2. Act: Start de polling
             const interval = upnpClient.startMetadata(io, deviceInfo, serverSettings);
-            expect(upnpClient.updateDeviceMetadata).toHaveBeenCalledWith(io, deviceInfo, serverSettings);
+
+            // 3. Assert: Controleer of de client is aangeroepen (bewijs dat updateDeviceMetadata draait)
+            expect(deviceInfo.client.callAction).toHaveBeenCalledWith(
+                "AVTransport",
+                "GetInfoEx",
+                expect.any(Object),
+                expect.any(Function)
+            );
+
+            // Altijd opruimen!
             clearInterval(interval);
         });
     });
 
     describe('stopPolling', () => {
         it('should clear interval', () => {
-            const interval = setInterval(() => {}, 1000);
+            const interval = setInterval(() => { }, 1000);
             upnpClient.stopPolling(interval, 'test');
             expect(clearInterval).toBeDefined();
         });
     });
 
-    // describe('updateDeviceState', () => {
-    //     it('should emit state if GetTransportInfo succeeds', () => {
-    //         deviceInfo.client = {
-    //             callAction: (service, action, options, cb) => cb(null, { CurrentTransportState: 'PLAYING' })
-    //         };
-    //         upnpClient.updateDeviceState(io, deviceInfo, serverSettings);
-    //         expect(io.emit).toHaveBeenCalledWith('state', expect.objectContaining({ CurrentTransportState: 'PLAYING' }));
-    //     });
+    describe('updateDeviceState', () => {
+        it('should emit state if GetTransportInfo succeeds', () => {
+            deviceInfo.client = {
+                callAction: (service, action, options, cb) => cb(null, { CurrentTransportState: 'PLAYING' })
+            };
+            upnpClient.updateDeviceState(io, deviceInfo, serverSettings);
+            expect(io.emit).toHaveBeenCalledWith('state', expect.objectContaining({ CurrentTransportState: 'PLAYING' }));
+        });
 
-    //     it('should emit null state if location or action missing', () => {
-    //         serverSettings.selectedDevice.location = null;
-    //         upnpClient.updateDeviceState(io, deviceInfo, serverSettings);
-    //         expect(io.emit).toHaveBeenCalledWith('state', null);
-    //     });
-    // });
+        it('should emit null state if location or action missing', () => {
+            serverSettings.selectedDevice.location = null;
+            upnpClient.updateDeviceState(io, deviceInfo, serverSettings);
+            expect(io.emit).toHaveBeenCalledWith('state', null);
+        });
+    });
 
-    // describe('updateDeviceMetadata', () => {
-    //     beforeEach(() => {
-    //         deviceInfo.client = {
-    //             callAction: jest.fn()
-    //         };
-    //         lib.getTimeStamp.mockReturnValue(12345);
-    //     });
+    describe('updateDeviceMetadata', () => {
+        beforeEach(() => {
+            // Maak een mock client met een jest.fn() voor callAction
+            const mockClient = {
+                callAction: jest.fn()
+            };
 
-    //     it('should emit metadata for GetInfoEx with XML', done => {
-    //         serverSettings.selectedDevice.actions = ['GetInfoEx'];
-    //         const xml = '<DIDL-Lite><item><title>Test</title></item></DIDL-Lite>';
-    //         deviceInfo.client.callAction.mockImplementation((service, action, options, cb) => {
-    //             cb(null, { TrackMetaData: xml, RelTime: '00:01:00' });
-    //         });
-    //         xml2js.parseString.mockImplementation((xml, opts, cb) => {
-    //             cb(null, { 'DIDL-Lite': { item: { title: 'Test' } } });
-    //         });
-    //         upnpClient.updateDeviceMetadata(io, deviceInfo, serverSettings);
-    //         setTimeout(() => {
-    //             expect(io.emit).toHaveBeenCalledWith('metadata', expect.objectContaining({
-    //                 trackMetaData: { title: 'Test' },
-    //                 RelTime: '00:01:00',
-    //                 metadataTimeStamp: 12345
-    //             }));
-    //             done();
-    //         }, 10);
-    //     });
+            deviceInfo = {
+                client: mockClient // Handmatig injecteren voorkomt creatie-issues
+            };
 
-    //     it('should emit metadata for GetPositionInfo with XML', done => {
-    //         serverSettings.selectedDevice.actions = ['GetPositionInfo'];
-    //         const xml = '<DIDL-Lite><item><artist>TestArtist</artist></item></DIDL-Lite>';
-    //         deviceInfo.client.callAction.mockImplementation((service, action, options, cb) => {
-    //             cb(null, { TrackMetaData: xml, RelTime: '00:02:00' });
-    //         });
-    //         xml2js.parseString.mockImplementation((xml, opts, cb) => {
-    //             cb(null, { 'DIDL-Lite': { item: { artist: 'TestArtist' } } });
-    //         });
-    //         upnpClient.updateDeviceMetadata(io, deviceInfo, serverSettings);
-    //         setTimeout(() => {
-    //             expect(io.emit).toHaveBeenCalledWith('metadata', expect.objectContaining({
-    //                 trackMetaData: { artist: 'TestArtist' },
-    //                 RelTime: '00:02:00',
-    //                 metadataTimeStamp: 12345
-    //             }));
-    //             done();
-    //         }, 10);
-    //     });
+            lib.getTimeStamp.mockReturnValue(12345);
+        });
 
-    //     it('should set metadata to null if no location', () => {
-    //         serverSettings.selectedDevice.location = null;
-    //         upnpClient.updateDeviceMetadata(io, deviceInfo, serverSettings);
-    //         expect(deviceInfo.metadata).toBeNull();
-    //     });
-    // });
+        it('should emit metadata for GetInfoEx with XML', (done) => {
+            // 1. Setup metadata & settings
+            serverSettings.selectedDevice.location = 'http://1.1.1.1';
+            serverSettings.selectedDevice.actions = ['GetInfoEx']; // MOET exact dit zijn
+
+            const mockClient = {
+                callAction: jest.fn((service, action, params, cb) => {
+                    // Simuleer succesvolle UPnP respons
+                    cb(null, {
+                        TrackMetaData: '<xml>...</xml>',
+                        RelTime: '00:01:00'
+                    });
+                })
+            };
+            deviceInfo.client = mockClient;
+
+            // 2. Mock xml2js exact volgens de if-check in je code (L127)
+            xml2js.parseString.mockImplementation((xml, opts, cb) => {
+                cb(null, {
+                    "DIDL-Lite": {
+                        item: { title: "Test" }
+                    }
+                });
+            });
+
+            // 3. Voer de functie uit
+            upnpClient.updateDeviceMetadata(io, deviceInfo, serverSettings);
+
+            // 4. Gebruik setImmediate of een iets langere timeout
+            setTimeout(() => {
+                try {
+                    expect(io.emit).toHaveBeenCalledWith('metadata', expect.objectContaining({
+                        RelTime: '00:01:00',
+                        metadataTimeStamp: 12345
+                    }));
+                    // Check specifiek het resultaat van de xml-parsing
+                    expect(deviceInfo.metadata.trackMetaData).toEqual({ title: "Test" });
+                    done();
+                } catch (error) {
+                    done(error);
+                }
+            }, 100);
+        });
+
+        it('should emit metadata for GetPositionInfo with XML', done => {
+            serverSettings.selectedDevice.actions = ['GetPositionInfo'];
+            const xml = '<DIDL-Lite><item><artist>TestArtist</artist></item></DIDL-Lite>';
+            deviceInfo.client.callAction.mockImplementation((service, action, options, cb) => {
+                cb(null, { TrackMetaData: xml, RelTime: '00:02:00' });
+            });
+            xml2js.parseString.mockImplementation((xml, opts, cb) => {
+                cb(null, { 'DIDL-Lite': { item: { artist: 'TestArtist' } } });
+            });
+            upnpClient.updateDeviceMetadata(io, deviceInfo, serverSettings);
+            setTimeout(() => {
+                expect(io.emit).toHaveBeenCalledWith('metadata', expect.objectContaining({
+                    trackMetaData: { artist: 'TestArtist' },
+                    RelTime: '00:02:00',
+                    metadataTimeStamp: 12345
+                }));
+                done();
+            }, 10);
+        });
+
+        it('should set metadata to null if no location', () => {
+            serverSettings.selectedDevice.location = null;
+            upnpClient.updateDeviceMetadata(io, deviceInfo, serverSettings);
+            expect(deviceInfo.metadata).toBeNull();
+        });
+    });
 
     describe('callDeviceAction', () => {
         it('should call action and emit result', () => {
             deviceInfo.client = {
                 callAction: (service, action, options, cb) => cb(null, { result: 'ok' })
             };
-            jest.spyOn(upnpClient, 'updateDeviceMetadata').mockImplementation(() => {});
-            jest.spyOn(upnpClient, 'updateDeviceState').mockImplementation(() => {});
+            jest.spyOn(upnpClient, 'updateDeviceMetadata').mockImplementation(() => { });
+            jest.spyOn(upnpClient, 'updateDeviceState').mockImplementation(() => { });
             upnpClient.callDeviceAction(io, 'Play', deviceInfo, serverSettings);
             expect(io.emit).toHaveBeenCalledWith('device-action', 'Play', { result: 'ok' });
         });

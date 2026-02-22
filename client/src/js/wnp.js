@@ -11,9 +11,9 @@ WNP.s = {
     locPort: (location.port && location.port != "80" && location.port != "1234") ? location.port : "80",
     rndAlbumArtUri: "./img/fake-album-1.jpg",
     // Device selection
-    aDeviceUI: ["btnPrev", "btnPlay", "btnNext", "btnRefresh", "selDeviceChoices", "devName", "devNameHolder", "mediaTitle", "mediaSubTitle", "mediaArtist", "mediaAlbum", "mediaBitRate", "mediaBitDepth", "mediaSampleRate", "mediaQualityIdent", "devVol", "btnRepeat", "btnShuffle", "progressPlayed", "progressLeft", "progressPercent", "mediaSource", "albumArt", "bgAlbumArtBlur", "btnDevSelect", "oDeviceList", "btnDevPreset", "oPresetList", "btnDevVolume", "rVolume"],
+    aDeviceUI: ["btnPrev", "btnPlay", "btnNext", "btnRefresh", "selDeviceChoices", "devName", "devNameHolder", "mediaTitle", "mediaSubTitle", "mediaArtist", "mediaAlbum", "mediaBitRate", "mediaBitDepth", "mediaSampleRate", "mediaQualityIdent", "devVol", "btnRepeat", "btnShuffle", "progressPlayed", "progressLeft", "progressPercent", "mediaSource", "albumArt", "bgAlbumArtBlur", "btnDevSelect", "oDeviceList", "btnDevPreset", "oPresetList", "btnDevVolume", "rVolume", "mediaLyrics", "lyricPrev", "lyricCurrent", "lyricNext", "lyricAfter"],
     // Server actions to be used in the app
-    aServerUI: ["btnReboot", "btnUpdate", "btnShutdown", "btnReloadUI", "sServerUrlHostname", "sServerUrlIP", "sServerVersion", "sClientVersion"],
+    aServerUI: ["btnReboot", "btnUpdate", "btnShutdown", "btnReloadUI", "sServerUrlHostname", "sServerUrlIP", "sServerVersion", "sClientVersion", "chkLyricsEnabled", "lyricsCacheSize", "btnClearLyricsCache", "lyricsOffsetMs"],
 };
 
 // Data placeholders.
@@ -23,7 +23,10 @@ WNP.d = {
     prevTransportState: null, // Previous transport state, used to detect changes in the transport state
     prevPlayMedium: null, // Previous play medium, used to detect changes in the play medium
     prevSourceIdent: null, // Previous source ident, used to detect changes in the source
-    prevTrackInfo: null // Previous track info, used to detect changes in the metadata
+    prevTrackInfo: null, // Previous track info, used to detect changes in the metadata
+    lyrics: [], // Parsed lyrics lines
+    lyricsLastRelTime: null, // Last known RelTime, used for lyrics timing
+    lyricsIndex: null // Current lyrics line index
 };
 
 // Reference placeholders.
@@ -57,6 +60,8 @@ WNP.Init = function () {
         socket.emit("server-settings");
         // Get devices
         socket.emit("devices-get");
+        // See if any lyrics are present for the currently playing track
+        socket.emit("lyrics-get");
     }, 500);
 
     // Create random album intervals, every 3 minutes
@@ -91,7 +96,7 @@ WNP.setUIReferences = function () {
 
 /**
  * Setting the listeners on the UI elements of the app.
- * @returns {undefined}
+ * @returns {void}
  */
 WNP.setUIListeners = function () {
     console.log("WNP", "Set UI Listeners...")
@@ -183,6 +188,39 @@ WNP.setUIListeners = function () {
         location.reload();
     });
 
+    // Set lyrics toggle
+    this.r.chkLyricsEnabled.addEventListener("change", function () {
+        socket.emit("lyrics-settings", {
+            features: {
+                lyrics: {
+                    enabled: this.checked
+                }
+            }
+        });
+    });
+
+    // Clear lyrics cache button
+    this.r.btnClearLyricsCache.addEventListener("click", function () {
+        if (confirm("Are you sure you want to clear the lyrics cache?")) {
+            socket.emit("lyrics-cache-clear");
+        }
+    });
+
+    // Set lyrics offset in ms
+    this.r.lyricsOffsetMs.addEventListener("change", function () {
+        var offsetValue = parseInt(this.value, 10);
+        if (isNaN(offsetValue)) {
+            offsetValue = 0;
+        }
+        socket.emit("lyrics-settings", {
+            features: {
+                lyrics: {
+                    offsetMs: offsetValue
+                }
+            }
+        });
+    });
+
 };
 
 /**
@@ -244,6 +282,16 @@ WNP.setSocketDefinitions = function () {
         WNP.r.sServerVersion.innerText = (msg && msg.version && msg.version.server) ? msg.version.server : "-";
         // Set the client version
         WNP.r.sClientVersion.innerText = (msg && msg.version && msg.version.client) ? msg.version.client : "-";
+
+        // Lyrics enabled/disabled
+        if (WNP.r.chkLyricsEnabled) {
+            WNP.r.chkLyricsEnabled.checked = Boolean(msg && msg.features && msg.features.lyrics && msg.features.lyrics.enabled);
+        }
+        // Lyrics offset in ms
+        if (WNP.r.lyricsOffsetMs) {
+            var offsetMs = (msg && msg.features && msg.features.lyrics && typeof msg.features.lyrics.offsetMs === "number") ? msg.features.lyrics.offsetMs : 0;
+            WNP.r.lyricsOffsetMs.value = offsetMs;
+        }
 
     });
 
@@ -335,8 +383,10 @@ WNP.setSocketDefinitions = function () {
 
         // Get player progress data from the state message.
         var timeStampDiff = 0;
+        var timeStampDiffMs = 0;
         if (msg.CurrentTransportState === "PLAYING") {
             timeStampDiff = (msg.stateTimeStamp && msg.metadataTimeStamp) ? Math.round((msg.stateTimeStamp - msg.metadataTimeStamp) / 1000) : 0;
+            timeStampDiffMs = (msg.stateTimeStamp && msg.metadataTimeStamp) ? (msg.stateTimeStamp - msg.metadataTimeStamp) : 0;
         }
         var relTime = (msg.RelTime) ? msg.RelTime : "00:00:00";
         var trackDuration = (msg.TrackDuration) ? msg.TrackDuration : "00:00:00";
@@ -347,6 +397,13 @@ WNP.setSocketDefinitions = function () {
         WNP.r.progressLeft.children[0].innerText = (oPlayerProgress.left != "") ? "-" + oPlayerProgress.left : "";
         WNP.r.progressPercent.setAttribute("aria-valuenow", oPlayerProgress.percent)
         WNP.r.progressPercent.children[0].setAttribute("style", "width:" + oPlayerProgress.percent + "%");
+
+        WNP.d.lyricsLastRelTime = relTime; // Update the last known RelTime for lyrics timing
+        WNP.updateLyricsProgress(relTime, timeStampDiffMs);
+        setTimeout(function () { // Do another update half tick (state timeout) to make sure the progress is updated and the lyrics are in sync.
+            var timeoutState = (WNP.d.serverSettings?.timeouts?.state || 1000) / 2;
+            WNP.updateLyricsProgress(msg.RelTime, timeStampDiffMs + timeoutState);
+        }, 500);
 
         // Device transport state or play medium changed...?
         if (WNP.d.prevTransportState !== msg.CurrentTransportState || WNP.d.prevPlayMedium !== msg.PlayMedium) {
@@ -461,6 +518,7 @@ WNP.setSocketDefinitions = function () {
             trackChanged = true;
             WNP.d.prevTrackInfo = currentTrackInfo; // Remember the last track info
             console.log("WNP", "Track changed:", currentTrackInfo);
+            WNP.clearLyrics();
         }
         if (trackChanged && currentAlbumArt != albumArtUri) {
             WNP.setAlbumArt(albumArtUri);
@@ -513,6 +571,32 @@ WNP.setSocketDefinitions = function () {
             WNP.r.btnShuffle.className = "btn btn-outline-light";
         }
 
+    });
+
+    // On lyrics
+    socket.on("lyrics-get", function (msg) {
+        console.log("IO: lyrics-get", msg);
+        WNP.d.lyricsIndex = null;
+
+        if (!msg || msg.status !== "ok" || !msg.payload?.syncedLyrics) {
+            WNP.clearLyrics();
+            return;
+        }
+
+        WNP.d.lyrics = WNP.parseSyncedLyrics(msg.payload.syncedLyrics);
+        if (!WNP.d.lyrics.length) {
+            WNP.clearLyrics();
+            return;
+        }
+
+        WNP.r.mediaLyrics.classList.add("is-visible");
+        WNP.updateLyricsProgress(null, 0);
+    });
+
+    // On lyrics cache stats
+    socket.on("lyrics-cache-stats", function (msg) {
+        // console.log("IO: lyrics-cache-stats", msg);
+        WNP.r.lyricsCacheSize.value = (msg && msg.count) ? `${msg.count} items cached` : "no items cached";
     });
 
     // On device set
@@ -627,7 +711,6 @@ WNP.setDeviceByLocation = function (deviceLocation) {
  * @param {integer} presetNumber - The number of the preset to set.
  * @return {undefined}
  */
-
 WNP.setPresetByNumber = function (presetNumber) {
     if (presetNumber && !isNaN(presetNumber) && presetNumber > 0) {
         socket.emit("device-api", "MCUKeyShortClick:" + presetNumber);
@@ -646,7 +729,7 @@ WNP.setPresetByNumber = function (presetNumber) {
 WNP.getPlayerProgress = function (relTime, trackDuration, timeStampDiff, currentTransportState) {
     var relTimeSec = this.convertToSeconds(relTime) + timeStampDiff;
     var trackDurationSec = this.convertToSeconds(trackDuration);
-    if (trackDurationSec > 0 && relTimeSec < trackDurationSec) {
+    if (trackDurationSec > 0 && relTimeSec < trackDurationSec) { // Only calculate percentage if we have a valid track duration and the relTime is within the track duration
         var percentPlayed = ((relTimeSec / trackDurationSec) * 100).toFixed(1);
         return {
             played: WNP.convertToMinutes(relTimeSec),
@@ -655,7 +738,7 @@ WNP.getPlayerProgress = function (relTime, trackDuration, timeStampDiff, current
             percent: percentPlayed
         };
     }
-    else if (trackDurationSec == 0 && currentTransportState == "PLAYING") {
+    else if (trackDurationSec == 0 && currentTransportState == "PLAYING") { // For live streams or unknown duration, show "Live" when playing and "Paused" when paused/stopped
         return {
             played: "Live",
             left: "",
@@ -663,7 +746,7 @@ WNP.getPlayerProgress = function (relTime, trackDuration, timeStampDiff, current
             percent: 100
         };
     }
-    else {
+    else { // Default fallback for paused/stopped state or when relTime exceeds track duration
         return {
             played: "Paused",
             left: "",
@@ -700,6 +783,203 @@ WNP.convertToMinutes = function (seconds) {
     tempDate.setSeconds(seconds);
     var result = tempDate.toISOString().substring(14, 19);
     return result;
+};
+
+/**
+ * Parse synced lyrics (LRC format) into timestamps.
+ * @param {string} syncedLyrics - LRC formatted lyrics string.
+ * @returns {array} Array of lyric lines with time in ms.
+ */
+WNP.parseSyncedLyrics = function (syncedLyrics) {
+    // console.log("WNP", "Parsing synced lyrics...");
+    if (!syncedLyrics) return [];
+
+    const lines = syncedLyrics.split(/\r?\n/);
+    const parsed = [];
+    let globalOffsetMs = 0;
+
+    // Regex for timestamps: [hh:mm:ss.xxx] or [mm:ss.xxx]
+    const timeRegex = /\[(?:(\d+):)?(\d{2}):(\d{2})[.:](\d{2,3})\]/g;
+    // Regex for the offset tag: [offset:500] or [offset:-200]
+    const offsetRegex = /\[offset:\s*(-?\d+)\s*\]/i;
+
+    lines.forEach((line) => {
+
+        // Check for global offset tag first
+        const offsetMatch = line.match(offsetRegex);
+        if (offsetMatch) {
+            globalOffsetMs = parseInt(offsetMatch[1], 10);
+            return; // Skip further processing of this line
+        }
+
+        // Remove all time tags to extract the text
+        const text = line.replace(/\[.*?\]/g, "").trim();
+        // if (!text) return;
+
+        // Extract all time tags and convert to milliseconds
+        let match;
+        timeRegex.lastIndex = 0; // Reset regex for exec()
+        while ((match = timeRegex.exec(line)) !== null) {
+            const hrs = parseInt(match[1] || 0, 10);
+            const min = parseInt(match[2], 10);
+            const sec = parseInt(match[3], 10);
+            const msPart = match[4].padEnd(3, "0");
+            const millis = parseInt(msPart, 10);
+
+            // Calculate total time in milliseconds and apply global offset
+            let totalMs = (hrs * 3600000) + (min * 60000) + (sec * 1000) + millis;
+            totalMs += globalOffsetMs;
+
+            // Push the parsed line with time and text, ensuring time is not negative
+            parsed.push({
+                timestamp: match[0], // Original timestamp string (for reference, not used in logic)
+                timeMs: Math.max(0, totalMs), // Ensure time is not negative after applying offset
+                text: text // Store the text without time tags
+            });
+        }
+
+    });
+
+    // Sort parsed lines by time in ascending order (important for findLastIndex to work correctly)
+    return parsed.sort((a, b) => a.timeMs - b.timeMs);
+
+};
+
+/**
+ * Clear lyrics UI.
+ * @returns {undefined}
+ */
+WNP.clearLyrics = function () {
+    // console.log("WNP", "Clearing lyrics...");
+    // Remove visibility and pending state classes, if set
+    if (WNP.r.mediaLyrics) {
+        WNP.r.mediaLyrics.classList.remove("is-visible", "is-pending");
+    }
+
+    // Clear lyric lines text content
+    if (WNP.r.lyricPrev) WNP.r.lyricPrev.textContent = "";
+    if (WNP.r.lyricCurrent) WNP.r.lyricCurrent.textContent = "";
+    if (WNP.r.lyricNext) WNP.r.lyricNext.textContent = "";
+    if (WNP.r.lyricAfter) WNP.r.lyricAfter.textContent = "";
+
+    // Reset data states
+    WNP.d.lyrics = [];
+    WNP.d.lyricsIndex = null;
+};
+
+/**
+ * Toggle pending lyrics state.
+ * @param {boolean} isPending - Whether lyrics are pending.
+ * @returns {undefined}
+ */
+WNP.setLyricsPending = function (isPending) {
+    // console.log("WNP", "Lyrics pending:", isPending);
+    if (!WNP.r.mediaLyrics) return;
+    WNP.r.mediaLyrics.classList.toggle("is-pending", isPending);
+};
+
+/**
+ * Update lyrics display based on player progress.
+ * Normally called on state updates to sync lyrics with the current play time.
+ * Also called when new lyrics are loaded to set the initial display.
+ * @param {string|null} relTime - Time elapsed while playing, format 00:00:00.
+ * @param {integer} stateTimeStamp - The timestamp of the state update.
+ * @param {integer} metadataTimeStamp - The timestamp of the metadata update.
+ * @returns {undefined}
+ */
+WNP.updateLyricsProgress = function (relTime, timeStampDiffMs) {
+    // console.log("WNP", "Updating lyrics progress...", { relTime, stateTimeStamp, metadataTimeStamp });
+    // Are any lyrics available...?
+    if (!WNP.d.lyrics || WNP.d.lyrics.length === 0) {
+        return;
+    }
+
+    // Calculate the current play time in milliseconds, using relTime
+    var currentRelTime = relTime || WNP.d.lyricsLastRelTime || "00:00:00";
+    var [hours, minutes, seconds] = currentRelTime.split(':').map(Number);
+    var relTimeMs = ((hours * 3600) + (minutes * 60) + seconds) * 1000;
+
+    // Calculate the current play time in milliseconds by adding the time difference to the relTime milliseconds
+    var currentMs = relTimeMs + timeStampDiffMs;
+    var offsetMs = WNP.getLyricsOffsetMs();
+    if (offsetMs !== 0) {
+        currentMs += offsetMs;
+    }
+
+    // Find the current lyric line index based on the current play time in milliseconds.
+    // Current play time is at or past the lyric line time, but before the next lyric line time.
+    var currentLyricIdx = WNP.d.lyrics.findLastIndex(item => item.timeMs <= currentMs);
+    // console.log("WNP", "Current play time (ms):", currentMs, "Current lyric index:", currentLyricIdx);
+
+    // If no lyric line is found for the current play time, set pending state and show the first line as next lyric.
+    if (currentLyricIdx === -1) {
+        WNP.setLyricsPending(true);
+        WNP.d.lyricsIndex = -1;
+        WNP.setLyrics(
+            "",
+            WNP.d.lyrics[0] ? WNP.d.lyrics[0].text : "",
+            WNP.d.lyrics[1] ? WNP.d.lyrics[1].text : "",
+            WNP.d.lyrics[2] ? WNP.d.lyrics[2].text : ""
+        );
+        return;
+    }
+
+    // Check for the 'outro' (after the last lyric)
+    const isLastLyric = currentLyricIdx === WNP.d.lyrics.length - 1;
+    if (isLastLyric) {
+        const lastLyricTime = WNP.d.lyrics[currentLyricIdx].timeMs;
+        if (currentMs > lastLyricTime + 2000) { // If we are 2 seconds past the last lyric, consider it as 'outro' time and set pending state without changing the lyrics (or optionally clear the next lyrics).
+            if (WNP.d.lyricsIndex !== 99999) {
+                console.log("WNP", "Entering outro state (2s past last lyric)");
+                WNP.setLyricsPending(true);
+                WNP.d.lyricsIndex = 99999; // Mark as outro
+            }
+            return;
+        }
+    }
+
+    // If the current lyric line index is the same as the last one, no need to update the display.
+    if (currentLyricIdx === WNP.d.lyricsIndex) {
+        return;
+    }
+
+    // Clear pending state and update the lyrics display with the current, previous and next lines.
+    WNP.setLyricsPending(false);
+    WNP.d.lyricsIndex = currentLyricIdx; // Remember the current lyric line index
+    var prevLine = WNP.d.lyrics[currentLyricIdx - 1] ? WNP.d.lyrics[currentLyricIdx - 1].text : "";
+    var currentLine = WNP.d.lyrics[currentLyricIdx] ? WNP.d.lyrics[currentLyricIdx].text : "";
+    var nextLine = WNP.d.lyrics[currentLyricIdx + 1] ? WNP.d.lyrics[currentLyricIdx + 1].text : "";
+    var afterLine = WNP.d.lyrics[currentLyricIdx + 2] ? WNP.d.lyrics[currentLyricIdx + 2].text : "";
+    WNP.setLyrics(prevLine, currentLine, nextLine, afterLine);
+
+};
+
+/**
+ * Update the lyric lines in the UI.
+ * @param {string} prevLine - Previous line.
+ * @param {string} currentLine - Current line.
+ * @param {string} nextLine - Next line.
+ * @returns {undefined}
+ */
+WNP.setLyrics = function (prevLine, currentLine, nextLine, afterLine) {
+    if (!WNP.r.lyricPrev || !WNP.r.lyricCurrent || !WNP.r.lyricNext || !WNP.r.lyricAfter) {
+        return;
+    }
+    WNP.r.lyricPrev.textContent = prevLine;
+    WNP.r.lyricCurrent.textContent = currentLine;
+    WNP.r.lyricNext.textContent = nextLine;
+    WNP.r.lyricAfter.textContent = afterLine;
+};
+
+/**
+ * Get lyrics offset (in ms) from server settings.
+ * @returns {number}
+ */
+WNP.getLyricsOffsetMs = function () {
+    if (WNP.d.serverSettings && WNP.d.serverSettings.features && WNP.d.serverSettings.features.lyrics && typeof WNP.d.serverSettings.features.lyrics.offsetMs === "number") {
+        return WNP.d.serverSettings.features.lyrics.offsetMs;
+    }
+    return 0;
 };
 
 /**

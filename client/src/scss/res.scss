@@ -1,0 +1,174 @@
+/* ------------------------
+ * Resolution debugging, only used in res.html
+ */
+
+.rez {
+
+    // Color coding to see margins and paddings
+    .wnpAlbumArt {
+        background-color: #900;
+
+        >div {
+            background-color: #c00;
+        }
+
+    }
+
+    .wnpMediaInfo {
+        background-color: #090;
+
+        >div {
+            background-color: #0c0;
+        }
+
+    }
+
+    .wnpFooter {
+        background-color: #009;
+
+        >div {
+            background-color: #00c;
+        }
+
+    }
+
+    // Media queries tests
+    #wnpResTest {
+        display: block;
+        position: absolute;
+        right: 32px;
+        top: 36px;
+        color: #ccc;
+        background-color: #fff;
+        border: 2px solid #ccc;
+        padding: 5px;
+        max-width: 200px;
+
+        // Bootstrap responsive breakpoints: https://getbootstrap.com/docs/5.0/layout/breakpoints/
+        // X-Small devices (portrait phones, less than 576px)
+        // No media query for `xs` since this is the default in Bootstrap
+        .bp-xs {
+            color: #0c0;
+        }
+
+        // Small devices (landscape phones, 576px and up)
+        @media (min-width: 576px) {
+            .bp-sm {
+                color: #0c0;
+            }
+        }
+
+        // Medium devices (tablets, 768px and up)
+        @media (min-width: 768px) {
+            .bp-md {
+                color: #0c0;
+            }
+        }
+
+        // Large devices (desktops, 992px and up)
+        @media (min-width: 992px) {
+            .bp-lg {
+                color: #0c0;
+            }
+        }
+
+        // X-Large devices (large desktops, 1200px and up)
+        @media (min-width: 1200px) {
+            .bp-xl {
+                color: #0c0;
+            }
+        }
+
+        // XX-Large devices (larger desktops, 1400px and up)
+        @media (min-width: 1400px) {
+            .bp-xxl {
+                color: #0c0;
+            }
+        }
+
+        // 1080p devices (larger desktops, 1400px and up)
+        @media (min-width: 1920px) {
+            .bp-1080 {
+                color: #0c0;
+            }
+        }
+
+        // 1440p devices (larger desktops, 1400px and up)
+        @media (min-width: 2560px) {
+            .bp-1440 {
+                color: #0c0;
+            }
+        }
+
+        // 4K devices (larger desktops, 1400px and up)
+        @media (min-width: 3840px) {
+            .bp-4k {
+                color: #0c0;
+            }
+        }
+
+        // Orientation: Landscape
+        @media (orientation: landscape) {
+            .bp-ls {
+                color: #0c0;
+            }
+        }
+
+        // Orientation: Portrait
+        @media (orientation: portrait) {
+            .bp-pt {
+                color: #0c0;
+            }
+        }
+
+        // Pixel ratio 1 (True one-on-one screens i.e. desktop monitors)
+        @media screen and (-webkit-min-device-pixel-ratio: 1),
+        screen and (-moz-min-device-pixel-ratio: 1),
+        screen and (-o-min-device-pixel-ratio: 1),
+        screen and (min-device-pixel-ratio: 1) {
+            font-size: 1rem;
+
+            .bp-p1 {
+                color: #0c0;
+            }
+        }
+
+        // Pixel ratio 2 (Highres small screens i.e. iPad tablets)
+        @media screen and (-webkit-min-device-pixel-ratio: 2),
+        screen and (-moz-min-device-pixel-ratio: 2),
+        screen and (-o-min-device-pixel-ratio: 2),
+        screen and (min-device-pixel-ratio: 2) {
+            font-size: 1.2rem;
+
+            .bp-p2 {
+                color: #0c0;
+            }
+        }
+
+        // Pixel ratio 3 (Highres screens i.e. iPhones)
+        @media screen and (-webkit-min-device-pixel-ratio: 3),
+        screen and (-moz-min-device-pixel-ratio: 3),
+        screen and (-o-min-device-pixel-ratio: 3),
+        screen and (min-device-pixel-ratio: 3) {
+            font-size: 1.3rem;
+
+            .bp-p3 {
+                color: #0c0;
+            }
+        }
+
+        // Pixel ratio 4 (Very highres screens i.e. 4K tv)
+        @media screen and (-webkit-min-device-pixel-ratio: 4),
+        screen and (-moz-min-device-pixel-ratio: 4),
+        screen and (-o-min-device-pixel-ratio: 4),
+        screen and (min-device-pixel-ratio: 4) {
+            font-size: 1.4rem;
+
+            .bp-p4 {
+                color: #0c0;
+            }
+        }
+
+    }
+
+}

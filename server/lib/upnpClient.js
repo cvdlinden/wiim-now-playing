@@ -17,6 +17,7 @@ const UPnP = require("upnp-device-client");
 // Other modules
 const xml2js = require("xml2js");
 const lib = require("./lib.js"); // Generic functionality
+const lyrics = require("./lyrics.js"); // Lyrics functionality
 const log = require("debug")("lib:upnpClient");
 
 /**
@@ -115,14 +116,12 @@ const updateDeviceState = (io, deviceInfo, serverSettings) => {
                 (err, result) => { // Callback
                     if (err) {
                         log("updateDeviceState()", "GetTransportInfo error", err);
-                        // TODO: If errors are persistent, what do we do? Change to any other available device?
-                        // Device could be rebooting. Or turned off. Or disposed off, ...
-                        // After x amount of polling should we give up? Stop polling and streaming?
-                        // Or wait for the device to be turned on again?
-                        // Or let the clients kindly know of a disruption? Could be the task of the client.
                     }
                     else {
                         log("updateDeviceState()", "GetTransportInfo:", result.CurrentTransportState);
+                        // Keep previous transport state
+                        const previousState = deviceInfo.state ? deviceInfo.state.CurrentTransportState : null;
+                        // Set state data
                         deviceInfo.state = {
                             ...result,
                             RelTime: (deviceInfo.metadata && deviceInfo.metadata.RelTime) ? deviceInfo.metadata.RelTime : null,
@@ -133,6 +132,10 @@ const updateDeviceState = (io, deviceInfo, serverSettings) => {
                             stateTimeStamp: lib.getTimeStamp(),
                         };
                         io.emit("state", deviceInfo.state);
+                        // Trigger a device metadata refresh after transitioning is done
+                        if (result.CurrentTransportState !== "TRANSITIONING" && previousState === "TRANSITIONING") {
+                            module.exports.updateDeviceMetadata(io, deviceInfo, serverSettings);
+                        }
                     }
                 }
             );
@@ -167,7 +170,7 @@ const updateDeviceMetadata = (io, deviceInfo, serverSettings) => {
                 (err, result) => { // Callback
                     if (err) {
                         log("updateDeviceMetadata()", "GetInfoEx error", err);
-                        // May be a transient error, just wait a bit and carry on...
+                        // May be a transient error, just wait for next metadata poll and carry on for now...
                     }
                     else {
                         log("updateDeviceMetadata()", "GetInfoEx:", result.RelTime);
@@ -195,6 +198,10 @@ const updateDeviceMetadata = (io, deviceInfo, serverSettings) => {
                                             metadataTimeStamp: lib.getTimeStamp()
                                         };;
                                         io.emit("metadata", deviceInfo.metadata);
+                                        // Get lyrics, if enabled...
+                                        if (serverSettings.features?.lyrics?.enabled) {
+                                            lyrics.getLyricsForMetadata(io, deviceInfo, serverSettings);
+                                        }
                                     }
                                 }
                             );
@@ -238,6 +245,10 @@ const updateDeviceMetadata = (io, deviceInfo, serverSettings) => {
                                             metadataTimeStamp: lib.getTimeStamp()
                                         };
                                         io.emit("metadata", deviceInfo.metadata);
+                                        // Get lyrics, if enabled...
+                                        if (serverSettings.features?.lyrics?.enabled) {
+                                            lyrics.getLyricsForMetadata(io, deviceInfo, serverSettings);
+                                        }
                                     }
                                 }
                             );

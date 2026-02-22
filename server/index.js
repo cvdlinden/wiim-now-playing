@@ -30,6 +30,8 @@ const httpApi = require("./lib/httpApi.js"); // HTTP API functionality
 const sockets = require("./lib/sockets.js"); // Sockets.io functionality
 const shell = require("./lib/shell.js"); // Shell command functionality
 const lib = require("./lib/lib.js"); // Generic functionality
+const lyrics = require("./lib/lyrics.js"); // Lyrics functionality
+const lyricsCache = require("./lib/lyricsCache.js");
 const log = require("debug")("index"); // See README.md on debugging
 
 // For versionioning purposes
@@ -50,7 +52,8 @@ let deviceList = []; // Placeholder for found devices through SSDP
 let deviceInfo = { // Placeholder for the currently selected device info
     state: null, // Keeps the device state updates
     metadata: null, // Keeps the device metadata updates
-    client: null // Keeps the UPnP client object
+    client: null, // Keeps the UPnP client object
+    lyrics: null // Keeps the lyrics object
 };
 let serverSettings = { // Placeholder for current server settings
     "selectedDevice": { // The selected device properties, a placeholder for now. Will be filled once a (default) device selection has been made.
@@ -66,6 +69,12 @@ let serverSettings = { // Placeholder for current server settings
         "state": 1000, // Timeout for state updates in milliseconds. Every second.
         "metadata": 4 * 1000, // Timeout for metadata updates in milliseconds. Every 4 seconds.
         "rescan": 10 * 1000 // Timeout for possible rescan of devices in milliseconds. Every 10 seconds.
+    },
+    "features": {
+        "lyrics": {
+            "enabled": false, // Whether the lyrics feature is enabled or not
+            "offsetMs": 0 // The offset in milliseconds to apply to the synced lyrics, can be positive or negative, default is 0.
+        }
     },
     "server": null, // Placeholder for the express server (port) information
     "version": { // Version information for the server and client
@@ -109,7 +118,7 @@ setTimeout(() => {
 // Use CORS
 app.use(cors());
 
-// Set up rate limiter: maximum 100 requests per 15 minutes per IP
+// Set up rate limiter: maximum 1000 requests per 15 minutes per IP
 // As static file serving can be quite intensive we set a limit here
 // As suggested by Github code scanning tools
 // As suggested by: https://www.npmjs.com/package/express-rate-limit
@@ -198,10 +207,12 @@ io.on("connection", (socket) => {
     else if (io.sockets.sockets.size >= 1) {
         // If new client, send current state and metadata 'immediately'
         // When sending directly after a reboot things get wonky
-        // setTimeout(() => {
         socket.emit("state", deviceInfo.state);
         socket.emit("metadata", deviceInfo.metadata);
-        // }, serverSettings.timeouts.immediate)
+        if (deviceInfo.lyrics) {
+            socket.emit("lyrics-get", deviceInfo.lyrics);
+            lyrics.getLyricsCacheStats(io);
+        }
     }
 
     /**
@@ -279,6 +290,80 @@ io.on("connection", (socket) => {
     });
 
     // ======================================
+    // Lyrics related
+
+    /**
+     * Listener for lyrics get.
+     * Returns the lyrics for the currently playing track, if any and if the feature is enabled.
+     * @returns {undefined}
+     */
+    socket.on("lyrics-get", () => {
+        log("Socket event", "lyrics-get");
+        if (serverSettings.features.lyrics.enabled && deviceInfo.lyrics) {
+            socket.emit("lyrics-get", deviceInfo.lyrics);
+            lyrics.getLyricsCacheStats(io);
+        }
+    });
+
+    /**
+     * Listener for lyrics cache stats get.
+     * Returns the current stats of the lyrics cache, such as the number of items in cache.
+     * @returns {undefined}
+     */
+    socket.on("lyrics-cache-stats", () => {
+        log("Socket event", "lyrics-cache-stats");
+        lyrics.getLyricsCacheStats(io);
+    });
+
+    /**
+     * Listener for lyrics cache clear.
+     * Clears the lyrics cache and sends back the updated cache stats.
+     * @returns {undefined}
+     */
+    socket.on("lyrics-cache-clear", async () => {
+        log("Socket event", "lyrics-cache-clear");
+        await lyricsCache.clear();
+        // Send back the updated cache stats
+        lyrics.getLyricsCacheStats(io);
+    });
+
+    /**
+     * Listener for lyrics settings updates.
+     * Sets the lyrics related settings and saves them to the local storage.
+     * @param {object} msg - The updated settings.
+     * @returns {undefined}
+     */
+    socket.on("lyrics-settings", (msg) => {
+        log("Socket event", "lyrics-settings", msg);
+        if (msg && msg.features && msg.features.lyrics) {
+
+            var shouldRefreshLyrics = false;
+
+            // Lyrics enabled/disabled setting
+            if (typeof msg.features.lyrics.enabled === "boolean") {
+                serverSettings.features.lyrics.enabled = msg.features.lyrics.enabled;
+                shouldRefreshLyrics = true;
+            }
+
+            // Lyrics offset in ms setting
+            if (typeof msg.features.lyrics.offsetMs === "number") {
+                serverSettings.features.lyrics.offsetMs = msg.features.lyrics.offsetMs;
+            }
+
+            // Save settings and send updated settings to clients
+            lib.saveSettings(serverSettings);
+            sockets.getServerSettings(io, serverSettings);
+
+            // Should the lyrics be refreshed? Only if the enabled setting is changed, 
+            // not for offset changes, as the offset is applied on the client side and does not require new lyrics to be fetched.
+            if (shouldRefreshLyrics) {
+                lyrics.getLyricsForMetadata(io, deviceInfo, serverSettings);
+            }
+
+        }
+    });
+
+    // ======================================
     // Server related
 
     /**
@@ -324,3 +409,16 @@ server.listen(port, () => {
     serverSettings.server = server.address();
     console.log("Web Server started at http://localhost:%s", server.address().port);
 });
+
+// Caching related, so is this still required?
+// const shutdownServer = (signal) => {
+//     log("Shutdown signal received:", signal);
+//     try {
+//         lyricsCache.closeCache();
+//     } finally {
+//         process.exit(0);
+//     }
+// };
+
+// process.on("SIGINT", () => shutdownServer("SIGINT"));
+// process.on("SIGTERM", () => shutdownServer("SIGTERM"));

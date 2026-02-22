@@ -29,6 +29,7 @@
             </div>
         </div>
 
+        <!-- State debug -->
         <div class="row mb-3">
             <label class="form-label" for="state">State:
                 <span id="tickStateUp" class="tick tickUp"><i class="bi bi-arrow-up-circle-fill"></i>
@@ -48,6 +49,7 @@
             </div>
         </div>
 
+        <!-- Metadata debug -->
         <div class="row mb-3">
             <label class="form-label" for="metadata">Metadata:
                 <span id="tickMetadataUp" class="tick tickUp"><i class="bi bi-arrow-up-circle-fill"></i></span>
@@ -75,6 +77,7 @@
             </div>
         </div>
 
+        <!-- Devices debug -->
         <div class="row mb-3">
             <label class="form-label" for="selDeviceChoices">Devices:
                 <span id="tickDevicesGetUp" class="tick tickUp"><i class="bi bi-arrow-up-circle-fill"></i></span>
@@ -98,7 +101,8 @@
             </div>
         </div>
 
-        <div>
+        <!-- Volume debug -->
+        <div class="row mb-3">
             <label class="form-label" for="devVol">Volume:
                 <span id="tickVolumeGetUp" class="tick tickUp"><i class="bi bi-arrow-up-circle-fill"></i></span>
                 <span id="tickVolumeGetDown" class="tick tickDown"><i class="bi bi-arrow-down-circle-fill"></i></span>
@@ -115,6 +119,45 @@
             </div>
         </div>
 
+        <!-- Lyrics debug-->
+        <div class="row mb-3">
+            <label class="form-label" for="lyrics">Lyrics:
+                <span id="tickLyricsUp" class="tick tickUp"><i class="bi bi-arrow-up-circle-fill"></i></span>
+                <span id="tickLyricsDown" class="tick tickDown"><i class="bi bi-arrow-down-circle-fill"></i></span>
+            </label>
+            <div class="form-check form-switch mb-3">
+                <input class="form-check-input" type="checkbox" id="chkLyricsEnabled">
+                <label class="form-check-label text-white" for="chkLyricsEnabled">Enable synced lyrics
+                    (LRCLIB)</label>
+            </div>
+            <textarea id="lyrics" class="form-control" style="height: 120px"></textarea>
+            <div class="form-text text-white">
+                <ul>
+                    <li>Lyrics status: <span id="lyricsStatus"></span></li>
+                    <li>Lyrics track key (cache): <span id="lyricsTrackKey"></span></li>
+                    <li>Lyrics available: <span id="lyricsPayload"></span></li>
+                    <li>Lyrics synced available: <span id="lyricsSyncedLyrics"></span></li>
+                </ul>
+            </div>
+            <label class="form-label" for="lyricsCacheSize">Lyrics cache
+                <span id="tickLyricsCacheGetDown" class="tick tickDown"><i class="bi bi-arrow-down-circle-fill"></i></span>
+            </label>
+            <div class="btn-toolbar justify-content-between mb-3">
+                <div class="input-group" aria-label="Cache size">
+                    <input type="text" class="form-control" id="lyricsCacheSize" value="n items cached"
+                        style="width: 200px;" disabled>
+                    <button type="button" class="btn btn-secondary" id="btnClearLyricsCache">Clear cache</button>
+                </div>
+            </div>
+            <label class="form-label" for="lyricsOffsetMs">Lyrics offset (ms)</label>
+            <input class="form-control" type="number" id="lyricsOffsetMs" step="50" min="-10000" max="10000"
+                style="width: 120px;">
+            <div class="form-text text-white">
+                Positive values show lyrics earlier, negative values later.
+            </div>
+        </div>
+
+        <!-- Presets debug -->
         <div class="row mb-3">
             <label class="form-label" for="sPresetsList">Presets List:
                 <span id="tickPresetsListUp" class="tick tickUp"><i class="bi bi-arrow-up-circle-fill"></i></span>
@@ -129,6 +172,7 @@
             </div>
         </div>
 
+        <!-- Server settings debug -->
         <div class="row mb-3">
             <label class="form-label" for="sServerSettings">Server Settings:
                 <span id="tickServerSettingsUp" class="tick tickUp"><i class="bi bi-arrow-up-circle-fill"></i></span>
@@ -150,6 +194,7 @@
             </div>
         </div>
 
+        <!-- Server actions debug -->
         <div class="row mb-3">
             <label class="form-label" for="btnReloadUI">Server Actions:</label>
             <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with server actions">

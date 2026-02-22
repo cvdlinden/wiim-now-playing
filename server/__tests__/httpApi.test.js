@@ -94,5 +94,26 @@ describe('httpApi.js', () => {
             httpApi.callApi(io, 'noip', { selectedDevice: {} });
             expect(https.get).not.toHaveBeenCalled();
         });
+
+        it('should catch synchronous errors during https.get call (L52)', (done) => {
+            lib.getIpAddressFromLocation.mockReturnValue('192.168.1.100');
+
+            // Forceer een synchrone crash in https.get
+            https.get.mockImplementation(() => {
+                throw new Error('Synchronous Crash');
+            });
+
+            const io = { emit: jest.fn() };
+
+            // De callApi functie vangt de error op en stuurt null naar de client
+            httpApi.callApi(io, 'crashcmd', {
+                selectedDevice: { location: 'http://192.168.1.100' }
+            });
+
+            setTimeout(() => {
+                expect(io.emit).toHaveBeenCalledWith('device-api', 'crashcmd', null);
+                done();
+            }, 10);
+        });
     });
 });

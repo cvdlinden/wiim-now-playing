@@ -75,23 +75,31 @@ const getSettings = (serverSettings) => {
     log("fs", "Get settings from:", settingsFile);
 
     try { // Try and read the settings file
-        let settings = fs.readFileSync(settingsFile);
+        let savedSettings = fs.readFileSync(settingsFile);
         log("fs", "Settings file found! Processing...");
-        settings = JSON.parse(settings);
-        // log("fs", "settings:", settings);
-        if (!settings.selectedDevice || !settings.selectedDevice.location || !settings.selectedDevice.actions) { // Short sanity check
+        settingsParsed = JSON.parse(savedSettings);
+        // log("fs", "settings:", settingsParsed);
+        if (!settingsParsed.selectedDevice || !settingsParsed.selectedDevice.location || !settingsParsed.selectedDevice.actions) { // Short sanity check
             log("fs", "Previous selected device not stored correctly or invalid.");
             log("fs", "The file exists though. Silently ignoring, will be overwritten eventually...");
         }
         else {
-            log("fs", "selectedDevice:", settings.selectedDevice.friendlyName, settings.selectedDevice.location);
+            log("fs", "selectedDevice:", settingsParsed.selectedDevice.friendlyName, settingsParsed.selectedDevice.location);
             log("fs", "Amend the current server settings with the stored values.");
-            serverSettings.selectedDevice = settings.selectedDevice;
+            serverSettings.selectedDevice = settingsParsed.selectedDevice;
+        }
+        // Merge the saved features settings.
+        if (settingsParsed.features) {
+            serverSettings.features = {
+                ...serverSettings.features,
+                ...settingsParsed.features
+            };
+            log("fs", "features:", serverSettings.features);
         }
     }
-    catch { // Not found, create a settings file
+    catch (err) { // Not found, create a settings file
         log("fs", "No settings file found! Trying to create one...");
-        module.exports.saveSettings(serverSettings);
+        saveSettings(serverSettings);
     }
 
 }
@@ -106,7 +114,8 @@ const saveSettings = (serverSettings) => {
     log("fs", "Saving settings to:", settingsFile);
 
     const settingsToStore = {
-        "selectedDevice": serverSettings.selectedDevice
+        "selectedDevice": serverSettings.selectedDevice,
+        "features": serverSettings.features
     };
     log("fs", "Settings to store", settingsToStore);
 
