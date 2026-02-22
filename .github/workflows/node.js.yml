@@ -7,7 +7,7 @@ permissions:
 
 on:
   push:
-    branches: [ "main", "refactor", "review-branch" ]
+    branches: [ "main", "refactor" ]
   pull_request:
     branches: [ "main" ]
 
