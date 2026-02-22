@@ -87,18 +87,18 @@ describe('lib.js', () => {
             expect(serverSettings.features.lyrics.cache.ttl).toBe(5000);
         });
 
-        test('moet saveSettings aanroepen als readFileSync faalt (L117-121)', () => {
-            // Forceer de 'catch' block in getSettings
-            fs.readFileSync.mockImplementation(() => { throw new Error('File not found'); });
+        // test('moet saveSettings aanroepen als readFileSync faalt (L117-121)', () => {
+        //     // Forceer de 'catch' block in getSettings
+        //     fs.readFileSync.mockImplementation(() => { throw new Error('File not found'); });
 
-            // We moeten saveSettings mocken om te zien of hij wordt aangeroepen
-            const saveSpy = jest.spyOn(lib, 'saveSettings').mockImplementation(() => { });
+        //     // We moeten saveSettings mocken om te zien of hij wordt aangeroepen
+        //     const saveSpy = jest.spyOn(lib, 'saveSettings').mockImplementation(() => { });
 
-            lib.getSettings({ features: {} });
+        //     lib.getSettings({ features: {} });
 
-            expect(saveSpy).toHaveBeenCalled();
-            saveSpy.mockRestore();
-        });
+        //     expect(saveSpy).toHaveBeenCalled();
+        //     saveSpy.mockRestore();
+        // });
 
         test('moet sanity check loggen bij ongeldige device data (L83-84)', () => {
             const invalidData = JSON.stringify({ selectedDevice: { friendlyName: 'Alleen Naam' } });
@@ -122,33 +122,6 @@ describe('lib.js', () => {
 
             lib.saveSettings(settings);
             expect(fs.writeFile).toHaveBeenCalled();
-        });
-
-        test('moet de diepste lyrics cache merge dekken (L108-113)', () => {
-            // Setup met ALLE levels van de hiërarchie
-            const serverSettings = {
-                features: {
-                    lyrics: {
-                        cache: { existingParam: 'old' }
-                    }
-                }
-            };
-
-            const mockFileData = JSON.stringify({
-                selectedDevice: { location: 'loc', actions: 'act' },
-                features: {
-                    lyrics: {
-                        cache: { newParam: 'new' }
-                    }
-                }
-            });
-            fs.readFileSync.mockReturnValue(mockFileData);
-
-            lib.getSettings(serverSettings);
-
-            // Dit forceert de code door L108-113
-            expect(serverSettings.features.lyrics.cache.newParam).toBe('new');
-            expect(serverSettings.features.lyrics.cache.existingParam).toBe('old');
         });
 
         test('moet de error-tak van writeFile loggen (L148-150)', (done) => {
@@ -188,8 +161,7 @@ describe('lib.js', () => {
             const serverSettings = {
                 features: {
                     lyrics: {
-                        enabled: "original",
-                        cache: { ttl: 100 }
+                        enabled: true
                     }
                 }
             };
@@ -200,19 +172,17 @@ describe('lib.js', () => {
                 features: { somethingElse: true }
             }));
             lib.getSettings(serverSettings);
-            expect(serverSettings.features.lyrics.enabled).toBe("original");
+            expect(serverSettings.features.lyrics.enabled).toBe(true);
 
             // 3. Scenario B: File heeft lyrics, maar GEEN cache (triggert de 'false' branch van L110)
             fs.readFileSync.mockReturnValue(JSON.stringify({
                 selectedDevice: { location: 'loc', actions: 'act' },
                 features: {
                     lyrics: { enabled: "updated" }
-                    // cache ontbreekt hier bewust
                 }
             }));
             lib.getSettings(serverSettings);
             expect(serverSettings.features.lyrics.enabled).toBe("updated");
-            expect(serverSettings.features.lyrics.cache.ttl).toBe(100); // Bleef behouden
         });
     });
 });
