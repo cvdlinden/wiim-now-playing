@@ -911,11 +911,6 @@ WNP.updateLyricsProgress = function (relTime, timeStampDiffMs) {
     var currentLyricIdx = WNP.d.lyrics.findLastIndex(item => item.timeMs <= currentMs);
     // console.log("WNP", "Current play time (ms):", currentMs, "Current lyric index:", currentLyricIdx);
 
-    // If the current lyric line index is the same as the last one, no need to update the display.
-    if (currentLyricIdx === WNP.d.lyricsIndex) {
-        return;
-    }
-
     // If no lyric line is found for the current play time, set pending state and show the first line as next lyric.
     if (currentLyricIdx === -1) {
         WNP.setLyricsPending(true);
@@ -926,6 +921,25 @@ WNP.updateLyricsProgress = function (relTime, timeStampDiffMs) {
             WNP.d.lyrics[1] ? WNP.d.lyrics[1].text : "",
             WNP.d.lyrics[2] ? WNP.d.lyrics[2].text : ""
         );
+        return;
+    }
+
+    // Check for the 'outro' (after the last lyric)
+    const isLastLyric = currentLyricIdx === WNP.d.lyrics.length - 1;
+    if (isLastLyric) {
+        const lastLyricTime = WNP.d.lyrics[currentLyricIdx].timeMs;
+        if (currentMs > lastLyricTime + 2000) { // If we are 2 seconds past the last lyric, consider it as 'outro' time and set pending state without changing the lyrics (or optionally clear the next lyrics).
+            if (WNP.d.lyricsIndex !== 99999) {
+                console.log("WNP", "Entering outro state (2s past last lyric)");
+                WNP.setLyricsPending(true);
+                WNP.d.lyricsIndex = 99999; // Mark as outro
+            }
+            return;
+        }
+    }
+
+    // If the current lyric line index is the same as the last one, no need to update the display.
+    if (currentLyricIdx === WNP.d.lyricsIndex) {
         return;
     }
 
