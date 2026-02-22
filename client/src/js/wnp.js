@@ -25,7 +25,7 @@ WNP.d = {
     prevSourceIdent: null, // Previous source ident, used to detect changes in the source
     prevTrackInfo: null, // Previous track info, used to detect changes in the metadata
     lyrics: [], // Parsed lyrics lines
-    lastState: null, // Last known state, used for lyrics timing
+    lyricsLastRelTime: null, // Last known RelTime, used for lyrics timing
     lyricsIndex: null // Current lyrics line index
 };
 
@@ -398,7 +398,7 @@ WNP.setSocketDefinitions = function () {
         WNP.r.progressPercent.setAttribute("aria-valuenow", oPlayerProgress.percent)
         WNP.r.progressPercent.children[0].setAttribute("style", "width:" + oPlayerProgress.percent + "%");
 
-        WNP.d.lastState = msg;
+        WNP.d.lyricsLastRelTime = relTime; // Update the last known RelTime for lyrics timing
         WNP.updateLyricsProgress(relTime, timeStampDiffMs);
         setTimeout(function () { // Do another update half tick (state timeout) to make sure the progress is updated and the lyrics are in sync.
             var timeoutState = (WNP.d.serverSettings?.timeouts?.state || 1000) / 2;
@@ -895,7 +895,7 @@ WNP.updateLyricsProgress = function (relTime, timeStampDiffMs) {
     }
 
     // Calculate the current play time in milliseconds, using relTime
-    var currentRelTime = relTime || (WNP.d.lastState && WNP.d.lastState.RelTime) || "00:00:00";
+    var currentRelTime = relTime || WNP.d.lyricsLastRelTime || "00:00:00";
     var [hours, minutes, seconds] = currentRelTime.split(':').map(Number);
     var relTimeMs = ((hours * 3600) + (minutes * 60) + seconds) * 1000;
 
