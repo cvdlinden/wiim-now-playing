@@ -26,6 +26,7 @@ WNP.d = {
     prevTrackInfo: null, // Previous track info, used to detect changes in the metadata
     lyrics: [], // Parsed lyrics lines
     lyricsLastRelTime: null, // Last known RelTime, used for lyrics timing
+    lyricsLastTimeStampDiffMs: null, // Last known timestamp difference in ms, used for lyrics timing
     lyricsIndex: null // Current lyrics line index
 };
 
@@ -382,28 +383,37 @@ WNP.setSocketDefinitions = function () {
         if (!msg) { return false; }
 
         // Get player progress data from the state message.
-        var timeStampDiff = 0;
         var timeStampDiffMs = 0;
-        if (msg.CurrentTransportState === "PLAYING") {
-            timeStampDiff = (msg.stateTimeStamp && msg.metadataTimeStamp) ? Math.round((msg.stateTimeStamp - msg.metadataTimeStamp) / 1000) : 0;
-            timeStampDiffMs = (msg.stateTimeStamp && msg.metadataTimeStamp) ? (msg.stateTimeStamp - msg.metadataTimeStamp) : 0;
+        var timeStampDiff = 0;
+        if (msg.stateTimeStamp && msg.metadataTimeStamp) {
+            timeStampDiffMs = msg.stateTimeStamp - msg.metadataTimeStamp;
+            timeStampDiff = Math.round(timeStampDiffMs / 1000);
         }
         var relTime = (msg.RelTime) ? msg.RelTime : "00:00:00";
         var trackDuration = (msg.TrackDuration) ? msg.TrackDuration : "00:00:00";
 
-        // Get current player progress and set UI elements accordingly.
-        var oPlayerProgress = WNP.getPlayerProgress(relTime, trackDuration, timeStampDiff, msg.CurrentTransportState);
-        WNP.r.progressPlayed.children[0].innerText = oPlayerProgress.played;
-        WNP.r.progressLeft.children[0].innerText = (oPlayerProgress.left != "") ? "-" + oPlayerProgress.left : "";
-        WNP.r.progressPercent.setAttribute("aria-valuenow", oPlayerProgress.percent)
-        WNP.r.progressPercent.children[0].setAttribute("style", "width:" + oPlayerProgress.percent + "%");
+        // Only if PLAYING do we need to update the progress bar and lyrics timing.
+        // We also want to update the lyrics if the transport state changed and the RelTime is different than the last known one, as this indicates that the track was changed or playback was stopped/started again.
+        if (msg.CurrentTransportState === "PLAYING" || (WNP.d.prevTransportState !== msg.CurrentTransportState && WNP.d.lyricsLastRelTime !== relTime)) {
+            // console.log("WNP", "Updating progress and lyrics timing...", { relTime, trackDuration, timeStampDiff, currentTransportState: msg.CurrentTransportState });
 
-        WNP.d.lyricsLastRelTime = relTime; // Update the last known RelTime for lyrics timing
-        WNP.updateLyricsProgress(relTime, timeStampDiffMs);
-        setTimeout(function () { // Do another update half tick (state timeout) to make sure the progress is updated and the lyrics are in sync.
-            var timeoutState = (WNP.d.serverSettings?.timeouts?.state || 1000) / 2;
-            WNP.updateLyricsProgress(msg.RelTime, timeStampDiffMs + timeoutState);
-        }, 500);
+            WNP.d.lyricsLastRelTime = relTime; // Update the last known RelTime for lyrics timing
+            WNP.d.lyricsLastTimeStampDiffMs = timeStampDiffMs; // Update the last known timestamp difference for lyrics timing
+
+            // Get current player progress and set UI elements accordingly.
+            var oPlayerProgress = WNP.getPlayerProgress(relTime, trackDuration, timeStampDiff, msg.CurrentTransportState);
+            WNP.r.progressPlayed.children[0].innerText = oPlayerProgress.played;
+            WNP.r.progressLeft.children[0].innerText = (oPlayerProgress.left != "") ? "-" + oPlayerProgress.left : "";
+            WNP.r.progressPercent.setAttribute("aria-valuenow", oPlayerProgress.percent)
+            WNP.r.progressPercent.children[0].setAttribute("style", "width:" + oPlayerProgress.percent + "%");
+
+            WNP.updateLyricsProgress(relTime, timeStampDiffMs, "state tick");
+            setTimeout(function () { // Do another update half tick (state timeout) to make sure the progress is updated and the lyrics are in sync.
+                var timeoutState = (WNP.d.serverSettings?.timeouts?.state || 1000) / 2;
+                WNP.updateLyricsProgress(msg.RelTime, timeStampDiffMs + timeoutState, "half state tick");
+            }, 500);
+
+        }
 
         // Device transport state or play medium changed...?
         if (WNP.d.prevTransportState !== msg.CurrentTransportState || WNP.d.prevPlayMedium !== msg.PlayMedium) {
@@ -578,19 +588,23 @@ WNP.setSocketDefinitions = function () {
         console.log("IO: lyrics-get", msg);
         WNP.d.lyricsIndex = null;
 
+        // If no lyrics or no synced lyrics, clear the lyrics and return.
         if (!msg || msg.status !== "ok" || !msg.payload?.syncedLyrics) {
             WNP.clearLyrics();
             return;
         }
 
+        // Parse the synced lyrics and store them in the data object.
+        // If nothing has been parsed, clear the lyrics and return.
         WNP.d.lyrics = WNP.parseSyncedLyrics(msg.payload.syncedLyrics);
         if (!WNP.d.lyrics.length) {
             WNP.clearLyrics();
             return;
         }
 
+        // Show lyrics container and update the lyrics progress to set the correct line according to the current RelTime and timestamp difference.
         WNP.r.mediaLyrics.classList.add("is-visible");
-        WNP.updateLyricsProgress(null, 0);
+        WNP.updateLyricsProgress(null, WNP.d.lyricsLastTimeStampDiffMs, "on lyrics-get");
     });
 
     // On lyrics cache stats
@@ -885,10 +899,11 @@ WNP.setLyricsPending = function (isPending) {
  * @param {string|null} relTime - Time elapsed while playing, format 00:00:00.
  * @param {integer} stateTimeStamp - The timestamp of the state update.
  * @param {integer} metadataTimeStamp - The timestamp of the metadata update.
+ * @param {string} source - The source of the update (e.g., "state", "metadata", "lyrics-get") for logging purposes.
  * @returns {undefined}
  */
-WNP.updateLyricsProgress = function (relTime, timeStampDiffMs) {
-    // console.log("WNP", "Updating lyrics progress...", { relTime, stateTimeStamp, metadataTimeStamp });
+WNP.updateLyricsProgress = function (relTime, timeStampDiffMs, source) {
+    // console.log("WNP", "Updating lyrics progress...", { relTime, timeStampDiffMs, lyricsLastRelTime: WNP.d.lyricsLastRelTime, source });
     // Are any lyrics available...?
     if (!WNP.d.lyrics || WNP.d.lyrics.length === 0) {
         return;
@@ -909,7 +924,7 @@ WNP.updateLyricsProgress = function (relTime, timeStampDiffMs) {
     // Find the current lyric line index based on the current play time in milliseconds.
     // Current play time is at or past the lyric line time, but before the next lyric line time.
     var currentLyricIdx = WNP.d.lyrics.findLastIndex(item => item.timeMs <= currentMs);
-    // console.log("WNP", "Current play time (ms):", currentMs, "Current lyric index:", currentLyricIdx);
+    // console.log("WNP", "Current play time (ms):", currentMs, "Current lyric index:", currentLyricIdx, source);
 
     // If no lyric line is found for the current play time, set pending state and show the first line as next lyric.
     if (currentLyricIdx === -1) {

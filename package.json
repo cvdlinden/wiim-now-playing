@@ -1,6 +1,6 @@
 {
   "name": "wiim-now-playing",
-  "version": "1.8",
+  "version": "1.8.1",
   "description": "Show what the Wiim device is currently playing on a separate screen.",
   "main": "server/index.js",
   "scripts": {
@@ -24,7 +24,7 @@
   },
   "devDependencies": {
     "jest": "^30.2.0",
-    "nodemon": "^3.1.11"
+    "nodemon": "^3.1.14"
   },
   "nodemonConfig": {
     "ignore": [
