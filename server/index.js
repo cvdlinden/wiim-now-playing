@@ -165,23 +165,45 @@ app.get("/proxy-art", limiter, function (req, res) {
         return;
     }
 
-    const options = {
+    const requestOptions = {
+        protocol: targetUrl.protocol,
+        hostname: targetUrl.hostname,
+        port: targetUrl.port || 443,
+        path: targetUrl.pathname + targetUrl.search,
+        method: "GET",
         rejectUnauthorized: false, // Ignore self-signed certificate
+        checkServerIdentity: () => undefined,
+        timeout: 6000
     };
 
-    https.get(targetUrl.href, options, (resp) => {
-        // If the response is valid, pipe it to the client
-        // Valid content-types could be: image/jpeg, image/png, image/webp, image/svg+xml, image/gif, etc.
-        if (!resp.headers['content-type'] || !resp.headers['content-type'].startsWith('image/')) {
-            res.status(415).send("<div>Unsupported Media Type</div>");
+    const proxyReq = https.request(requestOptions, (resp) => {
+        if (resp.statusCode && resp.statusCode >= 400) {
+            log("Album Art Proxy upstream HTTP error", resp.statusCode, targetUrl.href);
+            res.status(resp.statusCode).send("<div>Upstream error</div>");
+            resp.resume();
             return;
         }
-        res.writeHead(resp.statusCode, resp.headers);
+
+        // Some devices do not set a proper content-type.
+        const contentType = resp.headers["content-type"] || "image/jpeg";
+        res.status(resp.statusCode || 200);
+        res.setHeader("Content-Type", contentType);
+        res.setHeader("Cache-Control", "no-store");
         resp.pipe(res);
-    })
-        .on('error', function (e) {
+    });
+
+    proxyReq.on("timeout", () => {
+        proxyReq.destroy(new Error("proxy-art timeout"));
+    });
+
+    proxyReq.on('error', function (e) {
+        log("Album Art Proxy error", targetUrl.href, e && e.message ? e.message : e);
+        if (!res.headersSent) {
             res.status(404).send("<div>404 Not Found</div>");
-        });
+        }
+    });
+
+    proxyReq.end();
 
 });
 
