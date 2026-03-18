@@ -10,4 +10,9 @@ services:
       - "80:80"
     environment:
       - PORT=80
+    volumes:
+      - wnp-data:/app/data
     restart: unless-stopped
+
+volumes:
+  wnp-data:
