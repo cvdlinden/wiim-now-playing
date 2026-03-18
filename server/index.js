@@ -172,9 +172,16 @@ app.get("/proxy-art", limiter, function (req, res) {
     https.get(targetUrl.href, options, (resp) => {
         // If the response is valid, pipe it to the client
         // Valid content-types could be: image/jpeg, image/png, image/webp, image/svg+xml, image/gif, etc.
-        if (!resp.headers['content-type'] || !resp.headers['content-type'].startsWith('image/')) {
+        const contentType = resp.headers['content-type'] || '';
+        if (contentType && !contentType.startsWith('image/')) {
             res.status(415).send("<div>Unsupported Media Type</div>");
             return;
+        }
+        // WiiM devices may omit Content-Type for AirPlay artwork; infer from URL extension
+        if (!contentType) {
+            const ext = targetUrl.pathname.split('.').pop().toLowerCase();
+            const mimeTypes = { jpeg: 'image/jpeg', jpg: 'image/jpeg', png: 'image/png', webp: 'image/webp', gif: 'image/gif', svg: 'image/svg+xml' };
+            resp.headers['content-type'] = mimeTypes[ext] || 'image/jpeg';
         }
         res.writeHead(resp.statusCode, resp.headers);
         resp.pipe(res);
