@@ -24,6 +24,7 @@ WNP.d = {
     prevPlayMedium: null, // Previous play medium, used to detect changes in the play medium
     prevSourceIdent: null, // Previous source ident, used to detect changes in the source
     prevTrackInfo: null, // Previous track info, used to detect changes in the metadata
+    prevAlbumArtUriRaw: null, // Previous raw album art URI, used to detect artwork URL changes
     lyrics: [], // Parsed lyrics lines
     lyricsLastRelTime: null, // Last known RelTime, used for lyrics timing
     lyricsLastTimeStampDiffMs: null, // Last known timestamp difference in ms, used for lyrics timing
@@ -518,19 +519,27 @@ WNP.setSocketDefinitions = function () {
 
         // Pre-process Album Art uri, if any is available from the metadata.
         var albumArtUriRaw = (msg.trackMetaData && msg.trackMetaData["upnp:albumArtURI"]) ? msg.trackMetaData["upnp:albumArtURI"] : "";
-        var albumArtUri = WNP.checkAlbumArtURI(albumArtUriRaw, msg.metadataTimeStamp);
 
-        // Set Album Art, only if the track changed and the URI changed
+        // Set Album Art when the track changes OR when the raw artwork URL changes
+        // (e.g. after pause/resume the device may serve a new artwork URL)
         var trackChanged = false;
         var currentTrackInfo = WNP.r.mediaTitle.innerText + "|" + WNP.r.mediaSubTitle.innerText + "|" + WNP.r.mediaArtist.innerText + "|" + WNP.r.mediaAlbum.innerText;
-        var currentAlbumArt = WNP.r.albumArt.src;
+        var isFallbackArt = WNP.r.albumArt.src.includes("fake-album-");
         if (WNP.d.prevTrackInfo !== currentTrackInfo) {
             trackChanged = true;
             WNP.d.prevTrackInfo = currentTrackInfo; // Remember the last track info
             console.log("WNP", "Track changed:", currentTrackInfo);
             WNP.clearLyrics();
         }
-        if (trackChanged && currentAlbumArt != albumArtUri) {
+        // Compare raw URLs (without cache-buster timestamp) to avoid reloading on every poll
+        var rawUrlChanged = albumArtUriRaw !== (WNP.d.prevAlbumArtUriRaw || "");
+        if (trackChanged || rawUrlChanged) {
+            WNP.d.prevAlbumArtUriRaw = albumArtUriRaw;
+            var albumArtUri = WNP.checkAlbumArtURI(albumArtUriRaw, msg.metadataTimeStamp);
+            WNP.setAlbumArt(albumArtUri);
+        } else if (isFallbackArt && albumArtUriRaw) {
+            // Retry: we're showing fallback but metadata has a real URL — device may be back
+            var albumArtUri = WNP.checkAlbumArtURI(albumArtUriRaw, msg.metadataTimeStamp);
             WNP.setAlbumArt(albumArtUri);
         }
 
