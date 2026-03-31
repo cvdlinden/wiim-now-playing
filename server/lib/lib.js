@@ -13,7 +13,9 @@ const fs = require("fs");
 const log = require("debug")("lib:lib");
 
 // Module constants
-const settingsFile = __dirname + "/../settings.json"; // Make absolute path to server folder
+// Use /app/data/settings.json when running in Docker with a volume mount, otherwise fall back to server parent dir
+const dataDir = __dirname + "/../../data";
+const settingsFile = fs.existsSync(dataDir) ? dataDir + "/settings.json" : __dirname + "/../settings.json";
 
 /**
  * This function provides the current date and time in UTC format.
