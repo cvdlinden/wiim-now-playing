@@ -95,7 +95,7 @@ If you've forked this repo here on Github then please read the Github documentat
 
 ## "I want to use Docker and run it virtually!"
 
-Do have a look at [apwiggins/wiimnowplaying at Docker Hub](https://hub.docker.com/r/apwiggins/wiimnowplaying) for a ready built, up to date, Docker image.
+Do have a look at [apwiggins/wiimnowplaying at Docker Hub](https://hub.docker.com/r/apwiggins/wiimnowplaying) for a ready built, up to date, Docker Container Image.
 
 If you want to go at it yourself and use [Docker](https://www.docker.com/) instead of 'bare metal' on a Raspberry Pi, please use:
 
