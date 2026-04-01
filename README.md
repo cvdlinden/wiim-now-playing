@@ -93,9 +93,11 @@ Afterwards restart node manually or do a reboot of the machine.
 
 If you've forked this repo here on Github then please read the Github documentation on [Syncing a fork](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/syncing-a-fork).
 
-## "I want to use Docker and run it as virtual machine!"
+## "I want to use Docker and run it virtually!"
 
-If you want to use [Docker](https://www.docker.com/) instead of 'bare metal' on a Raspberry Pi, please use:
+Do have a look at [apwiggins/wiimnowplaying at Docker Hub](https://hub.docker.com/r/apwiggins/wiimnowplaying) for a ready built, up to date, Docker image.
+
+If you want to go at it yourself and use [Docker](https://www.docker.com/) instead of 'bare metal' on a Raspberry Pi, please use:
 
 `docker-compose up -d --build`
 
@@ -104,8 +106,15 @@ See: <https://github.com/cvdlinden/wiim-now-playing/pull/4>
 
 If you already have a docker container running this app and want to do an update to the latest version, please use the ```docker-update.sh``` script.
 
-## Also see
+## "I want to change things up!"
 
-- [Development and Debugging](docs/DevelopmentAndDebugging.md)
-- [Plan](docs/Plan.md)
-- [Design](docs/Design.md)
+Current development:
+
+- [Development and Debugging the WNP app](docs/DevelopmentAndDebugging.md)
+- [Outstanding issues](https://github.com/cvdlinden/wiim-now-playing/issues)
+- [Outstanding PRs](https://github.com/cvdlinden/wiim-now-playing/pulls)
+
+History:
+
+- [Original Plan](docs/Plan.md)
+- [Original Design](docs/Design.md)
