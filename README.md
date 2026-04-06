@@ -93,19 +93,21 @@ Afterwards restart node manually or do a reboot of the machine.
 
 If you've forked this repo here on Github then please read the Github documentation on [Syncing a fork](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/syncing-a-fork).
 
-## "I want to use Docker and run it as virtual machine!"
+## "I want to use Docker and run it virtually!"
 
-If you want to use [Docker](https://www.docker.com/) instead of 'bare metal' on a Raspberry Pi, please use:
+Do have a look at [apwiggins/wiimnowplaying at Docker Hub](https://hub.docker.com/r/apwiggins/wiimnowplaying) for a ready built, up to date, Docker Container Image.
 
-`docker-compose up -d --build`
+If you want to go at it yourself and use [Docker](https://www.docker.com/) instead of 'bare metal' on a Raspberry Pi, please read [the documentation in the docker folder](./docker/README.md).
 
-> Please note that this will **only** run well on a Linux machine. The Windows version of Docker does not support device discovery over SSDP and thus will not scan the network for WiiM devices. You may need to spin up an entire Linux VM for this to work, which defeats the purpose of Docker.  
-See: <https://github.com/cvdlinden/wiim-now-playing/pull/4>
+## "I want to change things up!"
 
-If you already have a docker container running this app and want to do an update to the latest version, please use the ```docker-update.sh``` script.
+Current development:
 
-## Also see
+- [Development and Debugging the WNP app](docs/DevelopmentAndDebugging.md)
+- [Outstanding issues](https://github.com/cvdlinden/wiim-now-playing/issues)
+- [Outstanding PRs](https://github.com/cvdlinden/wiim-now-playing/pulls)
 
-- [Development and Debugging](docs/DevelopmentAndDebugging.md)
-- [Plan](docs/Plan.md)
-- [Design](docs/Design.md)
+History:
+
+- [Original Plan](docs/Plan.md)
+- [Original Design](docs/Design.md)
