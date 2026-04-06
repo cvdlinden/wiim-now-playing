@@ -97,14 +97,7 @@ If you've forked this repo here on Github then please read the Github documentat
 
 Do have a look at [apwiggins/wiimnowplaying at Docker Hub](https://hub.docker.com/r/apwiggins/wiimnowplaying) for a ready built, up to date, Docker Container Image.
 
-If you want to go at it yourself and use [Docker](https://www.docker.com/) instead of 'bare metal' on a Raspberry Pi, please use:
-
-`docker-compose up -d --build`
-
-> Please note that this will **only** run well on a Linux machine. The Windows version of Docker does not support device discovery over SSDP and thus will not scan the network for WiiM devices. You may need to spin up an entire Linux VM for this to work, which defeats the purpose of Docker.  
-See: <https://github.com/cvdlinden/wiim-now-playing/pull/4>
-
-If you already have a docker container running this app and want to do an update to the latest version, please use the ```docker-update.sh``` script.
+If you want to go at it yourself and use [Docker](https://www.docker.com/) instead of 'bare metal' on a Raspberry Pi, please read [the documentation in the docker folder](./docker/README.md).
 
 ## "I want to change things up!"
 
