@@ -175,6 +175,7 @@ app.get("/proxy-art", limiter, function (req, res) {
 
         // What content type do we have?
         let contentType = resp.headers['content-type'];
+        // console.log("Content type:", contentType);
 
         // Wait for the first chunk to inspect the content if no content type is provided or if the content type does not start with image/,
         // to check if it's a valid image and determine the content type based on the magic bytes,
@@ -183,7 +184,6 @@ app.get("/proxy-art", limiter, function (req, res) {
             identified = true;
 
             if (!contentType || !contentType.startsWith('image/')) {
-                // console.log("Content type:", resp.headers['content-type']);
                 const magicBytes = chunk.toString('hex', 0, 4).toUpperCase();
                 // console.log("Magic bytes:", magicBytes);
 
@@ -244,6 +244,7 @@ app.get("/proxy-art", limiter, function (req, res) {
 
     // Handle errors in the request to the target URL
     request.on('error', function (e) {
+        // console.error("Error fetching album art:", e);
         if (!res.writableEnded) res.status(404).send("<div>404 Not Found</div>");
     });
 
