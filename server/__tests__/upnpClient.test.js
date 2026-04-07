@@ -12,6 +12,7 @@ const xml2js = require('xml2js');
 const UPnP = require("upnp-device-client");
 
 jest.mock('../lib/lib.js');
+jest.mock('../lib/lyrics.js');
 jest.mock('xml2js');
 jest.mock('upnp-device-client');
 
@@ -39,7 +40,8 @@ describe('upnpClient.js', () => {
             },
             timeouts: { state: 1000, metadata: 2000 }
         };
-        jest.clearAllMocks();
+        // restoreAllMocks clears spied-on function overrides (e.g. jest.spyOn) in addition to clearing calls
+        jest.restoreAllMocks();
     });
 
     describe('createClient', () => {
@@ -131,6 +133,42 @@ describe('upnpClient.js', () => {
             upnpClient.updateDeviceState(io, deviceInfo, serverSettings);
             expect(io.emit).toHaveBeenCalledWith('state', null);
         });
+
+        it('should not emit state when GetTransportInfo returns an error', () => {
+            deviceInfo.client = {
+                callAction: (service, action, options, cb) => cb(new Error('UPnP error'), null)
+            };
+            upnpClient.updateDeviceState(io, deviceInfo, serverSettings);
+            expect(io.emit).not.toHaveBeenCalled();
+        });
+
+        it('should trigger metadata update when transitioning from TRANSITIONING state', done => {
+            // Set previous state to TRANSITIONING
+            deviceInfo.state = { CurrentTransportState: 'TRANSITIONING' };
+            serverSettings.selectedDevice.actions = ['GetTransportInfo', 'GetInfoEx'];
+            lib.getTimeStamp.mockReturnValue(77);
+            deviceInfo.client = {
+                callAction: jest.fn()
+                    .mockImplementationOnce((service, action, options, cb) => {
+                        // First call: updateDeviceState - GetTransportInfo returns PLAYING (from TRANSITIONING)
+                        cb(null, { CurrentTransportState: 'PLAYING' });
+                    })
+                    .mockImplementationOnce((service, action, options, cb) => {
+                        // Second call: updateDeviceMetadata triggered by TRANSITIONING→PLAYING transition
+                        cb(null, { TrackMetaData: null, RelTime: '00:01:00' });
+                    })
+            };
+
+            upnpClient.updateDeviceState(io, deviceInfo, serverSettings);
+
+            setTimeout(() => {
+                try {
+                    // callAction should be called twice: GetTransportInfo + GetInfoEx (from triggered updateDeviceMetadata)
+                    expect(deviceInfo.client.callAction).toHaveBeenCalledTimes(2);
+                    done();
+                } catch (e) { done(e); }
+            }, 100);
+        });
     });
 
     describe('updateDeviceMetadata', () => {
@@ -216,6 +254,168 @@ describe('upnpClient.js', () => {
             upnpClient.updateDeviceMetadata(io, deviceInfo, serverSettings);
             expect(deviceInfo.metadata).toBeNull();
         });
+
+        it('should emit metadata for GetInfoEx when TrackMetaData is null', done => {
+            serverSettings.selectedDevice.location = 'http://1.1.1.1';
+            serverSettings.selectedDevice.actions = ['GetInfoEx'];
+            deviceInfo.client.callAction.mockImplementation((service, action, params, cb) => {
+                cb(null, { TrackMetaData: null, RelTime: '00:00:30' });
+            });
+            upnpClient.updateDeviceMetadata(io, deviceInfo, serverSettings);
+            setTimeout(() => {
+                try {
+                    expect(io.emit).toHaveBeenCalledWith('metadata', expect.objectContaining({
+                        RelTime: '00:00:30',
+                        metadataTimeStamp: 12345
+                    }));
+                    expect(deviceInfo.metadata.trackMetaData).toBeUndefined();
+                    done();
+                } catch (e) { done(e); }
+            }, 100);
+        });
+
+        it('should handle xml2js parse error in GetInfoEx callback', done => {
+            serverSettings.selectedDevice.location = 'http://1.1.1.1';
+            serverSettings.selectedDevice.actions = ['GetInfoEx'];
+            deviceInfo.client.callAction.mockImplementation((service, action, params, cb) => {
+                cb(null, { TrackMetaData: '<invalid>', RelTime: '00:00:10' });
+            });
+            xml2js.parseString.mockImplementation((xml, opts, cb) => {
+                cb(new Error('XML parse error'), null);
+            });
+            upnpClient.updateDeviceMetadata(io, deviceInfo, serverSettings);
+            setTimeout(() => {
+                try {
+                    expect(io.emit).not.toHaveBeenCalled();
+                    done();
+                } catch (e) { done(e); }
+            }, 100);
+        });
+
+        it('should call getLyricsForMetadata when lyrics are enabled in GetInfoEx path', done => {
+            const lyrics = require('../lib/lyrics.js');
+            serverSettings.selectedDevice.location = 'http://1.1.1.1';
+            serverSettings.selectedDevice.actions = ['GetInfoEx'];
+            serverSettings.features = { lyrics: { enabled: true } };
+            deviceInfo.client.callAction.mockImplementation((service, action, params, cb) => {
+                cb(null, { TrackMetaData: '<xml/>', RelTime: '00:01:00' });
+            });
+            xml2js.parseString.mockImplementation((xml, opts, cb) => {
+                cb(null, { 'DIDL-Lite': { item: { title: 'Test' } } });
+            });
+            upnpClient.updateDeviceMetadata(io, deviceInfo, serverSettings);
+            setTimeout(() => {
+                try {
+                    expect(lyrics.getLyricsForMetadata).toHaveBeenCalledWith(io, deviceInfo, serverSettings);
+                    done();
+                } catch (e) { done(e); }
+            }, 100);
+        });
+
+        it('should emit metadata for GetPositionInfo when TrackMetaData is null', done => {
+            serverSettings.selectedDevice.location = 'http://1.1.1.1';
+            serverSettings.selectedDevice.actions = ['GetPositionInfo'];
+            deviceInfo.client.callAction.mockImplementation((service, action, params, cb) => {
+                cb(null, { TrackMetaData: null, RelTime: '00:00:45' });
+            });
+            upnpClient.updateDeviceMetadata(io, deviceInfo, serverSettings);
+            setTimeout(() => {
+                try {
+                    expect(io.emit).toHaveBeenCalledWith('metadata', expect.objectContaining({
+                        RelTime: '00:00:45',
+                        metadataTimeStamp: 12345
+                    }));
+                    done();
+                } catch (e) { done(e); }
+            }, 100);
+        });
+
+        it('should handle xml2js parse error in GetPositionInfo callback', done => {
+            serverSettings.selectedDevice.location = 'http://1.1.1.1';
+            serverSettings.selectedDevice.actions = ['GetPositionInfo'];
+            deviceInfo.client.callAction.mockImplementation((service, action, params, cb) => {
+                cb(null, { TrackMetaData: '<invalid>', RelTime: '00:00:10' });
+            });
+            xml2js.parseString.mockImplementation((xml, opts, cb) => {
+                cb(new Error('XML parse error'), null);
+            });
+            upnpClient.updateDeviceMetadata(io, deviceInfo, serverSettings);
+            setTimeout(() => {
+                try {
+                    expect(io.emit).not.toHaveBeenCalled();
+                    done();
+                } catch (e) { done(e); }
+            }, 100);
+        });
+
+        it('should call getLyricsForMetadata when lyrics are enabled in GetPositionInfo path', done => {
+            const lyrics = require('../lib/lyrics.js');
+            serverSettings.selectedDevice.location = 'http://1.1.1.1';
+            serverSettings.selectedDevice.actions = ['GetPositionInfo'];
+            serverSettings.features = { lyrics: { enabled: true } };
+            deviceInfo.client.callAction.mockImplementation((service, action, params, cb) => {
+                cb(null, { TrackMetaData: '<xml/>', RelTime: '00:02:00' });
+            });
+            xml2js.parseString.mockImplementation((xml, opts, cb) => {
+                cb(null, { 'DIDL-Lite': { item: { title: 'Track' } } });
+            });
+            upnpClient.updateDeviceMetadata(io, deviceInfo, serverSettings);
+            setTimeout(() => {
+                try {
+                    expect(lyrics.getLyricsForMetadata).toHaveBeenCalledWith(io, deviceInfo, serverSettings);
+                    done();
+                } catch (e) { done(e); }
+            }, 100);
+        });
+
+        it('should handle GetPositionInfo callAction error without emitting', done => {
+            serverSettings.selectedDevice.location = 'http://1.1.1.1';
+            serverSettings.selectedDevice.actions = ['GetPositionInfo'];
+            deviceInfo.client.callAction.mockImplementation((service, action, params, cb) => {
+                cb(new Error('Device unreachable'), null);
+            });
+            upnpClient.updateDeviceMetadata(io, deviceInfo, serverSettings);
+            setTimeout(() => {
+                try {
+                    expect(io.emit).not.toHaveBeenCalled();
+                    done();
+                } catch (e) { done(e); }
+            }, 100);
+        });
+
+        it('should set metadata to null when no GetInfoEx or GetPositionInfo action is available', () => {
+            serverSettings.selectedDevice.location = 'http://1.1.1.1';
+            serverSettings.selectedDevice.actions = ['Play', 'Pause'];
+            upnpClient.updateDeviceMetadata(io, deviceInfo, serverSettings);
+            expect(deviceInfo.metadata).toBeNull();
+        });
+
+        it('should handle GetInfoEx callAction error without emitting', done => {
+            serverSettings.selectedDevice.location = 'http://1.1.1.1';
+            serverSettings.selectedDevice.actions = ['GetInfoEx'];
+            deviceInfo.client.callAction.mockImplementation((service, action, params, cb) => {
+                cb(new Error('GetInfoEx error'), null);
+            });
+            upnpClient.updateDeviceMetadata(io, deviceInfo, serverSettings);
+            setTimeout(() => {
+                try {
+                    expect(io.emit).not.toHaveBeenCalled();
+                    done();
+                } catch (e) { done(e); }
+            }, 100);
+        });
+
+        it('should create a client via ensureClient when no client is present', () => {
+            // Use a fresh UPnP mock that returns a client with callAction
+            UPnP.mockImplementation(() => ({ callAction: jest.fn() }));
+            deviceInfo = {}; // No client set - triggers real ensureClient
+            serverSettings.selectedDevice.location = 'http://1.1.1.1';
+            serverSettings.selectedDevice.actions = ['Play']; // No GetInfoEx/GetPositionInfo - goes to else
+            upnpClient.updateDeviceMetadata(io, deviceInfo, serverSettings);
+            // ensureClient should have created a client
+            expect(deviceInfo.client).toBeDefined();
+            expect(deviceInfo.metadata).toBeNull();
+        });
     });
 
     describe('callDeviceAction', () => {
@@ -234,43 +434,231 @@ describe('upnpClient.js', () => {
             upnpClient.callDeviceAction(io, 'Pause', deviceInfo, serverSettings);
             expect(io.emit).not.toHaveBeenCalled();
         });
-    });
 
-    describe('getDeviceDescription', () => {
-        it('should call getDeviceDescription on client', () => {
-            const deviceList = [];
-            const respSSDP = { LOCATION: 'http://test' };
-            const client = upnpClient.createClient(respSSDP.LOCATION);
-            client.getDeviceDescription = jest.fn((cb) => cb(null, { friendlyName: 'Test', deviceType: 'urn:upnp-org:device:MediaRenderer:1', services: { 'urn:upnp-org:serviceId:AVTransport': true } }));
-            upnpClient.getDeviceDescription(deviceList, serverSettings, respSSDP);
-            expect(client.getDeviceDescription).toBeDefined();
+        it('should not emit when device action returns an error', () => {
+            serverSettings.selectedDevice.actions = ['Pause'];
+            deviceInfo.client = {
+                callAction: (service, action, options, cb) => cb(new Error('UPnP Action Error'), null)
+            };
+            upnpClient.callDeviceAction(io, 'Pause', deviceInfo, serverSettings);
+            expect(io.emit).not.toHaveBeenCalled();
+        });
+
+        it('should include Speed option when action is Play', done => {
+            let capturedOptions;
+            // Restrict actions to only 'Play' so updateDeviceState does not trigger a second callAction
+            serverSettings.selectedDevice.actions = ['Play'];
+            deviceInfo.client = {
+                callAction: (service, action, options, cb) => {
+                    capturedOptions = options;
+                    cb(null, {});
+                }
+            };
+            upnpClient.callDeviceAction(io, 'Play', deviceInfo, serverSettings);
+            setTimeout(() => {
+                try {
+                    expect(capturedOptions).toMatchObject({ InstanceID: 0, Speed: 1 });
+                    done();
+                } catch (e) { done(e); }
+            }, 100);
+        });
+
+        it('should not include Speed option for non-Play actions', done => {
+            let capturedOptions;
+            serverSettings.selectedDevice.actions = ['Pause'];
+            deviceInfo.client = {
+                callAction: (service, action, options, cb) => {
+                    capturedOptions = options;
+                    cb(null, {});
+                }
+            };
+            upnpClient.callDeviceAction(io, 'Pause', deviceInfo, serverSettings);
+            setTimeout(() => {
+                try {
+                    expect(capturedOptions).not.toHaveProperty('Speed');
+                    expect(capturedOptions).toMatchObject({ InstanceID: 0 });
+                    done();
+                } catch (e) { done(e); }
+            }, 100);
         });
     });
 
-    // describe('getServiceDescription', () => {
-    //     it('should add device to deviceList and set default selected device', done => {
-    //         const deviceList = [];
-    //         const deviceClient = {
-    //             getServiceDescription: jest.fn()
-    //         };
-    //         const respSSDP = { LOCATION: 'http://test' };
-    //         const deviceDesc = {
-    //             friendlyName: 'Test',
-    //             manufacturer: 'Linkplay',
-    //             modelName: 'WiiM',
-    //             services: { 'urn:upnp-org:serviceId:AVTransport': true }
-    //         };
-    //         deviceClient.getServiceDescription
-    //             .mockImplementationOnce((service, cb) => cb(null, { actions: { Play: {}, Pause: {} } }))
-    //             .mockImplementationOnce((service, cb) => cb(null, { actions: { SetVolume: {} } }));
+    describe('getDeviceDescription', () => {
+        it('should create a client and call getDeviceDescription', () => {
+            const mockInstance = {
+                getDeviceDescription: jest.fn((cb) => cb(null, {
+                    friendlyName: 'Test Device',
+                    deviceType: 'urn:upnp-org:device:MediaRenderer:1',
+                    services: {} // No AVTransport - takes the OpenHome path
+                })),
+                getServiceDescription: jest.fn()
+            };
+            UPnP.mockImplementation(() => mockInstance);
 
-    //         upnpClient.getServiceDescription(deviceList, serverSettings, deviceClient, respSSDP, deviceDesc);
+            const deviceList = [];
+            const respSSDP = { LOCATION: 'http://test' };
+            upnpClient.getDeviceDescription(deviceList, serverSettings, respSSDP);
 
-    //         setTimeout(() => {
-    //             expect(deviceList.length).toBe(1);
-    //             expect(serverSettings.selectedDevice.friendlyName).toBe('Test');
-    //             done();
-    //         }, 10);
-    //     });
-    // });
+            expect(mockInstance.getDeviceDescription).toHaveBeenCalled();
+        });
+
+        it('should handle error from getDeviceDescription callback', () => {
+            const mockInstance = {
+                getDeviceDescription: jest.fn((cb) => cb(new Error('Connection refused'), null)),
+                getServiceDescription: jest.fn()
+            };
+            UPnP.mockImplementation(() => mockInstance);
+
+            const deviceList = [];
+            const respSSDP = { LOCATION: 'http://192.168.1.100:49152/desc.xml' };
+            upnpClient.getDeviceDescription(deviceList, serverSettings, respSSDP);
+
+            expect(mockInstance.getDeviceDescription).toHaveBeenCalled();
+            expect(deviceList).toHaveLength(0);
+        });
+
+        it('should proceed to getServiceDescription when AVTransport is supported', () => {
+            const mockInstance = {
+                getDeviceDescription: jest.fn((cb) => cb(null, {
+                    friendlyName: 'WiiM Pro',
+                    deviceType: 'urn:schemas-upnp-org:device:MediaRenderer:1',
+                    manufacturer: 'Linkplay',
+                    modelName: 'WiiM Pro',
+                    services: { 'urn:upnp-org:serviceId:AVTransport': {} }
+                })),
+                getServiceDescription: jest.fn((service, cb) => cb(null, { actions: { Play: {}, Pause: {} } }))
+            };
+            UPnP.mockImplementation(() => mockInstance);
+
+            const deviceList = [];
+            const respSSDP = { LOCATION: 'http://192.168.1.100:49152/desc.xml' };
+            const localSettings = { selectedDevice: {} };
+            upnpClient.getDeviceDescription(deviceList, localSettings, respSSDP);
+
+            expect(mockInstance.getServiceDescription).toHaveBeenCalledWith('AVTransport', expect.any(Function));
+        });
+
+        it('should not call getServiceDescription for OpenHome devices (no AVTransport)', () => {
+            const mockInstance = {
+                getDeviceDescription: jest.fn((cb) => cb(null, {
+                    friendlyName: 'OpenHome Device',
+                    deviceType: 'urn:schemas-upnp-org:device:MediaRenderer:1',
+                    manufacturer: 'SomeManufacturer',
+                    modelName: 'SomeModel',
+                    services: {} // No AVTransport service
+                })),
+                getServiceDescription: jest.fn()
+            };
+            UPnP.mockImplementation(() => mockInstance);
+
+            const deviceList = [];
+            const respSSDP = { LOCATION: 'http://192.168.1.200:49152/desc.xml' };
+            upnpClient.getDeviceDescription(deviceList, serverSettings, respSSDP);
+
+            expect(mockInstance.getServiceDescription).not.toHaveBeenCalled();
+            expect(deviceList).toHaveLength(0);
+        });
+    });
+
+    describe('getServiceDescription', () => {
+        it('should add device with actions and auto-select WiiM device', done => {
+            const deviceList = [];
+            const respSSDP = { LOCATION: 'http://192.168.1.100:49152/desc.xml' };
+            const deviceDesc = {
+                friendlyName: 'WiiM Pro',
+                manufacturer: 'Linkplay',
+                modelName: 'WiiM Pro',
+                services: {}
+            };
+            const deviceClient = {
+                getServiceDescription: jest.fn((service, cb) => cb(null, { actions: { Play: {}, Pause: {}, Stop: {} } }))
+            };
+            const localSettings = { selectedDevice: {} };
+
+            upnpClient.getServiceDescription(deviceList, localSettings, deviceClient, respSSDP, deviceDesc);
+
+            setTimeout(() => {
+                expect(deviceList).toHaveLength(1);
+                expect(deviceList[0].actions).toEqual({ Play: {}, Pause: {}, Stop: {} });
+                // WiiM/Linkplay device should be auto-selected when none is selected yet
+                expect(localSettings.selectedDevice.friendlyName).toBe('WiiM Pro');
+                expect(localSettings.selectedDevice.actions).toEqual(['Play', 'Pause', 'Stop']);
+                expect(lib.saveSettings).toHaveBeenCalledWith(localSettings);
+                done();
+            }, 10);
+        });
+
+        it('should add device without actions when getServiceDescription returns an error', done => {
+            const deviceList = [];
+            const respSSDP = { LOCATION: 'http://192.168.1.100:49152/desc.xml' };
+            const deviceDesc = {
+                friendlyName: 'WiiM Mini',
+                manufacturer: 'Linkplay',
+                modelName: 'WiiM Mini',
+                services: {}
+            };
+            const deviceClient = {
+                getServiceDescription: jest.fn((service, cb) => cb(new Error('Service unavailable'), null))
+            };
+            const localSettings = { selectedDevice: {} };
+
+            upnpClient.getServiceDescription(deviceList, localSettings, deviceClient, respSSDP, deviceDesc);
+
+            setTimeout(() => {
+                expect(deviceList).toHaveLength(1);
+                expect(deviceList[0].actions).toEqual({});
+                done();
+            }, 10);
+        });
+
+        it('should not auto-select non-WiiM/non-Linkplay device when no device is selected', done => {
+            const deviceList = [];
+            const respSSDP = { LOCATION: 'http://192.168.1.200:49152/desc.xml' };
+            const deviceDesc = {
+                friendlyName: 'Generic Renderer',
+                manufacturer: 'SomeManufacturer',
+                modelName: 'SomeModel',
+                services: {}
+            };
+            const deviceClient = {
+                getServiceDescription: jest.fn((service, cb) => cb(null, { actions: { Play: {} } }))
+            };
+            const localSettings = { selectedDevice: {} };
+
+            upnpClient.getServiceDescription(deviceList, localSettings, deviceClient, respSSDP, deviceDesc);
+
+            setTimeout(() => {
+                expect(deviceList).toHaveLength(1);
+                // Should NOT auto-select a non-WiiM/Linkplay device
+                expect(localSettings.selectedDevice.friendlyName).toBeUndefined();
+                done();
+            }, 10);
+        });
+
+        it('should update selected device when location matches existing selection', done => {
+            const deviceList = [];
+            const location = 'http://192.168.1.100:49152/desc.xml';
+            const respSSDP = { LOCATION: location };
+            const deviceDesc = {
+                friendlyName: 'WiiM Pro',
+                manufacturer: 'SomeManufacturer', // Not Linkplay
+                modelName: 'SomeModel',           // Not WiiM
+                services: {}
+            };
+            const deviceClient = {
+                getServiceDescription: jest.fn((service, cb) => cb(null, { actions: { Play: {}, Next: {} } }))
+            };
+            // Location already stored as selected device
+            const localSettings = { selectedDevice: { location } };
+
+            upnpClient.getServiceDescription(deviceList, localSettings, deviceClient, respSSDP, deviceDesc);
+
+            setTimeout(() => {
+                // Should update because location matches
+                expect(localSettings.selectedDevice.friendlyName).toBe('WiiM Pro');
+                expect(lib.saveSettings).toHaveBeenCalled();
+                done();
+            }, 10);
+        });
+    });
 });
