@@ -211,7 +211,7 @@ app.get("/proxy-art", limiter, function (req, res) {
                 // console.log("Determined content type:", contentType);
             }
 
-            // If the response is valid, pipe it to the client
+            // If the response is invalid, not an image, tell the client and stop processing the response
             if (!contentType || !contentType.startsWith('image/')) {
                 res.status(415).send("<div>Unsupported Media Type</div>");
                 resp.destroy(); // Stop receiving data
@@ -224,7 +224,7 @@ app.get("/proxy-art", limiter, function (req, res) {
             // Pipe the response to the client
             res.writeHead(resp.statusCode, headers);
             res.write(chunk); // Write the first chunk that we already received
-            resp.pipe(res); // Pipe the rest of the response
+            resp.pipe(res); // Pipe the rest of the response chunks directly to the client
 
         });
 
