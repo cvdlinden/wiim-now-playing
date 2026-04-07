@@ -156,6 +156,18 @@ describe('lib.js', () => {
             expect(serverSettings2.features.lyrics.enabled).toBe(true); // Ongewijzigd
         });
 
+        test('should call the catch block and invoke saveSettings when readFileSync fails', () => {
+            // Force the catch block by making readFileSync throw
+            fs.readFileSync.mockImplementation(() => { throw new Error('ENOENT: no such file or directory'); });
+            fs.writeFile.mockImplementation(() => {}); // Prevent real disk write
+
+            const serverSettings = { selectedDevice: {}, features: {} };
+            lib.getSettings(serverSettings);
+
+            // saveSettings is called inside the catch block
+            expect(fs.writeFile).toHaveBeenCalled();
+        });
+
         test('moet de branches van lyrics en cache checks volledig dekken (L104-113)', () => {
             // 1. Setup serverSettings met de volledige hiërarchie
             const serverSettings = {

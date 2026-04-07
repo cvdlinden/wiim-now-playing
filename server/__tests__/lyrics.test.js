@@ -254,5 +254,70 @@ describe("Lyrics Module", () => {
             await lyrics.getLyricsForMetadata(mockIo, mockDeviceInfo, settingsZonderVersie);
             // Verifieer intern of getUserAgent 'unknown' bevatte
         });
+
+        test("should return missing-signature when TrackDuration is null or missing", async () => {
+            mockDeviceInfo.metadata = {
+                trackMetaData: {
+                    "dc:title": "Test Track",
+                    "upnp:artist": "Test Artist",
+                    "upnp:album": "Test Album"
+                }
+                // No TrackDuration
+            };
+            await lyrics.getLyricsForMetadata(mockIo, mockDeviceInfo, mockServerSettings);
+            expect(mockDeviceInfo.lyrics.status).toBe("missing-signature");
+        });
+
+        test("should parse numeric TrackDuration directly to seconds", async () => {
+            mockDeviceInfo.metadata = {
+                trackMetaData: {
+                    "dc:title": "Test Track",
+                    "upnp:artist": "Test Artist",
+                    "upnp:album": "Test Album"
+                },
+                TrackDuration: 200 // numeric type, should be passed directly to parseDurationToSeconds
+            };
+
+            const cachedData = { status: "ok", trackKey: expect.any(String), payload: { syncedLyrics: "test" } };
+            lyricsCache.get.mockResolvedValue(cachedData);
+
+            await lyrics.getLyricsForMetadata(mockIo, mockDeviceInfo, mockServerSettings);
+
+            // Should have looked up the cache with a key containing "200"
+            expect(lyricsCache.get).toHaveBeenCalledWith(expect.stringContaining("200"));
+        });
+
+        test("should parse mm:ss format TrackDuration to seconds", async () => {
+            mockDeviceInfo.metadata = {
+                trackMetaData: {
+                    "dc:title": "Test Track",
+                    "upnp:artist": "Test Artist",
+                    "upnp:album": "Test Album"
+                },
+                TrackDuration: "3:30" // mm:ss format = 210 seconds
+            };
+
+            const cachedData = { status: "ok", trackKey: expect.any(String), payload: { syncedLyrics: "test" } };
+            lyricsCache.get.mockResolvedValue(cachedData);
+
+            await lyrics.getLyricsForMetadata(mockIo, mockDeviceInfo, mockServerSettings);
+
+            // Should have looked up the cache with a key containing "210"
+            expect(lyricsCache.get).toHaveBeenCalledWith(expect.stringContaining("210"));
+        });
+
+        test("should skip re-emitting when clearLyricsState state is already the same", async () => {
+            mockServerSettings.features.lyrics.enabled = false;
+            mockDeviceInfo.lyrics = null;
+
+            // First call: sets state to disabled
+            await lyrics.getLyricsForMetadata(mockIo, mockDeviceInfo, mockServerSettings);
+            expect(mockIo.emit).toHaveBeenCalledWith("lyrics-get", expect.objectContaining({ status: "disabled" }));
+            const firstCallCount = mockIo.emit.mock.calls.length;
+
+            // Second call: clearLyricsState early-return fires because state is already "disabled" with null trackKey
+            await lyrics.getLyricsForMetadata(mockIo, mockDeviceInfo, mockServerSettings);
+            expect(mockIo.emit.mock.calls.length).toBe(firstCallCount);
+        });
     });
 });

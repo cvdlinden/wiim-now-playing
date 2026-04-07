@@ -168,20 +168,85 @@ app.get("/proxy-art", limiter, function (req, res) {
     const options = {
         rejectUnauthorized: false, // Ignore self-signed certificate
     };
+    let identified = false;
 
-    https.get(targetUrl.href, options, (resp) => {
-        // If the response is valid, pipe it to the client
-        // Valid content-types could be: image/jpeg, image/png, image/webp, image/svg+xml, image/gif, etc.
-        if (!resp.headers['content-type'] || !resp.headers['content-type'].startsWith('image/')) {
-            res.status(415).send("<div>Unsupported Media Type</div>");
-            return;
-        }
-        res.writeHead(resp.statusCode, resp.headers);
-        resp.pipe(res);
-    })
-        .on('error', function (e) {
-            res.status(404).send("<div>404 Not Found</div>");
+    // Make the request to the target URL
+    const request = https.get(targetUrl.href, options, (resp) => {
+
+        // What content type do we have?
+        let contentType = resp.headers['content-type'];
+        // console.log("Content type:", contentType);
+
+        // Wait for the first chunk to inspect the content if no content type is provided or if the content type does not start with image/,
+        // to check if it's a valid image and determine the content type based on the magic bytes,
+        // as some devices do not provide a content-type header or provide an incorrect one.
+        resp.once('data', (chunk) => {
+            identified = true;
+
+            if (!contentType || !contentType.startsWith('image/')) {
+                const magicBytes = chunk.toString('hex', 0, 4).toUpperCase();
+                // console.log("Magic bytes:", magicBytes);
+
+                switch (true) {
+                    case magicBytes.startsWith('FFD8FF'):
+                        contentType = 'image/jpeg';
+                        break;
+                    case magicBytes.startsWith('89504E47'):
+                        contentType = 'image/png';
+                        break;
+                    case magicBytes.startsWith('47494638'):
+                        contentType = 'image/gif';
+                        break;
+                    case magicBytes.startsWith('52494646'): // RIFF (WebP)
+                        contentType = 'image/webp';
+                        break;
+                    case magicBytes.startsWith('3C737667'): // <svg
+                    case magicBytes.startsWith('3C3F786D'): // <?xm
+                        contentType = 'image/svg+xml';
+                        break;
+                    case magicBytes.startsWith('424D'): // BMP (Bitmap)
+                        contentType = 'image/bmp';
+                        break;
+                }
+                // console.log("Determined content type:", contentType);
+            }
+
+            // If the response is invalid, not an image, tell the client and stop processing the response
+            if (!contentType || !contentType.startsWith('image/')) {
+                res.status(415).send("<div>Unsupported Media Type</div>");
+                resp.destroy(); // Stop receiving data
+                return;
+            }
+
+            // Update the content-type header for the response to the client
+            const headers = { ...resp.headers, 'content-type': contentType };
+
+            // Pipe the response to the client
+            res.writeHead(resp.statusCode, headers);
+            res.write(chunk); // Write the first chunk that we already received
+            resp.pipe(res); // Pipe the rest of the response chunks directly to the client
+
         });
+
+        // If the response ends without us being able to identify the content type, we return an error
+        resp.once('end', () => {
+            if (!identified && !res.writableEnded) {
+                res.status(415).send("<div>Empty or Unsupported Response</div>");
+            }
+        });
+
+        // Handle errors in the response stream
+        resp.on('error', (e) => {
+            if (!res.writableEnded) res.status(502).send("<div>Gateway Error</div>");
+        });
+
+    })
+
+    // Handle errors in the request to the target URL
+    request.on('error', function (e) {
+        // console.error("Error fetching album art:", e);
+        if (!res.writableEnded) res.status(404).send("<div>404 Not Found</div>");
+    });
 
 });
 
