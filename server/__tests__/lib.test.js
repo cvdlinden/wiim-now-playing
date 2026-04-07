@@ -156,7 +156,7 @@ describe('lib.js', () => {
             expect(serverSettings2.features.lyrics.enabled).toBe(true); // Ongewijzigd
         });
 
-        test('moet de catch-tak aanroepen als readFileSync faalt', () => {
+        test('should call the catch block and invoke saveSettings when readFileSync fails', () => {
             // Force the catch block by making readFileSync throw
             fs.readFileSync.mockImplementation(() => { throw new Error('ENOENT: no such file or directory'); });
             fs.writeFile.mockImplementation(() => {}); // Prevent real disk write

@@ -40,7 +40,9 @@ describe('upnpClient.js', () => {
             },
             timeouts: { state: 1000, metadata: 2000 }
         };
-        // restoreAllMocks clears spied-on function overrides (e.g. jest.spyOn) in addition to clearing calls
+        // Use restoreAllMocks so that jest.spyOn overrides created inside individual tests
+        // (e.g. in callDeviceAction tests) do not leak into subsequent tests.
+        // All spies are set up inside test bodies, not in beforeEach, so this is safe.
         jest.restoreAllMocks();
     });
 
@@ -142,7 +144,7 @@ describe('upnpClient.js', () => {
             expect(io.emit).not.toHaveBeenCalled();
         });
 
-        it('should trigger metadata update when transitioning from TRANSITIONING state', done => {
+        it('should call updateDeviceMetadata when state transitions from TRANSITIONING to PLAYING', done => {
             // Set previous state to TRANSITIONING
             deviceInfo.state = { CurrentTransportState: 'TRANSITIONING' };
             serverSettings.selectedDevice.actions = ['GetTransportInfo', 'GetInfoEx'];
