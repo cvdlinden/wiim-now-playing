@@ -33,8 +33,15 @@ jobs:
         cache-dependency-path: |
           package-lock.json
           client/package-lock.json
-          
-    - run: npm install
-    - run: cd client && npm install
-    - run: npm run client-build --if-present
-    - run: npm test
+
+    - name: Install root dependencies
+      run: npm ci
+      
+    - name: Install client dependencies
+      run: cd client && npm ci
+
+    - name: Build client
+      run: npm run client-build --if-present
+
+    - name: Run tests
+      run: npm test
