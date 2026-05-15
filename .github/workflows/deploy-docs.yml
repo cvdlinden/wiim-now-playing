@@ -43,11 +43,8 @@ jobs:
       - name: Build with VitePress
         run: npm run docs:build
         
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v4
-        with:
-          path: docs/.vitepress/dist
-
       - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: docs/.vitepress/dist
