@@ -6,7 +6,7 @@ hero:
   name: "WiiM Now Playing"
   text: "Show what the WiiM device is currently playing."
   image: 
-    src: /assets/logo.png
+    src: ./assets/logo.png
     alt: "wiim-now-playing logo"
   actions:
     - theme: brand
@@ -18,7 +18,7 @@ hero:
 
 # features:
 #   - icon:
-#       src: /assets/logo.png
+#       src: assets/logo.png
 #     title: Another cool feature
 #     details: Lorem ipsum...
 #     link: /readme
