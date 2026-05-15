@@ -1,13 +1,16 @@
 {
   "name": "wiim-now-playing",
-  "version": "1.9.1",
+  "version": "1.9.2",
   "description": "Show what the Wiim device is currently playing on a separate screen.",
   "main": "server/index.js",
   "scripts": {
     "start": "nodemon",
     "client-dev": "cd client && npm run start",
     "client-build": "cd client && npm run build",
-    "test": "jest"
+    "test": "jest",
+    "docs:dev": "vitepress dev docs",
+    "docs:build": "vitepress build docs",
+    "docs:preview": "vitepress preview docs"
   },
   "keywords": [],
   "author": "",
@@ -24,7 +27,8 @@
   },
   "devDependencies": {
     "jest": "^30.4.2",
-    "nodemon": "^3.1.14"
+    "nodemon": "^3.1.14",
+    "vitepress": "^1.6.4"
   },
   "nodemonConfig": {
     "ignore": [
