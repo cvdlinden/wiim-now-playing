@@ -1,5 +1,10 @@
 # WiiM Now Playing
 
+<!-- Badges -->
+<!-- [![Documentation](https://img.shields.io/badge/github_pages-Documentation-blue?logo=github)](https://cvdlinden.github.io/wiim-now-playing/) -->
+![Version](https://img.shields.io/github/package-json/v/cvdlinden/wiim-now-playing)
+![License](https://img.shields.io/github/license/cvdlinden/wiim-now-playing)
+
 Show what the WiiM device is currently playing on a touchscreen, separate screen or browser.
 
 Examples:

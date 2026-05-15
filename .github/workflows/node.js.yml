@@ -7,9 +7,12 @@ permissions:
 
 on:
   push:
-    branches: [ "main", "refactor" ]
+    branches:
+      - main
+      - refactor
   pull_request:
-    branches: [ "main" ]
+    branches:
+      - main
 
 jobs:
   build:
@@ -23,15 +26,25 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
 
     - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@v5
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
+        cache-dependency-path: |
+          package-lock.json
+          client/package-lock.json
 
-    - run: npm install
-    - run: cd client && npm install
-    - run: npm run client-build --if-present
-    - run: npm test
+    - name: Install root dependencies
+      run: npm ci
+      
+    - name: Install client dependencies
+      run: cd client && npm ci
+
+    - name: Build client
+      run: npm run client-build --if-present
+
+    - name: Run tests
+      run: npm test
