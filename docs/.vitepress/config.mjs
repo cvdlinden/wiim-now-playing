@@ -38,21 +38,22 @@ export default defineConfig({
           { text: 'Development', link: '/DevelopmentAndDebugging' },
           { text: 'Design', link: '/Design' },
           { text: 'Plan', link: '/Plan' },
+          { text: 'Releases', link: 'https://github.com/cvdlinden/wiim-now-playing/releases' },
           { text: 'Outstanding issues', link: 'https://github.com/cvdlinden/wiim-now-playing/issues' },
           { text: "Outstanding PRs", link: 'https://github.com/cvdlinden/wiim-now-playing/pulls' },
         ]
       },
-      {
-        text: 'Examples',
-        items: [
-          { text: 'Markdown Examples', link: '/markdown-examples' },
-          { text: 'Runtime API Examples', link: '/api-examples' }
-        ]
-      },
+      // {
+      //   text: 'Examples',
+      //   items: [
+      //     { text: 'Markdown Examples', link: '/markdown-examples' },
+      //     { text: 'Runtime API Examples', link: '/api-examples' }
+      //   ]
+      // },
     ],
 
     socialLinks: [
-      { icon: 'github', link: 'https://github.com/vuejs/vitepress' }
+      { icon: 'github', link: 'https://github.com/cvdlinden/wiim-now-playing' }
     ]
   }
 })

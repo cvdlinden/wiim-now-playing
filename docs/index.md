@@ -5,23 +5,32 @@ layout: home
 hero:
   name: "WiiM Now Playing"
   text: "Show what the WiiM device is currently playing."
-  tagline: ...
+  image: 
+    src: /assets/logo.png
+    alt: "wiim-now-playing logo"
   actions:
     - theme: brand
       text: Read me
       link: /readme
     - theme: alt
-      text: Markdown Examples
-      link: /markdown-examples
-    - theme: alt
-      text: API Examples
-      link: /api-examples
+      text: Installation
+      link: /RPi-Requirements
 
-features:
-  - title: Feature A
-    details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
-  - title: Feature B
-    details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
-  - title: Feature C
-    details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
+# features:
+#   - icon:
+#       src: /assets/logo.png
+#     title: Another cool feature
+#     details: Lorem ipsum...
+#     link: /readme
+#     linkText: "Read me"
+#   - title: Feature B
+#     details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
+#   - title: Feature C
+#     details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
+#   - title: Feature A
+#     details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
+#   - title: Feature B
+#     details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
+#   - title: Feature C
+#     details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
 ---
