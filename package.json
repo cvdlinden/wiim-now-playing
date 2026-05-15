@@ -7,7 +7,10 @@
     "start": "nodemon",
     "client-dev": "cd client && npm run start",
     "client-build": "cd client && npm run build",
-    "test": "jest"
+    "test": "jest",
+    "docs:dev": "vitepress dev docs",
+    "docs:build": "vitepress build docs",
+    "docs:preview": "vitepress preview docs"
   },
   "keywords": [],
   "author": "",
@@ -24,7 +27,8 @@
   },
   "devDependencies": {
     "jest": "^30.4.2",
-    "nodemon": "^3.1.14"
+    "nodemon": "^3.1.14",
+    "vitepress": "^1.6.4"
   },
   "nodemonConfig": {
     "ignore": [

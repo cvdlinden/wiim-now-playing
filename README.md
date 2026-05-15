@@ -1,7 +1,7 @@
 # WiiM Now Playing
 
 <!-- Badges -->
-<!-- [![Documentation](https://img.shields.io/badge/github_pages-Documentation-blue?logo=github)](https://cvdlinden.github.io/wiim-now-playing/) -->
+[![Documentation](https://img.shields.io/badge/github_pages-Documentation-blue?logo=github)](https://cvdlinden.github.io/wiim-now-playing/)
 ![Version](https://img.shields.io/github/package-json/v/cvdlinden/wiim-now-playing)
 ![License](https://img.shields.io/github/license/cvdlinden/wiim-now-playing)
 
