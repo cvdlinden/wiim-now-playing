@@ -5,9 +5,12 @@ layout: home
 hero:
   name: "WiiM Now Playing"
   text: "Show what the WiiM device is currently playing."
-  tagline: My great project tagline
+  tagline: ...
   actions:
     - theme: brand
+      text: Read me
+      link: /readme
+    - theme: alt
       text: Markdown Examples
       link: /markdown-examples
     - theme: alt

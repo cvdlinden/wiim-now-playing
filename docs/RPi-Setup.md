@@ -1,5 +1,29 @@
 # Setting up a Raspberry Pi in kiosk mode on a touchscreen
 
+Where applicable the commands for the different versions of Raspberry Pi OS will be given (Trixie, Bookworm or Bullseye).
+
+::: code-group
+
+```bash [Trixie]
+# Commando's specifiek voor Debian 13 Trixie
+sudo apt update
+sudo apt install nodejs -y
+```
+
+```bash [Bookworm]
+# Commando's specifiek voor Debian 12 Bookworm
+sudo apt update
+sudo apt install nodejs
+```
+
+```bash [Bullseye]
+# Commando's specifiek voor Debian 11 Bullseye
+sudo apt update
+sudo apt install nodejs
+```
+
+:::
+
 > **Warning**: [Goose chasing](https://www.urbandictionary.com/define.php?term=goose%20chase) ahead!!!  
 The below 'manual' is by no means fool-proof as there are wildly different versions of RPi devices and OS'es abound.
 

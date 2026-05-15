@@ -12,7 +12,8 @@ export default defineConfig({
     // https://vitepress.dev/reference/default-theme-config
     nav: [
       { text: 'Home', link: '/' },
-      { text: 'Examples', link: '/markdown-examples' }
+      { text: 'Read Me', link: '/readme' },
+      { text: 'Installation', link: '/RPi-Requirements' }
     ],
 
     sidebar: [
@@ -25,10 +26,10 @@ export default defineConfig({
       {
         text: 'Installation on a Raspberry Pi',
         items: [
-          { text: 'Requirements', link: '/Rpi-Requirements' },
-          { text: 'Setup for a touch screen', link: '/Rpi-Setup' },
-          { text: 'Kiosk mode', link: '/Rpi-Kiosk' },
-          { text: 'Headless mode', link: '/Rpi-Headless' },
+          { text: 'Requirements', link: '/RPi-Requirements' },
+          { text: 'Setup for a touch screen', link: '/RPi-Setup' },
+          { text: 'Kiosk mode', link: '/RPi-Kiosk' },
+          { text: 'Headless mode', link: '/RPi-Headless' },
         ]
       },
       {
