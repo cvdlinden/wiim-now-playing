@@ -42,7 +42,7 @@ export default defineConfig({
         collapsed: true,
         items: [
           { text: 'Overview', link: '/rpi/' },
-          { text: 'Requirements', link: '/rpi/requirements' },
+          { text: 'Hardware Requirements', link: '/rpi/requirements' },
           { text: 'Setup for a touch screen', link: '/rpi/setup-touchscreen' },
           { text: 'Kiosk mode', link: '/rpi/setup-kiosk' },
           { text: 'Headless mode', link: '/rpi/setup-headless' },
