@@ -31,9 +31,15 @@ docs/
 │   └── releases.md         # Or just link to GitHub
 ```
 
-## contents...
+## What is WiiM Now Playing?
 
 {Overview of functionality here...}
+
+## What WiiM Now Playing is not
+
+A full replacement for official WiiM apps.
+
+{Refer to WiiM apps... Home app for iOS, Android and TV's}
 
 ## Table of contents
 
