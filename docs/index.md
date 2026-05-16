@@ -11,10 +11,10 @@ hero:
   actions:
     - theme: brand
       text: Read me
-      link: /readme
+      link: /getting-started/
     - theme: alt
       text: Installation
-      link: /RPi-Requirements
+      link: /rpi/
 
 # features:
 #   - icon:

@@ -55,65 +55,24 @@ Steps to run as fast as possible:
 ## "I want to run it stand-alone on a Raspberry Pi (with a touchscreen)!"
 
 If you want to run the wiim-now-playing app on a Raspberry Pi with a touchscreen,
-please read the installation instructions in [Raspberry Pi Setup - with touchscreen](docs/RPi-Setup.md)
+please read the installation instructions in [Raspberry Pi Setup - with touchscreen](docs/rpi/setup-touchscreen.md)
 
 You can run the wiim-now-playing app with a regular screen/monitor attached over the (micro) HDMI output of the Raspberry Pi. But then you would also need to add a mouse and keyboard as well in order to operate the device. Follow the 'headless' instructions below and then after configure it for kiosk mode.
 
 The application can also be run headless i.e. without a monitor (or anything else) attached. Set the Raspberry Pi up this way and tuck it away somewhere out of sight. Point a browser from another device, i.e. a TV, to the server and see what's playing there.
-For instructions see running a [Raspberry Pi Setup - headless](docs/RPi-Headless.md)
+For instructions see running a [Raspberry Pi Setup - headless](docs/rpi/setup-headless.md)
 
-There are some hardware requirements, not a whole lot, see: [Raspberry Pi requirements for a wiim-now-playing setup](docs/RPi-Requirements.md)
-
-## "How do I update to the latest version?"
-
-This depends on how you've installed WiiM Now Playing the first time.
-
-### "I installed via Git"
-
-If there's a new version of the app you can easily update it through Git.
-
-1. Open a (bash) command prompt, PowerShell or terminal window.
-2. Go into the wiim-now-playing folder, like: ``cd wiim-now-playing/``
-3. Use the ``git pull`` command to get the latest version of the app. This will automatically download the latest version.
-4. Then do an ``npm install`` to update any of the required packages.  
-   *Please note that npm install may warn you about vulnerabilities and prompt you to run 'npm audit fix --force'. Please don't, as this will break functionality.*
-5. For a proper update do a manual restart of node or just reboot the machine.
-
-If ``git pull`` doesn't work as expected you probably have some locally changed files.  
-Use ``git fetch`` then ``git status`` to check what files have changed locally.  
-If you want to retain those changes then copy these files over to another folder, so you can redo your changes later on.  
-Use e.g. ``git restore the-offending-file.js`` to undo the changes made for each file ``git status`` reports. Now you can do another ``git pull``.
-
-### "I downloaded the ZIP package"
-
-If you've installed by downloading the ZIP package before. You should be good by downloading the latest release from the [Releases page](https://github.com/cvdlinden/wiim-now-playing/releases) in this repo. Then unzip the downloaded ZIP package into the existing installation folder.
-
-Please note that this will obviously overwrite anything already in the folder.  
-So if you have made any changes of your own that you'd want to retain, please safeguard them beforehand!  
-A good strategy would be to rename the existing folder and unzip the download into a new folder with the previous foldername. Then redo any of your desired changes.
-
-After unzipping the download to your folder, go into the folder with ``cd`` and do an ``npm install`` to update any required packages.  
-Afterwards restart node manually or do a reboot of the machine.
-
-### "I forked your repo"
-
-If you've forked this repo here on Github then please read the Github documentation on [Syncing a fork](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/syncing-a-fork).
-
-## "I want to use Docker and run it virtually!"
-
-Do have a look at [apwiggins/wiimnowplaying at Docker Hub](https://hub.docker.com/r/apwiggins/wiimnowplaying) for a ready built, up to date, Docker Container Image.
-
-If you want to go at it yourself and use [Docker](https://www.docker.com/) instead of 'bare metal' on a Raspberry Pi, please read [the documentation in the docker folder](./docker/README.md).
+There are some hardware requirements, not a whole lot, see: [Raspberry Pi requirements for a wiim-now-playing setup](docs/rpi/requirements.md)
 
 ## "I want to change things up!"
 
 Current development:
 
-- [Development and Debugging the WNP app](docs/DevelopmentAndDebugging.md)
+- [Development and Debugging the WNP app](docs/development/DevelopmentAndDebugging.md)
 - [Outstanding issues](https://github.com/cvdlinden/wiim-now-playing/issues)
 - [Outstanding PRs](https://github.com/cvdlinden/wiim-now-playing/pulls)
 
 History:
 
-- [Original Plan](docs/Plan.md)
-- [Original Design](docs/Design.md)
+- [Original Plan](docs/reference/plan.md)
+- [Original Design](docs/reference/design.md)

@@ -1,48 +1,79 @@
-# Setting up a Raspberry Pi in headless mode
+# Setting up a Raspberry Pi in kiosk mode on a touchscreen
+
+Where applicable the commands for the different versions of Raspberry Pi OS will be given (Trixie, Bookworm or Bullseye).
+
+<!-- ::: code-group
+
+```bash [Trixie]
+# Commando's specifiek voor Debian 13 Trixie
+sudo apt update
+sudo apt install nodejs -y
+```
+
+```bash [Bookworm]
+# Commando's specifiek voor Debian 12 Bookworm
+sudo apt update
+sudo apt install nodejs
+```
+
+```bash [Bullseye]
+# Commando's specifiek voor Debian 11 Bullseye
+sudo apt update
+sudo apt install nodejs
+```
+
+::: -->
 
 > **Warning**: [Goose chasing](https://www.urbandictionary.com/define.php?term=goose%20chase) ahead!!!  
 The below 'manual' is by no means fool-proof as there are wildly different versions of RPi devices and OS'es abound.
 
-**Goal**: Get the wiim-now-playing app running on a somewhat recent Raspberry Pi device, without direct display output i.e. 'headless'. The Pi can then be put away out of sight. The output will be shown by external devices through means of a browser (on a mobile phone, tablet, TV, other computer, another Raspberry Pi, ...).
+**Goal**: Start a somewhat recent Raspberry Pi device with browser in kiosk mode on the local (DSI) touchscreen display to show the wiim-now-playing app.
 
-Which type of Raspberry Pi should I use? [See the Raspberry Pi requirements.](RPi-Requirements.md)
+Which type of Raspberry Pi should I use? [See the Raspberry Pi requirements.](requirements.md)
 
-> For setting up a Raspberry Device with a touchscreen see: [Setting up a Raspberry Pi in kiosk mode on a touchscreen](RPi-Setup.md)
-
-Note: Although you can run the app on a headless Raspberry Pi Device, this would defeat the original purpose of the app a bit, as it was designed for touchscreen capabilities.
-
-For example you can have a spare Raspberry Pi tucked away somewhere in a cupboard, running the wiim-now-playing server, in order to keep tabs on what your WiiM device is playing. And for the client to have a browser tab open all day. Possibly even using the cheapest Android tablet you can find.
-
-It is however totally possible to hook up an external screen directly to the Raspberry Pi over HDMI. After following the instructions below, you should then also follow the Kiosk mode instructions in order to show the output to the attached screen. Note that you also would need to have a keyboard and mouse attached for any interaction with the display.
-
-Then again you already should have the WiiM Home app on your mobile device (phone or tablet) to control and see what it is playing.
+> For setting up a headless Raspberry Device see: [Setting up a Raspberry Pi in headless mode](setup-headless.md)
 
 ## Usage scenarios
 
-**Scenario 1**: You want to see from across the room what your WiiM device is playing now. You do not fancy all the touchscreen stuff and just want to see it on your TV.
+**Scenario 1**: You want to have a passive screen on your desk or near your stereo, that when something catches your ears you want to know what it is that is playing now.
 
-**Scenario 2**: You just want to get the now playing information anywhere there's a capable screen with a browser. For example as an extra browser tab on your laptop or repurposing an old tablet you were not really using anylonger.
+**Scenario 2**: You work from home, having some nice tunes playing to keep you company/focussed. Then suddenly you are interrupted, like someone calling, and you want to mute/pause the WiiM device immediately.  
+I.e. faster than reaching for your phone, opening the WiiM Home app and pause. Or reach for your amp and turn down the volume.
+
+**Scenario 3**: You are going through some playlists while hanging back. Then you're not into one song and want to skip quickly. Or you want to play that song again.
 
 ## **The 'works-on-my-machine' short-hand-guide:**
 
-1. Prepare a Raspberry Pi with or without any display attached. A display is not required for setup!  
-2. Prepare a Raspberry Pi OS sd-card without a desktop i.e. the Lite version.  
-   Make sure you can connect over the network, i.e. setup the Wifi during sd card initialisation.
-3. Add the wiim-now-playing app over SSH.
-4. Some Googling to fix 'this-and-that'.
+1. Prepare a Raspberry Pi with an attached touchscreen.  
+   Make sure you know how to activate the screen before anything else.  
+   Test with a regular RPi OS to see if the screen works (both video and touch).
+2. Prepare a Raspberry Pi OS (Bullseye - legacy) sd-card without a desktop.  
+   Make sure you can see a command prompt on the touchscreen.
+3. Install the 'Lite' version with LXDE (see the blockdev.io link) is advised.  
+   Note: LightDM apparently does not like autologin and the Fat version is overkill.
+4. Add the chromium-browser with minimal desktop dependencies (LXDE).
+5. Whole lot of Googling to fix 'this-and-that'.  
 
 For a more step-by-step process read below.
 
-![Raspberry Pi Zero 2 W](../assets/IMG_4006.jpg)  
-*An example of a Raspberry Pi Zero 2 W in headless configuration.  
-With the now playing information shown in a browser in the background.*
+## 1. Prepare a Raspberry Pi with a touchscreen
 
-## 1. Prepare an SD card with Raspberry Pi OS Lite
+First, make sure that your touchscreen works properly i.e. you have an image output and the touch input works.
 
-1. Use the [Raspberry Pi Imager](https://www.raspberrypi.com/software/) to download a version of Raspberry Pi OS **Lite**. As we won't be needing a full desktop environment.  
-   First choose the Device you are going to use.  
-   Then choose the OS. Depending on your choice of device you'll be listed the compatibel OSes. Click on Raspberry Pi OS (other). Pick the Raspberry Pi OS Lite version. The top one (64 bit - bookworm) will do fine.  
-2. Choose your SD card. After selecting the SD card press Next. THis will ask you whether you would like to apply customisations. Choose Edit Settings:  
+1. Connect you Raspberry Pi to the touchscreen by following the instructions of the manufacturer.
+2. Grab a copy of [Raspberry Pi OS](https://www.raspberrypi.com/software/), with the desktop, to check whether your RPi works with the screen attached. Use the [Raspberry Pi Imager](https://www.raspberrypi.com/software/) to download and write the OS to an SD card and insert the card into you RPi.
+3. If the screen displays the Raspberry Pi OS Desktop, you are good to go.  
+   If it doesn't display a desktop, please follow the manufacturers manual in order to activate the screen. You may need additional drivers for screen output.  
+   Please take note of the instructions to enable the display as you will need them again later.
+
+## 2. Prepare an SD card with Raspberry Pi OS Lite
+
+Depending on the previous results you could use the latest version of RPi OS, Bookworm (February 2024). However it may not play very nice with some touchscreens. Read the screen manufacturers documentation to see if it can be enabled on the latest OS version.
+
+Otherwise try the legacy version (Bullseye) or older. Reverting to Bullseye seems a safe option if you run into trouble.
+
+1. Use the [Raspberry Pi Imager](https://www.raspberrypi.com/software/) to download a version of Raspberry Pi OS **Lite**. As we won't be needing a full desktop environment.
+2. Choose your SD card, the one you've previously used to test your screen. After selecting the SD card to use, it will ask you whether you would like to apply customisations. Choose Edit Settings:  
    ![Settings](../assets/Screenshot%202024-02-13%20234421.png)
 3. In the General tab set the hostname of your RPi. Keep it short, simple and unique, you'll thank yourself later. In the example below I've used _wnp.local_, feel free to name it anyway you like.  
    Please also set a username and password as you will need those to connect to and setup later.  
@@ -55,19 +86,18 @@ With the now playing information shown in a browser in the background.*
 
 ## 3. Configure your Raspberry Pi OS through SSH
 
-After powering up the RPi with Raspberry Pi OS Lite you'll need to wait for it to initialise. Just let it settle a bit as during the first startup, after you've created the new SD card, the OS will need to prepare itself which will take some time.
+After powering up the RPi with Raspberry Pi OS Lite you'll find yourself at a command prompt or a blank screen. Just let it settle a bit as during the first startup, after you've created the new SD card, the OS will need to prepare itself which will take some time.
 
 Note: you can also connect a keyboard/mouse/computerscreen to the Raspbery Pi in order to conduct the next steps. But, presuming you already have a computer on which you've prepared the SD card, might as well use that to connect over SSH.
 
 1. Start a command prompt. In these examples I am using PowerShell 7 on Windows 11. On a Mac you can use the Terminal.
-2. You can make sure that the Raspberry Pi is up and running by using ```ping servername.local```, where servername is the name that you gave your Pi. If you get timeouts, it is still working on it or you did not insert the correct Wifi name or password. In the latter case you can remake the SD card with the Imager tool. Or if you're able connect the Pi with a network cable (and later on fix the Wifi).
-3. At the command prompt type ``ssh username@servername.local``. Where ``username`` is **your username** that you've defined in the previous steps. And ``servername`` is the name you've set as your **hostname**.  
+2. At the command prompt type ``ssh username@servername.local``. Where ``username`` is **your username** that you've defined in the previous steps. And ``servername`` is the name you've set as your **hostname**.  
    In the example below I've used _caspar@wnp.local_.
    ![Settings](../assets/Screenshot%202024-02-14%20002224.png)  
-4. At the first time connecting it will ask if you want to continue. Type ``yes`` and press Enter.
-5. Every time we will connect to the RPi this question will no longer be asked. You can then use your password directly to connect:  
+3. At the first time connecting it will ask if you want to continue. Type ``yes`` and press Enter.
+4. Every time we will connect to the RPi this question will no longer be asked. You can then use your password directly to connect:  
    ![Settings](../assets/Screenshot%202024-02-14%20002718.png)  
-6. After connecting to your RPi over SSH you'll be greeted with a command prompt from the RPi server, like:  
+5. After connecting to your RPi over SSH you'll be greeted with a command prompt from the RPi server, like:  
 
    ```bash
    username@server:~ $
@@ -108,6 +138,52 @@ And wait for the Raspberry Pi to return to the command prompt, before you reconn
 ```powershell
 ssh username@server.local
 ```
+
+### Configure the touchscreen
+
+At this step you still may not have an image on your touchscreen display. Please have a look at the manufacturers documentation in order to enable the display through the command prompt. You may need to configure some drivers of config files.
+
+In my example I'm using a Raspberry Pi 4 with the official Raspberry Pi touchscreen. And if you're familiar with those, the screen output is upside-down by default. So let's rectify that. For this we refer to [Changing the screen orientation](https://www.raspberrypi.com/documentation/accessories/display.html#changing-the-screen-orientation) documentation by Raspberry Pi.
+
+1. Connect to the Raspberry Pi over SSH: ``ssh username@servername.local``
+2. Start editing the cmdline.txt file by typing at the command prompt:  
+
+   ```bash
+   sudo nano /boot/firmware/cmdline.txt
+   ```
+
+3. At the end of the line add:
+
+   ```bash
+    video=DSI-1:800x480@60,rotate=180
+   ```
+
+   **NOTE: there is a space before video= and after anything that is already on that line!**  
+   _We will use rotate=180 to put the display the right way up._
+
+4. Use CTRL+X -> Y to confirm -> Enter to confirm the filename.  
+   The display rotation change should now have been set.
+5. However the touch input should also be rotated. Type the following to edit the config.txt file:
+
+   ```bash
+   sudo nano /boot/firmware/config.txt
+   ```
+
+6. Find the line that says ``display_auto_detect=1``. Add a # in front to comment out that line.  
+   Then add a line that says ``dtoverlay=vc4-kms-dsi-7inch,invx,invy``. So that it looks like this:  
+   ![alt text](../assets/Screenshot%202024-02-14%20012500.png)
+7. Then use CTRL+X -> Y to confirm -> Enter to confirm the filename.
+8. In order for these changes to take effect we need to do a reboot:
+
+   ```bash
+   sudo reboot
+   ```
+
+Wait for the RPi to reboot. It may start upside-down first, but it will right itself eventually...
+
+![Touchscreen rotated](../assets/IMG_3691.jpg)
+
+**Success!**
 
 ## 4. Add the wiim-now-playing solution to the RPi
 
@@ -219,9 +295,9 @@ Good candidates for alternative ports are: 8000, 8080, 5000 or 3000. See what wo
 
 ### Test the wiim-now-playing app
 
-If you've started node correctly it will tell you it is running on 'localhost:80' or the likes.
+The Raspberry Pi will not show any app yet on its screen, as we haven't configured it yet. However if you've started node correctly it will tell you it is running on 'localhost:80'.
 
-1. Open up a browser tab on your computer.
+1. Open up a browser on your computer.
 2. Use the following address to see the app: ``servername.local``  
    Where servername is the hostname you set earlier. For example ``wnp.local``.
 3. You should now see the app working:  
@@ -279,10 +355,8 @@ Note: If the app looks garbled in the browser, please refresh your browser windo
 
 Note: In the RPi commandline you can use ``top`` or ``htop`` to see if there is a node process running. It should be on _top_ of the list.
 
-## Adding a screen to the HDMI port (optional)
+## 6. Showing the app on the touchscreen (Kiosk mode)
 
-The Raspberry Pi is now fully funtional with the wiim-now-playing app as long as you point a browser to it.
+Now that we've configured the RPi and the wiim-now-playing app (server part) to run every time the RPi (re)boots, we would like to show the client on the touchscreen as well. What else is the point of having the touchscreen attached? Currently there's not a lot to show for on the screen itself. Just a command prompt at this point.
 
-However there's not a lot to show for on the screen itself if you add a screen to the HDMI port. Just a command prompt at this point.
-
-To add the same output as in the browser on an attached screen, please follow the [Enable Kiosk mode on a Raspberry Pi](RPi-Kiosk.md) instructions.
+To add the same output as in the browser on the touchscreen, please follow the [Enable Kiosk mode on a Raspberry Pi](setup-kiosk.md) instructions next.
