@@ -53,7 +53,9 @@ export default defineConfig({
         collapsed: true,
         items: [
           { text: 'Overview', link: '/development/' },
-          { text: 'Development', link: '/development/DevelopmentAndDebugging' },
+          { text: 'Server', link: '/development/server' },
+          { text: 'Client', link: '/development/client' },
+          { text: 'Documentation', link: '/development/documentation' },
         ]
       },
       {
