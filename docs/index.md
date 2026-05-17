@@ -19,13 +19,13 @@ hero:
 
 features:
   - icon:
-      src: public/logo.png
+      src: /logo.png
     title: Getting Started
     details: "Start the WiiM Now Playing app, the easy way."
     link: /getting-started/
     linkText: "Let's go!"
   - icon:
-      src: public/logo.png
+      src: /logo.png
     title: On a Raspberry Pi
     details: "Install WiiM Now Playing on a Raspberry Pi. With or without a touchscreen."
     link: /rpi/
@@ -42,7 +42,7 @@ features:
 
 ## Getting a fast start
 
-*Your mileage may vary.*
+*Your mileage may vary...*
 
 1. Open a (bash) command prompt, PowerShell or terminal window.
 2. Make sure that you have somewhat recent (LTS) versions of [Node.js](https://nodejs.org/) and [Git](https://git-scm.com/) installed:

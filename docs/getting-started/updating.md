@@ -4,33 +4,60 @@ WiiM Now Playing is updated 'regularly'. Updating your installation depends on h
 
 ## "I've installed via Git"
 
-### In-app update (on a Raspberry Pi)
+### In-app update on a Raspberry Pi (experimental!)
 
-Updates can be pulled easily through the app.
+If installed via Git you can pull updates easily through the app on a Raspberry Pi.
 
 1. Click on settings
 2. Server tab
 3. Click on Update
 
-Now wait a while for the update to be pulled and installed. Now do a Reboot and wait for the Raspberry Pi to come up again.
+![Settings > Server > Update](../assets/settings-server-update.png)
 
-Note: You can find the current version under the About tab in the app.
+Now wait a while for the update to be pulled and installed. Then do a Reboot and wait for the Raspberry Pi to come up again.
+
+> [!NOTE]
+> You can find the current version under the About tab in the app.
+
+![Settings > About](../assets/settings-about.png)
 
 ### Out-of-app update (any system)
 
 If there's a new version of the app you can easily update it through Git.
 
 1. Open a (bash) command prompt, PowerShell or terminal window.
-2. Go into the wiim-now-playing folder, like: ``cd wiim-now-playing/``
-3. Use the ``git pull`` command to get the latest version of the app. This will automatically download the latest version.
-4. Then do an ``npm install`` to update any of the required packages.  
-   *Please note that npm install may warn you about vulnerabilities and prompt you to run 'npm audit fix --force'. Please don't, as this will break functionality.*
-5. For a proper update do a manual restart of node or just reboot the machine.
+2. Execute the following commands:
 
-If ``git pull`` doesn't work as expected you probably have some locally changed files.  
-Use ``git fetch`` then ``git status`` to check what files have changed locally.  
-If you want to retain those changes then copy these files over to another folder, so you can redo your changes later on.  
-Use e.g. ``git restore the-offending-file.js`` to undo the changes made for each file ``git status`` reports. Now you can do another ``git pull``.
+   ```shell
+   # Navigate to the folder where you previously installed the app, like:
+   cd wiim-now-playing/
+
+   # Pull the latest version from GitHub
+   git pull
+
+   # Install the latest dependencies
+   npm install
+   ```
+
+   > [!CAUTION]
+   > Note that npm install may warn you about vulnerabilities and prompt you to run 'npm audit fix --force'. Please don't, as this will break functionality.
+
+3. For a proper update do a manual restart of node or just reboot the machine.
+
+   ```shell
+   # reboot the server manually
+   sudo reboot
+   ```
+
+### Unable to update via Git
+
+If the ``git pull`` doesn't work as expected you probably have some locally changed files that block the update.
+
+Use ``git fetch`` followed by ``git status`` to check what files have changed locally. If you see a message ```Changes not staged for commit:```, followed by a list of files, you've found the blocking files.
+
+If you want to retain those changes then copy these files over to another folder, so you can redo your changes later on.
+
+Use e.g. ``git restore the-offending-file.js`` to undo the changes made for each file that ``git status`` reports. Now you can do another ``git pull``.
 
 ## "I've downloaded the ZIP package"
 
@@ -44,6 +71,11 @@ A good strategy would be to rename the existing folder and unzip the download in
 After unzipping the download to your folder, go into the folder with ``cd`` and do an ``npm install`` to update any required packages.
 
 Afterwards restart node manually or do a reboot of the machine.
+
+```shell
+# reboot the server manually
+sudo reboot
+```
 
 ## "I've forked your repo"
 

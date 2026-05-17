@@ -28,10 +28,6 @@ Examples:
 
 ## "I just want it to run, here and now!"
 
-If you just want it to run and see what it does?
-
-**Requirements**: Any computer with a browser, [Node.js LTS (with npm)](https://nodejs.org/en), [Git](https://git-scm.com/), a command prompt ([Powershell 7](https://learn.microsoft.com/en-us/powershell/scripting/install/installing-powershell-on-windows) is recommended on Windows)
-
 Steps to run as fast as possible:
 
 1. Open a (bash) command prompt, PowerShell or terminal window.

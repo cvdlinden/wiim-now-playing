@@ -5,7 +5,7 @@ export default defineConfig({
   title: "WiiM Now Playing",
   description: "Show what the WiiM device is currently playing.",
 
-  ignoreDeadLinks: true,
+  ignoreDeadLinks: false,
   base: '/wiim-now-playing/',
   lastUpdated: true,
 
@@ -40,14 +40,11 @@ export default defineConfig({
       {
         text: 'Getting started',
         items: [
-          { text: 'Overview', link: '/getting-started/' },
-          { text: 'Requirements', link: '/getting-started/requirements' },
           { text: 'Read me', link: '/getting-started/readme' },
+          { text: 'Overview', link: '/getting-started/' },
+          { text: 'General requirements', link: '/getting-started/requirements' },
           { text: 'Docker', link: '/getting-started/docker' },
           { text: 'Updating', link: '/getting-started/updating' },
-          { text: 'Releases', link: 'https://github.com/cvdlinden/wiim-now-playing/releases' },
-          { text: 'Outstanding issues', link: 'https://github.com/cvdlinden/wiim-now-playing/issues' },
-          { text: "Outstanding PRs", link: 'https://github.com/cvdlinden/wiim-now-playing/pulls' },
         ]
       },
       {
@@ -55,10 +52,10 @@ export default defineConfig({
         collapsed: true,
         items: [
           { text: 'Overview', link: '/rpi/' },
-          { text: 'Hardware Requirements', link: '/rpi/requirements' },
           { text: 'Setup for a touch screen', link: '/rpi/setup-touchscreen' },
           { text: 'Kiosk mode', link: '/rpi/setup-kiosk' },
           { text: 'Headless mode', link: '/rpi/setup-headless' },
+          { text: 'Hardware requirements', link: '/rpi/requirements' },
         ]
       },
       {
@@ -66,9 +63,11 @@ export default defineConfig({
         collapsed: true,
         items: [
           { text: 'Overview', link: '/development/' },
-          { text: 'Server', link: '/development/server' },
-          { text: 'Client', link: '/development/client' },
-          { text: 'Documentation', link: '/development/documentation' },
+          { text: 'Server development', link: '/development/server' },
+          { text: 'Client development', link: '/development/client' },
+          { text: 'Documentation development', link: '/development/documentation' },
+          { text: 'Outstanding issues', link: 'https://github.com/cvdlinden/wiim-now-playing/issues' },
+          { text: "Outstanding PRs", link: 'https://github.com/cvdlinden/wiim-now-playing/pulls' },
         ]
       },
       {
@@ -85,6 +84,7 @@ export default defineConfig({
         collapsed: true,
         items: [
           { text: 'Overview', link: '/about/' },
+          { text: 'Releases', link: 'https://github.com/cvdlinden/wiim-now-playing/releases' },
         ]
       },
     ],
