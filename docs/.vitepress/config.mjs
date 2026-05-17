@@ -7,7 +7,7 @@ export default withMermaid(
     title: "WiiM Now Playing",
     description: "Show what the WiiM device is currently playing.",
 
-    ignoreDeadLinks: false,
+    ignoreDeadLinks: true,
     base: '/wiim-now-playing/',
     lastUpdated: true,
 
@@ -42,7 +42,7 @@ export default withMermaid(
         {
           text: 'Getting started',
           items: [
-            { text: 'Read me', link: '/getting-started/readme' },
+            { text: 'Read me', link: '/readme' },
             { text: 'Overview', link: '/getting-started/' },
             { text: 'General requirements', link: '/getting-started/requirements' },
             { text: 'Docker', link: '/getting-started/docker' },
