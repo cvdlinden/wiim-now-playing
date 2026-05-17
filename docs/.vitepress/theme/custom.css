@@ -1,11 +1,11 @@
 :root {
-  --vp-c-brand-1: #22c55e;
-  --vp-c-brand-2: #16a34a;
-  /* --vp-c-brand-3: #4ade80; */
+  --vp-c-brand-1: #01b28e;
+  --vp-c-brand-2: #004444;
+  --vp-c-brand-3: #01b28e;
 }
 
-/* Gradient background for the site */
-/* body {
+/* Gradient background for the homepage */
+body .VPHome {
   background: linear-gradient(
     180deg,
     rgba(1, 12, 18, 1) 0%,
@@ -13,7 +13,7 @@
     rgba(40, 67, 74, 1) 100%
   ) !important;
   background-attachment: fixed;
-} */
+}
 
 /* Ensure text is readable over gradient */
 /* .VPContent {
@@ -26,10 +26,10 @@
   border-radius: 8px;
 } */
 
-@media (prefers-color-scheme: dark) {
+/* @media (prefers-color-scheme: dark) {
   :root {
     --vp-c-brand-1: #4ade80;
     --vp-c-brand-2: #22c55e;
     --vp-c-brand-3: #86efac;
   }
-}
+} */

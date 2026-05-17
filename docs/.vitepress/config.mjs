@@ -7,13 +7,26 @@ export default defineConfig({
 
   ignoreDeadLinks: true,
   base: '/wiim-now-playing/',
+  lastUpdated: true,
 
+  // Default theme configuration: https://vitepress.dev/reference/default-theme-config
   themeConfig: {
+
+    logo: '/logo.png',
+    search: {
+      provider: 'local'
+    },
+
+    // footer: {
+    //   message: 'Released under the MIT License.',
+    //   copyright: 'Copyright © 2019-present Evan You'
+    // },
+
     // https://vitepress.dev/reference/default-theme-config
     nav: [
       { text: 'Home', link: '/' },
-      { text: 'Read Me', link: '/getting-started/' },
-      { text: 'Installation', link: '/rpi/' }
+      { text: 'Getting Started', link: '/getting-started/' },
+      { text: 'Raspberry Pi', link: '/rpi/' }
     ],
 
     sidebar: [
