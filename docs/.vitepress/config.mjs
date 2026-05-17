@@ -76,8 +76,10 @@ export default withMermaid(
           collapsed: true,
           items: [
             { text: 'Overview', link: '/reference/' },
+            { text: 'Scope', link: '/reference/scope' },
             { text: 'Design', link: '/reference/design' },
             { text: 'Plan', link: '/reference/plan' },
+            { text: 'Acknowledgements', link: '/reference/acknowledgements' },
           ]
         },
         {
