@@ -1,0 +1,35 @@
+:root {
+  --vp-c-brand-1: #22c55e;
+  --vp-c-brand-2: #16a34a;
+  /* --vp-c-brand-3: #4ade80; */
+}
+
+/* Gradient background for the site */
+/* body {
+  background: linear-gradient(
+    180deg,
+    rgba(1, 12, 18, 1) 0%,
+    rgba(3, 53, 54, 1) 50%,
+    rgba(40, 67, 74, 1) 100%
+  ) !important;
+  background-attachment: fixed;
+} */
+
+/* Ensure text is readable over gradient */
+/* .VPContent {
+  background: transparent;
+} */
+
+/* Optional: add a semi-transparent overlay to the main content for readability */
+/* .VPDoc .content {
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 8px;
+} */
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --vp-c-brand-1: #4ade80;
+    --vp-c-brand-2: #22c55e;
+    --vp-c-brand-3: #86efac;
+  }
+}
