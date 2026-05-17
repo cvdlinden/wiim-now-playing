@@ -5,7 +5,7 @@ layout: home
 hero:
   name: "WiiM Now Playing"
   text: "Show what your WiiM device is currently playing."
-  tagline: "For use on a Raspberry Pi, with a touchscreen."
+  tagline: "For use on a Raspberry Pi. With or without a touchscreen."
   image: 
     src: /logo.png
     alt: "wiim-now-playing logo"
