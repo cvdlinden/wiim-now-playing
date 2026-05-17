@@ -1,5 +1,6 @@
 # Setting up a Raspberry Pi in headless mode
 
+> [!WARNING]
 > **Warning**: [Goose chasing](https://www.urbandictionary.com/define.php?term=goose%20chase) ahead!!!  
 The below 'manual' is by no means fool-proof as there are wildly different versions of RPi devices and OS'es abound.
 
@@ -7,6 +8,7 @@ The below 'manual' is by no means fool-proof as there are wildly different versi
 
 Which type of Raspberry Pi should I use? [See the Raspberry Pi requirements.](requirements.md)
 
+> [!TIP]
 > For setting up a Raspberry Device with a touchscreen see: [Setting up a Raspberry Pi in kiosk mode on a touchscreen](setup-touchscreen.md)
 
 Note: Although you can run the app on a headless Raspberry Pi Device, this would defeat the original purpose of the app a bit, as it was designed for touchscreen capabilities.

@@ -24,13 +24,15 @@ sudo apt install nodejs
 
 ::: -->
 
-> **Warning**: [Goose chasing](https://www.urbandictionary.com/define.php?term=goose%20chase) ahead!!!  
+> [!WARNING]
+> Be prepared for [Goose chasing](https://www.urbandictionary.com/define.php?term=goose%20chase) ahead!!!  
 The below 'manual' is by no means fool-proof as there are wildly different versions of RPi devices and OS'es abound.
 
 **Goal**: Start a somewhat recent Raspberry Pi device with browser in kiosk mode on the local (DSI) touchscreen display to show the wiim-now-playing app.
 
 Which type of Raspberry Pi should I use? [See the Raspberry Pi requirements.](requirements.md)
 
+> [!NOTE]
 > For setting up a headless Raspberry Device see: [Setting up a Raspberry Pi in headless mode](setup-headless.md)
 
 ## Usage scenarios
