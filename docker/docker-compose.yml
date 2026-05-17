@@ -5,9 +5,9 @@ services:
     container_name: wnp
     network_mode: host # for SSDP discovery
     environment:
-      - PORT=80      # defaults to port 80 unless PORT is set
-                       # now runs rootless with a non-priviledged user,
-                       #so no need to run on a high port
+      - PORT=80 # defaults to port 80 unless PORT is set
+                # now runs rootless with a non-priviledged user,
+                # so no need to run on a high port
     restart: unless-stopped
     volumes:
       - wnp-data:/app/data

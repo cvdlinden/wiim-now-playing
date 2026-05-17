@@ -32,7 +32,7 @@ const shell = require("./lib/shell.js"); // Shell command functionality
 const lib = require("./lib/lib.js"); // Generic functionality
 const lyrics = require("./lib/lyrics.js"); // Lyrics functionality
 const lyricsCache = require("./lib/lyricsCache.js");
-const log = require("debug")("index"); // See README.md on debugging
+const log = require("debug")("index"); // See the documentation on debugging
 
 // For versionioning purposes
 // Load the package.json files to get the version numbers

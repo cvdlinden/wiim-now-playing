@@ -1,13 +1,15 @@
 # Setting up a Raspberry Pi in headless mode
 
+> [!WARNING]
 > **Warning**: [Goose chasing](https://www.urbandictionary.com/define.php?term=goose%20chase) ahead!!!  
 The below 'manual' is by no means fool-proof as there are wildly different versions of RPi devices and OS'es abound.
 
 **Goal**: Get the wiim-now-playing app running on a somewhat recent Raspberry Pi device, without direct display output i.e. 'headless'. The Pi can then be put away out of sight. The output will be shown by external devices through means of a browser (on a mobile phone, tablet, TV, other computer, another Raspberry Pi, ...).
 
-Which type of Raspberry Pi should I use? [See the Raspberry Pi requirements.](RPi-Requirements.md)
+Which type of Raspberry Pi should I use? [See the Raspberry Pi requirements.](requirements.md)
 
-> For setting up a Raspberry Device with a touchscreen see: [Setting up a Raspberry Pi in kiosk mode on a touchscreen](RPi-Setup.md)
+> [!TIP]
+> For setting up a Raspberry Device with a touchscreen see: [Setting up a Raspberry Pi in kiosk mode on a touchscreen](setup-touchscreen.md)
 
 Note: Although you can run the app on a headless Raspberry Pi Device, this would defeat the original purpose of the app a bit, as it was designed for touchscreen capabilities.
 
@@ -44,7 +46,7 @@ With the now playing information shown in a browser in the background.*
    Then choose the OS. Depending on your choice of device you'll be listed the compatibel OSes. Click on Raspberry Pi OS (other). Pick the Raspberry Pi OS Lite version. The top one (64 bit - bookworm) will do fine.  
 2. Choose your SD card. After selecting the SD card press Next. THis will ask you whether you would like to apply customisations. Choose Edit Settings:  
    ![Settings](../assets/Screenshot%202024-02-13%20234421.png)
-3. In the General tab set the hostname of your RPi. Keep it short, simple and unique, you'll thank yourself later. In the example below I've used _wnp.local_, feel free to name it anyway you like.  
+3. In the General tab set the hostname of your RPi. Keep it short, simple and unique, you'll thank yourself later. In the example below I've used *wnp.local*, feel free to name it anyway you like.  
    Please also set a username and password as you will need those to connect to and setup later.  
    ![Settings](../assets/Screenshot%202024-02-13%20235651.png)  
    Also, if you are going to use WiFi, this is the moment to tell the RPi those details.
@@ -62,7 +64,7 @@ Note: you can also connect a keyboard/mouse/computerscreen to the Raspbery Pi in
 1. Start a command prompt. In these examples I am using PowerShell 7 on Windows 11. On a Mac you can use the Terminal.
 2. You can make sure that the Raspberry Pi is up and running by using ```ping servername.local```, where servername is the name that you gave your Pi. If you get timeouts, it is still working on it or you did not insert the correct Wifi name or password. In the latter case you can remake the SD card with the Imager tool. Or if you're able connect the Pi with a network cable (and later on fix the Wifi).
 3. At the command prompt type ``ssh username@servername.local``. Where ``username`` is **your username** that you've defined in the previous steps. And ``servername`` is the name you've set as your **hostname**.  
-   In the example below I've used _caspar@wnp.local_.
+   In the example below I've used *<caspar@wnp.local>*.
    ![Settings](../assets/Screenshot%202024-02-14%20002224.png)  
 4. At the first time connecting it will ask if you want to continue. Type ``yes`` and press Enter.
 5. Every time we will connect to the RPi this question will no longer be asked. You can then use your password directly to connect:  
@@ -88,11 +90,11 @@ First we will configure and update the Raspberry Pi itself.
 
 2. You'll be greeted by the Software Configuration Tool menu:  
    ![Settings](../assets/2024-02-14.png)  
-   _Use the arrow keys on your keyboard to navigate this menu_
+   *Use the arrow keys on your keyboard to navigate this menu*
 3. From the menu select **1 System Options** > **S5 Boot / Auto Login**.  
    Select **B2 Console Autologin** to automatically login at the command prompt on startup.
 4. Whether you need to set anything from **2 Display Options** or **3 Interface Options** is up to your specific hardware. Normally you would not need to set anything here. The same goes for options 4 and 5.  
-   _However I've had one instance that I needed to set the 'WLAN Country' (under the Localisation Options) 2 times before it remembered it correctly and accepted the WiFi connection._
+   *However I've had one instance that I needed to set the 'WLAN Country' (under the Localisation Options) 2 times before it remembered it correctly and accepted the WiFi connection.*
 5. Under **6 Advanced Options** you may want to use **A1 Expand Filesystem**, in order for the entire capacity of the SD card to be recognised after reboot.
 6. Choose **8 Update** to get all of the latest updates to the system, while you're at it.
 7. Finally select Finish (arrow right key) and press Enter.
@@ -125,9 +127,9 @@ Now that the Raspberry Pi is running it is a good idea to do an update of all th
    sudo apt upgrade
    ```
 
-   _If any new packages are found, install them! It may take a while at the first time._  
-   _You may run these commands again, directly after or at any moment later, to make sure everything has been updated._  
-   _Optionally, you also may do a restart of the Raspberry Pi with a ```sudo reboot``` after the upgrade of the packages is done_
+   *If any new packages are found, install them! It may take a while at the first time.*  
+   *You may run these commands again, directly after or at any moment later, to make sure everything has been updated.*  
+   *Optionally, you also may do a restart of the Raspberry Pi with a ```sudo reboot``` after the upgrade of the packages is done*
 
 ### Installing Node.js LTS version
 
@@ -141,12 +143,12 @@ Refer to the <https://deb.nodesource.com/> installation instructions instead as 
    sudo apt-get install -y nodejs
    ```
 
-   _This will configure and install Node.js automatically on the device_
+   *This will configure and install Node.js automatically on the device*
 
 3. After the installation is done you can check whether the correct version of node and npm are installed. Running:  
    ``node -v`` should say version 20-something.  
    ``npm -v`` should say version 10-something.  
-   _Higher is good, lower is bad._
+   *Higher is good, lower is bad.*
 
 ### Installing Git
 
@@ -172,7 +174,7 @@ Now that we are sure that we have Git and Node.js available we can get the wiim-
 1. Make an SSH connection to the RPi.
 2. Make sure that you are in your home folder. You can tell by the command prompt line showing a ~ (tilde) sign, like ``user@server:~ $``.  
    If not, then use ``cd ~`` to go to your home folder.  
-   _If your are so inclined to put the files anywhere else, feel free to do so._
+   *If your are so inclined to put the files anywhere else, feel free to do so.*
 3. Run the following command to clone the wiim-now-playing repo:  
 
    ```bash
@@ -187,8 +189,8 @@ Now that we are sure that we have Git and Node.js available we can get the wiim-
    npm install
    ```
 
-   _It may tell you about some vulnerabilities. Those can be ignored for now as they seem to not be infuential currently. Fixing those will break the app though._  
-   _If it tells you there are errors, then please follow the instructions._
+   *It may tell you about some vulnerabilities. Those can be ignored for now as they seem to not be infuential currently. Fixing those will break the app though.*  
+   *If it tells you there are errors, then please follow the instructions.*
 
 7. Now we can start the wiim-now-playing app in order to test if it works. Use:  
 
@@ -252,7 +254,7 @@ Whenever the RPi reboots, i.e. due to the intentional or unintentional loss of p
    sudo crontab -e
    ```
 
-   _If this is the first time it will ask which editor to use. My preference is the default, nano._
+   *If this is the first time it will ask which editor to use. My preference is the default, nano.*
 
 3. In the crontab text file add the following lines at the end:  
 
@@ -261,9 +263,9 @@ Whenever the RPi reboots, i.e. due to the intentional or unintentional loss of p
    @reboot su username -c "/usr/bin/node /home/username/wiim-now-playing/server/index.js" &
    ```
 
-   _**NOTE!** Replace the 'username' with **your** username! Right after su **and** in /home/username/..._  
-   _If you've placed the wiim-now-playing app in a different folder then ammend the last part to reflect the correct folder!_  
-   _Note that the & at the end is required!_
+   ***NOTE!** Replace the 'username' with **your** username! Right after su **and** in /home/username/...*  
+   *If you've placed the wiim-now-playing app in a different folder then ammend the last part to reflect the correct folder!*  
+   *Note that the & at the end is required!*
 
 4. Use CTRL+X -> Y to confirm -> Enter to confirm the filename.  
    The change will now be implemented.
@@ -277,7 +279,7 @@ If not, then redo the ``sudo crontab -e`` command to check if the rule you've se
 
 Note: If the app looks garbled in the browser, please refresh your browser window i.e. clear your cache. If the issues persist, be patient and wait for things to settle. And/or try a power cycle of the Raspberry Pi by unplugging the powercord of the RPi completely, wait a while and then plug it back in.
 
-Note: In the RPi commandline you can use ``top`` or ``htop`` to see if there is a node process running. It should be on _top_ of the list.
+Note: In the RPi commandline you can use ``top`` or ``htop`` to see if there is a node process running. It should be on *top* of the list.
 
 ## Adding a screen to the HDMI port (optional)
 
@@ -285,4 +287,4 @@ The Raspberry Pi is now fully funtional with the wiim-now-playing app as long as
 
 However there's not a lot to show for on the screen itself if you add a screen to the HDMI port. Just a command prompt at this point.
 
-To add the same output as in the browser on an attached screen, please follow the [Enable Kiosk mode on a Raspberry Pi](RPi-Kiosk.md) instructions.
+To add the same output as in the browser on an attached screen, please follow the [Enable Kiosk mode on a Raspberry Pi](setup-kiosk.md) instructions.

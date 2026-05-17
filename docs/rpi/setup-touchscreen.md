@@ -24,14 +24,16 @@ sudo apt install nodejs
 
 ::: -->
 
-> **Warning**: [Goose chasing](https://www.urbandictionary.com/define.php?term=goose%20chase) ahead!!!  
+> [!WARNING]
+> Be prepared for [Goose chasing](https://www.urbandictionary.com/define.php?term=goose%20chase) ahead!!!  
 The below 'manual' is by no means fool-proof as there are wildly different versions of RPi devices and OS'es abound.
 
 **Goal**: Start a somewhat recent Raspberry Pi device with browser in kiosk mode on the local (DSI) touchscreen display to show the wiim-now-playing app.
 
-Which type of Raspberry Pi should I use? [See the Raspberry Pi requirements.](RPi-Requirements.md)
+Which type of Raspberry Pi should I use? [See the Raspberry Pi requirements.](requirements.md)
 
-> For setting up a headless Raspberry Device see: [Setting up a Raspberry Pi in headless mode](RPi-Headless.md)
+> [!NOTE]
+> For setting up a headless Raspberry Device see: [Setting up a Raspberry Pi in headless mode](setup-headless.md)
 
 ## Usage scenarios
 
@@ -359,4 +361,4 @@ Note: In the RPi commandline you can use ``top`` or ``htop`` to see if there is 
 
 Now that we've configured the RPi and the wiim-now-playing app (server part) to run every time the RPi (re)boots, we would like to show the client on the touchscreen as well. What else is the point of having the touchscreen attached? Currently there's not a lot to show for on the screen itself. Just a command prompt at this point.
 
-To add the same output as in the browser on the touchscreen, please follow the [Enable Kiosk mode on a Raspberry Pi](RPi-Kiosk.md) instructions next.
+To add the same output as in the browser on the touchscreen, please follow the [Enable Kiosk mode on a Raspberry Pi](setup-kiosk.md) instructions next.
