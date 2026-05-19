@@ -2,4 +2,7 @@
 
 This folder contains all client related code.
 
-See the main README.md in the root for more details.
+For more information see:
+
+- the [Developing Client Side components documentation](../docs/development/client.md)
+- the main [README.md](../README.md)

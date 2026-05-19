@@ -42,7 +42,7 @@ export default withMermaid(
         {
           text: 'Getting started',
           items: [
-            { text: 'Read me', link: '/readme' },
+            // { text: 'Read me', link: '/readme' },
             { text: 'Overview', link: '/getting-started/' },
             { text: 'General requirements', link: '/getting-started/requirements' },
             { text: 'Docker', link: '/getting-started/docker' },
