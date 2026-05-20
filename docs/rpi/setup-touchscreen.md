@@ -37,20 +37,40 @@ After powering up the RPi with Raspberry Pi OS Lite you'll find yourself at a co
 Note: you can also connect a keyboard/mouse/computerscreen to the Raspbery Pi in order to conduct the next steps. But, presuming you already have a computer on which you've prepared the SD card, might as well use that to connect over SSH.
 
 1. Start a command prompt. In these examples I am using PowerShell 7 on Windows 11. On a Mac you can use the Terminal.
-2. At the command prompt type ``ssh username@servername.local``. Where ``username`` is **your username** that you've defined in the previous steps. And ``servername`` is the name you've set as your **hostname**.  
-   In the example below I've used _caspar@wnp.local_.
-   ![Settings](../assets/Screenshot%202024-02-14%20002224.png)  
+2. At the command prompt type ``ssh username@servername.local``.  
+   Where ``username`` is **your username** that you've defined in the previous steps. And ``servername`` is the name you've set as your **hostname** e.g:  
+
+   ```console
+   > ssh user@wnp.local
+   The authenticity of host 'wnp.local (...)' cant' be established.
+   ED25519 key fingerprint is SHA256:...
+   This key is not known by any other names
+   Are you sure you want to continue connecting (yes/no/[fingerprint]?) |
+   ```
+
+   > [!NOTE]
+   > If your computer complains about non matching key fingerprints?  
+   > You may want to remove the cached entries from your local hosts file.  
+   > Please look up on how to do this on your specific OS!  
+   > On Windows the hosts file can be found at ```C:\Users\Username\.ssh\known_hosts```
+
 3. At the first time connecting it will ask if you want to continue. Type ``yes`` and press Enter.
-4. Every time we will connect to the RPi this question will no longer be asked. You can then use your password directly to connect:  
-   ![Settings](../assets/Screenshot%202024-02-14%20002718.png)  
+4. Every time we will connect to the RPi this question will no longer be asked.  
+   You can then use your password directly to connect:  
+
+   ```console
+   > ssh user@wnp.local
+   user@wnp.local's password:
+   ```
+
 5. After connecting to your RPi over SSH you'll be greeted with a command prompt from the RPi server, like:  
 
-   ```bash
-   username@server:~ $
+   ```console
+   user@wnp.local:~ $ |
    ```
 
    Again, the username and servername are the ones you've defined earlier.  
-   Congrats! It is working.
+   Congrats, it is working!
 
 ### Configure the RPi with sudo raspi-config
 
@@ -63,7 +83,7 @@ First we will configure and update the Raspberry Pi itself.
    ```
 
 2. You'll be greeted by the Software Configuration Tool menu:  
-   ![Settings](../assets/2024-02-14.png)  
+   ![Settings](../assets/raspi-config.png)  
    _Use the arrow keys on your keyboard to navigate this menu_
 3. From the menu select **1 System Options** > **S5 Boot / Auto Login**.  
    Select **B2 Console Autologin** to automatically login at the command prompt on startup.
@@ -117,7 +137,15 @@ In my example I'm using a Raspberry Pi 4 with the official Raspberry Pi touchscr
 
 6. Find the line that says ``display_auto_detect=1``. Add a # in front to comment out that line.  
    Then add a line that says ``dtoverlay=vc4-kms-dsi-7inch,invx,invy``. So that it looks like this:  
-   ![alt text](../assets/Screenshot%202024-02-14%20012500.png)
+
+   ```shell
+   # Automatically load overlays for detected DSI displays
+   #display_auto_detect=1
+
+   # Rotate the touch input
+   dtoverlay=vc4-kms-dsi-7inch,invx,invy
+   ```
+
 7. Then use CTRL+X -> Y to confirm -> Enter to confirm the filename.
 8. In order for these changes to take effect we need to do a reboot:
 
@@ -127,7 +155,7 @@ In my example I'm using a Raspberry Pi 4 with the official Raspberry Pi touchscr
 
 Wait for the RPi to reboot. It may start upside-down first, but it will right itself eventually...
 
-![Touchscreen rotated](../assets/IMG_3691.jpg)
+![Touchscreen rotated](../assets/rpi-console-start.jpg)
 
 **Success!**
 
@@ -247,7 +275,7 @@ The Raspberry Pi will not show any app yet on its screen, as we haven't configur
 2. Use the following address to see the app: ``servername.local``  
    Where servername is the hostname you set earlier. For example ``wnp.local``.
 3. You should now see the app working:  
-   ![Touchscreen rotated](../assets/2024-02-14%20(1).png)  
+   ![Touchscreen rotated](../assets/wnp-browser.png)  
    Obviously you need to tell the Wiim device to play something first, use your WiiM Home app for that.
 
 ### Updating the app through Git

@@ -10,20 +10,20 @@ Show what the WiiM device is currently playing on a touchscreen, separate screen
 
 Examples:
 
-![Tidal High](./assets/Screenshot%202025-11-14%20010202.png)  
+![Tidal High](./docs/assets/Screenshot%202025-11-14%20010202.png)  
 *Tidal Flac*
 
-![Spotify](./assets/Screenshot%202025-11-14%20010622.png)  
+![Spotify](./docs/assets/Screenshot%202025-11-14%20010622.png)  
 *Spotify Lossless*
 
-![TV Mode](./assets/Screenshot%202025-11-14%20011750.png)  
+![TV Mode](./docs/assets/Screenshot%202025-11-14%20011750.png)  
 *TV Mode*
 
 | *Device selection* | *Preset selection* | *Volume control* |
 | :---: | :---: | :---: |
-| ![Device selection](./assets/device-selection.png) | ![Preset selection](./assets/presets-selection.png) | ![Volume control](./assets/volume-control.png) |
+| ![Device selection](./docs/assets/device-selection.png) | ![Preset selection](./docs/assets/presets-selection.png) | ![Volume control](./docs/assets/volume-control.png) |
 
-![Settings](./assets/Screenshot%202025-11-14%20011033.png)  
+![Settings](./docs/assets/Screenshot%202025-11-14%20011033.png)  
 *Settings*
 
 ## "I just want it to run, here and now!"

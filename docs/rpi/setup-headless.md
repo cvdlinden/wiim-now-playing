@@ -21,7 +21,7 @@ Then again you already should have the WiiM Home app on your mobile device (phon
 
 **Scenario 2**: You just want to get the now playing information anywhere there's a capable screen with a browser. For example as an extra browser tab on your laptop or repurposing an old tablet you were not really using anylonger.
 
-![Raspberry Pi Zero 2 W](../assets/IMG_4006.jpg)  
+![Raspberry Pi Zero 2 W](../assets/rpi-zero-2-w.jpg)  
 *An example of a Raspberry Pi Zero 2 W in headless configuration.  
 With the now playing information shown in a browser in the background.*
 
@@ -37,20 +37,40 @@ Note: you can also connect a keyboard/mouse/computerscreen to the Raspbery Pi in
 
 1. Start a command prompt. In these examples I am using PowerShell 7 on Windows 11. On a Mac you can use the Terminal.
 2. You can make sure that the Raspberry Pi is up and running by using ```ping servername.local```, where servername is the name that you gave your Pi. If you get timeouts, it is still working on it or you did not insert the correct Wifi name or password. In the latter case you can remake the SD card with the Imager tool. Or if you're able connect the Pi with a network cable (and later on fix the Wifi).
-3. At the command prompt type ``ssh username@servername.local``. Where ``username`` is **your username** that you've defined in the previous steps. And ``servername`` is the name you've set as your **hostname**.  
-   In the example below I've used *<caspar@wnp.local>*.
-   ![Settings](../assets/Screenshot%202024-02-14%20002224.png)  
+3. At the command prompt type ``ssh username@servername.local``.  
+   Where ``username`` is **your username** that you've defined in the previous steps. And ``servername`` is the name you've set as your **hostname**, e.g:  
+
+   ```console
+   > ssh user@wnp.local
+   The authenticity of host 'wnp.local (...)' cant' be established.
+   ED25519 key fingerprint is SHA256:...
+   This key is not known by any other names
+   Are you sure you want to continue connecting (yes/no/[fingerprint]?) |
+   ```
+
+   > [!NOTE]
+   > If your computer complains about non matching key fingerprints?  
+   > You may want to remove the cached entries from your local hosts file.  
+   > Please look up on how to do this on your specific OS!  
+   > On Windows the hosts file can be found at ```C:\Users\Username\.ssh\known_hosts```
+
 4. At the first time connecting it will ask if you want to continue. Type ``yes`` and press Enter.
-5. Every time we will connect to the RPi this question will no longer be asked. You can then use your password directly to connect:  
-   ![Settings](../assets/Screenshot%202024-02-14%20002718.png)  
+5. Every time we will connect to the RPi this question will no longer be asked.  
+   You can then use your password directly to connect:  
+
+   ```console
+   > ssh user@wnp.local
+   user@wnp.local's password:
+   ```
+
 6. After connecting to your RPi over SSH you'll be greeted with a command prompt from the RPi server, like:  
 
-   ```bash
-   username@server:~ $
+   ```console
+   user@wnp.local:~ $ |
    ```
 
    Again, the username and servername are the ones you've defined earlier.  
-   Congrats! It is working.
+   Congrats, it is working!
 
 ### Configure the RPi with sudo raspi-config
 
@@ -63,7 +83,7 @@ First we will configure and update the Raspberry Pi itself.
    ```
 
 2. You'll be greeted by the Software Configuration Tool menu:  
-   ![Settings](../assets/2024-02-14.png)  
+   ![Settings](../assets/raspi-config.png)  
    *Use the arrow keys on your keyboard to navigate this menu*
 3. From the menu select **1 System Options** > **S5 Boot / Auto Login**.  
    Select **B2 Console Autologin** to automatically login at the command prompt on startup.
@@ -201,7 +221,7 @@ If you've started node correctly it will tell you it is running on 'localhost:80
 2. Use the following address to see the app: ``servername.local``  
    Where servername is the hostname you set earlier. For example ``wnp.local``.
 3. You should now see the app working:  
-   ![Touchscreen rotated](../assets/2024-02-14%20(1).png)  
+   ![Touchscreen rotated](../assets/wnp-browser.png)  
    Obviously you need to tell the Wiim device to play something first, use your WiiM Home app for that.
 
 ### Updating the app through Git
