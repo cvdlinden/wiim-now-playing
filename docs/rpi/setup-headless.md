@@ -1,9 +1,5 @@
 # Setting up a Raspberry Pi in headless mode
 
-> [!WARNING]
-> **Warning**: [Goose chasing](https://www.urbandictionary.com/define.php?term=goose%20chase) ahead!!!  
-The below 'manual' is by no means fool-proof as there are wildly different versions of RPi devices and OS'es abound.
-
 **Goal**: Get the wiim-now-playing app running on a somewhat recent Raspberry Pi device, without direct display output i.e. 'headless'. The Pi can then be put away out of sight. The output will be shown by external devices through means of a browser (on a mobile phone, tablet, TV, other computer, another Raspberry Pi, ...).
 
 Which type of Raspberry Pi should I use? [See the Raspberry Pi requirements.](requirements.md)
@@ -25,37 +21,15 @@ Then again you already should have the WiiM Home app on your mobile device (phon
 
 **Scenario 2**: You just want to get the now playing information anywhere there's a capable screen with a browser. For example as an extra browser tab on your laptop or repurposing an old tablet you were not really using anylonger.
 
-## **The 'works-on-my-machine' short-hand-guide:**
-
-1. Prepare a Raspberry Pi with or without any display attached. A display is not required for setup!  
-2. Prepare a Raspberry Pi OS sd-card without a desktop i.e. the Lite version.  
-   Make sure you can connect over the network, i.e. setup the Wifi during sd card initialisation.
-3. Add the wiim-now-playing app over SSH.
-4. Some Googling to fix 'this-and-that'.
-
-For a more step-by-step process read below.
-
 ![Raspberry Pi Zero 2 W](../assets/IMG_4006.jpg)  
 *An example of a Raspberry Pi Zero 2 W in headless configuration.  
 With the now playing information shown in a browser in the background.*
 
 ## 1. Prepare an SD card with Raspberry Pi OS Lite
 
-1. Use the [Raspberry Pi Imager](https://www.raspberrypi.com/software/) to download a version of Raspberry Pi OS **Lite**. As we won't be needing a full desktop environment.  
-   First choose the Device you are going to use.  
-   Then choose the OS. Depending on your choice of device you'll be listed the compatibel OSes. Click on Raspberry Pi OS (other). Pick the Raspberry Pi OS Lite version. The top one (64 bit - bookworm) will do fine.  
-2. Choose your SD card. After selecting the SD card press Next. THis will ask you whether you would like to apply customisations. Choose Edit Settings:  
-   ![Settings](../assets/Screenshot%202024-02-13%20234421.png)
-3. In the General tab set the hostname of your RPi. Keep it short, simple and unique, you'll thank yourself later. In the example below I've used *wnp.local*, feel free to name it anyway you like.  
-   Please also set a username and password as you will need those to connect to and setup later.  
-   ![Settings](../assets/Screenshot%202024-02-13%20235651.png)  
-   Also, if you are going to use WiFi, this is the moment to tell the RPi those details.
-4. In the Services tab select Enable SSH and use the default 'use password authentication'. Please remember the username and password you've set in the General tab!  
-   ![Settings](../assets/Screenshot%202024-02-14%20000706.png)  
-5. Now press Save and Click Yes to apply the customisations. Now create the SD card and wait for it to finish.
-6. After finishing put the SD card in your RPi.
+See: [Prepare a Raspberry Pi OS - SD card](prepare-sd-card.md)
 
-## 3. Configure your Raspberry Pi OS through SSH
+## 2. Configure your Raspberry Pi OS through SSH
 
 After powering up the RPi with Raspberry Pi OS Lite you'll need to wait for it to initialise. Just let it settle a bit as during the first startup, after you've created the new SD card, the OS will need to prepare itself which will take some time.
 

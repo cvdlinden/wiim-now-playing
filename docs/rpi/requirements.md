@@ -1,9 +1,9 @@
-# Raspberry Pi requirements for a wiim-now-playing setup
+# Raspberry Pi requirements for a WiiM Now Playing setup
 
 There is a whole range of Raspberry Pi's (and clones) available, new or secondhand. You might have one lying around that's doing nothing.  
 So which version should you use? Well, it depends on your use case.
 
-## I want to run wiim-now-playing with a touchscreen, monitor or TV directly attached
+## I want to run WNP with a touchscreen, monitor or TV directly attached
 
 In the case you would want to connect a Raspberry Pi directly to a (touch)screen, you'd want a device with enough grunt to run the desktop version of Raspberry Pi OS. **And** enough power to run a Chromium browser locally. For that you'll be looking at a version with at least 1GB of RAM. 2GB of RAM is better, for any overhead. 4GB and higher is overkill, unless you would want to do anything else with the Raspberry Pi on top of running the wiim-now-playing app.
 
@@ -17,7 +17,7 @@ Raspberry Pi 1 and 2 versions could also work, but I find that the software supp
 
 Any Raspberry Pi Zero will **not** work with a screen attached. Those versions have less than 1GB of onboard memory, which will not let you run a desktop with a browser (comfortably).
 
-## I want to run wiim-now-playing without an attached screen i.e. headless
+## I want to run WNP without an attached screen i.e. headless
 
 If no directly attached screen is required i.e. your browser is on another device, then all of the above (with screen) is still applicable.
 

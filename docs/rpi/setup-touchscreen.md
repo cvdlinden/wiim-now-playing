@@ -1,33 +1,5 @@
 # Setting up a Raspberry Pi in kiosk mode on a touchscreen
 
-Where applicable the commands for the different versions of Raspberry Pi OS will be given (Trixie, Bookworm or Bullseye).
-
-<!-- ::: code-group
-
-```bash [Trixie]
-# Commando's specifiek voor Debian 13 Trixie
-sudo apt update
-sudo apt install nodejs -y
-```
-
-```bash [Bookworm]
-# Commando's specifiek voor Debian 12 Bookworm
-sudo apt update
-sudo apt install nodejs
-```
-
-```bash [Bullseye]
-# Commando's specifiek voor Debian 11 Bullseye
-sudo apt update
-sudo apt install nodejs
-```
-
-::: -->
-
-> [!WARNING]
-> Be prepared for [Goose chasing](https://www.urbandictionary.com/define.php?term=goose%20chase) ahead!!!  
-The below 'manual' is by no means fool-proof as there are wildly different versions of RPi devices and OS'es abound.
-
 **Goal**: Start a somewhat recent Raspberry Pi device with browser in kiosk mode on the local (DSI) touchscreen display to show the wiim-now-playing app.
 
 Which type of Raspberry Pi should I use? [See the Raspberry Pi requirements.](requirements.md)
@@ -44,20 +16,6 @@ I.e. faster than reaching for your phone, opening the WiiM Home app and pause. O
 
 **Scenario 3**: You are going through some playlists while hanging back. Then you're not into one song and want to skip quickly. Or you want to play that song again.
 
-## **The 'works-on-my-machine' short-hand-guide:**
-
-1. Prepare a Raspberry Pi with an attached touchscreen.  
-   Make sure you know how to activate the screen before anything else.  
-   Test with a regular RPi OS to see if the screen works (both video and touch).
-2. Prepare a Raspberry Pi OS (Bullseye - legacy) sd-card without a desktop.  
-   Make sure you can see a command prompt on the touchscreen.
-3. Install the 'Lite' version with LXDE (see the blockdev.io link) is advised.  
-   Note: LightDM apparently does not like autologin and the Fat version is overkill.
-4. Add the chromium-browser with minimal desktop dependencies (LXDE).
-5. Whole lot of Googling to fix 'this-and-that'.  
-
-For a more step-by-step process read below.
-
 ## 1. Prepare a Raspberry Pi with a touchscreen
 
 First, make sure that your touchscreen works properly i.e. you have an image output and the touch input works.
@@ -70,21 +28,7 @@ First, make sure that your touchscreen works properly i.e. you have an image out
 
 ## 2. Prepare an SD card with Raspberry Pi OS Lite
 
-Depending on the previous results you could use the latest version of RPi OS, Bookworm (February 2024). However it may not play very nice with some touchscreens. Read the screen manufacturers documentation to see if it can be enabled on the latest OS version.
-
-Otherwise try the legacy version (Bullseye) or older. Reverting to Bullseye seems a safe option if you run into trouble.
-
-1. Use the [Raspberry Pi Imager](https://www.raspberrypi.com/software/) to download a version of Raspberry Pi OS **Lite**. As we won't be needing a full desktop environment.
-2. Choose your SD card, the one you've previously used to test your screen. After selecting the SD card to use, it will ask you whether you would like to apply customisations. Choose Edit Settings:  
-   ![Settings](../assets/Screenshot%202024-02-13%20234421.png)
-3. In the General tab set the hostname of your RPi. Keep it short, simple and unique, you'll thank yourself later. In the example below I've used _wnp.local_, feel free to name it anyway you like.  
-   Please also set a username and password as you will need those to connect to and setup later.  
-   ![Settings](../assets/Screenshot%202024-02-13%20235651.png)  
-   Also, if you are going to use WiFi, this is the moment to tell the RPi those details.
-4. In the Services tab select Enable SSH and use the default 'use password authentication'. Please remember the username and password you've set in the General tab!  
-   ![Settings](../assets/Screenshot%202024-02-14%20000706.png)  
-5. Now press Save and Click Yes to apply the customisations. Now create the SD card and wait for it to finish.
-6. After finishing put the SD card in your RPi.
+See: [Prepare a Raspberry Pi OS - SD card](prepare-sd-card.md)
 
 ## 3. Configure your Raspberry Pi OS through SSH
 

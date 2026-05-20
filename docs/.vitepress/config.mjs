@@ -1,5 +1,6 @@
-import { defineConfig } from 'vitepress'
+import { defineConfig } from 'vitepress';
 import { withMermaid } from "vitepress-plugin-mermaid";
+import { tabsMarkdownPlugin } from 'vitepress-plugin-tabs';
 
 // https://vitepress.dev/reference/site-config
 export default withMermaid(
@@ -10,6 +11,13 @@ export default withMermaid(
     ignoreDeadLinks: true,
     base: '/wiim-now-playing/',
     lastUpdated: true,
+
+    // https://vitepress-plugins.sapphi.red/tabs/
+    markdown: {
+      config(md) {
+        md.use(tabsMarkdownPlugin)
+      },
+    },
 
     // Default theme configuration: https://vitepress.dev/reference/default-theme-config
     themeConfig: {
@@ -54,7 +62,8 @@ export default withMermaid(
           collapsed: true,
           items: [
             { text: 'Overview', link: '/rpi/' },
-            { text: 'Setup for a touch screen', link: '/rpi/setup-touchscreen' },
+            { text: 'Preparing the SD card', link: '/rpi/prepare-sd-card' },
+            { text: 'With a touch screen', link: '/rpi/setup-touchscreen' },
             { text: 'Headless mode', link: '/rpi/setup-headless' },
             { text: 'Kiosk mode', link: '/rpi/setup-kiosk' },
             { text: 'Hardware requirements', link: '/rpi/requirements' },
