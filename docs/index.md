@@ -11,6 +11,9 @@ hero:
     alt: "wiim-now-playing logo"
   actions:
     - theme: brand
+      text: What this is
+      link: /what-is-wnp/
+    - theme: alt
       text: Getting Started
       link: /getting-started/
     - theme: alt
@@ -20,8 +23,14 @@ hero:
 features:
   - icon:
       src: /logo.png
+    title: What can this thing do?
+    details: "A description of its features."
+    link: /what-is-wnp/
+    linkText: "Read more"
+  - icon:
+      src: /logo.png
     title: Getting Started
-    details: "Start the WiiM Now Playing app, the easy way."
+    details: "Get it up and running, the easy way."
     link: /getting-started/
     linkText: "Let's go!"
   - icon:
@@ -39,6 +48,10 @@ features:
   # - title: Feature C
   #   details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
 ---
+
+## Ready for any screen...
+
+[![All screens](./assets/all-screens.jpg)](./what-is-wnp/)
 
 ## Getting a fast start
 
@@ -79,4 +92,4 @@ features:
    ```
 
 > [!NOTE]
-> If that doesn't work out-of-the-box? See the [Getting Started](getting-started/index.md) section.
+> If that doesn't work out-of-the-box? See the [Getting Started](getting-started/index.md) section for more details.

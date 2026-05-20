@@ -5,7 +5,16 @@
 }
 
 /* Gradient background for the homepage */
-body .VPHome {
+body .VPContent.is-home {
+  background: linear-gradient(
+    180deg,
+    rgba(254, 243, 237, 1) 0%,
+    rgb(138, 180, 180) 50%,
+    rgb(131, 172, 175) 100%
+  ) !important;
+  background-attachment: fixed;
+}
+.dark body .VPContent.is-home {
   background: linear-gradient(
     180deg,
     rgba(1, 12, 18, 1) 0%,

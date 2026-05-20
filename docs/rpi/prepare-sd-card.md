@@ -21,13 +21,13 @@ That includes the specific version of the OS you're meant to use as well. So tha
 2. First choose the Device you are going to use.  
 3. Then choose the OS. Depending on your choice of device you'll be listed the compatibel OSes. Click on Raspberry Pi OS (other). Pick the Raspberry Pi OS Lite version. The top one (64 bit) will do fine.  
 4. Choose your SD card. After selecting the SD card press Next. This will ask you whether you would like to apply customisations. Choose Edit Settings:  
-   ![Settings](../assets/Screenshot%202024-02-13%20234421.png)
+   ![Settings](../assets/rpi-imgr-custom-edit.png)
 5. In the General tab set the hostname of your RPi. Keep it short, simple and unique, you'll thank yourself later. In the example below I've used *wnp.local*, feel free to name it anyway you like.  
    Please also set a username and password as you will need those to connect to and setup later.  
-   ![Settings](../assets/Screenshot%202024-02-13%20235651.png)  
+   ![Settings](../assets/rpi-imgr-general.png)  
    Also, if you are going to use WiFi, this is the moment to tell the RPi those details.
 6. In the Services tab select Enable SSH and use the default 'use password authentication'. Please remember the username and password you've set in the General tab!  
-   ![Settings](../assets/Screenshot%202024-02-14%20000706.png)  
+   ![Settings](../assets/rpi-imgr-services.png)  
 7. Now press Save and Click Yes to apply the customisations. Now create the SD card and wait for it to finish.
 8. After finishing put the SD card in your RPi. Power up your RPi and wait for the setup to complete.  
    If successful you will be greeted with a command prompt on your screen.
@@ -38,13 +38,13 @@ That includes the specific version of the OS you're meant to use as well. So tha
 2. First choose the Device you are going to use.  
 3. Then choose the OS. Depending on your choice of device you'll be listed the compatibel OSes. Click on Raspberry Pi OS (other). Pick the Raspberry Pi OS Lite version. The top one (64 bit) will do fine.  
 4. Choose your SD card. After selecting the SD card press Next. This will ask you whether you would like to apply customisations. Choose Edit Settings:  
-   ![Settings](../assets/Screenshot%202024-02-13%20234421.png)
+   ![Settings](../assets/rpi-imgr-custom-edit.png)
 5. In the General tab set the hostname of your RPi. Keep it short, simple and unique, you'll thank yourself later. In the example below I've used *wnp.local*, feel free to name it anyway you like.  
    Please also set a username and password as you will need those to connect to and setup later.  
-   ![Settings](../assets/Screenshot%202024-02-13%20235651.png)  
+   ![Settings](../assets/rpi-imgr-general.png)  
    Also, if you are going to use WiFi, this is the moment to tell the RPi those details.
 6. In the Services tab select Enable SSH and use the default 'use password authentication'. Please remember the username and password you've set in the General tab!  
-   ![Settings](../assets/Screenshot%202024-02-14%20000706.png)  
+   ![Settings](../assets/rpi-imgr-services.png)  
 7. Now press Save and Click Yes to apply the customisations. Now create the SD card and wait for it to finish.
 8. After finishing put the SD card in your RPi. Power up your RPi and wait for the setup to complete.  
    If successful you will be greeted with a command prompt on your screen.
