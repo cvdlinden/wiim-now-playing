@@ -1,27 +1,39 @@
 # Raspberry Pi requirements for a WiiM Now Playing setup
 
-There is a whole range of Raspberry Pi's (and clones) available, new or secondhand. You might have one lying around that's doing nothing.  
-So which version should you use? Well, it depends on your use case.
+There is a whole range of Raspberry Pi's (and clones) available, new or secondhand. You might have one lying around that's doing nothing...
+
+So which version should you use? Well, it depends on your [use case](use-cases.md).
+
+For some reason many wanted to run it just on a TV (not literally). Some are running it as a Docker image, somewhere on old hardware (old business Dells, NAS?). Or just in the background on their daily PC.
+
+> [!NOTE]
+> This project started out to be run on a Raspberry Pi with a touchscreen.  
+
+There is a plethora of 'RPi-clone' Single Board Computers (SBC). I have no idea, I have not tested those. Feel free to be the first! 👍
+
+Whatever hardware you have. If you have a WiiM device that you are using to listen to music. And you have some (leftover) hardware that is able run Node.js, has 1GB or more of memory in total, 8GB of storage and a local network connection? Then I don't see no reason for not running WiiM Now Playing.
+
+Lower specs than that may still work, but you'll be running into limits sooner than you would like.
 
 ## I want to run WNP with a touchscreen, monitor or TV directly attached
 
 In the case you would want to connect a Raspberry Pi directly to a (touch)screen, you'd want a device with enough grunt to run the desktop version of Raspberry Pi OS. **And** enough power to run a Chromium browser locally. For that you'll be looking at a version with at least 1GB of RAM. 2GB of RAM is better, for any overhead. 4GB and higher is overkill, unless you would want to do anything else with the Raspberry Pi on top of running the wiim-now-playing app.
 
-Any Raspberry Pi 3, 4 and 5 will do. Keep in mind that the Chromium browser will only run on devices with at least 1GB of RAM. A 2GB model or up is fine to work with.
+Any **Raspberry Pi 3, 4 and 5** will do. Keep in mind that the Chromium browser will only run on devices with at least 1GB of RAM. A 2GB model or up is fine to work with.
 
-The Raspberry Pi 400 and 500 models, the ones built into a keyboard, should also work fine. (Untested!)
+The **Raspberry Pi 400 and 500 models**, the ones built into a keyboard, should also work fine. *(Untested!)*
 
-Any Compute Module (CM4 and CM5) with enough RAM also work fine, but keep in mind that you do need to have a board or integrated screen to put them in.
+Any **Compute Module (CM4 and CM5)** with enough RAM also work fine, but keep in mind that you do need to have a board or integrated screen to put them in.
 
-Raspberry Pi 1 and 2 versions could also work, but I find that the software support for those models are waning. You will run into some incompatibilies rather sooner than later, which you will then need to solve yourself. Your mileage may vary!
+Raspberry Pi 1 and 2 versions *could* also work, but I find that the software support for those models are waning. You will run into some incompatibilies rather sooner than later, which you will then need to solve yourself. Your mileage may vary!
 
-Any Raspberry Pi Zero will **not** work with a screen attached. Those versions have less than 1GB of onboard memory, which will not let you run a desktop with a browser (comfortably).
+Any Raspberry Pi Zero will **not** work with a screen attached. Those versions have less than 1GB of onboard memory, which will not let you run a desktop with a browser *(comfortably)*.
 
 ## I want to run WNP without an attached screen i.e. headless
 
 If no directly attached screen is required i.e. your browser is on another device, then all of the above (with screen) is still applicable.
 
-But a Raspberry Pi Zero 2 W will do fine for this headless setup. In fact if you want to put it to the side somewhere e.g. stick it in a cupboard, tape it to the back of a monitor, etc. this will be the cheapest solution.
+But a **Raspberry Pi Zero 2 W** will do fine for this headless setup. In fact if you want to put it to the side somewhere e.g. stick it in a cupboard, tape it to the back of a monitor, etc. this will be the cheapest solution.
 
 Do not go for the original Raspberry Pi Zero as this has the same amount of software support as the Raspberry Pi 1 and 2. You may get it to work, but it will be a hassle and frustrate you to no end.
 

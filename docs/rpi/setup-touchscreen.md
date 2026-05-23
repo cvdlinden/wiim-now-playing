@@ -7,15 +7,6 @@ Which type of Raspberry Pi should I use? [See the Raspberry Pi requirements.](re
 > [!NOTE]
 > For setting up a headless Raspberry Device see: [Setting up a Raspberry Pi in headless mode](setup-headless.md)
 
-## Usage scenarios
-
-**Scenario 1**: You want to have a passive screen on your desk or near your stereo, that when something catches your ears you want to know what it is that is playing now.
-
-**Scenario 2**: You work from home, having some nice tunes playing to keep you company/focussed. Then suddenly you are interrupted, like someone calling, and you want to mute/pause the WiiM device immediately.  
-I.e. faster than reaching for your phone, opening the WiiM Home app and pause. Or reach for your amp and turn down the volume.
-
-**Scenario 3**: You are going through some playlists while hanging back. Then you're not into one song and want to skip quickly. Or you want to play that song again.
-
 ## 1. Prepare a Raspberry Pi with a touchscreen
 
 First, make sure that your touchscreen works properly i.e. you have an image output and the touch input works.

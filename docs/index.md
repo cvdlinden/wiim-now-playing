@@ -11,19 +11,19 @@ hero:
     alt: "wiim-now-playing logo"
   actions:
     - theme: brand
-      text: What this is
+      text: What is WNP?
       link: /what-is-wnp/
     - theme: alt
       text: Getting Started
       link: /getting-started/
     - theme: alt
-      text: Installation on a Raspberry Pi
+      text: Installing on a Raspberry Pi
       link: /rpi/
 
 features:
   - icon:
       src: /logo.png
-    title: What can this thing do?
+    title: What can WiiM Now Playing do?
     details: "A description of its features."
     link: /what-is-wnp/
     linkText: "Read more"

@@ -15,16 +15,6 @@ It is however totally possible to hook up an external screen directly to the Ras
 
 Then again you already should have the WiiM Home app on your mobile device (phone or tablet) to control and see what it is playing.
 
-## Usage scenarios
-
-**Scenario 1**: You want to see from across the room what your WiiM device is playing now. You do not fancy all the touchscreen stuff and just want to see it on your TV.
-
-**Scenario 2**: You just want to get the now playing information anywhere there's a capable screen with a browser. For example as an extra browser tab on your laptop or repurposing an old tablet you were not really using anylonger.
-
-![Raspberry Pi Zero 2 W](../assets/rpi-zero-2-w.jpg)  
-*An example of a Raspberry Pi Zero 2 W in headless configuration.  
-With the now playing information shown in a browser in the background.*
-
 ## 1. Prepare an SD card with Raspberry Pi OS Lite
 
 See: [Prepare a Raspberry Pi OS - SD card](prepare-sd-card.md)

@@ -63,9 +63,11 @@ export default withMermaid(
           collapsed: true,
           items: [
             { text: 'Overview', link: '/rpi/' },
-            { text: 'Preparing the SD card', link: '/rpi/prepare-sd-card' },
+            { text: 'Short hand guide', link: '/rpi/short-hand-guide' },
+            { text: 'Use cases', link: '/rpi/use-cases' },
             { text: 'With a touch screen', link: '/rpi/setup-touchscreen' },
             { text: 'Headless mode', link: '/rpi/setup-headless' },
+            { text: 'Preparing the SD card', link: '/rpi/prepare-sd-card' },
             { text: 'Kiosk mode', link: '/rpi/setup-kiosk' },
             { text: 'Hardware requirements', link: '/rpi/requirements' },
           ]
