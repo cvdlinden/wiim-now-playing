@@ -1,18 +1,45 @@
 # First time configuration of your Raspberry Pi OS through SSH
 
-After powering up the RPi with Raspberry Pi OS Lite you'll need to wait for it to initialise. Just let it settle a bit as during the first startup, after you've created the new SD card, the OS will need to prepare itself which will take some time.
+If you haven't done so already, you can add the SD card to your Raspberry Pi and power it up for the first time.
 
-Note: you can also connect a keyboard/mouse/computerscreen to the Raspbery Pi in order to conduct the next steps. But, presuming you already have a computer on which you've prepared the SD card, might as well use that to connect over SSH.
+**After powering up the RPi with Raspberry Pi OS Lite you will need to wait for it to initialise.**
 
-1. Start a command prompt. In these examples I am using PowerShell 7 on Windows 11. On a Mac you can use the Terminal.
+Just let it settle a bit as during the first startup, after you've created the new SD card, the OS will need to prepare itself which will take some time.
+
+> [!NOTE]
+> You can also connect a keyboard/mouse/screen to the Raspbery Pi in order to conduct the next steps. But, presuming you already have a computer on which you've prepared the SD card, might as well use that to connect over SSH.
+
+## Connecting to your Raspberry Pi over SSH
+
+1. Open up a fresh command prompt/bash shell on your system.  
+
+   > [!NOTE]
+   > In these examples I am using PowerShell 7 on Windows 11. On a Mac you can use the Terminal.
 
 2. You can make sure that the Raspberry Pi is up and running by using ```ping servername.local```, where servername is the name that you gave your Pi while preparing the SD card.
 
-   If you get timeouts, it is either still working on starting up or you did not insert the correct Wifi name or password.
+   ```console
+   > ping -4 wnp.local
 
-   In the latter case you can remake the SD card with the Imager tool.
+   Pinging wnp.local [192.168.1.100] with 32 bytes of data:
+   Reply from 192.168.1.100: bytes=32 time=8ms TTL=64
+   Reply from 192.168.1.100: bytes=32 time=10ms TTL=64
+   Reply from 192.168.1.100: bytes=32 time=7ms TTL=64
+   Reply from 192.168.1.100: bytes=32 time=7ms TTL=64
 
-   If you are able connect the Pi with a network cable, this may fix the connection issue. Later on you can fix the WiFi, using raspi-config.
+   Ping statistics for 192.168.1.100:
+      Packets: Sent = 4, Received = 4, Lost = 0 (0% loss),
+   Approximate round trip times in milli-seconds:
+      Minimum = 7ms, Maximum = 10ms, Average = 8ms
+   ```
+
+   If you get timeouts, it is either still working on starting up. Just try again in a minute.  
+
+   Or you did not insert the correct Wifi name or password and the RPi can't connect. In the latter case you can remake the SD card with the Imager tool.
+
+   > [!TIP]
+   > If you are able connect the Pi with a network cable, this may fix the connection issue.  
+   > Later on you can fix the WiFi, using raspi-config, see further down below.
 
 3. At the command prompt type ``ssh username@servername.local``.
 
@@ -45,7 +72,7 @@ Note: you can also connect a keyboard/mouse/computerscreen to the Raspbery Pi in
 5. After connecting to your RPi over SSH you'll be greeted with a command prompt from the RPi server, like:  
 
    ```console
-   user@wnp.local:~ $ |
+   user@wnp:~ $ |
    ```
 
    Again, the username and servername are the ones you've defined earlier.
@@ -55,6 +82,14 @@ Note: you can also connect a keyboard/mouse/computerscreen to the Raspbery Pi in
 ## Configure the RPi with sudo raspi-config
 
 As with any new install, first we will configure and update the Raspberry Pi itself.
+
+::: tabs
+
+=== Current version (Trixie)
+
+{TODO}
+
+=== Legacy version (Bookworm/Bullseye)
 
 1. At the command prompt type:
 
@@ -89,3 +124,5 @@ And wait for the Raspberry Pi to return to the command prompt, before you reconn
 ```shell
 ssh user@wnp.local
 ```
+
+:::
