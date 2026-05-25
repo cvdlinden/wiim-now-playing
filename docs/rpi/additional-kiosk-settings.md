@@ -4,6 +4,8 @@ Now that you have a [working Kiosk mode for the WiiM Now Playing app](setup-kios
 
 The following subjects are optional.
 
+[[toc]]
+
 ## Network issues, after startup
 
 The OS and the chromium browser may have started up already before the network has been initialised. I.e. the screen lights up, but you can't reach it over the network and/or the WNP app isn't responsive.
@@ -102,6 +104,55 @@ sleep 3 & xsetroot -display :0 -def
 ```
 
 > A ```sudo reboot``` is required for the setting to take effect.
+
+## Set the screen brightness
+
+You may find that the screen brightness might be a bit high. Some screens offer extra buttons to increase/decrease the brightness. Obviously, if you added a screen or tv via HDMI, please refer to the screens menu options.
+
+If you have an original Raspberry Pi 7" Touchscreen, you won't have any physical buttons to alter the brightness. But you can manage via the command line.
+
+1. Connect to the RPi through SSH.
+2. Try and find the current backlight brightness value:
+
+   ```shell
+   # For the original version of the 7" screen
+   cat /sys/class/backlight/10-0045/brightness
+
+   # For newer high-res versions of the 7" screen
+   cat /sys/class/backlight/6-0045/brightness
+
+   # If neither exists, 
+   # try and have a look into the backlight folder to find your specific number
+   dir /sys/class/backlight/
+   ```
+
+   *The result should be a number between 0 and 255, most likely it will be 255 as this is the default full brightness.*
+
+3. You can set the brightness to your liking like so:
+
+   ```shell
+   # Note that the '/backlight/number/' should equal the one you've used 
+   # in the previous step.
+   # Either /10-0045/ or /6-0045/, or any other value you may have in use.
+
+   # The number 'to echo' ranges from 0 to 255 (the default).
+
+   echo 100 | sudo tee /sys/class/backlight/10-0045/brightness
+   ```
+
+   Your screen should now immediately dim or brighten.  
+   Echo some more numbers to try and find your optimum.
+
+   If you'd like to return to full brightness, then 'echo 255':
+
+   ```shell
+   echo 255 | sudo tee /sys/class/backlight/10-0045/brightness
+   ```
+
+   > [!NOTE]
+   > The value you've set will survive reboots. So there's no need to set it at every startup.
+
+> A ```sudo reboot``` is NOT required for the setting to take effect.
 
 ## Get rid of the mouse cursor
 
