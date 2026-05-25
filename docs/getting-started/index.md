@@ -1,17 +1,13 @@
 # Getting Started
 
-## What is and isn't WiiM Now Playing?
+Choose your method of installation/deployment:
 
-See: [Scope](../reference/scope.md)
+| Method                                | Best For                                          |
+| --------                              | ----------                                        |
+| [Local installation](installation.md) | If you want to install locally to test things out |
+| [Docker](docker.md)                   | If you want to run it in an isolated environment  |
+| [Raspberry Pi](../rpi/)               | If you want to install it on dedicated hardware   |
 
-## Table of contents
+## What WiiM Now Playing is and is not
 
-::: tip
-Choose your installation method below
-:::
-
-| Method | Best For | Time |
-| -------- | ---------- | ------ |
-| [Quick Start](./) | First-time users | 5 min |
-| [Docker](docker.md) | Isolated environment | 10 min |
-| [Raspberry Pi](../rpi/) | Dedicated hardware | 30 min |
+You may have read the [What is WNP?](../features/) section already, please also have a look at the [Reference > Scope](../reference/scope.md)

@@ -12,7 +12,7 @@ hero:
   actions:
     - theme: brand
       text: What is WNP?
-      link: /what-is-wnp/
+      link: /features/
     - theme: alt
       text: Getting Started
       link: /getting-started/
@@ -24,8 +24,8 @@ features:
   - icon:
       src: /logo.png
     title: What can WiiM Now Playing do?
-    details: "A description of its features."
-    link: /what-is-wnp/
+    details: "Transform a secondary screen into a dedicated music dashboard."
+    link: /features/
     linkText: "Read more"
   - icon:
       src: /logo.png
@@ -39,57 +39,8 @@ features:
     details: "Install WiiM Now Playing on a Raspberry Pi. With or without a touchscreen."
     link: /rpi/
     linkText: "Install"
-  # - title: Feature C
-  #   details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
-  # - title: Feature A
-  #   details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
-  # - title: Feature B
-  #   details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
-  # - title: Feature C
-  #   details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
 ---
 
 ## *Ready for any screen...*
 
-[![All screens](./assets/all-screens.jpg)](./what-is-wnp/)
-
-## Getting a fast start
-
-*Your mileage may vary...*
-
-1. Open a (bash) command prompt, PowerShell or terminal window.
-2. Make sure that you have somewhat recent (LTS) versions of [Node.js](https://nodejs.org/) and [Git](https://git-scm.com/) installed:
-
-   ```shell
-   # Check node and npm version
-   node -v
-   npm -v
-
-   # Check git version
-   git -v
-   ```
-
-3. Run the following commands in order:
-
-   ```shell
-   # Move to your user folder or use a folder to your liking
-   cd ~
-
-   # Clone this repo
-   git clone https://github.com/cvdlinden/wiim-now-playing.git
-
-   # Move into the wiim-now-playing folder
-   cd wiim-now-playing
-
-   # Install the dependencies
-   npm install
-
-   # Start the WiiM Now Playing app
-   node server/index.js
-
-   # Open the provided URL, most likely: http://localhost:80
-   # Start some tunes through the WiiM Home App and enjoy
-   ```
-
-> [!NOTE]
-> If that doesn't work out-of-the-box? See the [Getting Started](getting-started/index.md) section for more details.
+[![All screens](./assets/all-screens.jpg)](./features/)

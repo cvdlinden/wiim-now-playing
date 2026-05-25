@@ -35,7 +35,7 @@ export default withMermaid(
       // https://vitepress.dev/reference/default-theme-config
       nav: [
         { text: 'Home', link: '/' },
-        { text: 'What is WNP?', link: '/what-is-wnp/' },
+        { text: 'What is WNP?', link: '/features/' },
         { text: 'Getting Started', link: '/getting-started/' },
         { text: 'Raspberry Pi', link: '/rpi/' }
       ],
@@ -44,7 +44,7 @@ export default withMermaid(
         {
           text: 'What is WNP?',
           items: [
-            { text: 'Overview', link: '/what-is-wnp/' },
+            { text: 'Overview', link: '/features/' },
           ]
         },
         {
@@ -54,8 +54,9 @@ export default withMermaid(
             // { text: 'Read me', link: '/readme' },
             { text: 'Overview', link: '/getting-started/' },
             { text: 'General requirements', link: '/getting-started/requirements' },
-            { text: 'Docker', link: '/getting-started/docker' },
+            { text: 'Installation', link: '/getting-started/installation' },
             { text: 'Updating', link: '/getting-started/updating' },
+            { text: 'Docker', link: '/getting-started/docker' },
           ]
         },
         {
