@@ -75,7 +75,7 @@ Now that we are sure that we have Git and Node.js available we can get the wiim-
    git clone https://github.com/cvdlinden/wiim-now-playing.git
    ```
 
-4. Then go into the wiim-now-playing folder using: 
+4. Then go into the wiim-now-playing folder using:  
 
    ```shell
    cd wiim-now-playing/

@@ -4,11 +4,16 @@ Now that you've configured the RPi and the wiim-now-playing app (server part) to
 
 ## Configuring Kiosk mode
 
-For this we need to get the chromium browser to also start automatically in kiosk mode and point to the wiim-now-playing app.
+For this we need:
+
+* To get the chromium browser to also start automatically in kiosk mode and point to the wiim-now-playing app.
+* Install a lightweight desktop environment, LXDE, to run the chromium browser on.
+
+Follow these steps:
 
 1. Make an SSH connection to the RPi:
 
-   ```bash
+   ```shell
    ssh wnp.local
    ```
 
@@ -34,27 +39,35 @@ For this we need to get the chromium browser to also start automatically in kios
 
    :::
 
-   > [!NOTE]
+   > [!TIP]
    > This will take a while! If your SSH connection is broken off, please wait a while before reconnecting. Just let it do its thing.
    >
    > If the RPi stays unresponsive for a long time it may take a power off from the RPi to return to normal operation.
 
-3. Once you can reconnect, then change the startup behaviour by opening  
+3. Once the installations are done, and you can reconnect, then change the startup behaviour by opening  
 
-   ```bash
+   ```shell
    sudo raspi-config
    ```
 
-4. From the menu select **1 System Options** > **S5 Boot / Auto Login**.  
-   Select **B2 Desktop Autologin** to automatically start the Desktop GUI.  
+4. Enter the **1 System Options**  
+   Enter **S5 Boot**  
+   Select **B2 Desktop Gui**  
+
+   Re-enter the **1 System Options**  
+   **S6 Auto Login**.  
+   Answer **&lt;Yes&gt;** to automatically log in to the Desktop GUI.  
+
    Finish and reboot.
+
 5. You will now be greeted by a desktop environment on the RPi display instead of a command prompt.
 
    ![LXDE Desktop](../assets/rpi-lxde-basic.jpg)
 
-6. Reconnect to the RPi through SSH and use the following command to edit the LXDE autostart file:
+6. Reconnect to the RPi through SSH.  
+   Use the following command to edit the LXDE autostart file:
 
-   ```bash
+   ```shell
    sudo nano .config/lxsession/LXDE/autostart
    ```
 
@@ -62,7 +75,7 @@ For this we need to get the chromium browser to also start automatically in kios
    Add a line at the end like ``@/home/username/autostart.sh``.  
    Replace username with **your** username!
 
-   ```bash
+   ```shell
    #@lxpanel --profile LXDE
    #@pcmanfm --desktop --profile LXDE
    #@xscreensaver -no-splash
@@ -73,11 +86,12 @@ For this we need to get the chromium browser to also start automatically in kios
 8. Then use CTRL+X -> Y to confirm -> Enter to confirm the filename.
 9. Next we will create and edit the autostart.sh file. Use:
 
-   ```bash
+   ```shell
    nano autostart.sh
    ```
 
-   _Note that sudo is not required!_
+   > [!NOTE]
+   > Sudo is not required for this step!
 
 10. Add the following lines to the autostart.sh file:  
 
@@ -115,20 +129,19 @@ For this we need to get the chromium browser to also start automatically in kios
 11. Then use CTRL+X -> Y to confirm -> Enter to confirm the filename.
 12. Before we do a reboot we need to make autostart.sh executable, use:
 
-    ```bash
+    ```shell
     chmod +x autostart.sh
     ```
 
 13. Now do a reboot of the RPi.
 
-    ```bash
+    ```shell
     sudo reboot
     ```
 
 14. Wait for the RPi to reboot. This may take a while...  
 
     ![Chrome Kiosk](../assets/rpi-lxde-chromium.jpg)
-
 
 > [!TIP]
 > Congrats with your working touchscreen!
