@@ -23,21 +23,25 @@ Now that the Raspberry Pi is running it is a good idea to do an update of all th
 
 ## Installing Node.js LTS version
 
-Refer to the <https://deb.nodesource.com/> installation instructions instead as it will install the latest LTS version (20.x) of Node.js.
+> [!NOTE]
+> Refer to the <https://nodesource.com/products/distributions> installation instructions for the latest stable LTS version of Node.js.  
+> This will install the latest LTS version (24.x) of Node.js, with NPM.
 
 1. Make an SSH connection to the RPi.
 2. Run the following commands in sequence:
 
-   ```bash
-   curl -fsSL https://deb.nodesource.com/setup_20.x | sudo bash -
-   sudo apt-get install -y nodejs
+   ```shell
+   sudo apt-get install -y curl
+   curl -fsSL https://deb.nodesource.com/setup_24.x | sudo -E bash -
+   sudo apt-get install -y nsolid
+   nsolid -v
    ```
 
    *This will configure and install Node.js automatically on the device*
 
 3. After the installation is done you can check whether the correct version of node and npm are installed. Running:  
-   ``node -v`` should say version 20-something.  
-   ``npm -v`` should say version 10-something.  
+   ``node -v`` should say version 24-something.  
+   ``npm -v`` should say version 11-something.  
    *Higher is good, lower is bad.*
 
 ## Installing Git
@@ -50,12 +54,12 @@ In this case we'll be using Git to clone the wiim-now-playing repo in order to a
 2. Git could already be installed with your Raspberry Pi OS.  
    Run the following command to install and make sure:  
 
-   ```bash
+   ```shell
    sudo apt install git
    ```
 
 3. You can check wich version of Git you have gotten now:  
-   ``git -v`` should tell you which version you have. Version 2.30-something or higher is fine.
+   ``git -v`` should tell you which version you have. Version 2.40-something or higher is fine.
 
 ## Install wiim-now-playing using Git
 
@@ -67,24 +71,30 @@ Now that we are sure that we have Git and Node.js available we can get the wiim-
    *If your are so inclined to put the files anywhere else, feel free to do so.*
 3. Run the following command to clone the wiim-now-playing repo:  
 
-   ```bash
+   ```shell
    git clone https://github.com/cvdlinden/wiim-now-playing.git
    ```
 
-4. Then go into the wiim-now-playing folder using: ``cd wiim-now-playing/``.
+4. Then go into the wiim-now-playing folder using: 
+
+   ```shell
+   cd wiim-now-playing/
+   ```
+
 5. Using ``ls -la`` will give you the contents of the folder. It should contain a bunch of files and folders, that correspond to the Github repo.
 6. Before starting the wiim-now-playing app you need to tell it once to get all of the dependencies, using:  
 
-   ```bash
+   ```shell
    npm install
    ```
 
-   *It may tell you about some vulnerabilities. Those can be ignored for now as they seem to not be infuential currently. Fixing those will break the app though.*  
-   *If it tells you there are errors, then please follow the instructions.*
+   > [!CAUTION]
+   > *It may tell you about some vulnerabilities. Those can be ignored for now as they seem to not be infuential currently. Fixing those **will break**npm  the app though.*  
+   > *If it tells you there are errors, then please follow the instructions.*
 
 7. Now we can start the wiim-now-playing app in order to test if it works. Use:  
 
-   ```bash
+   ```shell
    node server/index.js
    ```
 
@@ -93,7 +103,7 @@ Now that we are sure that we have Git and Node.js available we can get the wiim-
 
 ## Enable Node.js to run on port 80
 
-By default Raspberry Pi Os (Debian) does not like claiming port 80, the default WWW server port, as a non-root user. In order to claim port 80 as a non-root/sudo user, use ([found here](https://stackoverflow.com/questions/60372618/nodejs-listen-eacces-permission-denied-0-0-0-080)):
+By default Raspberry Pi OS (Debian) does not like claiming port 80, the default WWW server port, as a non-root user. In order to claim port 80 as a non-root/sudo user, use ([found here](https://stackoverflow.com/questions/60372618/nodejs-listen-eacces-permission-denied-0-0-0-080)):
 
 ```shell
 sudo apt install libcap2-bin 
@@ -102,7 +112,7 @@ sudo setcap cap_net_bind_service=+ep `readlink -f \`which node\``
 
 Now you can try and run the wiim-now-playing app by using:
 
-```bash
+```shell
 node server/index.js
 ```
 
@@ -134,4 +144,4 @@ If there's a new version of the app you can easily update it through Git. Also s
 4. You can then go to the app settings and reload the UI to check the latest UI changes.  
    But for a proper update do a reboot (either ``sudo reboot`` or a 'Reboot Server' through the app).
 
-Hint: Read up on git and its commands to get a grip on what else it can do, like skipping back to an earlier version or a different branch. Although definitely not required.
+Hint: Read up on git and its commands to get a grip on what else it can do, like skipping back to an earlier version or a different branch. *Although definitely not required.*
