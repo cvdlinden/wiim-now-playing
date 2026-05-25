@@ -1,3 +1,3 @@
-Please read the full documentation on <https://cvdlinden.github.io/wiim-now-playing/>.
+# Docs README
 
-<!--@include: ../README.md-->
+Please read the full documentation on <https://cvdlinden.github.io/wiim-now-playing/>.

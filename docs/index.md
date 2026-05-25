@@ -49,7 +49,7 @@ features:
   #   details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
 ---
 
-## Ready for any screen...
+## *Ready for any screen...*
 
 [![All screens](./assets/all-screens.jpg)](./what-is-wnp/)
 
