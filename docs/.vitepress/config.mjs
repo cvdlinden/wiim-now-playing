@@ -73,6 +73,7 @@ export default withMermaid(
             { text: 'Add WNP to the Raspberry Pi', link: '/rpi/add-wnp-to-rpi' },
             { text: 'Auto-starting WNP', link: '/rpi/wnp-autostart' },
             { text: 'Enable kiosk mode', link: '/rpi/setup-kiosk' },
+            { text: 'Additional kiosk configuration', link: '/rpi/additional-kiosk-settings' },
             { text: 'Hardware requirements', link: '/rpi/requirements' },
           ]
         },

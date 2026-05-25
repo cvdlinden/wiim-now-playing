@@ -152,69 +152,15 @@ Follow these steps:
 
 ### Troubleshooting
 
-- If the screen looks garbled/unstyled, wait a little while for it to settle.  
+* If the screen looks garbled/unstyled, wait a little while for it to settle.  
   Or try a power cycle by unplugging the RPi completely, wait and then plug it in again.
-- Try and add a ``sleep`` in front of the chromium browser line, like ``sleep 5 && chromium-browser ...``.  
+* Try and add a ``sleep`` in front of the chromium browser line, like:  
+  
+  ```bash
+  sleep 5 && chromium --kiosk ...
+  ```
+
   This will delay the start of the browser in order to let the OS settle first.
-
-## Network issues
-
-It may help to have the RPi connected through an Ethernet cable. WiFi is much slower to initialise than an ethernet connection. The OS and the chromium browser may have started up already before the network has been initialised. If it works fine with a cable and not over WiFi? Add the following.
-
-If the network is slow to initialise you can add a wait state to the autostart script through ``nano autostart.sh``:
-
-```bash
-#!/bin/bash
-
-# Wait for LAN to be enabled
-while [ $(/usr/sbin/ifconfig | grep -cs 'broadcast') -lt 1 ]; do sleep 2; done
-echo "WNP: hostname $(hostname -I)"
-echo "WNP: broadcast $(/usr/sbin/ifconfig | grep -cs 'broadcast')"
-
-# {the rest of your autostart.sh}
-
-exit 0
-```
-
-This will make sure that the startup procedure waits for WiFi, before starting the chromium browser.
-
-## Disable Screensaver
-
-Unfortunately the OS still has a screensaver/-blanking enabled. After a while your screen will go blank. If you always want to have the screen turned on, add the following lines at the beginning of the autostart.sh file:
-
-```bash
-#!/bin/bash
-
-# Screen always on
-xset s off
-xset -dpms
-xset s noblank
-
-...{the rest}
-```
-
-Now, if like me, you do want to have the screen only turned on for a limited amount of time and not light up the room 24/7, here are some alternative steps:
-
-1. Connect to the RPi through SSH.
-2. Edit the autostart file:
-
-   ```bash
-   nano autostart.sh
-   ```
-
-3. Add the following lines to the autostart file, just below the ``#!/bin/bash`` line:
-
-   ```bash
-   # Set screen blanking
-   xset -dpms
-   xset s blank
-   xset s 900 900
-   ```
-
-   - _The '-dpms' disables the Display Power Management, effectively stopping modern power management from interrupting._  
-   - _The 'blank' statement makes sure that signals are cut from the display. And the backlight is being turned off.  
-   However, some screens do not like being cut off and show a 'not connected' message/colorspectrum. Which defeats the purpose of the screen blanking. For those cases use the 'noblank' option instead._
-   - _The 900 stands for 900 seconds i.e. 15 minutes. Feel free to change to any timespan you'd like._
 
 ## Screen(saver) locking
 
@@ -223,21 +169,22 @@ One unfortunate behaviour of letting your display fall asleep is that when you d
 In order to stop the screen locking in an LXDE environment do the following:
 
 1. Connect to your RPi through SSH.
+
 2. From the command line create a new local autostart folder in .config:
 
-   ```bash
+   ```shell
    mkdir -p ~/.config/autostart
    ```
 
 3. Copy the light-locker configuration file to the new autostart folder in your home/.config folder.
 
-   ```bash
+   ```shell
    cp /etc/xdg/autostart/light-locker.desktop ~/.config/autostart
    ```
 
 4. Now edit this file with:
 
-   ```bash
+   ```shell
    sudo nano .config/autostart/light-locker.desktop
    ```
 
@@ -257,33 +204,4 @@ In order to stop the screen locking in an LXDE environment do the following:
 7. Do a ``sudo reboot`` to let the changes take effect.  
    Wait for the display to fall asleep and tap the screen. You will no longer get a login screen.
 
-## Blank screen background color
-
-Some installations will show a grayish screen when you let the it fall asleep, using 'noblank'. If you encounter such a situation, instead of just a black/blank screen. Add the following to the end of your autostart.sh script (``nano autostart.sh``). Add it just before the ``exit 0`` line.
-
-```bash
-# Set default background to default black
-sleep 3 & xsetroot -display :0 -def
-```
-
-## Get rid of the mouse cursor
-
-When you tap your screen you will notice a mouse cursor showing. I haven't yet found a method to get rid of that entirely. It is especially annoying when you've turned you Raspberry Pi touchscreen the right way up, since the mouse cursor shows up inversely where you tap your screen.
-
-You can try adding the following line in your ```autostart.sh```
-
-```bash
-# Hide the mouse cursor on the touchscreen
-unclutter -idle 0 &
-```
-
-## Additional info
-
-Useful links to get kiosk mode working:
-
-- Fat, Lite and Super Lite versions: <https://blockdev.io/raspberry-pi-2-and-3-chromium-in-kiosk-mode/>
-- <https://www.raspberrypi.com/tutorials/how-to-use-a-raspberry-pi-in-kiosk-mode/>
-- <https://reelyactive.github.io/diy/pi-kiosk/>
-- <https://github.com/guysoft/FullPageOS>
-
-**Note**: Your mileage may vary.
+Now that you have a working Kiosk mode, you may want to check out the [additional kiosk configuration](additional-kiosk-settings.md).
