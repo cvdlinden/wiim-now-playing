@@ -19,6 +19,10 @@ export default withMermaid(
       },
     },
 
+    sitemap: {
+      hostname: 'https://cvdlinden.github.io/wiim-now-playing/'
+    },
+
     // Default theme configuration: https://vitepress.dev/reference/default-theme-config
     themeConfig: {
 
