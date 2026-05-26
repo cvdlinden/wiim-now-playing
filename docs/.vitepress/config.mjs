@@ -8,7 +8,7 @@ export default withMermaid(
     title: "WiiM Now Playing",
     description: "Show what the WiiM device is currently playing.",
 
-    ignoreDeadLinks: true,
+    ignoreDeadLinks: 'localhostLinks',
     base: '/wiim-now-playing/',
     lastUpdated: true,
 
@@ -21,8 +21,24 @@ export default withMermaid(
 
     head: [
       [
+        'link',
+        { rel: 'icon', href: '/wiim-now-playing/favicon.ico' }
+      ],
+      [
         'meta',
         { name: 'google-site-verification', content: 'yPm8E8x36ekuDpChm-70rwUF5w-_-XcmH72Lf_OuXQM' }
+      ],
+      [
+        'script',
+        { async: '', src: 'https://www.googletagmanager.com/gtag/js?id=G-L2E757E9ZV' }
+      ],
+      [
+        'script',
+        {},
+        `window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-L2E757E9ZV');`
       ]
     ],
 
@@ -50,6 +66,11 @@ export default withMermaid(
         { text: 'Getting Started', link: '/getting-started/' },
         { text: 'Raspberry Pi', link: '/rpi/' }
       ],
+
+      footer: {
+        message: 'Released under the <a href="https://github.com/cvdlinden/wiim-now-playing/blob/main/LICENSE">GNU General Public License v3.0</a>.',
+        copyright: 'Copyright © 2026-present, <a href="https://github.com/cvdlinden/wiim-now-playing">WiiM Now Playing</a>'
+      },
 
       sidebar: [
         {
