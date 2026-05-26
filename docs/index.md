@@ -5,7 +5,7 @@ layout: home
 hero:
   name: "WiiM Now Playing"
   text: "Show what your WiiM device is currently playing."
-  tagline: "For use on a Raspberry Pi. With or without a touchscreen."
+  tagline: "Optimized for Raspberry Pi (with or without touchscreen), but compatible with any system running Node.js or Docker."
   image: 
     src: /logo.png
     alt: "wiim-now-playing logo"
@@ -26,7 +26,7 @@ features:
     title: What can WiiM Now Playing do?
     details: "Transform a secondary screen into a dedicated music dashboard."
     link: /features/
-    linkText: "Read more"
+    linkText: "Explore features"
   - icon:
       src: /logo.png
     title: Getting Started
@@ -41,6 +41,6 @@ features:
     linkText: "Install"
 ---
 
-## *Ready for any screen...*
+## *Ready for any screen... From 7" to 70"!*
 
 [![All screens](./assets/all-screens.jpg)](./features/)
