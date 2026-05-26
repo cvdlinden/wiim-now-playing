@@ -19,6 +19,13 @@ export default withMermaid(
       },
     },
 
+    head: [
+      [
+        'meta',
+        { name: 'google-site-verification', content: 'yPm8E8x36ekuDpChm-70rwUF5w-_-XcmH72Lf_OuXQM' }
+      ]
+    ],
+
     sitemap: {
       hostname: 'https://cvdlinden.github.io/wiim-now-playing/'
     },
