@@ -1,5 +1,6 @@
-import { defineConfig } from 'vitepress'
+import { defineConfig } from 'vitepress';
 import { withMermaid } from "vitepress-plugin-mermaid";
+import { tabsMarkdownPlugin } from 'vitepress-plugin-tabs';
 
 // https://vitepress.dev/reference/site-config
 export default withMermaid(
@@ -10,6 +11,13 @@ export default withMermaid(
     ignoreDeadLinks: true,
     base: '/wiim-now-playing/',
     lastUpdated: true,
+
+    // https://vitepress-plugins.sapphi.red/tabs/
+    markdown: {
+      config(md) {
+        md.use(tabsMarkdownPlugin)
+      },
+    },
 
     // Default theme configuration: https://vitepress.dev/reference/default-theme-config
     themeConfig: {
@@ -27,26 +35,28 @@ export default withMermaid(
       // https://vitepress.dev/reference/default-theme-config
       nav: [
         { text: 'Home', link: '/' },
+        { text: 'What is WNP?', link: '/features/' },
         { text: 'Getting Started', link: '/getting-started/' },
         { text: 'Raspberry Pi', link: '/rpi/' }
       ],
 
       sidebar: [
-        // {
-        //   text: 'Examples',
-        //   items: [
-        //     { text: 'Markdown Examples', link: '/markdown-examples' },
-        //     { text: 'Runtime API Examples', link: '/api-examples' }
-        //   ]
-        // },
+        {
+          text: 'What is WNP?',
+          items: [
+            { text: 'Overview', link: '/features/' },
+          ]
+        },
         {
           text: 'Getting started',
+          collapsed: true,
           items: [
-            { text: 'Read me', link: '/readme' },
+            // { text: 'Read me', link: '/readme' },
             { text: 'Overview', link: '/getting-started/' },
             { text: 'General requirements', link: '/getting-started/requirements' },
-            { text: 'Docker', link: '/getting-started/docker' },
+            { text: 'Installation', link: '/getting-started/installation' },
             { text: 'Updating', link: '/getting-started/updating' },
+            { text: 'Docker', link: '/getting-started/docker' },
           ]
         },
         {
@@ -54,9 +64,17 @@ export default withMermaid(
           collapsed: true,
           items: [
             { text: 'Overview', link: '/rpi/' },
-            { text: 'Setup for a touch screen', link: '/rpi/setup-touchscreen' },
-            { text: 'Headless mode', link: '/rpi/setup-headless' },
-            { text: 'Kiosk mode', link: '/rpi/setup-kiosk' },
+            { text: 'Short hand guide', link: '/rpi/short-hand-guide' },
+            { text: 'Use cases', link: '/rpi/use-cases' },
+            { text: 'Touch screen setup', link: '/rpi/setup-touchscreen' },
+            { text: 'Headless setup', link: '/rpi/setup-headless' },
+            { text: 'Preparing the SD card', link: '/rpi/prepare-sd-card' },
+            { text: 'First time configuration', link: '/rpi/first-time-config' },
+            { text: 'Configuring the touchscreen', link: '/rpi/configure-touchscreen' },
+            { text: 'Add WNP to the Raspberry Pi', link: '/rpi/add-wnp-to-rpi' },
+            { text: 'Auto-starting WNP', link: '/rpi/wnp-autostart' },
+            { text: 'Enable kiosk mode', link: '/rpi/setup-kiosk' },
+            { text: 'Additional kiosk configuration', link: '/rpi/additional-kiosk-settings' },
             { text: 'Hardware requirements', link: '/rpi/requirements' },
           ]
         },
@@ -76,8 +94,10 @@ export default withMermaid(
           collapsed: true,
           items: [
             { text: 'Overview', link: '/reference/' },
+            { text: 'Scope', link: '/reference/scope' },
             { text: 'Design', link: '/reference/design' },
             { text: 'Plan', link: '/reference/plan' },
+            { text: 'Acknowledgements', link: '/reference/acknowledgements' },
           ]
         },
         {

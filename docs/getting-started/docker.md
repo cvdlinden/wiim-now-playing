@@ -2,7 +2,7 @@
 
 "I want to use Docker and run it virtually!"
 
-> [!NOTE]
+> [!IMPORTANT]
 > Please note that Docker images will **only** run well on a Linux machine. The Windows version of Docker does not support device discovery over SSDP and thus will not scan the network for WiiM devices. You may need to spin up an entire Linux VM for this to work, which defeats the purpose of Docker.  
 > See: <https://github.com/cvdlinden/wiim-now-playing/pull/4>
 

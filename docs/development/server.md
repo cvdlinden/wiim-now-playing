@@ -1,27 +1,47 @@
 # Developing Server Side components
 
-## Server side development
+## Server side development server
 
-Use ``nodemon`` to automatically reload the server at any changes you've saved. Or use:
+When modifying any code in de ```server``` folder it is wise to start the app with ```nodemon``` for a development server.
+
+This will monitor for any changes in the source code and automatically restarts your server.  Keep an eye on your command prompt to see the restarts or crashes.  
+
+> [!NOTE]
+> [Read more on Nodemon at GitHub](https://github.com/remy/nodemon)
+
+```console
+> nodemon
+[nodemon] 3.1.14
+[nodemon] to restart at any time, enter `rs`
+[nodemon] watching path(s): *.*
+[nodemon] watching extensions: js,mjs,cjs,json
+[nodemon] starting `node server/index.js`
+Web Server started at http://localhost:80
+```
+
+It will tell you where the app is running.
+
+Alternatively use:
 
 ```shell
 npm start
 ```
 
-*This will start nodemon for you. Any changes made to the server sources will be picked up immediately.  
-Keep an eye on your command prompt to see the restarts or crashes.*
+This will start nodemon as well.
 
-Of course you can always start node manually using:
+And of course you can always start node manually using:
 
 ```shell
 node server/index.js
 ```
 
-*But then you will then need to restart node yourself on any change or if it crashes.*
+But then you will then need to restart node yourself on any change or if it crashes.
 
 ## Server side debugging
 
-If you want to know what the app is doing from your shell, you can set the DEBUG flag before starting nodemon.
+By default you will not be alerted of anything going on in code, unless there is a crash.
+
+If you want to know what the app is doing in your shell, you can set the DEBUG flag before starting nodemon.
 
 ::: code-group
 
@@ -47,6 +67,25 @@ $env:DEBUG=""
 nodemon
 ```
 
+```bash [Bash/Terminal]
+# Set DEBUG flag to show all debugging info
+DEBUG="*" node server/index.js
+
+# Set the DEBUG flag to show all debugging info, except nodemon itself
+DEBUG="*,-nodemon*" node server/index.js
+
+# Set the DEBUG flag to show a sane amount of debug information, for example
+DEBUG="*, -nodemon*, -engine*, -socket.*, -upnp-device*" node server/index.js
+
+# Set the DEBUG flag to show only debugging info from e.g. lib:upnpClient
+# specifically from the /lib/upnpClient.js module.
+DEBUG="lib:upnpClient" node server/index.js
+
+# Reset the DEBUG flag to keep silent
+# i.e. set the debug flag to empty.
+DEBUG="" node server/index.js
+```
+
 ```bat [CMD]
 :: Set DEBUG flag to show all debugging info
 set DEBUG=*
@@ -67,25 +106,6 @@ set DEBUG=
 
 :: Start nodemon to see the debugging information
 nodemon
-```
-
-```bash [Bash/Terminal]
-# Set DEBUG flag to show all debugging info
-DEBUG="*" node server/index.js
-
-# Set the DEBUG flag to show all debugging info, except nodemon itself
-DEBUG="*,-nodemon*" node server/index.js
-
-# Set the DEBUG flag to show a sane amount of debug information, for example
-DEBUG="*, -nodemon*, -engine*, -socket.*, -upnp-device*" node server/index.js
-
-# Set the DEBUG flag to show only debugging info from e.g. lib:upnpClient
-# specifically from the /lib/upnpClient.js module.
-DEBUG="lib:upnpClient" node server/index.js
-
-# Reset the DEBUG flag to keep silent
-# i.e. set the debug flag to empty.
-DEBUG="" node server/index.js
 ```
 
 :::

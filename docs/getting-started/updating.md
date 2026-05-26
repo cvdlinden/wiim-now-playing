@@ -1,6 +1,8 @@
 # Updating to the latest version
 
-WiiM Now Playing is updated 'regularly'. Updating your installation depends on how you've installed WiiM Now Playing the first time.
+WiiM Now Playing is updated 'regularly'*. Updating your installation depends on how you've installed WiiM Now Playing the first time.
+
+**There is no set interval for updates.*
 
 ## "I've installed via Git"
 
