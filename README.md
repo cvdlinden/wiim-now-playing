@@ -6,9 +6,12 @@
 [![Release](https://img.shields.io/github/v/release/cvdlinden/wiim-now-playing)](https://github.com/cvdlinden/wiim-now-playing/releases)
 [![License](https://img.shields.io/github/license/cvdlinden/wiim-now-playing)](https://github.com/cvdlinden/wiim-now-playing/blob/main/LICENSE)
 
-Show what the WiiM device is currently playing on a touchscreen, separate screen or browser.
+**Show what your WiiM device is currently playing.**  
+*Optimized for Raspberry Pi (with or without touchscreen), but compatible with any system running Node.js or Docker.*
 
-Examples:
+> You can find all of the documentation at: <https://cvdlinden.github.io/wiim-now-playing/>
+
+## Examples
 
 ![Tidal High](./docs/assets/Screenshot%202025-11-14%20010202.png)  
 *Tidal Flac*
