@@ -105,6 +105,42 @@ sleep 3 & xsetroot -display :0 -def
 
 > A ```sudo reboot``` is required for the setting to take effect.
 
+## Reboot and Shutdown buttons not working
+
+If you find that the Reboot and Shutdown buttons under Settings > Server aren't working, please be aware of the following:
+
+* Reboot and Shutdown (and Update) are only enabled on a Raspberry Pi.  
+  More specifically, a system with ``/bin/bash`` available i.e. a Linux system.
+* These buttons will execute a ``sudo`` command in the Raspberry Pi shell.
+
+However, as of the latest Raspberry Pi OS, codename Trixie, one needs to enter their password everytime you execute a ``sudo`` command by default. And since we are executing the commands remotely, no password can be passed along. You **can** change this behaviour.
+
+1. Connect to the RPi through SSH.
+2. Start the raspi-config tool:
+
+   ```shell
+   sudo raspi-config
+   ```
+
+   *Obviously you will be asked for your password ;)*
+
+3. You'll be greeted by the Software Configuration Tool menu:  
+
+   ![Settings](../assets/raspi-config.png)  
+   *Use the arrow keys on your keyboard to navigate this menu*
+
+4. Enter **1 System Options**.  
+   Enter **S10 Admin Password**.
+
+   Answer the question 'Would you like the admin (sudo) password to be enabled?' with **&lt;No&gt;**
+
+5. Use **&lt;Finish&gt;** to close the tool.  
+   You're done.
+
+> [!NOTE]
+> You could exempt the ``reboot`` and ``shutdown`` commands specifically using ```sudo visudo```.  
+> Feel free to do some research.
+
 ## Set the screen brightness
 
 You may find that the screen brightness might be a bit high. Some screens offer extra buttons to increase/decrease the brightness. Obviously, if you added a screen or tv via HDMI, please refer to the screens menu options.

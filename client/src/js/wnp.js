@@ -11,9 +11,11 @@ WNP.s = {
     locPort: (location.port && location.port != "80" && location.port != "1234") ? location.port : "80",
     rndAlbumArtUri: "./img/fake-album-1.jpg",
     // Device selection
-    aDeviceUI: ["btnPrev", "btnPlay", "btnNext", "btnRefresh", "selDeviceChoices", "devName", "devNameHolder", "mediaTitle", "mediaSubTitle", "mediaArtist", "mediaAlbum", "mediaBitRate", "mediaBitDepth", "mediaSampleRate", "mediaQualityIdent", "devVol", "btnRepeat", "btnShuffle", "progressPlayed", "progressLeft", "progressPercent", "mediaSource", "albumArt", "bgAlbumArtBlur", "btnDevSelect", "oDeviceList", "btnDevPreset", "oPresetList", "btnDevVolume", "rVolume", "mediaLyrics", "lyricPrev", "lyricCurrent", "lyricNext", "lyricAfter"],
+    aDeviceUI: ["btnPrev", "btnPlay", "btnNext", "btnRefresh", "selDeviceChoices", "devName", "devNameHolder", "mediaTitle", "mediaSubTitle", "mediaArtist", "mediaAlbum", "mediaBitRate", "mediaBitDepth", "mediaSampleRate", "mediaQualityIdent", "devVol", "btnRepeat", "btnShuffle", "progressPlayed", "progressLeft", "progressPercent", "mediaSource", "albumArt", "bgAlbumArtBlur", "btnDevSelect", "oDeviceList", "btnDevPreset", "oPresetList", "btnDevVolume", "rVolume", "mediaLyrics", "lyricPrev", "lyricCurrent", "lyricNext", "lyricAfter", "alerts"],
     // Server actions to be used in the app
     aServerUI: ["btnReboot", "btnUpdate", "btnShutdown", "btnReloadUI", "sServerUrlHostname", "sServerUrlIP", "sServerVersion", "sClientVersion", "chkLyricsEnabled", "lyricsCacheSize", "btnClearLyricsCache", "lyricsOffsetMs"],
+    // Default timeout for alerts in ms
+    alertTimeoutMs: 5000
 };
 
 // Data placeholders.
@@ -27,7 +29,8 @@ WNP.d = {
     lyrics: [], // Parsed lyrics lines
     lyricsLastRelTime: null, // Last known RelTime, used for lyrics timing
     lyricsLastTimeStampDiffMs: null, // Last known timestamp difference in ms, used for lyrics timing
-    lyricsIndex: null // Current lyrics line index
+    lyricsIndex: null, // Current lyrics line index
+    alertTimeout: null // Alert timeout, used for storing the timeout for the alerts
 };
 
 // Reference placeholders.
@@ -171,16 +174,19 @@ WNP.setUIListeners = function () {
 
     // Reboot button
     this.r.btnReboot.addEventListener("click", function () {
+        WNP.showAlert("Reboot requested...", "warning");
         socket.emit("server-reboot");
     });
 
     // Update button
     this.r.btnUpdate.addEventListener("click", function () {
+        WNP.showAlert("Update requested...", "warning");
         socket.emit("server-update");
     });
 
     // Shutdown button
     this.r.btnShutdown.addEventListener("click", function () {
+        WNP.showAlert("Shutdown requested...", "danger");
         socket.emit("server-shutdown");
     });
 
@@ -230,6 +236,23 @@ WNP.setUIListeners = function () {
  */
 WNP.setSocketDefinitions = function () {
     console.log("WNP", "Setting Socket definitions...")
+
+    // On socket connect
+    socket.on("connect", function () {
+        console.log("WNP", "Socket connected");
+    });
+
+    // On socket disconnect
+    socket.on("disconnect", function () {
+        console.log("WNP", "Socket disconnected");
+        WNP.showAlert("Disconnected from server. Attempting to reconnect...", "warning");
+    });
+
+    // On socket connect error
+    socket.on("connect_error", (error) => {
+        console.log("WNP", "Socket connect error:", error.message);
+        WNP.showAlert("Unable to connect to server. <br />Please ensure the server is running and refresh the page.", "danger");
+    });
 
     // On server settings
     socket.on("server-settings", function (msg) {
@@ -688,6 +711,7 @@ WNP.setSocketDefinitions = function () {
     // On server reboot
     socket.on("server-reboot", function (msg) {
         // Possibly show a notification that reboot is in progress
+        WNP.showAlert("Reboot: " + msg, "warning");
         console.log("WNP", "Server reboot:", msg);
     });
 
@@ -695,11 +719,25 @@ WNP.setSocketDefinitions = function () {
     socket.on("server-update", function (msg) {
         // Possibly show a notification that update is in progress
         console.log("WNP", "Server update:", msg);
+        switch (msg.status) {
+            case "updating":
+                WNP.showAlert("Updating...", "warning");
+                break;
+            case "ok":
+                WNP.showAlert("Update successful! Please reboot server.", "success");
+                break;
+            case "error":
+                WNP.showAlert("Update failed: " + (msg.npm.cmd || msg.git || "Unknown error"), "danger", 10000);
+                break;
+            default:
+                WNP.showAlert("Update status: " + msg.status, "info");
+        }
     });
 
     // On server shutdown
     socket.on("server-shutdown", function (msg) {
         // Possibly show a notification that shutdown is in progress
+        WNP.showAlert("Shutdown: " + msg, "warning");
         console.log("WNP", "Server shutdown:", msg);
     });
 
@@ -1211,6 +1249,45 @@ WNP.getQualityIdent = function (songQuality, songActualQuality, songBitrate, son
     };
 
     return sIdent;
+
+};
+
+/**
+ * Show a Bootstrap alert with the given message and type. The alert will automatically disappear after a few seconds.
+ * Only one alert will be shown at a time, if a new alert is shown while another one is still visible, the previous one will be removed immediately.
+ * @param {*} sMessage - The message to show in the alert
+ * @param {*} sType - The Bootstrap alert type (primary, secondary, success, danger, warning, info, light, dark)
+ */
+WNP.showAlert = function (sMessage, sType) {
+
+    // Clear existing alert and timeout, if any
+    if (this.d.alertTimeout) {
+        clearTimeout(this.d.alertTimeout);
+        this.d.alertTimeout = null;
+    }
+
+    // Close existing alert, if any
+    const currentAlert = this.r.alerts.querySelector('.alert');
+    if (currentAlert) {
+        const bsAlert = bootstrap.Alert.getOrCreateInstance(currentAlert);
+        bsAlert.close();
+    }
+
+    // Construct new alert element
+    const alertDiv = document.createElement("div");
+    alertDiv.classList = "alert alert-" + sType + " alert-dismissible fade show";
+    alertDiv.setAttribute("role", "alert");
+    alertDiv.innerHTML = sMessage + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>';
+
+    // Add alert to the container
+    this.r.alerts.replaceChildren(alertDiv);
+
+    // Set timeout to remove alert after a few seconds
+    this.d.alertTimeout = setTimeout(() => {
+        const bsAlert = bootstrap.Alert.getOrCreateInstance(alertDiv);
+        bsAlert.close();
+        this.d.alertTimeout = null;
+    }, this.s.alertTimeoutMs);
 
 };
 

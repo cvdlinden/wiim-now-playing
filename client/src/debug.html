@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
-    <title>Wiim Now Playing (DEBUG)</title>
+    <title>WiiM Now Playing (DEBUG)</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 
     <link rel="apple-touch-icon" sizes="180x180" href="./favicon/apple-touch-icon.png">
@@ -140,7 +140,8 @@
                 </ul>
             </div>
             <label class="form-label" for="lyricsCacheSize">Lyrics cache
-                <span id="tickLyricsCacheGetDown" class="tick tickDown"><i class="bi bi-arrow-down-circle-fill"></i></span>
+                <span id="tickLyricsCacheGetDown" class="tick tickDown"><i
+                        class="bi bi-arrow-down-circle-fill"></i></span>
             </label>
             <div class="btn-toolbar justify-content-between mb-3">
                 <div class="input-group" aria-label="Cache size">
@@ -211,6 +212,12 @@
             </div>
         </div>
 
+    </div>
+
+    <!-- Alerts container -->
+    <div id="alerts" class="position-fixed top-0 start-50 translate-middle-x w-100 p-3"
+        style="max-width: 600px; z-index: 1060;">
+        <!-- Alerts will be added here dynamically -->
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"

@@ -22,6 +22,7 @@ const reboot = (io) => {
     exec("/usr/bin/sudo systemctl reboot", function (err, stdout, stderr) {
         if (err) {
             log("Error", err);
+            io.emit("server-reboot", stderr);
         }
         else {
             io.emit("server-reboot", "Rebooting...");
@@ -40,6 +41,7 @@ const shutdown = (io) => {
     exec("/usr/bin/sudo systemctl poweroff", function (err, stdout, stderr) {
         if (err) {
             log("Error", err);
+            io.emit("server-shutdown", stderr);
         }
         else {
             io.emit("server-shutdown", "Shutting down...");
