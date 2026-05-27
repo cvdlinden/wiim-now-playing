@@ -35,12 +35,12 @@ describe('shell.js', () => {
             expect(io.emit).toHaveBeenCalledWith('server-reboot', 'Rebooting...');
         });
 
-        it('should not emit if exec returns an error', () => {
-            childProcess.exec.mockImplementation((cmd, cb) => cb(new Error('Permission denied'), '', ''));
+        it('should emit server-reboot with error message if exec returns an error', () => {
+            childProcess.exec.mockImplementation((cmd, cb) => cb(new Error('error'), '', 'error'));
 
             shell.reboot(io);
 
-            expect(io.emit).not.toHaveBeenCalled();
+            expect(io.emit).toHaveBeenCalledWith('server-reboot', 'error');
         });
     });
 
@@ -57,12 +57,12 @@ describe('shell.js', () => {
             expect(io.emit).toHaveBeenCalledWith('server-shutdown', 'Shutting down...');
         });
 
-        it('should not emit if exec returns an error', () => {
-            childProcess.exec.mockImplementation((cmd, cb) => cb(new Error('Permission denied'), '', ''));
+        it('should emit server-shutdown with error message if exec returns an error', () => {
+            childProcess.exec.mockImplementation((cmd, cb) => cb(new Error('error'), '', 'error'));
 
             shell.shutdown(io);
 
-            expect(io.emit).not.toHaveBeenCalled();
+            expect(io.emit).toHaveBeenCalledWith('server-shutdown', 'error');
         });
     });
 
