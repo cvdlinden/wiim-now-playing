@@ -659,7 +659,7 @@ WNP.setSocketDefinitions = function () {
                 WNP.showAlert("Updating...", "warning");
                 break;
             case "ok":
-                WNP.showAlert("Update successful! Please reboot", "success");
+                WNP.showAlert("Update successful! Please reboot server.", "success");
                 break;
             case "error":
                 WNP.showAlert("Update failed: " + (msg.npm.cmd || msg.git || "Unknown error"), "danger", 10000);
