@@ -11,10 +11,15 @@ Which type of Raspberry Pi should I use? [See the Raspberry Pi requirements.](re
 
 First, make sure that your touchscreen works properly i.e. you have an image output and the touch input works.
 
-1. Connect you Raspberry Pi to the touchscreen by following the instructions of the manufacturer.
+1. Connect your Raspberry Pi to the touchscreen by following the instructions of the manufacturer.
+
 2. Grab a copy of [Raspberry Pi OS](https://www.raspberrypi.com/software/), with the desktop, to check whether your RPi works with the screen attached. Use the [Raspberry Pi Imager](https://www.raspberrypi.com/software/) to download and write the OS to an SD card and insert the card into you RPi.
+
 3. If the screen displays the Raspberry Pi OS Desktop, you are good to go.  
+
    If it doesn't display a desktop, please follow the manufacturers manual in order to activate the screen. You may need additional drivers for screen output.  
+   Or maybe check the (ribbon) cables whether everything is seated properly and in the right slot? Is the screen provided with ample power?  
+
    Please take note of the instructions to enable the display as you will need them again later.
 
 ## 2. Prepare an SD card with Raspberry Pi OS Lite
