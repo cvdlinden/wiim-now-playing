@@ -137,6 +137,7 @@ export default withMermaid(
           collapsed: true,
           items: [
             { text: 'Overview', link: '/about/' },
+            { text: 'Community & Inspiration', link: '/about/community' },
             { text: 'Releases', link: 'https://github.com/cvdlinden/wiim-now-playing/releases' },
             { text: 'Outstanding issues', link: 'https://github.com/cvdlinden/wiim-now-playing/issues' },
             { text: "Outstanding PRs", link: 'https://github.com/cvdlinden/wiim-now-playing/pulls' },
