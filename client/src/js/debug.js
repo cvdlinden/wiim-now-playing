@@ -256,6 +256,23 @@ WNP.setUIListeners = function () {
 WNP.setSocketDefinitions = function () {
     console.log("WNP", "Setting Socket definitions...")
 
+    // On socket connect
+    socket.on("connect", function () {
+        console.log("WNP", "Socket connected");
+    });
+
+    // On socket disconnect
+    socket.on("disconnect", function () {
+        console.log("WNP", "Socket disconnected");
+        WNP.showAlert("Disconnected from server. Attempting to reconnect...", "danger");
+    });
+
+    // On socket connect error
+    socket.on("connect_error", (error) => {
+        console.log("WNP", "Socket connect error:", error.message);
+        WNP.showAlert("Unable to connect to server. <br />Please ensure the server is running and refresh the page.", "danger");
+    });
+
     // On server settings
     socket.on("server-settings", function (msg) {
         console.log("IO: server-settings", msg);
@@ -650,7 +667,6 @@ WNP.setSocketDefinitions = function () {
             default:
                 WNP.showAlert("Update status: " + msg.status, "info");
         }
-        // WNP.showAlert("Update: " + msg.status, "success");
     });
 
     // On server shutdown
