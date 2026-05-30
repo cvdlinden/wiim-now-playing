@@ -33,11 +33,14 @@ Now that the Raspberry Pi is running it is a good idea to do an update of all th
    ```shell
    sudo apt-get install -y curl
    curl -fsSL https://deb.nodesource.com/setup_24.x | sudo -E bash -
-   sudo apt-get install -y nsolid
-   nsolid -v
+   sudo apt-get install -y nodejs
+   node -v
    ```
 
    *This will configure and install Node.js automatically on the device*
+
+   > [!TIP]
+   > The same commands can be used to update to the v24.x version of nodejs, if you have an older version installed.
 
 3. After the installation is done you can check whether the correct version of node and npm are installed. Running:  
    ``node -v`` should say version 24-something.  
