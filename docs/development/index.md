@@ -31,3 +31,15 @@ The debug page will tell you what the WiiM Now Playing app currently knows about
 ## IDE
 
 For development I recommend [Visual Studio Code](https://code.visualstudio.com/). But any other devtool you prefer will suffice.
+
+## Developer tools
+
+The WiiM Now Playing app uses either UPnP/SOAP or the HTTPAPI to communicate to the WiiM devices.
+
+There are separate projects available to debug this communication:
+
+* [UPnP Explorer](https://github.com/cvdlinden/upnp-explorer)  
+  A generic UPnP Explorer to discover your local devices and probe the services they offer.
+* [WiiM HTTPAPI](https://github.com/cvdlinden/wiim-httpapi)  
+  An interactive documentation attempt to explore the WiiM/LinkPlay HTTP API.  
+  Also see the documentation at GitHub Pages: [WiiM HTTP API Docs](https://cvdlinden.github.io/wiim-httpapi/)
