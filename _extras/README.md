@@ -1,5 +1,12 @@
 # Extras
 
+## Also see
+
+* [A Node implementation of a UPnP Explorer (using SSDP to discover your devices on your network)](https://github.com/cvdlinden/upnp-explorer)
+* [Exploring the HTTP API for WiiM products](https://github.com/cvdlinden/wiim-httpapi)
+
+---
+
 This folder contains some extras. Not required for the server or client.
 
 Before executing the scripts you need to do an ``npm install`` in this folder!

@@ -1,6 +1,6 @@
 {
   "name": "wiim-now-playing",
-  "version": "1.9.8",
+  "version": "1.9.9",
   "description": "Show what the Wiim device is currently playing on a separate screen.",
   "main": "server/index.js",
   "scripts": {
@@ -27,7 +27,7 @@
   },
   "devDependencies": {
     "jest": "^30.4.2",
-    "mermaid": "^11.15.0",
+    "mermaid": "^11.16.0",
     "nodemon": "^3.1.14",
     "vitepress": "^1.6.4",
     "vitepress-plugin-mermaid": "^2.0.17",
