@@ -468,7 +468,7 @@ WNP.setSocketDefinitions = function () {
         // Song Title, Subtitle, Artist, Album
         WNP.r.mediaTitle.innerText = (msg.trackMetaData && msg.trackMetaData["dc:title"]) ? msg.trackMetaData["dc:title"] : "";
         WNP.r.mediaSubTitle.innerText = (msg.trackMetaData && msg.trackMetaData["dc:subtitle"]) ? msg.trackMetaData["dc:subtitle"] : "";
-        WNP.r.mediaArtist.innerText = (msg.trackMetaData && msg.trackMetaData["upnp:artist"]) ? msg.trackMetaData["upnp:artist"] : "";
+        WNP.r.mediaArtist.innerText = (msg.trackMetaData && msg.trackMetaData["upnp:artist"]) ? (Array.isArray(msg.trackMetaData["upnp:artist"]) ? msg.trackMetaData["upnp:artist"][0] : msg.trackMetaData["upnp:artist"]) : "";
         WNP.r.mediaAlbum.innerText = (msg.trackMetaData && msg.trackMetaData["upnp:album"]) ? msg.trackMetaData["upnp:album"] : "";
 
         // Audio quality
@@ -491,7 +491,7 @@ WNP.setSocketDefinitions = function () {
         }
 
         // Pre-process Album Art uri, if any is available from the metadata.
-        var albumArtUriRaw = (msg.trackMetaData && msg.trackMetaData["upnp:albumArtURI"]) ? msg.trackMetaData["upnp:albumArtURI"] : "";
+        var albumArtUriRaw = (msg.trackMetaData && msg.trackMetaData["upnp:albumArtURI"]) ? (Array.isArray(msg.trackMetaData["upnp:albumArtURI"]) ? msg.trackMetaData["upnp:albumArtURI"][0] : msg.trackMetaData["upnp:albumArtURI"]) : "";
         var albumArtUri = WNP.checkAlbumArtURI(albumArtUriRaw, msg.metadataTimeStamp);
 
         // Set Album Art, only if the track changed and the URI changed

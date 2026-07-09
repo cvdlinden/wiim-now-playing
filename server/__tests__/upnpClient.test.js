@@ -418,6 +418,187 @@ describe('upnpClient.js', () => {
             expect(deviceInfo.client).toBeDefined();
             expect(deviceInfo.metadata).toBeNull();
         });
+
+        // Additional tests for XML parsing and DIDL-Lite validation
+        describe('XML Parsing & DIDL-Lite validation', () => {
+            let actualXml2js;
+
+            beforeEach(() => {
+                actualXml2js = jest.requireActual('xml2js');
+                xml2js.parseString.mockImplementation(actualXml2js.parseString);
+                serverSettings.selectedDevice.actions = ['GetPositionInfo'];
+            });
+
+            it('should correctly parse valid WiiM XML with namespace prefixes', (done) => {
+                const realWiiMXml = `<?xml version="1.0"?>
+                    <DIDL-Lite xmlns="urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/" xmlns:dc="http://purl.org" xmlns:upnp="urn:schemas-upnp-org:metadata-1-0/upnp/">
+                        <item id="F1038" parentID="0" restricted="1">
+                            <dc:title>Intro</dc:title>
+                            <upnp:artist>Inn Echo</upnp:artist>
+                            <upnp:album>Hemispheres</upnp:album>
+                        </item>
+                    </DIDL-Lite>`;
+
+                deviceInfo.client.callAction.mockImplementation((service, action, options, cb) => {
+                    cb(null, { TrackMetaData: realWiiMXml, RelTime: '00:01:03' });
+                });
+
+                upnpClient.updateDeviceMetadata(io, deviceInfo, serverSettings);
+
+                setTimeout(() => {
+                    try {
+                        expect(io.emit).toHaveBeenCalledWith('metadata', expect.objectContaining({
+                            trackMetaData: expect.objectContaining({
+                                'dc:title': 'Intro',      // Matcht nu met de werkelijkheid
+                                'upnp:artist': 'Inn Echo',
+                                'upnp:album': 'Hemispheres'
+                            })
+                        }));
+                        done();
+                    } catch (error) {
+                        done(error); // Voorkomt de 5000ms timeout bij een fout!
+                    }
+                }, 20);
+            });
+
+            it('should handle faulty or malformed XML gracefully', (done) => {
+                const malformedXml = `<?xml version="1.0"?><DIDL-Lite><item><dc:title>Broken Track</dc:title></DIDL-Lite>`;
+
+                deviceInfo.client.callAction.mockImplementation((service, action, options, cb) => {
+                    cb(null, { TrackMetaData: malformedXml, RelTime: '00:00:00' });
+                });
+
+                upnpClient.updateDeviceMetadata(io, deviceInfo, serverSettings);
+
+                setTimeout(() => {
+                    try {
+                        expect(io.emit).not.toHaveBeenCalled();
+                        done();
+                    } catch (error) {
+                        done(error);
+                    }
+                }, 20);
+            });
+
+            it('should handle missing DIDL-Lite tags safely', (done) => {
+                const emptyXml = `<?xml version="1.0"?><WrongTag><element>No Metadata Here</element></WrongTag>`;
+
+                deviceInfo.client.callAction.mockImplementation((service, action, options, cb) => {
+                    cb(null, { TrackMetaData: emptyXml, RelTime: '00:00:00' });
+                });
+
+                upnpClient.updateDeviceMetadata(io, deviceInfo, serverSettings);
+
+                setTimeout(() => {
+                    try {
+                        // De code crasht niet meer, maar stuurt nu netjes 'null' door
+                        expect(io.emit).toHaveBeenCalledWith('metadata', expect.objectContaining({
+                            trackMetaData: null,
+                            RelTime: '00:00:00'
+                        }));
+                        done();
+                    } catch (error) {
+                        done(error);
+                    }
+                }, 20);
+            });
+
+            it('should handle multiple artist tags as an array', (done) => {
+                const multiArtistXml = `<?xml version="1.0"?>
+                <DIDL-Lite xmlns:dc="http://purl.org" xmlns:upnp="urn:schemas-upnp-org:metadata-1-0/upnp/">
+                    <item id="F1038">
+                        <dc:title>Intro</dc:title>
+                        <upnp:artist>Inn Echo</upnp:artist>
+                        <upnp:artist role="Performer">Inn Echo 2</upnp:artist>
+                        <upnp:artist role="AlbumArtist">Inn Echo 3</upnp:artist>
+                    </item>
+                </DIDL-Lite>`;
+
+                deviceInfo.client.callAction.mockImplementation((service, action, options, cb) => {
+                    cb(null, { TrackMetaData: multiArtistXml, RelTime: '00:01:03' });
+                });
+
+                upnpClient.updateDeviceMetadata(io, deviceInfo, serverSettings);
+
+                setTimeout(() => {
+                    try {
+                        // Check of xml2js er inderdaad een array van maakt bij duplicaten
+                        expect(io.emit).toHaveBeenCalledWith('metadata', expect.objectContaining({
+                            trackMetaData: expect.objectContaining({
+                                'upnp:artist': ['Inn Echo', 'Inn Echo 2', 'Inn Echo 3'] // Verwacht een array van artiesten
+                            })
+                        }));
+                        done();
+                    } catch (error) {
+                        done(error);
+                    }
+                }, 20);
+            });
+
+            it('should handle multiple album art tags as an array', (done) => {
+                const wiimSpecificXml = `<?xml version="1.0"?>
+                    <DIDL-Lite xmlns:dc="http://purl.org" xmlns:upnp="urn:schemas-upnp-org:metadata-1-0/upnp/" xmlns:song="://linkplay.com">
+                        <item id="F1038">
+                            <dc:title>Intro</dc:title>
+                            <upnp:albumArtURI dlna:profileID="JPEG_LRG">http://192.168.0.123:1234/large/art.jpg</upnp:albumArtURI>
+                            <upnp:albumArtURI dlna:profileID="JPEG_MED">http://192.168.0.123:1234/medium/art.jpg</upnp:albumArtURI>
+                            <upnp:albumArtURI dlna:profileID="JPEG_SM">http://192.168.0.123:1234/small/art.jpg</upnp:albumArtURI>
+                            <upnp:albumArtURI dlna:profileID="JPEG_TN">http://192.168.0.123:1234/thumbnail/art.jpg</upnp:albumArtURI>
+                        </item>
+                    </DIDL-Lite>`;
+
+                deviceInfo.client.callAction.mockImplementation((service, action, options, cb) => {
+                    cb(null, { TrackMetaData: wiimSpecificXml, RelTime: '00:01:03' });
+                });
+
+                upnpClient.updateDeviceMetadata(io, deviceInfo, serverSettings);
+
+                setTimeout(() => {
+                    try {
+                        // Controleren of de custom tags correct overkomen
+                        expect(io.emit).toHaveBeenCalledWith('metadata', expect.objectContaining({
+                            trackMetaData: expect.objectContaining({
+                                'upnp:albumArtURI': ["http://192.168.0.123:1234/large/art.jpg", "http://192.168.0.123:1234/medium/art.jpg", "http://192.168.0.123:1234/small/art.jpg", "http://192.168.0.123:1234/thumbnail/art.jpg"]
+                            })
+                        }));
+                        done();
+                    } catch (error) {
+                        done(error);
+                    }
+                }, 20);
+            });
+
+            it('should correctly decode HTML entities in track titles', (done) => {
+                const htmlEntitiesXml = `<?xml version="1.0"?>
+                    <DIDL-Lite xmlns:dc="http://purl.org">
+                        <item id="F1038">
+                            <dc:title>An Triskele &amp; More &quot;Live&quot;</dc:title>
+                        </item>
+                    </DIDL-Lite>`;
+
+                deviceInfo.client.callAction.mockImplementation((service, action, options, cb) => {
+                    cb(null, { TrackMetaData: htmlEntitiesXml, RelTime: '00:01:03' });
+                });
+
+                upnpClient.updateDeviceMetadata(io, deviceInfo, serverSettings);
+
+                setTimeout(() => {
+                    try {
+                        // Check of xml2js de HTML-entities (&amp; en &quot;) netjes heeft omgezet naar tekst
+                        expect(io.emit).toHaveBeenCalledWith('metadata', expect.objectContaining({
+                            trackMetaData: expect.objectContaining({
+                                'dc:title': 'An Triskele & More "Live"'
+                            })
+                        }));
+                        done();
+                    } catch (error) {
+                        done(error);
+                    }
+                }, 20);
+            });
+
+        });
+
     });
 
     describe('callDeviceAction', () => {

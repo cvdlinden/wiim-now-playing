@@ -193,7 +193,7 @@ const updateDeviceMetadata = (io, deviceInfo, serverSettings) => {
                                          */
 
                                         deviceInfo.metadata = {
-                                            trackMetaData: (metadataJson["DIDL-Lite"] && metadataJson["DIDL-Lite"]["item"]) ? metadataJson["DIDL-Lite"]["item"] : null,
+                                            trackMetaData: (metadataJson && metadataJson["DIDL-Lite"] && metadataJson["DIDL-Lite"]["item"]) ? metadataJson["DIDL-Lite"]["item"] : null,
                                             ...result,
                                             metadataTimeStamp: lib.getTimeStamp()
                                         };;
@@ -240,7 +240,7 @@ const updateDeviceMetadata = (io, deviceInfo, serverSettings) => {
                                     }
                                     else {
                                         deviceInfo.metadata = {
-                                            trackMetaData: metadataJson["DIDL-Lite"]["item"],
+                                            trackMetaData: (metadataJson && metadataJson["DIDL-Lite"] && metadataJson["DIDL-Lite"]["item"]) ? metadataJson["DIDL-Lite"]["item"] : null,
                                             ...result,
                                             metadataTimeStamp: lib.getTimeStamp()
                                         };
