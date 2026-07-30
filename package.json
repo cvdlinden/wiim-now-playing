@@ -1,6 +1,6 @@
 {
   "name": "wiim-now-playing",
-  "version": "1.9.10",
+  "version": "1.9.11",
   "description": "Show what the Wiim device is currently playing on a separate screen.",
   "main": "server/index.js",
   "scripts": {
@@ -18,7 +18,7 @@
   "dependencies": {
     "debug": "^4.4.3",
     "express": "^5.2.1",
-    "express-rate-limit": "^8.5.2",
+    "express-rate-limit": "^8.6.1",
     "node-ssdp": "^4.0.1",
     "socket.io": "^4.8.3",
     "unstorage": "^1.17.5",
@@ -31,7 +31,12 @@
     "nodemon": "^3.1.14",
     "vitepress": "^1.6.4",
     "vitepress-plugin-mermaid": "^2.0.17",
-    "vitepress-plugin-tabs": "^0.9.0"
+    "vitepress-plugin-tabs": "^0.9.1"
+  },
+  "overrides": {
+    "vite": "^6.4.3",
+    "dompurify": "^3.4.12",
+    "esbuild": "^0.25.0"
   },
   "nodemonConfig": {
     "ignore": [
