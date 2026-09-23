@@ -134,7 +134,6 @@ describe("Lyrics Module", () => {
         });
     });
 
-
     describe("Lyrics Module - Integration Test", () => {
         let mockIo, mockDeviceInfo, mockServerSettings;
 
@@ -320,4 +319,77 @@ describe("Lyrics Module", () => {
             expect(mockIo.emit.mock.calls.length).toBe(firstCallCount);
         });
     });
+
+    // normalizeText.test.js
+    // const normalizeText = lyrics.normalizeText(); // Pas het pad aan naar jouw bestand
+
+    describe('normalizeText() - Type Guards & Crashes', () => {
+
+        test('moet correct omgaan met null, undefined of lege waarden', () => {
+            expect(lyrics._normalizeText(null)).toBe("");
+            expect(lyrics._normalizeText(undefined)).toBe("");
+            expect(lyrics._normalizeText("")).toBe("");
+        });
+
+        test('moet crashende getallen (Numbers) veilig omzetten naar strings', () => {
+            // Test voor albums zoals Adele's '21' of rappers als '65'
+            expect(lyrics._normalizeText(21)).toBe("21");
+            expect(lyrics._normalizeText(1975)).toBe("1975");
+        });
+
+        test('moet arrays (DLNA / Multi-artist) veilig samenvoegen tot een string', () => {
+            // Test de Copilot .join(" ") logica
+            const artistsArray = ["Drake", "Future"];
+            expect(lyrics._normalizeText(artistsArray)).toBe("drake future");
+        });
+
+        test('moet arrays met rare tekens correct samenvoegen en opschonen', () => {
+            const messyArray = ["AC/DC", "Beyoncé (Official)"];
+            expect(lyrics._normalizeText(messyArray)).toBe("ac dc beyonc");
+        });
+    });
+
+    describe('normalizeText() - String Cleaning & Regex', () => {
+
+        test('moet tekst tussen haakjes en rechte haken strippen', () => {
+            expect(lyrics._normalizeText("God's Plan (Official Audio) [Explicit]")).toBe("god s plan");
+        });
+
+        test('moet ampersands omzetten naar "and"', () => {
+            expect(lyrics._normalizeText("Earth, Wind & Fire")).toBe("earth wind and fire");
+        });
+
+        test('moet feat. en ft. correct verwijderen', () => {
+            expect(lyrics._normalizeText("Scream feat. Janet Jackson")).toBe("scream janet jackson");
+            expect(lyrics._normalizeText("Scream ft. Janet Jackson")).toBe("scream janet jackson");
+        });
+
+        test('moet overtollige spaties netjes reduceren tot één spatie', () => {
+            expect(lyrics._normalizeText("   Drake    Future   ")).toBe("drake future");
+        });
+    });
+
+    describe('normalizeAlbum()', () => {
+
+        test('moet deluxe, remaster en andere marketingtermen strippen', () => {
+            expect(lyrics._normalizeAlbum("Random Album (Deluxe Edition)")).toBe("random album");
+            expect(lyrics._normalizeAlbum("Thriller (25th Anniversary Edition)")).toBe("thriller");
+            expect(lyrics._normalizeAlbum("Abbey Road [Remastered 2009]")).toBe("abbey road");
+        });
+
+        test('moet EP, LP en Volume aanduidingen opschonen', () => {
+            expect(lyrics._normalizeAlbum("Discovery EP")).toBe("discovery");
+            expect(lyrics._normalizeAlbum("All Hits Vol 1")).toBe("all hits");
+        });
+
+        test('moet dankzij normalizeText ook veilig omgaan met getallen/arrays', () => {
+            // Stel het album heet puur een getal (Adele's 21)
+            expect(lyrics._normalizeAlbum(21)).toBe("21");
+
+            // Stel de DLNA-server stuurt om een of andere reden een array voor het album
+            expect(lyrics._normalizeAlbum(["Greatest Hits", "Deluxe"])).toBe("greatest hits");
+        });
+    });
+
+
 });

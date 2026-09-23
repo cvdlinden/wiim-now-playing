@@ -314,10 +314,18 @@ const buildTrackKey = (signature) => {
  * @returns {string}
  */
 const normalizeText = (value) => {
-    // log("normalizeText()")
+    // log("normalizeText()", value);
+    // Type guard for null, undefined, number and array
     if (!value) {
         return "";
     }
+    if (Array.isArray(value)) {
+        value = value.join(" ");
+    }
+    if (typeof value !== "string") {
+        value = String(value);
+    }
+
     return value
         .toLowerCase()
         .replace(/\([^)]*\)/g, " ")
@@ -339,7 +347,8 @@ const normalizeText = (value) => {
 const normalizeAlbum = (value) => {
     // log("normalizeAlbum()")
     return normalizeText(value)
-        .replace(/\b(deluxe|edition|remaster(ed)?|expanded|bonus|anniversary|live|acoustic|mono|stereo|version)\b/g, "")
+        .replace(/\b(deluxe|edition|remaster(ed)?|expanded|bonus|anniversary|live|acoustic|mono|stereo|version|ep|lp|box\s?set|collector(s)?)\b/g, "")
+        .replace(/\bvol(ume)?\s?\d+\b/g, "")
         .replace(/\s+/g, " ")
         .trim();
 };
@@ -401,5 +410,7 @@ const getUserAgent = (serverSettings) => {
 
 module.exports = {
     getLyricsForMetadata,
-    getLyricsCacheStats
+    getLyricsCacheStats,
+    _normalizeText: normalizeText,
+    _normalizeAlbum: normalizeAlbum
 };
