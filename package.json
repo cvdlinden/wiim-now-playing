@@ -18,7 +18,7 @@
   "dependencies": {
     "debug": "^4.4.3",
     "express": "^5.2.1",
-    "express-rate-limit": "^8.6.2",
+    "express-rate-limit": "^8.7.0",
     "node-ssdp": "^4.0.1",
     "socket.io": "^4.8.3",
     "unstorage": "^1.17.5",
@@ -26,8 +26,8 @@
     "xml2js": "^0.6.2"
   },
   "devDependencies": {
-    "jest": "^30.4.2",
-    "mermaid": "^11.16.1",
+    "jest": "^30.5.2",
+    "mermaid": "^11.17.2",
     "nodemon": "^3.1.14",
     "vitepress": "^1.6.4",
     "vitepress-plugin-mermaid": "^2.0.17",
