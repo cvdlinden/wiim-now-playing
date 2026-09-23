@@ -320,9 +320,6 @@ describe("Lyrics Module", () => {
         });
     });
 
-    // normalizeText.test.js
-    // const normalizeText = lyrics.normalizeText(); // Pas het pad aan naar jouw bestand
-
     describe('normalizeText() - Type Guards & Crashes', () => {
 
         test('moet correct omgaan met null, undefined of lege waarden', () => {
