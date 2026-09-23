@@ -12,6 +12,7 @@ const app = express();
 // Node.js modules
 const http = require("http");
 const https = require("https");
+const crypto = require("crypto");
 const server = http.createServer(app);
 
 // Socket.io modules, with CORS
@@ -117,6 +118,22 @@ setTimeout(() => {
 // Set Express functionality
 // Use CORS
 app.use(cors());
+
+// Require an auth token for all requests (CWE-287: previously no authentication was enforced).
+// Set AUTH_TOKEN in the environment to a shared secret. If unset, a random one is generated
+// for this run and printed to the console so the app remains usable but not open to anyone.
+const AUTH_TOKEN = process.env.AUTH_TOKEN || crypto.randomBytes(24).toString("hex");
+if (!process.env.AUTH_TOKEN) {
+    console.warn("AUTH_TOKEN not set. Generated a temporary token for this session:", AUTH_TOKEN);
+}
+app.use((req, res, next) => {
+    const provided = Buffer.from(String(req.headers["x-auth-token"] || ""));
+    const expected = Buffer.from(AUTH_TOKEN);
+    if (provided.length !== expected.length || !crypto.timingSafeEqual(provided, expected)) {
+        return res.status(401).send("Unauthorized");
+    }
+    next();
+});
 
 // Set up rate limiter: maximum 1000 requests per 15 minutes per IP
 // As static file serving can be quite intensive we set a limit here
